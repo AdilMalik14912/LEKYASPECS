@@ -1,0 +1,397 @@
+const React = require('react');
+const { useState, useEffect } = React;
+const Link = require('next/link').default;
+const { useAuth } = require('./_app');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle } = require('lucide-react');
+
+export default function Account() {
+  const { user, token, login, logout } = useAuth();
+  
+  // Tab states for auth
+  const [isLoginTab, setIsLoginTab] = useState(true);
+
+  // Form input states
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [formError, setFormError] = useState('');
+  const [formLoading, setFormLoading] = useState(false);
+
+  // User Dashboard states
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  // Fetch Order History if logged in
+  useEffect(() => {
+    if (!token) return;
+    
+    setOrdersLoading(true);
+    fetch('http://localhost:5000/api/orders/history', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setOrders(data);
+        setOrdersLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching orders:', err);
+        setOrdersLoading(false);
+      });
+  }, [token]);
+
+  // Handle Login / Registration
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormLoading(true);
+
+    const endpoint = isLoginTab ? 'login' : 'register';
+    const payload = isLoginTab 
+      ? { email, password } 
+      : { name, email, password };
+
+    fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setFormLoading(false);
+        if (data.token) {
+          login(data.token, data.user);
+        } else {
+          setFormError(data.message || 'Authentication failed');
+        }
+      })
+      .catch(err => {
+        setFormLoading(false);
+        setFormError('Connection to server failed. Please try again.');
+      });
+  };
+
+  // --- RENDERING: Logged Out (Auth Screen) ---
+  if (!user) {
+    return (
+      <div className="bg-premium-light min-h-screen py-16 sm:py-24 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm">
+          
+          {/* Tab Selector */}
+          <div className="flex border-b border-premium-border mb-8">
+            <button
+              onClick={() => { setIsLoginTab(true); setFormError(''); }}
+              className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
+                isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setIsLoginTab(false); setFormError(''); }}
+              className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
+                !isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
+              }`}
+            >
+              Register
+            </button>
+          </div>
+
+          <h2 className="font-serif text-2xl font-bold text-premium-black text-center mb-6">
+            {isLoginTab ? 'Welcome Back to Lekya Specs' : 'Create Premium Account'}
+          </h2>
+
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            
+            {/* Name field (Register only) */}
+            {!isLoginTab && (
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email field */}
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+            </div>
+
+            {/* Password field */}
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Password</label>
+              <div className="relative">
+                <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+            </div>
+
+            {formError && (
+              <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+                {formError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="w-full bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-4 rounded transition-all flex items-center justify-center gap-2"
+            >
+              {formLoading ? 'Authenticating...' : isLoginTab ? 'Sign In' : 'Create Account'}
+            </button>
+
+          </form>
+
+          {/* Quick tester credentials */}
+          <div className="mt-8 pt-6 border-t border-premium-border text-center text-xs text-premium-gray leading-relaxed">
+            <span className="font-bold text-premium-accent block mb-1">Developer Testing Accounts:</span>
+            <span>Admin Dashboard: <strong>admin@specs.com</strong> / password: <strong>admin123</strong></span>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // --- RENDERING: Logged In (Dashboard) ---
+  return (
+    <div className="bg-premium-light min-h-screen py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Profile overview bar */}
+        <div className="bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-premium-accent/20 border-2 border-premium-accent flex items-center justify-center">
+              <User className="w-8 h-8 text-premium-accent" />
+            </div>
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-premium-black">{user.name}</h2>
+              <p className="text-sm text-premium-gray font-light mt-0.5">{user.email}</p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {user.email === 'admin@specs.com' && (
+              <Link href="/admin" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
+                Admin Panel
+              </Link>
+            )}
+            <button
+              onClick={logout}
+              className="border border-premium-border hover:border-red-600 hover:text-red-600 text-premium-dark font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all"
+            >
+              Log Out
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Dashboard Left side: Personalized suggestions & info */}
+          <div className="space-y-8">
+            
+            {/* AI Face Shape Suggestion Profile info */}
+            <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
+              <h3 className="font-serif text-lg font-bold text-premium-black border-b border-premium-border pb-4 mb-4">
+                My Face Shape Profile
+              </h3>
+              {user.face_shape ? (
+                <div>
+                  <div className="bg-premium-accent/15 border border-premium-accent/40 rounded p-4 text-center mb-4">
+                    <span className="block text-[10px] text-premium-gray uppercase font-bold tracking-wider">Detected Shape</span>
+                    <span className="text-2xl font-serif font-bold text-premium-golddark uppercase tracking-wide">
+                      {user.face_shape}
+                    </span>
+                  </div>
+                  <p className="text-xs text-premium-gray leading-relaxed mb-6 font-light">
+                    Based on your face scan, we recommend wearing frame shapes that contrast your natural dimensions for a perfectly balanced cosmetic profile.
+                  </p>
+                  <Link href={`/shop?face_shape=${user.face_shape}`} className="w-full bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3.5 rounded transition-all text-center flex items-center justify-center gap-1.5 shadow">
+                    View Recommended Frames
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <Landmark className="w-10 h-10 text-premium-accent mx-auto mb-2" />
+                  <p className="text-xs text-premium-gray leading-relaxed mb-4">
+                    You haven't scanned your face shape yet. Scan in seconds using your camera to get custom recommendations!
+                  </p>
+                  <Link href="/face-shape" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-bold uppercase tracking-wider text-[10px] px-6 py-3 rounded transition-all inline-block">
+                    Scan Face Now
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Premium service warranty card */}
+            <div className="bg-premium-black text-white border border-premium-accent/30 rounded p-6 shadow-sm">
+              <h3 className="font-serif text-lg font-bold text-premium-accent mb-2">Specs Warranty</h3>
+              <p className="text-xs text-gray-400 leading-relaxed font-light mb-4">
+                Every frame purchased includes a complimentary 1-year anti-scratch protection and free adjustment service at any partner boutique.
+              </p>
+              <div className="flex gap-4 text-xs font-semibold text-premium-accent">
+                <span>Free Tuning</span>
+                <span>•</span>
+                <span>Anti-UV Coat</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Dashboard Right side: Order History */}
+          <div className="lg:col-span-2 bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm">
+            <h3 className="font-serif text-xl font-bold text-premium-black border-b border-premium-border pb-4 mb-6 flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-premium-accent" /> Order History
+            </h3>
+
+            {ordersLoading ? (
+              <div className="text-center py-10">
+                <RefreshCw className="w-8 h-8 text-premium-accent mx-auto mb-2 animate-spin" />
+                <p className="text-sm text-premium-gray">Retrieving your orders...</p>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-10 bg-premium-light border border-premium-border rounded">
+                <p className="text-sm text-premium-gray mb-4">You haven't placed any orders yet.</p>
+                <Link href="/shop" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black text-xs uppercase tracking-widest px-4 py-2.5 rounded font-bold transition-all inline-block">
+                  Shop Catalog
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orders.map(order => (
+                  <div key={order.id} className="border border-premium-border rounded p-4 sm:p-6 bg-premium-light">
+                    
+                    {/* Header info */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-premium-border/60 pb-3 mb-4 gap-2 text-xs">
+                      <div>
+                        <span className="text-premium-gray font-medium">Order ID:</span>{' '}
+                        <strong className="text-premium-dark font-bold">#{order.id}</strong>
+                      </div>
+                      <div className="text-premium-gray flex items-center gap-4">
+                        <span>
+                          {new Date(order.created_at).toLocaleDateString('en-IN', {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                          })}
+                        </span>
+                        <span className={`font-bold px-2 py-0.5 rounded uppercase text-[10px] ${
+                          order.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
+                          order.status === 'Delivered' ? 'bg-gray-200 text-gray-700' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Order Progress Tracker Stepper */}
+                    {order.status !== 'Cancelled' ? (
+                      <div className="mb-5">
+                        <p className="text-[10px] uppercase tracking-wider text-premium-gray font-bold mb-3">Order Progress</p>
+                        <div className="flex items-center">
+                          {[
+                            { label: 'Ordered', icon: Package, statuses: ['Paid', 'Processing', 'Shipped', 'Delivered'] },
+                            { label: 'Processing', icon: RefreshCw, statuses: ['Processing', 'Shipped', 'Delivered'] },
+                            { label: 'Shipped', icon: Truck, statuses: ['Shipped', 'Delivered'] },
+                            { label: 'Delivered', icon: PackageCheck, statuses: ['Delivered'] },
+                          ].map((step, idx, arr) => {
+                            const isActive = step.statuses.includes(order.status);
+                            const StepIcon = step.icon;
+                            return (
+                              <React.Fragment key={step.label}>
+                                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                                    isActive
+                                      ? 'bg-premium-black text-premium-accent'
+                                      : 'bg-gray-100 text-gray-400'
+                                  }`}>
+                                    <StepIcon className="w-4 h-4" />
+                                  </div>
+                                  <span className={`text-[9px] font-bold uppercase tracking-wider ${
+                                    isActive ? 'text-premium-black' : 'text-gray-400'
+                                  }`}>{step.label}</span>
+                                </div>
+                                {idx < arr.length - 1 && (
+                                  <div className={`flex-grow h-0.5 mx-1 rounded transition-all ${
+                                    arr[idx + 1].statuses.includes(order.status)
+                                      ? 'bg-premium-black'
+                                      : 'bg-gray-200'
+                                  }`} />
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-5 flex items-center gap-2 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-red-600 font-semibold">
+                        <XCircle className="w-4 h-4" /> This order has been cancelled.
+                      </div>
+                    )}
+
+                    {/* Order items list */}
+                    <div className="space-y-3 mb-4">
+                      {order.items && order.items.map(item => (
+                        <div key={item.id} className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-3">
+                            {item.image && (
+                              <img src={item.image} alt={item.name} className="w-8 h-8 object-cover rounded border border-premium-border" />
+                            )}
+                            <div>
+                              <span className="font-semibold text-premium-black">{item.name}</span>
+                              <span className="text-xs text-premium-gray block sm:inline sm:ml-2">Qty: {item.quantity}</span>
+                            </div>
+                          </div>
+                          <span className="font-bold text-premium-dark">₹{parseFloat(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Footer values */}
+                    <div className="border-t border-premium-border/60 pt-3 flex justify-between items-center text-sm font-bold">
+                      <span className="text-premium-gray font-medium text-xs uppercase tracking-wider">Total Paid</span>
+                      <span className="text-premium-accent text-base">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</span>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}

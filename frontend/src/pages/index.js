@@ -1,0 +1,409 @@
+const React = require('react');
+const { useState, useEffect } = React;
+const Link = require('next/link').default;
+const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones } = require('lucide-react');
+
+export default function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterDone, setNewsletterDone] = useState(false);
+  const [settings, setSettings] = useState({
+    hero_title: 'Engineered for Style & Clarity',
+    hero_subtitle: 'Designed with hand-polished premium materials and engineered for visual clarity. We believe in high-fashion, high-function eyewear without the luxury markup.',
+    hero_image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1600&q=80',
+    trending_title: 'Trending Frames'
+  });
+
+  // Fetch featured products + store settings
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        setFeaturedProducts(data.slice(0, 4));
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching featured products:', err);
+        setLoading(false);
+      });
+
+    fetch('http://localhost:5000/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.hero_title) {
+          setSettings(data);
+        }
+      })
+      .catch(err => console.error('Error fetching store settings:', err));
+  }, []);
+
+  return (
+    <div className="bg-premium-light min-h-screen">
+      
+      {/* 1. Hero Section */}
+      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-premium-black">
+        {/* Background Image with Overlay */}
+        <div 
+          style={{ backgroundImage: `url('${settings.hero_image}')` }} 
+          className="absolute inset-0 opacity-50 bg-cover bg-center"
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-premium-black via-premium-black/80 to-transparent"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-left">
+          <div className="max-w-2xl animate-slide-up">
+            <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              AI-Powered Fitting Included
+            </div>
+            <h1 
+              className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-none mb-6"
+              dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
+            ></h1>
+            <p className="text-base sm:text-lg text-gray-300 mb-10 leading-relaxed font-light">
+              {settings.hero_subtitle}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/shop" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
+                Explore All Frames
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href="/face-shape" className="border border-white hover:bg-white hover:text-premium-black text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
+                Try Face Shape Analyzer
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Brand Value Pillars */}
+      <section className="bg-white border-y border-premium-border py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+            <div className="flex flex-col items-center p-4">
+              <Truck className="w-8 h-8 text-premium-accent mb-2" />
+              <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">Free Delivery & Returns</h3>
+              <p className="text-xs text-premium-gray">Free standard shipping on all orders in India</p>
+            </div>
+            <div className="flex flex-col items-center p-4 border-y sm:border-y-0 sm:border-x border-premium-border">
+              <ShieldCheck className="w-8 h-8 text-premium-accent mb-2" />
+              <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">1-Year Warranty</h3>
+              <p className="text-xs text-premium-gray">Premium anti-scratch coating guaranteed for 365 days</p>
+            </div>
+            <div className="flex flex-col items-center p-4">
+              <RefreshCw className="w-8 h-8 text-premium-accent mb-2" />
+              <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">14-Day Easy Exchange</h3>
+              <p className="text-xs text-premium-gray">No questions asked return and replacement policy</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Category Navigation Grid */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-12">
+          Shop by Collection
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Eyeglasses */}
+          <div className="relative group overflow-hidden rounded h-[350px] shadow-sm hover-zoom">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
+            <div className="absolute bottom-8 left-8 z-10">
+              <h3 className="text-2xl font-serif font-bold text-white mb-2">Eyeglasses</h3>
+              <p className="text-sm text-gray-300 mb-4">Anti-glare, blue-light blockers, and reading lenses</p>
+              <Link href="/shop?category=Eyeglasses" className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+                Shop Eyeglasses <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Sunglasses */}
+          <div className="relative group overflow-hidden rounded h-[350px] shadow-sm hover-zoom">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
+            <div className="absolute bottom-8 left-8 z-10">
+              <h3 className="text-2xl font-serif font-bold text-white mb-2">Sunglasses</h3>
+              <p className="text-sm text-gray-300 mb-4">100% UV polarized fashion shades</p>
+              <Link href="/shop?category=Sunglasses" className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+                Shop Sunglasses <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Small grids for Men/Women/Kids */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+          <Link href="/shop?gender=Men" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">MEN</span>
+            </div>
+          </Link>
+
+          <Link href="/shop?gender=Women" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">WOMEN</span>
+            </div>
+          </Link>
+
+          <Link href="/shop?gender=Kids" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">KIDS</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* 3.5 Five Premium Tools Section */}
+      <section className="bg-white border-y border-premium-border py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black mb-2">
+              Powerful Tools, Just For You
+            </h2>
+            <p className="text-sm text-premium-gray font-light">Everything you need to find the perfect pair — smarter, faster, better.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { href: '/face-shape', emoji: '🤳', title: 'Face Shape AI', desc: 'Scan your face and get personalized frame recommendations instantly', label: 'Analyze Now' },
+              { href: '/style-quiz', emoji: '✨', title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz' },
+              { href: '/compare', emoji: '⚖️', title: 'Compare Frames', desc: 'Side-by-side spec comparison of up to 3 frames', label: 'Compare Now' },
+              { href: '/lens-guide', emoji: '👁️', title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses' },
+              { href: '/lookbook', emoji: '📸', title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore Looks' },
+            ].map(({ href, emoji, title, desc, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group border border-premium-border rounded-lg p-5 text-center hover:border-premium-black hover:shadow-md transition-all bg-premium-light hover:bg-white"
+              >
+                <div className="text-4xl mb-3">{emoji}</div>
+                <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
+                <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-premium-accent group-hover:text-premium-black transition-colors">
+                  {label} <ArrowRight className="w-3 h-3" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. AI Widget Spotlight CTA */}
+      <section className="bg-premium-dark text-white py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="border border-premium-accent/30 rounded bg-black/40 p-8 sm:p-16 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-1.5 text-premium-accent font-semibold tracking-wider text-xs uppercase mb-4">
+                <Sparkles className="w-4 h-4" />
+                Next-Gen Face Shape Detection
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4">
+                Not sure which frames match your face?
+              </h2>
+              <p className="text-gray-300 leading-relaxed font-light mb-6">
+                Use your webcam to run our high-precision client-side face landmark analyzer. We process everything in your browser instantly—meaning complete privacy. We'll find whether you have an oval, round, heart, square, or diamond face and suggest the exact frame shapes that complement you.
+              </p>
+              <div className="flex items-center gap-6 text-sm text-gray-400">
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-premium-accent" /> 100% Private (No photos sent to server)</span>
+                <span className="flex items-center gap-1.5"><Star className="w-4 h-4 text-premium-accent fill-premium-accent" /> Highly Accurate</span>
+              </div>
+            </div>
+            <div>
+              <Link href="/face-shape" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-bold uppercase tracking-wider text-sm px-8 py-5 rounded transition-all inline-block shadow-lg">
+                Scan Your Face Shape Now
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Trending / Featured Frames Showcase */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-12">
+          <div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black tracking-tight mb-2">{settings.trending_title}</h2>
+            <p className="text-sm text-premium-gray font-light">The absolute favorites from our current catalog</p>
+          </div>
+          <Link href="/shop" className="text-sm uppercase tracking-wider text-premium-black hover:text-premium-accent font-semibold flex items-center gap-1 mt-4 sm:mt-0">
+            View All Catalog <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="animate-pulse bg-white border border-premium-border rounded p-4 h-[320px]">
+                <div className="bg-premium-light h-48 w-full rounded mb-4"></div>
+                <div className="h-4 bg-premium-light rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-premium-light rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {featuredProducts.map(product => (
+              <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+                <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                  <img 
+                    src={product.image_urls[0]} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover transition-all"
+                  />
+                  {product.stock === 0 && (
+                    <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
+                  )}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                  {product.gender} • {product.category}
+                </div>
+                <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                  {product.name}
+                </h3>
+                <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
+                  <Star className="w-3.5 h-3.5 fill-current" />
+                  <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
+                  <span className="text-gray-400">({product.review_count})</span>
+                </div>
+                <div className="font-semibold text-premium-black mt-auto text-lg">
+                  ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 6. Testimonials Section */}
+      <section className="bg-white py-16 sm:py-24 border-t border-premium-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-4">
+            Loved by Visionaries
+          </h2>
+          <p className="text-center text-premium-gray text-sm font-light max-w-md mx-auto mb-16">
+            Hear from our community who have upgraded their eyewear experience.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex text-premium-accent mb-4">
+                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </div>
+                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                  "I was skeptic about the face-shape tool but it suggested Square frames for my round face. I ordered the Classic Onyx and it looks unbelievably sharp! The lens quality is superior to my previous designer spectacles."
+                </p>
+              </div>
+              <div className="border-t border-premium-border pt-4">
+                <p className="font-bold text-sm text-premium-black">Amit Sharma</p>
+                <p className="text-xs text-premium-gray">Mumbai, India</p>
+              </div>
+            </div>
+
+            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex text-premium-accent mb-4">
+                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </div>
+                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                  "Absolutely love the minimal gold aviator shades! The polarization is excellent for driving in bright sun. Delivery took just 2 days. The box packaging feels extremely luxurious like a premium design brand."
+                </p>
+              </div>
+              <div className="border-t border-premium-border pt-4">
+                <p className="font-bold text-sm text-premium-black">Priya Patel</p>
+                <p className="text-xs text-premium-gray">Bangalore, India</p>
+              </div>
+            </div>
+
+            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex text-premium-accent mb-4">
+                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </div>
+                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                  "The Blue-light blockers for my daughter are indestructible. She drops them constantly, but the flexible silicon frames survive everything. Extremely happy with Lekya Specs service!"
+                </p>
+              </div>
+              <div className="border-t border-premium-border pt-4">
+                <p className="font-bold text-sm text-premium-black">Dr. Rajesh Kumar</p>
+                <p className="text-xs text-premium-gray">New Delhi, India</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Why Choose Us Trust Badges */}
+      <section className="bg-premium-black py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white text-center mb-12">
+            Why <span className="text-premium-accent">Lekya Specs</span>?
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: Gem, title: 'Premium Materials', desc: 'Handcrafted acetate & titanium frames tested for durability' },
+              { icon: Award, title: 'AI-Fit Technology', desc: 'Our face shape AI recommends frames matched to your profile' },
+              { icon: Truck, title: 'Free Express Delivery', desc: 'Pan-India free shipping on all orders, no minimum required' },
+              { icon: Headphones, title: '24/7 Support', desc: 'Dedicated eyewear experts available via chat, call, and email' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-white/5 border border-white/10 rounded p-6 text-center hover:bg-white/10 hover:border-premium-accent/40 transition-all">
+                <div className="w-12 h-12 bg-premium-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Icon className="w-6 h-6 text-premium-accent" />
+                </div>
+                <h3 className="font-bold text-white text-sm mb-2">{title}</h3>
+                <p className="text-gray-400 text-xs leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Newsletter Signup Banner */}
+      <section className="bg-gradient-to-r from-premium-accent via-yellow-400 to-premium-accent py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 bg-black/10 border border-black/20 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+            <Mail className="w-3.5 h-3.5" /> Exclusive Members Club
+          </div>
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black mb-4">
+            Get 15% Off Your First Order
+          </h2>
+          <p className="text-premium-black/70 text-sm mb-8 font-light leading-relaxed">
+            Join thousands of style-forward Lekya Specs members. Subscribe for early access to new collections, exclusive coupons, and personalized eyewear recommendations.
+          </p>
+          {newsletterDone ? (
+            <div className="bg-black/10 border border-black/20 rounded p-4 inline-block">
+              <p className="font-bold text-premium-black text-sm">✓ You're subscribed! Use code <strong>WELCOME10</strong> for 10% off.</p>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => { e.preventDefault(); setNewsletterDone(true); }}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            >
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="Your email address"
+                className="flex-grow px-4 py-3 rounded bg-white text-premium-black text-sm font-medium focus:outline-none border-2 border-transparent focus:border-premium-black"
+              />
+              <button
+                type="submit"
+                className="bg-premium-black text-white hover:bg-white hover:text-premium-black font-bold text-xs tracking-widest uppercase px-8 py-3 rounded transition-all"
+              >
+                Subscribe
+              </button>
+            </form>
+          )}
+          <p className="text-premium-black/50 text-[10px] mt-4">No spam. Unsubscribe anytime. Your privacy is respected.</p>
+        </div>
+      </section>
+
+    </div>
+  );
+}
