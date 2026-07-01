@@ -203,7 +203,8 @@ export default function App({ Component, pageProps }) {
                       <Link href="/shop?category=Eyeglasses" className="hover:text-premium-accent transition-colors py-2">Eyeglasses</Link>
                       <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
                       <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
-                      
+                      <Link href="/contact" className="hover:text-premium-accent transition-colors py-2">Contact</Link>
+
                       {/* Discover Dropdown */}
                       <div className="relative group py-2">
                         <button className="flex items-center gap-1 hover:text-premium-accent transition-colors">
