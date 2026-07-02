@@ -220,6 +220,20 @@ export default function App({ Component, pageProps }) {
                                 <p className="text-[10px] text-premium-gray">AI-powered frame recommendations</p>
                               </div>
                             </Link>
+                            <Link href="/ar-tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                              <span className="text-xl">🥽</span>
+                              <div>
+                                <p className="text-xs font-bold text-premium-black">Live AR Try-On</p>
+                                <p className="text-[10px] text-premium-gray">Real-time glasses on your webcam</p>
+                              </div>
+                            </Link>
+                            <Link href="/skin-analysis" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                              <span className="text-xl">🎨</span>
+                              <div>
+                                <p className="text-xs font-bold text-premium-black">Skin Tone AI Lab</p>
+                                <p className="text-[10px] text-premium-gray">Pixel-perfect color DNA analysis</p>
+                              </div>
+                            </Link>
                             <Link href="/style-quiz" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
                               <span className="text-xl">✨</span>
                               <div>
@@ -234,24 +248,18 @@ export default function App({ Component, pageProps }) {
                                 <p className="text-[10px] text-premium-gray">Side-by-side frame comparison</p>
                               </div>
                             </Link>
-                            <Link href="/lens-guide" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">👁️</span>
+                            <Link href="/customizer" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                              <span className="text-xl">🛠️</span>
                               <div>
-                                <p className="text-xs font-bold text-premium-black">Lens Guide</p>
-                                <p className="text-[10px] text-premium-gray">Prescription & lens selector</p>
-                              </div>
-                            </Link>
-                            <Link href="/lookbook" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">📸</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Lookbook</p>
-                                <p className="text-[10px] text-premium-gray">Editorial collections & style tips</p>
+                                <p className="text-xs font-bold text-premium-black">Bespoke Customizer</p>
+                                <p className="text-[10px] text-premium-gray">Design & preview custom frames</p>
                               </div>
                             </Link>
                           </div>
                         </div>
                       </div>
                     </nav>
+
 
                     {/* Desktop Search Bar */}
                     <div className="hidden lg:flex items-center relative max-w-xs w-full mr-6">
@@ -382,6 +390,14 @@ export default function App({ Component, pageProps }) {
                       >
                         All Frames
                       </Link>
+                      <Link 
+                        href="/customizer" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                      >
+                        Bespoke Customizer
+                      </Link>
+
                     </div>
                   </div>
                 )}

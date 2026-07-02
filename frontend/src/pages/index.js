@@ -173,19 +173,27 @@ export default function Home() {
             </h2>
             <p className="text-sm text-premium-gray font-light">Everything you need to find the perfect pair — smarter, faster, better.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { href: '/face-shape', emoji: '🤳', title: 'Face Shape AI', desc: 'Scan your face and get personalized frame recommendations instantly', label: 'Analyze Now' },
-              { href: '/style-quiz', emoji: '✨', title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz' },
-              { href: '/compare', emoji: '⚖️', title: 'Compare Frames', desc: 'Side-by-side spec comparison of up to 3 frames', label: 'Compare Now' },
-              { href: '/lens-guide', emoji: '👁️', title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses' },
-              { href: '/lookbook', emoji: '📸', title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore Looks' },
-            ].map(({ href, emoji, title, desc, label }) => (
+              { href: '/face-shape',    emoji: '🤳', title: 'Face Shape AI', desc: '68-point neural mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
+              { href: '/ar-tryon',      emoji: '🥽', title: 'Live AR Try-On', desc: 'Real-time glasses overlay on your live webcam using AI face landmarks', label: 'Try Now', badge: 'NEW' },
+              { href: '/skin-analysis', emoji: '🎨', title: 'Skin Tone Lab', desc: 'Canvas pixel sampling analyzes your skin DNA and recommends perfect frame colors', label: 'Analyze', badge: 'NEW' },
+              { href: '/customizer',    emoji: '🛠️', title: 'Bespoke Customizer', desc: 'Design custom frames — shapes, metals, polarized lenses, monogram engraving', label: 'Design Now', badge: 'NEW' },
+              { href: '/style-quiz',    emoji: '✨', title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz', badge: null },
+              { href: '/compare',       emoji: '⚖️', title: 'Compare Frames', desc: 'Side-by-side spec comparison of up to 3 frames', label: 'Compare', badge: null },
+              { href: '/lens-guide',    emoji: '👁️', title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses', badge: null },
+              { href: '/lookbook',      emoji: '📸', title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore', badge: null },
+            ].map(({ href, emoji, title, desc, label, badge }) => (
               <Link
                 key={href}
                 href={href}
-                className="group border border-premium-border rounded-lg p-5 text-center hover:border-premium-black hover:shadow-md transition-all bg-premium-light hover:bg-white"
+                className="group relative border border-premium-border rounded-lg p-5 text-center hover:border-premium-black hover:shadow-md transition-all bg-premium-light hover:bg-white"
               >
+                {badge && (
+                  <span className="absolute -top-2 -right-2 bg-premium-accent text-premium-black text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full">
+                    {badge}
+                  </span>
+                )}
                 <div className="text-4xl mb-3">{emoji}</div>
                 <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
                 <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>

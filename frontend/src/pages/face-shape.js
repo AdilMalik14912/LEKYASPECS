@@ -18,10 +18,13 @@ export default function FaceShapeSuggestion() {
   const [detectedShape, setDetectedShape] = useState('');
   const [recommendedFrames, setRecommendedFrames] = useState([]);
   const [savingResult, setSavingResult] = useState(false);
+  const [autoDetecting, setAutoDetecting] = useState(false);
+  const [detectionMessage, setDetectionMessage] = useState('');
 
   // Video and Canvas Refs
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
 
   // VERIFIED DEFAULT PIN POSITIONS (produces OVAL by default)
   // Math check:
@@ -78,6 +81,83 @@ export default function FaceShapeSuggestion() {
     };
   }, [activeMode, step]);
 
+  // ─── REAL AI FACE DETECTION via face-api.js (jsDelivr CDN) ───────────────
+  const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+
+  const loadFaceApi = () => new Promise((resolve, reject) => {
+    if (window.faceapi) { resolve(window.faceapi); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js';
+    s.onload = () => resolve(window.faceapi);
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+
+  const autoDetectFaceLandmarks = async (imageDataUrl) => {
+    setAutoDetecting(true);
+    setDetectionMessage('Loading AI neural network...');
+    setStep(2);
+    try {
+      const faceapi = await loadFaceApi();
+      setDetectionMessage('Initializing FaceNet landmark model...');
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+      ]);
+      setDetectionMessage('Scanning facial geometry...');
+
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.src = imageDataUrl;
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+
+      const detection = await faceapi
+        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.25 }))
+        .withFaceLandmarks();
+
+      if (!detection) {
+        setDetectionMessage('⚠ No face detected — please align pins manually.');
+        setAutoDetecting(false);
+        return;
+      }
+
+      setDetectionMessage('Mapping 68 landmark coordinates...');
+      const lm  = detection.landmarks.positions;
+      const iW  = img.naturalWidth  || 400;
+      const iH  = img.naturalHeight || 400;
+      const sx  = (p) => Math.round((p.x / iW) * 400);
+      const sy  = (p) => Math.round((p.y / iH) * 400);
+      const clamp = (v) => Math.max(10, Math.min(390, v));
+
+      // 68-pt map: 0-16 jawline, 17-21 L-brow, 22-26 R-brow, 8 chin
+      // Forehead = estimate above eyebrow midpoints by 35% of brow-to-chin height
+      const lBrowPeak = lm[19];  // left brow peak
+      const rBrowPeak = lm[24];  // right brow peak
+      const chinPt    = lm[8];
+      const fhOffset  = Math.abs((chinPt.y - lBrowPeak.y) / iH * 400) * 0.35;
+
+      const newPts = {
+        foreheadLeft:  { x: clamp(sx(lm[17])),   y: clamp(Math.round(sy(lBrowPeak) - fhOffset)) },
+        foreheadRight: { x: clamp(sx(lm[26])),   y: clamp(Math.round(sy(rBrowPeak) - fhOffset)) },
+        cheekLeft:     { x: clamp(sx(lm[2])),    y: clamp(sy(lm[2]))  },
+        cheekRight:    { x: clamp(sx(lm[14])),   y: clamp(sy(lm[14])) },
+        jawLeft:       { x: clamp(sx(lm[5])),    y: clamp(sy(lm[5]))  },
+        jawRight:      { x: clamp(sx(lm[11])),   y: clamp(sy(lm[11])) },
+        chin:          { x: clamp(sx(chinPt)),   y: clamp(sy(chinPt)) },
+      };
+
+      setPoints(newPts);
+      setDetectionMessage('✓ Face auto-mapped! Fine-tune pins if needed.');
+      setTimeout(() => setDetectionMessage(''), 4000);
+    } catch (err) {
+      console.error('face-api error:', err);
+      setDetectionMessage('Detection failed — align pins manually.');
+    } finally {
+      setAutoDetecting(false);
+    }
+  };
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Capture photo from video stream
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
@@ -85,28 +165,24 @@ export default function FaceShapeSuggestion() {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, 400, 400);
-      
       const dataUrl = canvas.toDataURL('image/jpeg');
       setImageSrc(dataUrl);
-      
-      // Stop webcam stream
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        setStream(null);
-      }
-      
-      setStep(2);
+      if (stream) { stream.getTracks().forEach(t => t.stop()); setStream(null); }
+      // Kick off real AI landmark detection
+      autoDetectFaceLandmarks(dataUrl);
     }
   };
 
-  // Handle image upload fallback
+  // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setImageSrc(event.target.result);
-        setStep(2);
+        const dataUrl = event.target.result;
+        setImageSrc(dataUrl);
+        // Kick off real AI landmark detection
+        autoDetectFaceLandmarks(dataUrl);
       };
       reader.readAsDataURL(file);
     }
@@ -400,10 +476,30 @@ export default function FaceShapeSuggestion() {
               onMouseLeave={handleContainerMouseUp}
               onTouchMove={handleContainerMouseMove}
               onTouchEnd={handleContainerMouseUp}
-              className="relative w-80 h-80 sm:w-[400px] sm:h-[400px] bg-premium-black rounded overflow-hidden select-none cursor-crosshair border border-premium-accent/30 shadow mb-8"
+              className="relative w-80 h-80 sm:w-[400px] sm:h-[400px] bg-premium-black rounded overflow-hidden select-none cursor-crosshair border border-premium-accent/30 shadow mb-3"
             >
               {/* Captured Photo */}
               <img src={imageSrc} alt="selfie" className="w-full h-full object-cover pointer-events-none" />
+
+              {/* ─── AI DETECTION OVERLAY ─── */}
+              {autoDetecting && (
+                <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-20 gap-4">
+                  {/* Scanning animation */}
+                  <div className="relative w-16 h-16">
+                    <div className="absolute inset-0 border-4 border-premium-accent/30 rounded-full" />
+                    <div className="absolute inset-0 border-4 border-t-premium-accent rounded-full animate-spin" />
+                    <svg className="absolute inset-0 w-full h-full p-3 text-premium-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+                    </svg>
+                  </div>
+                  <p className="text-premium-accent text-xs font-bold tracking-widest uppercase text-center px-4">{detectionMessage}</p>
+                  {/* Scanning line sweep */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-premium-accent to-transparent animate-[scan_2s_linear_infinite]"
+                      style={{animation: 'scan 2s linear infinite'}} />
+                  </div>
+                </div>
+              )}
 
               {/* Connecting Holographic Grid Lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -457,6 +553,20 @@ export default function FaceShapeSuggestion() {
                 );
               })}
             </div>
+
+            {/* AI Detection Status Toast */}
+            {detectionMessage && (
+              <div className={`w-full max-w-md mb-3 px-4 py-2.5 rounded border text-xs font-semibold flex items-center gap-2 ${
+                detectionMessage.startsWith('✓')
+                  ? 'bg-green-50 border-green-300 text-green-700'
+                  : detectionMessage.startsWith('⚠') || detectionMessage.includes('failed')
+                  ? 'bg-amber-50 border-amber-300 text-amber-700'
+                  : 'bg-premium-light border-premium-border text-premium-accent animate-pulse'
+              }`}>
+                <span>{detectionMessage.startsWith('✓') ? '✓' : detectionMessage.startsWith('⚠') ? '⚠' : '⏳'}</span>
+                <span>{detectionMessage}</span>
+              </div>
+            )}
 
             {/* Live Measurement Readout */}
             <div className="w-full max-w-md mb-5 bg-premium-light border border-premium-border rounded p-3">
