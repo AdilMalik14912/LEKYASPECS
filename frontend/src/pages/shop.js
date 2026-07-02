@@ -46,7 +46,7 @@ export default function Shop() {
 
   // Load filter options on mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/products/filters')
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/filters')
       .then(res => res.json())
       .then(data => {
         setFilterOptions(data);
@@ -62,7 +62,7 @@ export default function Shop() {
     if (!router.isReady) return;
     
     setLoading(true);
-    let url = 'http://localhost:5000/api/products?';
+    let url = '${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?';
     
     const params = new URLSearchParams();
     if (category) params.append('category', category);

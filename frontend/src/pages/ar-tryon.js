@@ -158,11 +158,13 @@ export default function ARTryOn() {
   const [captured, setCaptured]           = useState(null);
 
   const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-  const shapeRef = useRef(selectedShape);
-  const colorRef = useRef(selectedColor);
+  const shapeRef    = useRef(selectedShape);
+  const colorRef    = useRef(selectedColor);
+  const showMeshRef = useRef(false);
 
   useEffect(() => { shapeRef.current = selectedShape; }, [selectedShape]);
   useEffect(() => { colorRef.current = selectedColor; }, [selectedColor]);
+  useEffect(() => { showMeshRef.current = showMesh; }, [showMesh]);
 
   // ── Load face-api.js from CDN ──────────────────────────────────────────────
   const loadFaceApi = useCallback(() => new Promise((resolve, reject) => {
@@ -208,83 +210,102 @@ export default function ARTryOn() {
         setStatus('running');
         setStatusMsg('Running — face your camera!');
 
-        // 4. Detection loop
+        // 4. Detection loop — FAST architecture:
+        //    RAF runs at 60fps drawing video + last-known glasses position.
+        //    AI detection runs in background (never blocks RAF).
         let lastT = performance.now();
         let fpsAcc = 0, fpsFrames = 0;
-        const OPTIONS = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 320 });
-        const canvas = canvasRef.current;
-        const video  = videoRef.current;
+        // inputSize 160 = fastest TinyFaceDetector setting (vs 320 = 4× slower)
+        const OPTIONS = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.25, inputSize: 160 });
+        const canvas  = canvasRef.current;
+        const video   = videoRef.current;
+        const ctx     = canvas.getContext('2d', { willReadFrequently: true });
 
-        const loop = async () => {
+        // Cache last detection result — glasses are drawn from this every frame
+        let lastLm = null;
+        let detectionRunning = false;
+
+        // ── Background detection (fires independently of RAF) ──────────────
+        const runDetection = async () => {
+          if (detectionRunning || cancelled) return;
+          detectionRunning = true;
+          try {
+            const result = await faceapi
+              .detectSingleFace(canvas, OPTIONS)
+              .withFaceLandmarks();
+            lastLm = result ? result.landmarks.positions : null;
+            setFaceFound(!!lastLm);
+          } catch (_) { /* silent */ } finally {
+            detectionRunning = false;
+          }
+        };
+
+        // Run detection every 80ms (~12 times/sec) — enough for smooth glasses
+        const detectionInterval = setInterval(runDetection, 80);
+
+        // ── Render loop (runs at full 60fps) ──────────────────────────────
+        const loop = () => {
           if (cancelled) return;
-          const t = performance.now();
+
+          const t  = performance.now();
           const dt = t - lastT; lastT = t;
           fpsAcc += 1000 / dt; fpsFrames++;
-          if (fpsFrames >= 10) { setFpsCount(Math.round(fpsAcc / fpsFrames)); fpsAcc = 0; fpsFrames = 0; }
+          if (fpsFrames >= 20) {
+            setFpsCount(Math.round(fpsAcc / fpsFrames));
+            fpsAcc = 0; fpsFrames = 0;
+          }
 
-          const vw = video.videoWidth || 640;
+          const vw = video.videoWidth  || 640;
           const vh = video.videoHeight || 480;
-          canvas.width  = vw;
-          canvas.height = vh;
-          const ctx = canvas.getContext('2d');
+          if (canvas.width !== vw)  canvas.width  = vw;
+          if (canvas.height !== vh) canvas.height = vh;
 
-          // Mirror + draw video frame
+          // Mirrored video frame
           ctx.save();
           ctx.translate(vw, 0);
           ctx.scale(-1, 1);
           ctx.drawImage(video, 0, 0, vw, vh);
           ctx.restore();
 
-          const detection = await faceapi
-            .detectSingleFace(canvas, OPTIONS)
-            .withFaceLandmarks();
-
-          if (detection) {
-            setFaceFound(true);
-            const lm = detection.landmarks.positions;
-
-            // Left eye center = avg of points 36-41 (mirrored so right in video)
-            const eyePoints = (start, end) => {
-              let sx = 0, sy = 0;
-              for (let i = start; i <= end; i++) { sx += lm[i].x; sy += lm[i].y; }
-              const n = end - start + 1;
-              return { x: sx / n, y: sy / n };
+          // Draw glasses from last known landmarks (never waits for AI)
+          if (lastLm) {
+            const eyeAvg = (s, e) => {
+              let x = 0, y = 0;
+              for (let i = s; i <= e; i++) { x += lastLm[i].x; y += lastLm[i].y; }
+              const n = e - s + 1;
+              return { x: x / n, y: y / n };
             };
+            const leftEye  = eyeAvg(42, 47); // mirrored: appears as left
+            const rightEye = eyeAvg(36, 41);
 
-            // Because video is mirrored: landmarks 42-47 → appear as left eye
-            const leftEyeCenter  = eyePoints(42, 47);
-            const rightEyeCenter = eyePoints(36, 41);
-
-            // Draw mesh if requested
-            if (showMesh) {
-              ctx.strokeStyle = 'rgba(197, 168, 128, 0.6)';
+            // Draw wireframe mesh if toggled
+            if (showMeshRef.current) {
+              ctx.strokeStyle = 'rgba(197,168,128,0.55)';
               ctx.lineWidth = 1;
-              // Draw jawline
               ctx.beginPath();
               for (let i = 0; i <= 16; i++) {
-                const p = lm[i];
+                const p = lastLm[i];
                 if (i === 0) ctx.moveTo(vw - p.x, p.y);
                 else ctx.lineTo(vw - p.x, p.y);
               }
               ctx.stroke();
             }
 
-            // Draw glasses
             drawFrameOnCanvas(
               ctx,
-              { x: vw - leftEyeCenter.x,  y: leftEyeCenter.y  },
-              { x: vw - rightEyeCenter.x, y: rightEyeCenter.y },
+              { x: vw - leftEye.x,  y: leftEye.y  },
+              { x: vw - rightEye.x, y: rightEye.y },
               shapeRef.current,
               colorRef.current.hex,
               colorRef.current.lens
             );
-          } else {
-            setFaceFound(false);
           }
 
           animFrameRef.current = requestAnimationFrame(loop);
         };
 
+        // Store interval so cleanup can clear it
+        animFrameRef.intervalId = detectionInterval;
         loop();
       } catch (err) {
         console.error(err);
@@ -296,6 +317,7 @@ export default function ARTryOn() {
     return () => {
       cancelled = true;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (animFrameRef.intervalId) clearInterval(animFrameRef.intervalId);
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(t => t.stop());
       }

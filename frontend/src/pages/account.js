@@ -26,7 +26,7 @@ export default function Account() {
     if (!token) return;
     
     setOrdersLoading(true);
-    fetch('http://localhost:5000/api/orders/history', {
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/history', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -53,7 +53,7 @@ export default function Account() {
       ? { email, password } 
       : { name, email, password };
 
-    fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -182,7 +182,7 @@ export default function Account() {
           {/* Google & Facebook OAuth Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <a
-              href="http://localhost:5000/api/auth/google"
+              href="${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/google"
               className="flex items-center justify-center gap-2 border border-premium-border hover:border-premium-accent rounded-lg py-3 text-xs font-bold text-premium-dark hover:bg-premium-light transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -195,7 +195,7 @@ export default function Account() {
             </a>
 
             <a
-              href="http://localhost:5000/api/auth/facebook"
+              href="${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/facebook"
               className="flex items-center justify-center gap-2 border border-premium-border hover:border-premium-accent rounded-lg py-3 text-xs font-bold text-premium-dark hover:bg-premium-light transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 fill-[#1877F2] shrink-0" viewBox="0 0 24 24">

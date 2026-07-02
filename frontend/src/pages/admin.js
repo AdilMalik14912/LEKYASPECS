@@ -79,7 +79,7 @@ export default function Admin() {
 
     if (activeTab === 'stats') {
       setAnalyticsLoading(true);
-      fetch('http://localhost:5000/api/admin/stats', {
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -87,13 +87,13 @@ export default function Admin() {
         .catch(err => console.error(err));
     } else if (activeTab === 'products') {
       setProductsLoading(true);
-      fetch('http://localhost:5000/api/products')
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
         .then(res => res.json())
         .then(data => { setProducts(data); setProductsLoading(false); })
         .catch(err => console.error(err));
     } else if (activeTab === 'orders') {
       setOrdersLoading(true);
-      fetch('http://localhost:5000/api/admin/orders', {
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -101,7 +101,7 @@ export default function Admin() {
         .catch(err => console.error(err));
     } else if (activeTab === 'customers') {
       setCustomersLoading(true);
-      fetch('http://localhost:5000/api/admin/customers', {
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/customers', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -111,7 +111,7 @@ export default function Admin() {
       setSettingsLoading(true);
       setSettingsError('');
       setSettingsSuccess('');
-      fetch('http://localhost:5000/api/settings')
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings')
         .then(res => res.json())
         .then(data => {
           setHeroTitle(data.hero_title || '');
@@ -163,8 +163,8 @@ export default function Admin() {
     setCrudError('');
 
     const url = editingProduct 
-      ? `http://localhost:5000/api/admin/products/${editingProduct.id}` 
-      : 'http://localhost:5000/api/admin/products';
+      ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${editingProduct.id}` 
+      : '${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products';
     const method = editingProduct ? 'PUT' : 'POST';
 
     const payload = {
@@ -206,7 +206,7 @@ export default function Admin() {
     setSettingsError('');
     setSettingsSuccess('');
 
-    fetch('http://localhost:5000/api/admin/settings', {
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/settings', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ export default function Admin() {
   const handleDeleteProduct = (id) => {
     if (!confirm('Are you sure you want to delete this eyewear frame from the catalog?')) return;
 
-    fetch(`http://localhost:5000/api/admin/products/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -251,7 +251,7 @@ export default function Admin() {
 
   // Update order status trigger
   const handleStatusUpdate = (orderId, newStatus) => {
-    fetch(`http://localhost:5000/api/admin/orders/${orderId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

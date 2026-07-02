@@ -296,7 +296,7 @@ export default function FaceShapeSuggestion() {
 
     // Fetch matched recommendations
     const fetchShape = shape === 'oblong' ? 'oval' : shape; // map oblong -> oval for API
-    fetch(`http://localhost:5000/api/products/recommendations/${fetchShape}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/recommendations/${fetchShape}`)
       .then(res => res.json())
       .then(data => {
         setRecommendedFrames(data.products || []);
@@ -306,7 +306,7 @@ export default function FaceShapeSuggestion() {
     // Save to user profile
     if (token) {
       setSavingResult(true);
-      fetch('http://localhost:5000/api/auth/profile', {
+      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

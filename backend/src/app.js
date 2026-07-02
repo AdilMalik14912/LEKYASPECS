@@ -192,17 +192,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error occurred' });
 });
 
-// Initialize Database & Start Server
-const startServer = async () => {
+// Initialize Database
+const initDb = async () => {
   try {
     await db.initDb();
-    app.listen(PORT, () => {
-      console.log(`[Specs Express API] Server is running on port ${PORT}`);
-    });
+    console.log('[Specs Express API] Database initialized.');
   } catch (err) {
-    console.error('Server startup halted due to database error:', err.message);
+    console.error('DB init error:', err.message);
     process.exit(1);
   }
 };
 
-startServer();
+// Local dev: start HTTP server directly
+// Vercel serverless: export the app after DB init
+if (require.main === module) {
+  // Running locally with `node src/app.js`
+  (async () => {
+    await initDb();
+    app.listen(PORT, () => {
+      console.log(`[Specs Express API] Server is running on port ${PORT}`);
+    });
+  })();
+} else {
+  // Vercel: initialize DB then export handler
+  initDb();
+  module.exports = app;
+}

@@ -85,7 +85,7 @@ export default function Lookbook() {
   useEffect(() => {
     const col = LOOKBOOK_COLLECTIONS[activeCollection];
     setLoading(true);
-    fetch(`http://localhost:5000/api/products?category=${encodeURIComponent(col.category)}&limit=4`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?category=${encodeURIComponent(col.category)}&limit=4`)
       .then(res => res.json())
       .then(data => {
         setCollectionProducts(Array.isArray(data) ? data.slice(0, 4) : []);

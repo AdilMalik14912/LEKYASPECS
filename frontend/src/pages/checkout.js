@@ -99,7 +99,7 @@ export default function Checkout() {
 
     try {
       // 1. Create order on backend
-      const createRes = await fetch('http://localhost:5000/api/orders/create', {
+      const createRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export default function Checkout() {
         handler: async function (response) {
           try {
             setIsProcessing(true);
-            const verifyRes = await fetch('http://localhost:5000/api/orders/verify', {
+            const verifyRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/verify', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ export default function Checkout() {
 
     setIsProcessing(true);
     try {
-      const verifyRes = await fetch('http://localhost:5000/api/orders/verify', {
+      const verifyRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

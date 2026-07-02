@@ -17,7 +17,7 @@ export default function Home() {
 
   // Fetch featured products + store settings
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
       .then(res => res.json())
       .then(data => {
         setFeaturedProducts(data.slice(0, 4));
@@ -28,7 +28,7 @@ export default function Home() {
         setLoading(false);
       });
 
-    fetch('http://localhost:5000/api/settings')
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings')
       .then(res => res.json())
       .then(data => {
         if (data && data.hero_title) {

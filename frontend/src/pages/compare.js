@@ -25,7 +25,7 @@ export default function CompareFrames() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
       .then(res => res.json())
       .then(data => { setAllProducts(data); setLoading(false); })
       .catch(() => setLoading(false));
