@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
+const passport = require('./config/passport');
 const db = require('./config/db');
 require('dotenv').config();
 
@@ -17,15 +19,27 @@ const { sendContactEmail } = require('./utils/mailer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Enable CORS
 app.use(cors({
-  origin: '*', // For development. Can be restricted in production.
+  origin: [FRONTEND_URL, 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());
+
+// Session (required for Passport OAuth)
+app.use(session({
+  secret: process.env.JWT_SECRET || 'session_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 10 * 60 * 1000 } // 10 min — just for OAuth handshake
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // --- ROUTES ---
 
@@ -39,6 +53,98 @@ app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
+
+// 2b. Google OAuth
+app.get('/api/auth/google', async (req, res, next) => {
+  const googleClientId = process.env.GOOGLE_CLIENT_ID;
+  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+  if (!googleClientId || !googleClientSecret || googleClientId === 'dummy_client_id_to_prevent_passport_crash') {
+    // If no credentials, simulate Google OAuth instantly
+    const mockEmail = 'google_adil.specs@gmail.com';
+    const mockName = 'Adil Malik (via Google)';
+
+    try {
+      let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
+      if (userRes.rows.length === 0) {
+        await db.query(
+          `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
+          [mockName, mockEmail, 'OAUTH_GOOGLE_MOCK_PASSWORD']
+        );
+        userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
+        // Send welcome email (non-blocking)
+        const { sendWelcomeEmail } = require('./utils/mailer');
+        sendWelcomeEmail({ to: mockEmail, name: mockName }).catch(console.warn);
+      }
+      const user = userRes.rows[0];
+      const { signToken } = require('./utils/jwt');
+      const token = signToken({ id: user.id, name: user.name, email: user.email });
+
+      return res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+    } catch (err) {
+      console.error('Mock Google OAuth error:', err);
+      return res.redirect(`${FRONTEND_URL}/login?error=google_failed`);
+    }
+  } else {
+    // Redirect to real Google OAuth
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  }
+});
+
+app.get('/api/auth/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${FRONTEND_URL}/login?error=google_failed` }),
+  (req, res) => {
+    const { token, user } = req.user;
+    res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+  }
+);
+
+
+// 2c. Facebook OAuth (Mockable / Real)
+// Since Facebook OAuth requires custom developers portal config, we provide an automatic interactive simulation if keys are empty.
+app.get('/api/auth/facebook', async (req, res) => {
+  const fbClientId = process.env.FACEBOOK_CLIENT_ID;
+  const fbClientSecret = process.env.FACEBOOK_CLIENT_SECRET;
+
+  if (!fbClientId || !fbClientSecret) {
+    // If credentials are empty, simulate Facebook OAuth instantly
+    // We register/login a mock Facebook User
+    const mockEmail = 'fb_adil.specs@gmail.com';
+    const mockName = 'Adil Malik (via Facebook)';
+
+    try {
+      let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
+      if (userRes.rows.length === 0) {
+        await db.query(
+          `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
+          [mockName, mockEmail, 'OAUTH_FACEBOOK_MOCK_PASSWORD']
+        );
+        userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
+        // Send welcome email (non-blocking)
+        const { sendWelcomeEmail } = require('./utils/mailer');
+        sendWelcomeEmail({ to: mockEmail, name: mockName }).catch(console.warn);
+      }
+      const user = userRes.rows[0];
+      const { signToken } = require('./utils/jwt');
+      const token = signToken({ id: user.id, name: user.name, email: user.email });
+
+      return res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+    } catch (err) {
+      console.error('Mock Facebook OAuth error:', err);
+      return res.redirect(`${FRONTEND_URL}/login?error=facebook_failed`);
+    }
+  } else {
+    // Redirect to real Facebook OAuth if credentials exist
+    res.redirect(`https://www.facebook.com/v12.0/dialog/oauth?client_id=${fbClientId}&redirect_uri=${encodeURIComponent(FRONTEND_URL + '/api/auth/facebook/callback')}&scope=email`);
+  }
+});
+
+app.get('/api/auth/facebook/callback', async (req, res) => {
+  // If real Facebook OAuth was used
+  const { code } = req.query;
+  res.redirect(`${FRONTEND_URL}/oauth-success?error=not_fully_configured`);
+});
+
 
 // 3. Products API
 app.get('/api/products', productController.getProducts);

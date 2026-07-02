@@ -134,31 +134,35 @@ export default function Home() {
 
         {/* Small grids for Men/Women/Kids */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
-          <Link href="/shop?gender=Men" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
-            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">MEN</span>
+          <Link href="/shop?gender=Men" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-5">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">MEN</span>
+              <span className="text-xs text-white/70 tracking-widest uppercase">Premium Collection</span>
             </div>
           </Link>
 
-          <Link href="/shop?gender=Women" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
-            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">WOMEN</span>
+          <Link href="/shop?gender=Women" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-5">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">WOMEN</span>
+              <span className="text-xs text-white/70 tracking-widest uppercase">Elegant Frames</span>
             </div>
           </Link>
 
-          <Link href="/shop?gender=Kids" className="relative group overflow-hidden rounded h-[200px] shadow-sm block hover-zoom">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=600&q=80')] bg-cover bg-center"></div>
-            <div className="absolute inset-0 bg-premium-black/40 group-hover:bg-premium-black/60 transition-colors"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors">KIDS</span>
+          <Link href="/shop?gender=Kids" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-5">
+              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">KIDS</span>
+              <span className="text-xs text-white/70 tracking-widest uppercase">Fun & Safe Eyewear</span>
             </div>
           </Link>
         </div>
       </section>
+
 
       {/* 3.5 Five Premium Tools Section */}
       <section className="bg-white border-y border-premium-border py-16">
