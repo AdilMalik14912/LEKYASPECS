@@ -255,7 +255,7 @@ export default function Account() {
           {process.env.NODE_ENV === 'development' && (
             <div className="mt-8 pt-6 border-t border-premium-border text-center text-xs text-premium-gray leading-relaxed">
               <span className="font-bold text-premium-accent block mb-1">Developer Testing Accounts:</span>
-              <span>Admin Dashboard: <strong>admin@specs.com</strong> / password: <strong>admin123</strong></span>
+              <span>Admin Dashboard: <strong>dev.parceluncle@gmail.com</strong> / password: <strong>14912malik</strong></span>
             </div>
           )}
 
@@ -300,7 +300,7 @@ export default function Account() {
             </div>
           </div>
           <div className="flex gap-4">
-            {user.email === 'admin@specs.com' && (
+            {(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') && (
               <Link href="/admin" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
                 Admin Panel
               </Link>

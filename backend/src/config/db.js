@@ -117,6 +117,25 @@ const initDb = async () => {
       console.log('Database schema verified/applied.');
     }
 
+    // Programmatic migrations
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+      console.log('Migration: Added role column to users table.');
+    } catch (_) {
+      // Ignore if column already exists
+    }
+
+    try {
+      await client.execute(
+        `INSERT OR REPLACE INTO users (id, name, email, password_hash, role) VALUES 
+         ((SELECT id FROM users WHERE email = 'dev.parceluncle@gmail.com' OR email = 'admin@specs.com' LIMIT 1), 
+          'Specs Admin', 'dev.parceluncle@gmail.com', '$2a$10$u61PmqIpLYEY.aYKYcR9CeFviIrFVj7az.rRQr4tCXYrR4dgN/Uii', 'admin')`
+      );
+      console.log('Migration: Seeded super administrator dev.parceluncle@gmail.com.');
+    } catch (adminErr) {
+      console.warn('Migration warning (super admin seed):', adminErr.message);
+    }
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

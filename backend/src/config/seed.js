@@ -40,12 +40,13 @@ const settings = [
   { key: 'trending_title',value: 'Trending Frames' },
 ];
 
-// Admin user — password is 'admin123' (bcrypt hash)
+// Admin user — password is '14912malik' (bcrypt hash)
 const adminUser = {
   name: 'Specs Admin',
-  email: 'admin@specs.com',
-  password_hash: '$2a$10$q2mJiCxdZCYfid9VXL3ro.76LVkCLNhjNMq5awBcavpMt7ja45X1S',
+  email: 'dev.parceluncle@gmail.com',
+  password_hash: '$2a$10$u61PmqIpLYEY.aYKYcR9CeFviIrFVj7az.rRQr4tCXYrR4dgN/Uii',
   face_shape: null,
+  role: 'admin',
 };
 
 module.exports = async function seed(query) {
@@ -80,7 +81,7 @@ module.exports = async function seed(query) {
 
   // Admin user
   await query(
-    `INSERT OR IGNORE INTO users (name, email, password_hash, face_shape) VALUES (?, ?, ?, ?)`,
-    [adminUser.name, adminUser.email, adminUser.password_hash, adminUser.face_shape]
+    `INSERT OR IGNORE INTO users (name, email, password_hash, face_shape, role) VALUES (?, ?, ?, ?, ?)`,
+    [adminUser.name, adminUser.email, adminUser.password_hash, adminUser.face_shape, adminUser.role]
   );
 };

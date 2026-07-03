@@ -13,7 +13,7 @@ const getDashboardStats = async (req, res) => {
 
     // Total customers count
     const usersCountRes = await db.query(
-      "SELECT COUNT(*) as total_customers FROM users WHERE email != 'admin@specs.com'"
+      "SELECT COUNT(*) as total_customers FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com'"
     );
 
     // Low stock products warning (stock <= 5)
@@ -131,7 +131,7 @@ const getAdminCustomers = async (req, res) => {
               (SELECT COUNT(*) FROM orders WHERE user_id = u.id AND status = 'Paid') as paid_orders_count,
               (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND status = 'Paid') as total_spend
        FROM users u
-       WHERE u.email != 'admin@specs.com'
+       WHERE u.role != 'admin' AND u.email != 'admin@specs.com' AND u.email != 'dev.parceluncle@gmail.com'
        ORDER BY u.created_at DESC`
     );
     res.json(usersRes.rows);
@@ -253,6 +253,76 @@ const updateSettings = async (req, res) => {
   }
 };
 
+// Create a new Administrator user
+const createAdminUser = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Name, email, and password are required' });
+  }
+
+  try {
+    // Check if email already registered
+    const userCheck = await db.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+    if (userCheck.rows.length > 0) {
+      // Promote existing user to admin
+      const existingUser = userCheck.rows[0];
+      await db.query("UPDATE users SET role = 'admin' WHERE id = ?", [existingUser.id]);
+      return res.status(200).json({ message: 'Existing user promoted to admin successfully' });
+    }
+
+    // Hash password
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Insert new admin user
+    await db.query(
+      "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
+      [name, email.toLowerCase().trim(), passwordHash]
+    );
+
+    res.status(201).json({ message: 'New administrator created successfully' });
+  } catch (err) {
+    console.error('Create admin error:', err);
+    res.status(500).json({ message: 'Server error creating admin' });
+  }
+};
+
+// Retrieve list of all admin users
+const getAdminList = async (req, res) => {
+  try {
+    const admins = await db.query(
+      "SELECT id, name, email, created_at FROM users WHERE role = 'admin' OR email = 'admin@specs.com' OR email = 'dev.parceluncle@gmail.com' ORDER BY created_at DESC"
+    );
+    res.json(admins.rows);
+  } catch (err) {
+    console.error('Get admins list error:', err);
+    res.status(500).json({ message: 'Server error fetching admins list' });
+  }
+};
+
+// Demote an administrator to a standard user
+const demoteAdminUser = async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ message: 'Admin ID required' });
+
+  try {
+    const userRes = await db.query('SELECT email FROM users WHERE id = ?', [id]);
+    if (userRes.rows.length === 0) return res.status(404).json({ message: 'Admin user not found' });
+    const userEmail = userRes.rows[0].email;
+    if (userEmail === 'admin@specs.com' || userEmail === 'dev.parceluncle@gmail.com') {
+      return res.status(400).json({ message: 'Cannot demote super administrator' });
+    }
+
+    await db.query("UPDATE users SET role = 'user' WHERE id = ?", [id]);
+    res.json({ message: 'Admin demoted successfully' });
+  } catch (err) {
+    console.error('Demote admin error:', err);
+    res.status(500).json({ message: 'Server error demoting admin' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminOrders,
@@ -262,5 +332,8 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getSettings,
-  updateSettings
+  updateSettings,
+  createAdminUser,
+  getAdminList,
+  demoteAdminUser
 };

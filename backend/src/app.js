@@ -204,6 +204,9 @@ app.post('/api/admin/products', authenticateToken, isAdmin, adminController.addP
 app.put('/api/admin/products/:id', authenticateToken, isAdmin, adminController.updateProduct);
 app.delete('/api/admin/products/:id', authenticateToken, isAdmin, adminController.deleteProduct);
 app.put('/api/admin/settings', authenticateToken, isAdmin, adminController.updateSettings);
+app.post('/api/admin/create-admin', authenticateToken, isAdmin, adminController.createAdminUser);
+app.get('/api/admin/admins', authenticateToken, isAdmin, adminController.getAdminList);
+app.post('/api/admin/demote-admin', authenticateToken, isAdmin, adminController.demoteAdminUser);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -67,10 +67,20 @@ export default function Admin() {
   // Product Filtering State
   const [productSearch, setProductSearch] = useState('');
 
+  // Admin Management State
+  const [admins, setAdmins] = useState([]);
+  const [adminsLoading, setAdminsLoading] = useState(true);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminName, setAdminName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
+  const [adminSuccess, setAdminSuccess] = useState('');
+
   // Security gate: redirect if not admin
   useEffect(() => {
     if (!authLoading) {
-      if (!user || user.email !== 'admin@specs.com') {
+      if (!user || !(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com')) {
         router.push('/account');
       }
     }
@@ -78,7 +88,7 @@ export default function Admin() {
 
   // Fetch data depending on active tab
   useEffect(() => {
-    if (!token || (user && user.email !== 'admin@specs.com')) return;
+    if (!token || !user || !(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com')) return;
 
     if (activeTab === 'stats') {
       setAnalyticsLoading(true);
@@ -128,6 +138,14 @@ export default function Admin() {
           setSettingsError('Failed to load store CMS settings');
           setSettingsLoading(false);
         });
+    } else if (activeTab === 'admins') {
+      setAdminsLoading(true);
+      fetch(`${API_BASE}/api/admin/admins`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setAdmins(data); setAdminsLoading(false); })
+        .catch(err => console.error(err));
     }
   }, [activeTab, token, user]);
 
@@ -269,6 +287,67 @@ export default function Admin() {
       .catch(err => console.error(err));
   };
 
+  // Handle Admin creation form submit
+  const handleAdminSubmit = (e) => {
+    e.preventDefault();
+    setAdminError('');
+    setAdminSuccess('');
+
+    fetch(`${API_BASE}/api/admin/create-admin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ name: adminName, email: adminEmail, password: adminPassword })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        setAdminSuccess(data.message || 'Admin created successfully');
+        setAdminName('');
+        setAdminEmail('');
+        setAdminPassword('');
+        // Refresh admins list
+        fetch(`${API_BASE}/api/admin/admins`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setAdmins(list));
+        setTimeout(() => setShowAdminModal(false), 1500);
+      })
+      .catch(err => setAdminError(err.message));
+  };
+
+  // Handle demoting admin user
+  const handleDemoteAdmin = (adminId) => {
+    if (!window.confirm('Are you sure you want to demote this administrator to a standard customer?')) return;
+
+    fetch(`${API_BASE}/api/admin/demote-admin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ id: adminId })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        // Refresh admins list
+        fetch(`${API_BASE}/api/admin/admins`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setAdmins(list));
+      })
+      .catch(err => alert(err.message));
+  };
+
   // --- RENDER SECURITY CHECKS ---
   if (authLoading) {
     return (
@@ -278,7 +357,7 @@ export default function Admin() {
     );
   }
 
-  if (!user || user.email !== 'admin@specs.com') {
+  if (!user || !(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com')) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-4" />
@@ -338,6 +417,15 @@ export default function Admin() {
             }`}
           >
             <Users className="w-4 h-4" /> View Customers
+          </button>
+
+          <button
+            onClick={() => setActiveTab('admins')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'admins' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" /> Manage Admins
           </button>
 
           <button
@@ -874,6 +962,76 @@ export default function Admin() {
           </div>
         )}
 
+        {/* --- TAB 6: ADMINS ROLES AND MANAGEMENT --- */}
+        {activeTab === 'admins' && (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
+              <h2 className="font-serif text-3xl font-bold text-premium-black">
+                Manage Admins
+              </h2>
+              <button
+                onClick={() => {
+                  setAdminName('');
+                  setAdminEmail('');
+                  setAdminPassword('');
+                  setAdminError('');
+                  setAdminSuccess('');
+                  setShowAdminModal(true);
+                }}
+                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+              >
+                <Plus className="w-4 h-4" /> Create New Admin
+              </button>
+            </div>
+
+            {adminsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : (
+              <div>
+                <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
+                  <table className="min-w-full divide-y divide-premium-border text-left">
+                    <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                      <tr>
+                        <th className="px-6 py-4">Admin ID</th>
+                        <th className="px-6 py-4">Admin Name</th>
+                        <th className="px-6 py-4">Email</th>
+                        <th className="px-6 py-4">Date Created</th>
+                        <th className="px-6 py-4">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                      {admins.map(adm => (
+                        <tr key={adm.id} className="hover:bg-premium-light/50">
+                          <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{adm.id}</td>
+                          <td className="px-6 py-4 font-semibold">{adm.name}</td>
+                          <td className="px-6 py-4 font-mono text-xs">{adm.email}</td>
+                          <td className="px-6 py-4 text-xs">
+                            {new Date(adm.created_at).toLocaleDateString('en-IN', {
+                              year: 'numeric', month: 'short', day: 'numeric'
+                            })}
+                          </td>
+                          <td className="px-6 py-4">
+                            {adm.email !== 'admin@specs.com' && adm.email !== 'dev.parceluncle@gmail.com' ? (
+                              <button
+                                onClick={() => handleDemoteAdmin(adm.id)}
+                                className="text-red-600 hover:text-red-800 text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Demote to User
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-premium-gray font-bold tracking-wide uppercase">Super Admin</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
       </main>
 
       {/* --- ADD/EDIT PRODUCT MODAL POPUP --- */}
@@ -1010,6 +1168,84 @@ export default function Admin() {
                 </button>
               </div>
 
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- CREATE ADMIN MODAL POPUP --- */}
+      {showAdminModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-premium-border rounded-lg max-w-md w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <h3 className="font-serif text-2xl font-bold text-premium-black mb-6">
+              Create New Administrator
+            </h3>
+
+            <form onSubmit={handleAdminSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Admin Name</label>
+                <input
+                  type="text"
+                  required
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="name@specs.com"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Temporary Password</label>
+                <input
+                  type="password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+
+              {adminError && (
+                <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+                  {adminError}
+                </div>
+              )}
+
+              {adminSuccess && (
+                <div className="text-green-700 text-xs font-semibold p-3 bg-green-50 rounded border border-green-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  {adminSuccess}
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-4 border-t border-premium-border">
+                <button
+                  type="submit"
+                  className="flex-grow bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3.5 rounded transition-all shadow"
+                >
+                  Create Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAdminModal(false)}
+                  className="border border-premium-border hover:bg-gray-50 text-premium-dark font-semibold text-xs tracking-widest uppercase py-3.5 px-6 rounded transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>

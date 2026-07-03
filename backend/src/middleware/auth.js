@@ -22,7 +22,11 @@ const isAdmin = (req, res, next) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  if (req.user.email === 'admin@specs.com') {
+  if (
+    req.user.role === 'admin' ||
+    req.user.email === 'dev.parceluncle@gmail.com' ||
+    req.user.email === 'admin@specs.com'
+  ) {
     next();
   } else {
     res.status(403).json({ message: 'Forbidden: Admin access only' });

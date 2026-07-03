@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     face_shape TEXT DEFAULT NULL,
+    role TEXT DEFAULT 'user',
     created_at TEXT DEFAULT (datetime('now'))
 );
 

@@ -367,7 +367,7 @@ export default function App({ Component, pageProps }) {
                             <User className="h-5 w-5 sm:h-6 sm:w-6 text-premium-accent" />
                             <span className="hidden md:inline max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
                           </Link>
-                          {user.email === 'admin@specs.com' && (
+                          {(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') && (
                             <Link href="/admin" className="text-[10px] bg-premium-black text-premium-accent px-2 py-0.5 rounded tracking-wider uppercase font-bold hover:bg-premium-accent hover:text-white transition-all ml-1">
                               Admin
                             </Link>

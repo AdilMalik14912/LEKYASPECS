@@ -6,7 +6,7 @@ require('dotenv').config();
 // Helper to generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, name: user.name, email: user.email },
+    { id: user.id, name: user.name, email: user.email, role: user.role || 'user' },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -38,7 +38,7 @@ const register = async (req, res) => {
     );
 
     // Fetch newly created user
-    const newUserRes = await db.query('SELECT id, name, email, face_shape, created_at FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+    const newUserRes = await db.query('SELECT id, name, email, face_shape, role, created_at FROM users WHERE email = ?', [email.toLowerCase().trim()]);
     const user = newUserRes.rows[0];
     const token = generateToken(user);
 
@@ -49,6 +49,7 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
         face_shape: user.face_shape,
+        role: user.role || 'user',
         createdAt: user.created_at
       }
     });
@@ -89,6 +90,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         face_shape: user.face_shape,
+        role: user.role || 'user',
         createdAt: user.created_at
       }
     });
