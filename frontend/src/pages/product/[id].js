@@ -5,6 +5,10 @@ const Link = require('next/link').default;
 const { useCart, useWishlist, useAuth } = require('../_app');
 const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle } = require('lucide-react');
 
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
+
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -33,7 +37,7 @@ export default function ProductDetail() {
     if (!id) return;
     
     setLoading(true);
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`${API_BASE}/api/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Product not found');
         return res.json();
@@ -54,7 +58,7 @@ export default function ProductDetail() {
   // Check face shape recommendation match
   useEffect(() => {
     if (product && user && user.face_shape) {
-      fetch(`http://localhost:5000/api/products/recommendations/${user.face_shape}`)
+      fetch(`${API_BASE}/api/products/recommendations/${user.face_shape}`)
         .then(res => res.json())
         .then(data => {
           const shapes = data.recommended_frame_shapes || [];
@@ -90,7 +94,7 @@ export default function ProductDetail() {
     setReviewError('');
     setReviewSuccess('');
 
-    fetch('http://localhost:5000/api/orders/review', {
+    fetch(`${API_BASE}/api/orders/review`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
