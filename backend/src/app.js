@@ -208,6 +208,22 @@ app.post('/api/admin/create-admin', authenticateToken, isAdmin, adminController.
 app.get('/api/admin/admins', authenticateToken, isAdmin, adminController.getAdminList);
 app.post('/api/admin/demote-admin', authenticateToken, isAdmin, adminController.demoteAdminUser);
 
+// Coupons / Promos
+app.post('/api/admin/coupons', authenticateToken, isAdmin, adminController.createCoupon);
+app.get('/api/admin/coupons', authenticateToken, isAdmin, adminController.getCoupons);
+app.put('/api/admin/coupons/:id', authenticateToken, isAdmin, adminController.toggleCouponStatus);
+app.delete('/api/admin/coupons/:id', authenticateToken, isAdmin, adminController.deleteCoupon);
+
+// Email Broadcast
+app.post('/api/admin/broadcast', authenticateToken, isAdmin, adminController.broadcastEmail);
+
+// CSV Data Export
+app.get('/api/admin/export/orders', authenticateToken, isAdmin, adminController.exportOrdersCSV);
+app.get('/api/admin/export/customers', authenticateToken, isAdmin, adminController.exportCustomersCSV);
+
+// Admin Activity Log
+app.get('/api/admin/logs', authenticateToken, isAdmin, adminController.getActivityLogs);
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err);

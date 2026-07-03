@@ -70,3 +70,25 @@ CREATE TABLE IF NOT EXISTS store_settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+-- 8. Coupons / Promo Codes
+CREATE TABLE IF NOT EXISTS coupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE NOT NULL,
+    discount_type TEXT NOT NULL DEFAULT 'percentage',
+    discount_value REAL NOT NULL,
+    expiry_date TEXT DEFAULT NULL,
+    max_uses INTEGER DEFAULT NULL,
+    times_used INTEGER DEFAULT 0,
+    is_active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 9. Admin Activity Log
+CREATE TABLE IF NOT EXISTS admin_activity_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    admin_email TEXT NOT NULL,
+    action_type TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);

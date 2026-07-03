@@ -209,10 +209,30 @@ const sendPasswordResetEmail = async ({ to, name, resetLink }) => {
   return sendMail({ to, subject: 'Reset Your Password — Lekya Specs', html });
 };
 
+// ── 5. Broadcast Promotional Email ─────────────────────────────────────────
+const sendBroadcastEmail = async ({ to, subject, bodyHtml }) => {
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;">
+      <div style="background:#1a1a1a;padding:32px;text-align:center;">
+        <h1 style="color:#C5A028;margin:0;font-size:24px;letter-spacing:3px;">LEKYA SPECS</h1>
+        <p style="color:#fff;margin:8px 0 0;font-size:13px;">Exclusive Update from Lekya Specs</p>
+      </div>
+      <div style="padding:32px;">
+        ${bodyHtml}
+      </div>
+      <div style="background:#f5f5f5;padding:16px;text-align:center;">
+        <p style="color:#999;font-size:11px;margin:0;">© 2026 Lekya Specs. Premium Eyewear. You're receiving this because you're a registered customer.</p>
+      </div>
+    </div>
+  `;
+  return sendMail({ to, subject, html });
+};
+
 module.exports = {
   sendMail,
   sendContactEmail,
   sendOrderConfirmation,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendBroadcastEmail,
 };

@@ -5,11 +5,139 @@ const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
-  Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders 
+  Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
+  Tag, Mail, ScrollText, Download
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
+
+// --- Premium Custom Canvas-based Sales Chart ---
+function RevenueChart({ data }) {
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Support high DPI screens
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = 300 * dpr;
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const height = 300;
+    ctx.clearRect(0, 0, width, height);
+
+    if (!data || data.length === 0) {
+      ctx.fillStyle = '#999';
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No sales trend data available for this range', width / 2, height / 2);
+      return;
+    }
+
+    const margin = { top: 30, right: 30, bottom: 40, left: 60 };
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    const maxSales = Math.max(...data.map(d => parseFloat(d.sales || '0')), 1000);
+    const minSales = 0;
+
+    // Draw horizontal grid lines & Y labels
+    ctx.strokeStyle = '#f0f0f0';
+    ctx.lineWidth = 1;
+    const yTicks = 4;
+    for (let i = 0; i <= yTicks; i++) {
+      const yVal = minSales + ((maxSales - minSales) * i) / yTicks;
+      const yPos = margin.top + chartHeight - (i * chartHeight) / yTicks;
+      
+      ctx.beginPath();
+      ctx.moveTo(margin.left, yPos);
+      ctx.lineTo(margin.left + chartWidth, yPos);
+      ctx.stroke();
+
+      ctx.fillStyle = '#777';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`₹${Math.round(yVal).toLocaleString('en-IN')}`, margin.left - 10, yPos + 3);
+    }
+
+    // Points calculation
+    const points = data.map((d, i) => {
+      const x = margin.left + (i * chartWidth) / (data.length - 1 || 1);
+      const salesVal = parseFloat(d.sales || '0');
+      const y = margin.top + chartHeight - ((salesVal - minSales) * chartHeight) / (maxSales - minSales);
+      return { x, y, date: d.date, sales: salesVal };
+    });
+
+    // Fill under line (gradient)
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, margin.top + chartHeight);
+    points.forEach((p, idx) => {
+      if (idx === 0) {
+        ctx.lineTo(p.x, p.y);
+      } else {
+        const prev = points[idx - 1];
+        const cpX1 = prev.x + (p.x - prev.x) / 2;
+        const cpY1 = prev.y;
+        const cpX2 = prev.x + (p.x - prev.x) / 2;
+        const cpY2 = p.y;
+        ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, p.x, p.y);
+      }
+    });
+    ctx.lineTo(points[points.length - 1].x, margin.top + chartHeight);
+    ctx.closePath();
+
+    const gradient = ctx.createLinearGradient(0, margin.top, 0, margin.top + chartHeight);
+    gradient.addColorStop(0, 'rgba(197, 160, 40, 0.25)');
+    gradient.addColorStop(1, 'rgba(197, 160, 40, 0.01)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Draw connecting curve line
+    ctx.beginPath();
+    points.forEach((p, idx) => {
+      if (idx === 0) {
+        ctx.moveTo(p.x, p.y);
+      } else {
+        const prev = points[idx - 1];
+        const cpX1 = prev.x + (p.x - prev.x) / 2;
+        const cpY1 = prev.y;
+        const cpX2 = prev.x + (p.x - prev.x) / 2;
+        const cpY2 = p.y;
+        ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, p.x, p.y);
+      }
+    });
+    ctx.strokeStyle = '#C5A028';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Draw dots and X date labels
+    points.forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#C5A028';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#555';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      const dateStr = new Date(p.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      ctx.fillText(dateStr, p.x, margin.top + chartHeight + 20);
+    });
+
+  }, [data]);
+
+  return <canvas ref={canvasRef} className="w-full" style={{ height: '300px' }} />;
+}
 
 export default function Admin() {
   const router = useRouter();
@@ -76,6 +204,29 @@ export default function Admin() {
   const [adminPassword, setAdminPassword] = useState('');
   const [adminError, setAdminError] = useState('');
   const [adminSuccess, setAdminSuccess] = useState('');
+
+  // Coupon System State
+  const [coupons, setCoupons] = useState([]);
+  const [couponsLoading, setCouponsLoading] = useState(true);
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponType, setCouponType] = useState('percentage');
+  const [couponValue, setCouponValue] = useState('');
+  const [couponExpiry, setCouponExpiry] = useState('');
+  const [couponMaxUses, setCouponMaxUses] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
+  // Broadcast Email State
+  const [broadcastSubject, setBroadcastSubject] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
+  const [broadcastSending, setBroadcastSending] = useState(false);
+  const [broadcastSuccess, setBroadcastSuccess] = useState('');
+  const [broadcastError, setBroadcastError] = useState('');
+
+  // Activity Log State
+  const [logs, setLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(true);
 
   // Security gate: redirect if not admin
   useEffect(() => {
@@ -145,6 +296,22 @@ export default function Admin() {
       })
         .then(res => res.json())
         .then(data => { setAdmins(data); setAdminsLoading(false); })
+        .catch(err => console.error(err));
+    } else if (activeTab === 'coupons') {
+      setCouponsLoading(true);
+      fetch(`${API_BASE}/api/admin/coupons`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setCoupons(data); setCouponsLoading(false); })
+        .catch(err => console.error(err));
+    } else if (activeTab === 'logs') {
+      setLogsLoading(true);
+      fetch(`${API_BASE}/api/admin/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setLogs(data); setLogsLoading(false); })
         .catch(err => console.error(err));
     }
   }, [activeTab, token, user]);
@@ -348,6 +515,116 @@ export default function Admin() {
       .catch(err => alert(err.message));
   };
 
+  // Handle coupon creation
+  const handleCouponSubmit = (e) => {
+    e.preventDefault();
+    setCouponError('');
+    setCouponSuccess('');
+
+    fetch(`${API_BASE}/api/admin/coupons`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        code: couponCode,
+        discount_type: couponType,
+        discount_value: couponValue,
+        expiry_date: couponExpiry || null,
+        max_uses: couponMaxUses || null
+      })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        setCouponSuccess('Promo code created successfully');
+        setCouponCode('');
+        setCouponValue('');
+        setCouponExpiry('');
+        setCouponMaxUses('');
+        // Refresh coupons
+        fetch(`${API_BASE}/api/admin/coupons`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setCoupons(list));
+        setTimeout(() => setShowCouponModal(false), 1500);
+      })
+      .catch(err => setCouponError(err.message));
+  };
+
+  // Handle coupon deletion
+  const handleDeleteCoupon = (id) => {
+    if (!window.confirm('Are you sure you want to delete this promo code?')) return;
+
+    fetch(`${API_BASE}/api/admin/coupons/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        setCoupons(coupons.filter(c => c.id !== id));
+      })
+      .catch(err => alert(err.message));
+  };
+
+  // Handle coupon toggle
+  const handleToggleCoupon = (id, activeStatus) => {
+    fetch(`${API_BASE}/api/admin/coupons/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ is_active: activeStatus })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        setCoupons(coupons.map(c => c.id === id ? { ...c, is_active: activeStatus ? 1 : 0 } : c));
+      })
+      .catch(err => alert(err.message));
+  };
+
+  // Handle broadcast submit
+  const handleBroadcastSubmit = (e) => {
+    e.preventDefault();
+    setBroadcastError('');
+    setBroadcastSuccess('');
+    setBroadcastSending(true);
+
+    fetch(`${API_BASE}/api/admin/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ subject: broadcastSubject, bodyHtml: broadcastBody })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        setBroadcastSuccess(data.message || 'Email campaign broadcast completed successfully.');
+        setBroadcastSubject('');
+        setBroadcastBody('');
+        setBroadcastSending(false);
+      })
+      .catch(err => {
+        setBroadcastError(err.message);
+        setBroadcastSending(false);
+      });
+  };
+
   // --- RENDER SECURITY CHECKS ---
   if (authLoading) {
     return (
@@ -429,6 +706,33 @@ export default function Admin() {
           </button>
 
           <button
+            onClick={() => setActiveTab('coupons')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'coupons' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Tag className="w-4 h-4" /> Promo Codes
+          </button>
+
+          <button
+            onClick={() => setActiveTab('broadcast')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'broadcast' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Mail className="w-4 h-4" /> Email Broadcast
+          </button>
+
+          <button
+            onClick={() => setActiveTab('logs')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'logs' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <ScrollText className="w-4 h-4" /> Activity Log
+          </button>
+
+          <button
             onClick={() => setActiveTab('customizer')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
               activeTab === 'customizer' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -457,6 +761,59 @@ export default function Admin() {
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
             ) : (
               <div className="space-y-8">
+                {/* Quick-Action Power Widgets */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <button 
+                    onClick={() => {
+                      setOrderStatusFilter('Pending');
+                      setActiveTab('orders');
+                    }}
+                    className="flex items-center justify-between p-4 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded text-left transition-all group"
+                  >
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-amber-700 tracking-wider">Pending Orders</span>
+                      <span className="text-2xl font-extrabold text-amber-900">{analytics.metrics.pending_orders}</span>
+                    </div>
+                    <ClipboardList className="w-8 h-8 text-amber-400 group-hover:scale-110 transition-transform" />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setProductSearch('');
+                      setActiveTab('products');
+                    }}
+                    className="flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-left transition-all group"
+                  >
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-red-700 tracking-wider">Out of Stock</span>
+                      <span className="text-2xl font-extrabold text-red-900">{analytics.metrics.out_of_stock}</span>
+                    </div>
+                    <ShoppingBag className="w-8 h-8 text-red-400 group-hover:scale-110 transition-transform" />
+                  </button>
+
+                  <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded text-left">
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-green-700 tracking-wider">Today's Revenue</span>
+                      <span className="text-2xl font-extrabold text-green-900">₹{analytics.metrics.today_sales.toLocaleString('en-IN')}</span>
+                    </div>
+                    <Landmark className="w-8 h-8 text-green-400" />
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setCustomerSearch('');
+                      setActiveTab('customers');
+                    }}
+                    className="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-left transition-all group"
+                  >
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-blue-700 tracking-wider">New Users Today</span>
+                      <span className="text-2xl font-extrabold text-blue-900">{analytics.metrics.new_customers_today}</span>
+                    </div>
+                    <Users className="w-8 h-8 text-blue-400 group-hover:scale-110 transition-transform" />
+                  </button>
+                </div>
+
                 {/* Metric Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
@@ -471,6 +828,15 @@ export default function Admin() {
                     <span className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Registered Customers</span>
                     <span className="text-3xl font-bold text-premium-black">{analytics.metrics.total_customers}</span>
                   </div>
+                </div>
+
+                {/* 7-Day Revenue Line Chart */}
+                <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-serif text-lg font-bold text-premium-black">7-Day Sales Trend</h3>
+                    <span className="text-xs text-premium-gray font-semibold">Live Transaction Activity</span>
+                  </div>
+                  <RevenueChart data={analytics.sales_trend} />
                 </div>
 
                 {/* Grid for top selling & low stock */}
@@ -640,9 +1006,32 @@ export default function Admin() {
         {/* --- TAB 3: ORDER STATUS ACTIONS --- */}
         {activeTab === 'orders' && (
           <div>
-            <h2 className="font-serif text-3xl font-bold text-premium-black mb-8 border-b border-premium-border pb-4">
-              Customer Orders
-            </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
+              <h2 className="font-serif text-3xl font-bold text-premium-black">
+                Customer Orders
+              </h2>
+              <button
+                onClick={() => {
+                  fetch(`${API_BASE}/api/admin/export/orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  })
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `orders_export_${new Date().toISOString().slice(0, 10)}.csv`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                    })
+                    .catch(err => console.error(err));
+                }}
+                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+              >
+                <Download className="w-4 h-4" /> Export to CSV
+              </button>
+            </div>
 
             {ordersLoading ? (
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
@@ -788,9 +1177,32 @@ export default function Admin() {
         {/* --- TAB 4: CUSTOMERS DIRECTORY --- */}
         {activeTab === 'customers' && (
           <div>
-            <h2 className="font-serif text-3xl font-bold text-premium-black mb-8 border-b border-premium-border pb-4">
-              Registered Customers
-            </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
+              <h2 className="font-serif text-3xl font-bold text-premium-black">
+                Registered Customers
+              </h2>
+              <button
+                onClick={() => {
+                  fetch(`${API_BASE}/api/admin/export/customers`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  })
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `customers_export_${new Date().toISOString().slice(0, 10)}.csv`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                    })
+                    .catch(err => console.error(err));
+                }}
+                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+              >
+                <Download className="w-4 h-4" /> Export to CSV
+              </button>
+            </div>
 
             {customersLoading ? (
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
@@ -1032,6 +1444,202 @@ export default function Admin() {
           </div>
         )}
 
+        {/* --- TAB 7: COUPONS & PROMO CODES --- */}
+        {activeTab === 'coupons' && (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
+              <h2 className="font-serif text-3xl font-bold text-premium-black">
+                Promo & Coupon Codes
+              </h2>
+              <button
+                onClick={() => {
+                  setCouponCode('');
+                  setCouponValue('');
+                  setCouponExpiry('');
+                  setCouponMaxUses('');
+                  setCouponError('');
+                  setCouponSuccess('');
+                  setShowCouponModal(true);
+                }}
+                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+              >
+                <Plus className="w-4 h-4" /> Create Coupon
+              </button>
+            </div>
+
+            {couponsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : (
+              <div>
+                {coupons.length === 0 ? (
+                  <p className="text-center py-10 bg-white border rounded text-premium-gray">No promotional coupons configured yet.</p>
+                ) : (
+                  <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
+                    <table className="min-w-full divide-y divide-premium-border text-left">
+                      <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                        <tr>
+                          <th className="px-6 py-4">Code</th>
+                          <th className="px-6 py-4">Discount Type</th>
+                          <th className="px-6 py-4">Value</th>
+                          <th className="px-6 py-4">Expiry Date</th>
+                          <th className="px-6 py-4">Uses</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                        {coupons.map(cp => (
+                          <tr key={cp.id} className="hover:bg-premium-light/50">
+                            <td className="px-6 py-4 font-mono font-bold text-premium-accent text-xs">{cp.code}</td>
+                            <td className="px-6 py-4 text-xs capitalize">{cp.discount_type}</td>
+                            <td className="px-6 py-4">
+                              {cp.discount_type === 'percentage' ? `${cp.discount_value}%` : `₹${cp.discount_value}`}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-premium-gray">
+                              {cp.expiry_date ? new Date(cp.expiry_date).toLocaleDateString('en-IN') : 'Never'}
+                            </td>
+                            <td className="px-6 py-4 text-xs font-mono">
+                              {cp.times_used} / {cp.max_uses || '∞'}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
+                                cp.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                              }`}>
+                                {cp.is_active ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-center items-center gap-3">
+                                <button
+                                  onClick={() => handleToggleCoupon(cp.id, !cp.is_active)}
+                                  className="text-xs font-semibold hover:text-premium-accent transition-colors"
+                                >
+                                  {cp.is_active ? 'Deactivate' : 'Activate'}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCoupon(cp.id)}
+                                  className="text-red-600 hover:text-red-800 p-1"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- TAB 8: EMAIL CAMPAIGN BROADCAST --- */}
+        {activeTab === 'broadcast' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              Promotional Email Broadcast
+            </h2>
+            <p className="text-xs text-premium-gray font-light mb-8">
+              Send a stylized newsletter, campaign update, or discount notification directly to all registered customers in the database.
+            </p>
+
+            <form onSubmit={handleBroadcastSubmit} className="bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm space-y-6 max-w-2xl">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Subject Line</label>
+                <input
+                  type="text"
+                  required
+                  value={broadcastSubject}
+                  onChange={(e) => setBroadcastSubject(e.target.value)}
+                  placeholder="e.g. 🕶️ Exclusive Summer Sale: Flat 20% off all eyewear!"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Email Body (HTML format supported)</label>
+                <textarea
+                  required
+                  rows="10"
+                  value={broadcastBody}
+                  onChange={(e) => setBroadcastBody(e.target.value)}
+                  placeholder="<h2 style='color:#C5A028;'>Hello {{name}}!</h2><p>Our exclusive summer sale is live. Use code SUMMER20 at checkout.</p>"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-medium leading-relaxed"
+                />
+                <p className="text-[10px] text-gray-400 mt-1 font-light">Tip: Use <strong>{"{{name}}"}</strong> to automatically insert the customer's first name.</p>
+              </div>
+
+              {broadcastError && (
+                <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+                  {broadcastError}
+                </div>
+              )}
+
+              {broadcastSuccess && (
+                <div className="text-green-700 text-xs font-semibold p-3 bg-green-50 rounded border border-green-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  {broadcastSuccess}
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-premium-border">
+                <button
+                  type="submit"
+                  disabled={broadcastSending}
+                  className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-4 px-10 rounded transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                >
+                  {broadcastSending ? 'Sending emails...' : 'Send Broadcast Email'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* --- TAB 9: ADMIN ACTIVITY LOGS --- */}
+        {activeTab === 'logs' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-8 border-b border-premium-border pb-4">
+              Administrator Activity Log
+            </h2>
+
+            {logsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : (
+              <div>
+                {logs.length === 0 ? (
+                  <p className="text-center py-10 bg-white border rounded text-premium-gray">No activity logs recorded yet.</p>
+                ) : (
+                  <div className="bg-white border border-premium-border rounded overflow-hidden shadow-sm">
+                    <div className="max-h-[600px] overflow-y-auto divide-y divide-premium-border">
+                      {logs.map(log => (
+                        <div key={log.id} className="p-4 hover:bg-premium-light/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-premium-black text-premium-accent mr-3">
+                              {log.action_type}
+                            </span>
+                            <span className="text-sm text-premium-dark font-medium">{log.description}</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="text-xs text-premium-gray font-mono block">{log.admin_email}</span>
+                            <span className="text-[9px] text-gray-400 font-medium block mt-0.5">
+                              {new Date(log.created_at).toLocaleString('en-IN', {
+                                dateStyle: 'medium',
+                                timeStyle: 'short'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
       </main>
 
       {/* --- ADD/EDIT PRODUCT MODAL POPUP --- */}
@@ -1241,6 +1849,108 @@ export default function Admin() {
                 <button
                   type="button"
                   onClick={() => setShowAdminModal(false)}
+                  className="border border-premium-border hover:bg-gray-50 text-premium-dark font-semibold text-xs tracking-widest uppercase py-3.5 px-6 rounded transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* --- CREATE COUPON MODAL POPUP --- */}
+      {showCouponModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-premium-border rounded-lg max-w-md w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <h3 className="font-serif text-2xl font-bold text-premium-black mb-6">
+              Create Promo / Coupon Code
+            </h3>
+
+            <form onSubmit={handleCouponSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Coupon Code</label>
+                <input
+                  type="text"
+                  required
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="e.g. GET30, FIRST500"
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Discount Type</label>
+                  <select
+                    value={couponType}
+                    onChange={(e) => setCouponType(e.target.value)}
+                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-semibold"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="flat">Flat INR (₹)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Discount Value</label>
+                  <input
+                    type="number"
+                    required
+                    value={couponValue}
+                    onChange={(e) => setCouponValue(e.target.value)}
+                    placeholder="e.g. 10 or 500"
+                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Expiry Date (Optional)</label>
+                  <input
+                    type="date"
+                    value={couponExpiry}
+                    onChange={(e) => setCouponExpiry(e.target.value)}
+                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Max Uses (Optional)</label>
+                  <input
+                    type="number"
+                    value={couponMaxUses}
+                    onChange={(e) => setCouponMaxUses(e.target.value)}
+                    placeholder="e.g. 100"
+                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                  />
+                </div>
+              </div>
+
+              {couponError && (
+                <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+                  {couponError}
+                </div>
+              )}
+
+              {couponSuccess && (
+                <div className="text-green-700 text-xs font-semibold p-3 bg-green-50 rounded border border-green-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  {couponSuccess}
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-4 border-t border-premium-border">
+                <button
+                  type="submit"
+                  className="flex-grow bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3.5 rounded transition-all shadow"
+                >
+                  Create Promo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCouponModal(false)}
                   className="border border-premium-border hover:bg-gray-50 text-premium-dark font-semibold text-xs tracking-widest uppercase py-3.5 px-6 rounded transition-all"
                 >
                   Cancel

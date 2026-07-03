@@ -1,5 +1,17 @@
 const db = require('../config/db');
 
+// Helper to log admin actions
+const logAdminActivity = async (adminEmail, actionType, description) => {
+  try {
+    await db.query(
+      "INSERT INTO admin_activity_log (admin_email, action_type, description) VALUES (?, ?, ?)",
+      [adminEmail, actionType, description]
+    );
+  } catch (err) {
+    console.error('Log admin activity error:', err);
+  }
+};
+
 // 1. Get Dashboard Analytics / Stats
 const getDashboardStats = async (req, res) => {
   try {
@@ -14,6 +26,22 @@ const getDashboardStats = async (req, res) => {
     // Total customers count
     const usersCountRes = await db.query(
       "SELECT COUNT(*) as total_customers FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com'"
+    );
+
+    // Pending orders count
+    const pendingOrdersRes = await db.query("SELECT COUNT(*) as pending_orders FROM orders WHERE status = 'Pending'");
+
+    // Out of stock products count
+    const outOfStockRes = await db.query("SELECT COUNT(*) as out_of_stock FROM products WHERE stock = 0");
+
+    // Today's revenue
+    const todaySalesRes = await db.query(
+      "SELECT COALESCE(SUM(total_amount), 0) as today_sales FROM orders WHERE status = 'Paid' AND created_at >= date('now')"
+    );
+
+    // New customers today
+    const newCustomersTodayRes = await db.query(
+      "SELECT COUNT(*) as new_customers FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com' AND created_at >= date('now')"
     );
 
     // Low stock products warning (stock <= 5)
@@ -68,9 +96,13 @@ const getDashboardStats = async (req, res) => {
 
     res.json({
       metrics: {
-        total_sales:     parseFloat(revenueRes.rows[0].total_sales)     || 0,
-        total_orders:    parseInt(ordersCountRes.rows[0].total_orders)   || 0,
-        total_customers: parseInt(usersCountRes.rows[0].total_customers) || 0
+        total_sales:          parseFloat(revenueRes.rows[0].total_sales)               || 0,
+        total_orders:         parseInt(ordersCountRes.rows[0].total_orders)             || 0,
+        total_customers:      parseInt(usersCountRes.rows[0].total_customers)           || 0,
+        pending_orders:       parseInt(pendingOrdersRes.rows[0].pending_orders)         || 0,
+        out_of_stock:         parseInt(outOfStockRes.rows[0].out_of_stock)             || 0,
+        today_sales:          parseFloat(todaySalesRes.rows[0].today_sales)             || 0,
+        new_customers_today:  parseInt(newCustomersTodayRes.rows[0].new_customers)     || 0
       },
       low_stock_alerts:      lowStockRes.rows,
       category_distribution: categorySalesRes.rows,
@@ -116,6 +148,7 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    await logAdminActivity(req.user.email, 'UPDATE_ORDER_STATUS', `Updated order #${id} status to ${status}`);
     res.json({ message: 'Order status updated successfully', order: result.rows[0] });
   } catch (err) {
     console.error('Update order status error:', err);
@@ -160,6 +193,7 @@ const addProduct = async (req, res) => {
     );
 
     const newProduct = await db.query('SELECT * FROM products WHERE name = ? ORDER BY id DESC LIMIT 1', [name]);
+    await logAdminActivity(req.user.email, 'ADD_PRODUCT', `Added eyewear frame '${name}' (Category: ${category}, Price: ₹${price})`);
     res.status(201).json({ message: 'Product created successfully', product: newProduct.rows[0] });
   } catch (err) {
     console.error('Add product error:', err);
@@ -187,6 +221,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
+    await logAdminActivity(req.user.email, 'UPDATE_PRODUCT', `Updated product ID #${id} details ('${name}')`);
     res.json({ message: 'Product updated successfully', product: result.rows[0] });
   } catch (err) {
     console.error('Update product error:', err);
@@ -199,11 +234,13 @@ const deleteProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const existing = await db.query('SELECT id FROM products WHERE id = ?', [id]);
+    const existing = await db.query('SELECT name FROM products WHERE id = ?', [id]);
     if (existing.rows.length === 0) {
       return res.status(404).json({ message: 'Product not found' });
     }
+    const name = existing.rows[0].name;
     await db.query('DELETE FROM products WHERE id = ?', [id]);
+    await logAdminActivity(req.user.email, 'DELETE_PRODUCT', `Deleted product ID #${id} ('${name}')`);
     res.json({ message: 'Product deleted successfully', id: parseInt(id) });
   } catch (err) {
     console.error('Delete product error:', err);
@@ -246,6 +283,7 @@ const updateSettings = async (req, res) => {
       );
     }
 
+    await logAdminActivity(req.user.email, 'UPDATE_SETTINGS', `Updated store CMS home page configuration`);
     res.json({ message: 'Store settings updated successfully' });
   } catch (err) {
     console.error('Update settings error:', err);
@@ -268,6 +306,7 @@ const createAdminUser = async (req, res) => {
       // Promote existing user to admin
       const existingUser = userCheck.rows[0];
       await db.query("UPDATE users SET role = 'admin' WHERE id = ?", [existingUser.id]);
+      await logAdminActivity(req.user.email, 'CREATE_ADMIN', `Promoted existing user ${email.toLowerCase().trim()} to administrator`);
       return res.status(200).json({ message: 'Existing user promoted to admin successfully' });
     }
 
@@ -282,6 +321,7 @@ const createAdminUser = async (req, res) => {
       [name, email.toLowerCase().trim(), passwordHash]
     );
 
+    await logAdminActivity(req.user.email, 'CREATE_ADMIN', `Created new administrator user ${email.toLowerCase().trim()}`);
     res.status(201).json({ message: 'New administrator created successfully' });
   } catch (err) {
     console.error('Create admin error:', err);
@@ -316,10 +356,187 @@ const demoteAdminUser = async (req, res) => {
     }
 
     await db.query("UPDATE users SET role = 'user' WHERE id = ?", [id]);
+    await logAdminActivity(req.user.email, 'DEMOTE_ADMIN', `Demoted administrator user ${userEmail}`);
     res.json({ message: 'Admin demoted successfully' });
   } catch (err) {
     console.error('Demote admin error:', err);
     res.status(500).json({ message: 'Server error demoting admin' });
+  }
+};
+
+// --- COUPONS / PROMO CODE CRUD ---
+const createCoupon = async (req, res) => {
+  const { code, discount_type, discount_value, expiry_date, max_uses } = req.body;
+  if (!code || !discount_value) {
+    return res.status(400).json({ message: 'Coupon code and discount value are required' });
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO coupons (code, discount_type, discount_value, expiry_date, max_uses)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        code.toUpperCase().trim(),
+        discount_type || 'percentage',
+        parseFloat(discount_value),
+        expiry_date || null,
+        max_uses ? parseInt(max_uses) : null
+      ]
+    );
+
+    await logAdminActivity(req.user.email, 'CREATE_COUPON', `Created promo code: ${code.toUpperCase()}`);
+    res.status(201).json({ message: 'Promo code created successfully' });
+  } catch (err) {
+    console.error('Create coupon error:', err);
+    res.status(500).json({ message: 'Server error creating coupon. It might already exist.' });
+  }
+};
+
+const getCoupons = async (req, res) => {
+  try {
+    const couponsRes = await db.query('SELECT * FROM coupons ORDER BY created_at DESC');
+    res.json(couponsRes.rows);
+  } catch (err) {
+    console.error('Get coupons error:', err);
+    res.status(500).json({ message: 'Server error fetching coupons' });
+  }
+};
+
+const toggleCouponStatus = async (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+  try {
+    await db.query('UPDATE coupons SET is_active = ? WHERE id = ?', [is_active ? 1 : 0, id]);
+    const couponRes = await db.query('SELECT code FROM coupons WHERE id = ?', [id]);
+    const code = couponRes.rows[0]?.code || id;
+    await logAdminActivity(
+      req.user.email,
+      'TOGGLE_COUPON',
+      `Toggled status of coupon ${code} to ${is_active ? 'Active' : 'Inactive'}`
+    );
+    res.json({ message: 'Promo code status updated successfully' });
+  } catch (err) {
+    console.error('Toggle coupon error:', err);
+    res.status(500).json({ message: 'Server error updating coupon status' });
+  }
+};
+
+const deleteCoupon = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const couponRes = await db.query('SELECT code FROM coupons WHERE id = ?', [id]);
+    const code = couponRes.rows[0]?.code || id;
+    await db.query('DELETE FROM coupons WHERE id = ?', [id]);
+    await logAdminActivity(req.user.email, 'DELETE_COUPON', `Deleted promo code: ${code}`);
+    res.json({ message: 'Promo code deleted successfully' });
+  } catch (err) {
+    console.error('Delete coupon error:', err);
+    res.status(500).json({ message: 'Server error deleting coupon' });
+  }
+};
+
+// --- BROADCAST EMAIL CAMPAIGN ---
+const broadcastEmail = async (req, res) => {
+  const { subject, bodyHtml } = req.body;
+  if (!subject || !bodyHtml) {
+    return res.status(400).json({ message: 'Subject and HTML content are required' });
+  }
+
+  try {
+    const { sendBroadcastEmail } = require('../utils/mailer');
+    const usersRes = await db.query("SELECT email, name FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com'");
+    const customers = usersRes.rows;
+
+    if (customers.length === 0) {
+      return res.status(400).json({ message: 'No customers found to broadcast to' });
+    }
+
+    // Send emails
+    let sentCount = 0;
+    for (const customer of customers) {
+      try {
+        const customizedBody = bodyHtml.replace(/\{\{name\}\}/gi, customer.name);
+        await sendBroadcastEmail({
+          to: customer.email,
+          subject: subject,
+          bodyHtml: customizedBody
+        });
+        sentCount++;
+      } catch (sendErr) {
+        console.error(`Failed to send broadcast email to ${customer.email}:`, sendErr);
+      }
+    }
+
+    await logAdminActivity(
+      req.user.email,
+      'BROADCAST_EMAIL',
+      `Sent email broadcast '${subject}' to ${sentCount} customers`
+    );
+
+    res.json({ message: `Broadcast sent successfully to ${sentCount} customers.` });
+  } catch (err) {
+    console.error('Broadcast email error:', err);
+    res.status(500).json({ message: 'Server error sending email broadcast' });
+  }
+};
+
+// --- EXPORT DATA TO CSV ---
+const exportOrdersCSV = async (req, res) => {
+  try {
+    const ordersRes = await db.query(
+      `SELECT o.id, u.name as user_name, u.email as user_email, o.total_amount, o.status, o.created_at
+       FROM orders o
+       JOIN users u ON o.user_id = u.id
+       ORDER BY o.created_at DESC`
+    );
+
+    let csvContent = 'Order ID,Customer Name,Customer Email,Total Amount,Status,Date Created\n';
+    ordersRes.rows.forEach(order => {
+      csvContent += `${order.id},"${order.user_name.replace(/"/g, '""')}","${order.user_email}",${order.total_amount},"${order.status}","${order.created_at}"\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=orders_export.csv');
+    res.status(200).send(csvContent);
+  } catch (err) {
+    console.error('Export orders CSV error:', err);
+    res.status(500).json({ message: 'Server error exporting orders data' });
+  }
+};
+
+const exportCustomersCSV = async (req, res) => {
+  try {
+    const usersRes = await db.query(
+      `SELECT u.id, u.name, u.email, u.face_shape, u.created_at,
+              (SELECT COUNT(*) FROM orders WHERE user_id = u.id AND status = 'Paid') as paid_orders_count,
+              (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND status = 'Paid') as total_spend
+       FROM users u
+       WHERE u.role != 'admin' AND u.email != 'admin@specs.com' AND u.email != 'dev.parceluncle@gmail.com'
+       ORDER BY u.created_at DESC`
+    );
+
+    let csvContent = 'Customer ID,Name,Email,Face Shape,Paid Orders,Total Spend,Join Date\n';
+    usersRes.rows.forEach(cust => {
+      csvContent += `${cust.id},"${cust.name.replace(/"/g, '""')}","${cust.email}","${cust.face_shape || 'None'}",${cust.paid_orders_count},${cust.total_spend},"${cust.created_at}"\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=customers_export.csv');
+    res.status(200).send(csvContent);
+  } catch (err) {
+    console.error('Export customers CSV error:', err);
+    res.status(500).json({ message: 'Server error exporting customers data' });
+  }
+};
+
+// --- ADMIN ACTIVITY LOG ---
+const getActivityLogs = async (req, res) => {
+  try {
+    const logsRes = await db.query('SELECT * FROM admin_activity_log ORDER BY created_at DESC LIMIT 100');
+    res.json(logsRes.rows);
+  } catch (err) {
+    console.error('Get activity logs error:', err);
+    res.status(500).json({ message: 'Server error retrieving activity logs' });
   }
 };
 
@@ -335,5 +552,13 @@ module.exports = {
   updateSettings,
   createAdminUser,
   getAdminList,
-  demoteAdminUser
+  demoteAdminUser,
+  createCoupon,
+  getCoupons,
+  toggleCouponStatus,
+  deleteCoupon,
+  broadcastEmail,
+  exportOrdersCSV,
+  exportCustomersCSV,
+  getActivityLogs
 };

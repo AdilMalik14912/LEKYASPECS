@@ -136,6 +136,34 @@ const initDb = async () => {
       console.warn('Migration warning (super admin seed):', adminErr.message);
     }
 
+    // Coupons table migration
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS coupons (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT UNIQUE NOT NULL,
+        discount_type TEXT NOT NULL DEFAULT 'percentage',
+        discount_value REAL NOT NULL,
+        expiry_date TEXT DEFAULT NULL,
+        max_uses INTEGER DEFAULT NULL,
+        times_used INTEGER DEFAULT 0,
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: coupons table ready.');
+    } catch (_) {}
+
+    // Admin activity log table migration
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS admin_activity_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_email TEXT NOT NULL,
+        action_type TEXT NOT NULL,
+        description TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: admin_activity_log table ready.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {
