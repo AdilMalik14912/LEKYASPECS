@@ -6,7 +6,7 @@ const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
