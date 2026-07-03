@@ -46,6 +46,7 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ### 7. 💳 Checkout & Razorpay Sandbox ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
 *   **Razorpay Integration:** Opens standard Razorpay Checkout window on payment action.
 *   **Sandbox Simulator:** Fallback mock simulation modal for testing full payment completions without real cards.
+*   **Prescription Intake Wizard:** Optional checkout panel where users configure SPH, CYL, Axis, PD, lens indexes (1.56 to 1.74), and custom lens protective coatings. Lens custom pricing options dynamically adjust the final order grand total billing.
 
 ### 8. 👓 AI Prescription Lens Studio ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
 *   **Vision Distortion Engine:** Canvas-based rendering that dynamically distorts the background grid to simulate lens refraction based on user sphere inputs (minimized for myopia (-), magnified for hyperopia (+)).
@@ -58,3 +59,12 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ### 9. 🔍 Product Detail View ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
 *   Provides product specs, dimensions guides, user review forms, average ratings, and checks profile face-shape to suggest optimal matches.
 *   Uses dynamic `API_BASE` to prevent production routing breaks.
+*   **Recently Viewed Tracker:** Listens to product visits to build client-side browser browsing history.
+
+### 10. 🏠 Homepage Dashboard ([index.js](file:///C:/Users/Admin/Specs/frontend/src/pages/index.js))
+*   **Smart Recommendations:** Checks profile face shape data to display personal eyewear suggestions. Shows custom call-to-actions to take the AI Scan if no profile shape is saved.
+*   **Recently Viewed Strip:** Renders horizontal sliding product cards tracking items visited during the session.
+
+### 11. 🛍️ Eyewear Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
+*   **Quick View Modal:** Allows customers to inspect specifications, stock alerts, description copy, and checkout immediately in a quick popup window from the main list.
+*   **Recently Viewed Strip:** Renders horizontal sliding product cards tracking items visited during the session.
