@@ -1,6 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
+const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
 const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X } = require('lucide-react');
 
@@ -11,6 +12,24 @@ const API_BASE = typeof window !== 'undefined'
 export default function Account() {
   const { user, token, login, logout, updateProfile } = useAuth();
   const { showToast } = useToast();
+  const router = useRouter();
+
+  // Handle URL errors (e.g. from Google or Facebook OAuth failure)
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { error } = router.query;
+    if (error) {
+      if (error === 'google_failed') {
+        showToast('Google Sign-In failed. Please try again.', 'error');
+      } else if (error === 'facebook_failed') {
+        showToast('Facebook Sign-In failed. Please try again.', 'error');
+      } else {
+        showToast('Authentication failed. Please try again.', 'error');
+      }
+      // Remove the query parameters from the URL
+      router.replace('/account', undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query]);
   
   // Profile Edit states
   const [isEditingName, setIsEditingName] = useState(false);

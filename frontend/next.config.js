@@ -8,7 +8,15 @@ const nextConfig = {
   typescript: {
     // Ignore TypeScript build errors if any arise to ensure smooth deployment
     ignoreBuildErrors: true,
-  }
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:5000/api/:path*',
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig;

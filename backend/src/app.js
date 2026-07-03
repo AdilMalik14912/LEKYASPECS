@@ -18,8 +18,21 @@ const { authenticateToken, isAdmin } = require('./middleware/auth');
 const { sendContactEmail } = require('./utils/mailer');
 
 const app = express();
+app.set('trust proxy', true);
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+// Helper to dynamically resolve the frontend URL (to prevent issues on dynamic Vercel deployments)
+const getFrontendUrl = (req) => {
+  if (process.env.FRONTEND_URL) {
+    return process.env.FRONTEND_URL;
+  }
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    return `${protocol}://${req.get('host')}`;
+  }
+  return 'http://localhost:3000';
+};
 
 // Enable CORS
 app.use(cors({
@@ -58,6 +71,7 @@ app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
 app.get('/api/auth/google', async (req, res, next) => {
   const googleClientId = process.env.GOOGLE_CLIENT_ID;
   const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const fUrl = getFrontendUrl(req);
 
   if (!googleClientId || !googleClientSecret || googleClientId === 'dummy_client_id_to_prevent_passport_crash') {
     // If no credentials, simulate Google OAuth instantly
@@ -80,10 +94,10 @@ app.get('/api/auth/google', async (req, res, next) => {
       const { signToken } = require('./utils/jwt');
       const token = signToken({ id: user.id, name: user.name, email: user.email });
 
-      return res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
     } catch (err) {
       console.error('Mock Google OAuth error:', err);
-      return res.redirect(`${FRONTEND_URL}/login?error=google_failed`);
+      return res.redirect(`${fUrl}/account?error=google_failed`);
     }
   } else {
     // Redirect to real Google OAuth
@@ -91,13 +105,17 @@ app.get('/api/auth/google', async (req, res, next) => {
   }
 });
 
-app.get('/api/auth/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${FRONTEND_URL}/login?error=google_failed` }),
-  (req, res) => {
-    const { token, user } = req.user;
-    res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
-  }
-);
+app.get('/api/auth/google/callback', (req, res, next) => {
+  const fUrl = getFrontendUrl(req);
+  passport.authenticate('google', { session: false }, (err, userAndToken) => {
+    if (err || !userAndToken) {
+      console.error('Google OAuth callback error:', err);
+      return res.redirect(`${fUrl}/account?error=google_failed`);
+    }
+    const { token, user } = userAndToken;
+    res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+  })(req, res, next);
+});
 
 
 // 2c. Facebook OAuth (Mockable / Real)
@@ -105,6 +123,7 @@ app.get('/api/auth/google/callback',
 app.get('/api/auth/facebook', async (req, res) => {
   const fbClientId = process.env.FACEBOOK_CLIENT_ID;
   const fbClientSecret = process.env.FACEBOOK_CLIENT_SECRET;
+  const fUrl = getFrontendUrl(req);
 
   if (!fbClientId || !fbClientSecret) {
     // If credentials are empty, simulate Facebook OAuth instantly
@@ -128,21 +147,21 @@ app.get('/api/auth/facebook', async (req, res) => {
       const { signToken } = require('./utils/jwt');
       const token = signToken({ id: user.id, name: user.name, email: user.email });
 
-      return res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
     } catch (err) {
       console.error('Mock Facebook OAuth error:', err);
-      return res.redirect(`${FRONTEND_URL}/login?error=facebook_failed`);
+      return res.redirect(`${fUrl}/account?error=facebook_failed`);
     }
   } else {
     // Redirect to real Facebook OAuth if credentials exist
-    res.redirect(`https://www.facebook.com/v12.0/dialog/oauth?client_id=${fbClientId}&redirect_uri=${encodeURIComponent(FRONTEND_URL + '/api/auth/facebook/callback')}&scope=email`);
+    res.redirect(`https://www.facebook.com/v12.0/dialog/oauth?client_id=${fbClientId}&redirect_uri=${encodeURIComponent(fUrl + '/api/auth/facebook/callback')}&scope=email`);
   }
 });
 
 app.get('/api/auth/facebook/callback', async (req, res) => {
   // If real Facebook OAuth was used
-  const { code } = req.query;
-  res.redirect(`${FRONTEND_URL}/oauth-success?error=not_fully_configured`);
+  const fUrl = getFrontendUrl(req);
+  res.redirect(`${fUrl}/oauth-success?error=not_fully_configured`);
 });
 
 

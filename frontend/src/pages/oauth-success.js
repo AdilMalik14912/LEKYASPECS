@@ -22,8 +22,10 @@ export default function OAuthSuccess() {
       window.dispatchEvent(new Event('storage'));
     }
 
-    // Redirect to home after 1 second
-    setTimeout(() => router.push('/'), 1000);
+    // Redirect to account dashboard after 1 second using window.location to sync auth state
+    setTimeout(() => {
+      window.location.href = '/account';
+    }, 1000);
   }, [router.isReady, router.query]);
 
   return (
