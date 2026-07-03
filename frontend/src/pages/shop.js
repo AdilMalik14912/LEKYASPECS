@@ -103,6 +103,8 @@ export default function Shop() {
           sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
         } else if (sortOption === 'rating') {
           sorted.sort((a, b) => parseFloat(b.average_rating || 0) - parseFloat(a.average_rating || 0));
+        } else if (sortOption === 'reviews') {
+          sorted.sort((a, b) => parseInt(b.review_count || 0) - parseInt(a.review_count || 0));
         }
         setProducts(sorted);
         setLoading(false);
@@ -220,6 +222,7 @@ export default function Shop() {
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="rating">Customer Rating</option>
+                <option value="reviews">Most Reviewed</option>
               </select>
             </div>
           </div>

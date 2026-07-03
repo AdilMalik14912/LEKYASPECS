@@ -28,9 +28,20 @@ export default function Wishlist() {
     <div className="bg-premium-light min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-10 text-center sm:text-left">
-          My Saved Frames
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black text-center sm:text-left">
+            My Saved Frames
+          </h1>
+          <button
+            onClick={() => {
+              wishlist.forEach(item => addToCart(item));
+            }}
+            className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all flex items-center justify-center gap-2 shadow"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Add All to Bag
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {wishlist.map(product => (

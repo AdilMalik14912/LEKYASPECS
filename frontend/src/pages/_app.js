@@ -4,16 +4,18 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info } = require('lucide-react');
 
 // Contexts
 const AuthContext = createContext(null);
 const CartContext = createContext(null);
 const WishlistContext = createContext(null);
+const ToastContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 export const useCart = () => useContext(CartContext);
 export const useWishlist = () => useContext(WishlistContext);
+export const useToast = () => useContext(ToastContext);
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -35,22 +37,39 @@ export default function App({ Component, pageProps }) {
   // 5. Header Search State
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 6. Toast State
+  const [toast, setToast] = useState({ message: '', type: '', visible: false });
+  const [toastTimeout, setToastTimeout] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type, visible: true });
+    if (toastTimeout) clearTimeout(toastTimeout);
+    const timeout = setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3000);
+    setToastTimeout(timeout);
+  };
+
   // Load state from localStorage on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('specs_token');
-    const storedUser = localStorage.getItem('specs_user');
-    const storedCart = localStorage.getItem('specs_cart');
-    const storedWishlist = localStorage.getItem('specs_wishlist');
+    try {
+      const storedToken = localStorage.getItem('specs_token');
+      const storedUser = localStorage.getItem('specs_user');
+      const storedCart = localStorage.getItem('specs_cart');
+      const storedWishlist = localStorage.getItem('specs_wishlist');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
-    }
-    if (storedWishlist) {
-      setWishlist(JSON.parse(storedWishlist));
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      }
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      }
+      if (storedWishlist) {
+        setWishlist(JSON.parse(storedWishlist));
+      }
+    } catch (err) {
+      console.warn('localStorage error:', err);
     }
     setAuthLoading(false);
   }, []);
@@ -58,13 +77,21 @@ export default function App({ Component, pageProps }) {
   // Sync Cart to localStorage
   const saveCart = (newCart) => {
     setCart(newCart);
-    localStorage.setItem('specs_cart', JSON.stringify(newCart));
+    try {
+      localStorage.setItem('specs_cart', JSON.stringify(newCart));
+    } catch (err) {
+      console.warn('localStorage error:', err);
+    }
   };
 
   // Sync Wishlist to localStorage
   const saveWishlist = (newWishlist) => {
     setWishlist(newWishlist);
-    localStorage.setItem('specs_wishlist', JSON.stringify(newWishlist));
+    try {
+      localStorage.setItem('specs_wishlist', JSON.stringify(newWishlist));
+    } catch (err) {
+      console.warn('localStorage error:', err);
+    }
   };
 
   // Auth Functions
@@ -91,6 +118,14 @@ export default function App({ Component, pageProps }) {
     }
   };
 
+  const updateProfile = (updates) => {
+    if (user) {
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      localStorage.setItem('specs_user', JSON.stringify(updatedUser));
+    }
+  };
+
   // Cart Functions
   const addToCart = (product, quantity = 1) => {
     const existingIndex = cart.findIndex(item => item.product.id === product.id);
@@ -102,11 +137,13 @@ export default function App({ Component, pageProps }) {
       newCart.push({ product, quantity });
     }
     saveCart(newCart);
+    showToast(`Added ${product.name} to bag`);
   };
 
   const removeFromCart = (productId) => {
     const newCart = cart.filter(item => item.product.id !== productId);
     saveCart(newCart);
+    showToast('Item removed from bag', 'info');
   };
 
   const updateCartQuantity = (productId, quantity) => {
@@ -114,9 +151,16 @@ export default function App({ Component, pageProps }) {
       removeFromCart(productId);
       return;
     }
-    const newCart = cart.map(item => 
-      item.product.id === productId ? { ...item, quantity } : item
-    );
+    const newCart = cart.map(item => {
+      if (item.product.id === productId) {
+        const finalQuantity = Math.min(quantity, item.product.stock);
+        if (quantity > item.product.stock) {
+          showToast(`Only ${item.product.stock} units available`, 'info');
+        }
+        return { ...item, quantity: finalQuantity };
+      }
+      return item;
+    });
     saveCart(newCart);
   };
 
@@ -130,8 +174,10 @@ export default function App({ Component, pageProps }) {
     let newWishlist;
     if (exists) {
       newWishlist = wishlist.filter(item => item.id !== product.id);
+      showToast(`Removed ${product.name} from wishlist`, 'info');
     } else {
       newWishlist = [...wishlist, product];
+      showToast(`Added ${product.name} to wishlist`);
     }
     saveWishlist(newWishlist);
   };
@@ -140,13 +186,14 @@ export default function App({ Component, pageProps }) {
   const isAdminRoute = router.pathname.startsWith('/admin');
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, authLoading, updateProfileFaceShape }}>
-      <Head>
-        <title>Lekya Specs — Premium Eyewear E-Commerce Store</title>
-        <meta name="description" content="Shop luxury eyeglasses and sunglasses designed with premium materials. Try our interactive webcam-based AI Face Shape suggestion widget." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👓</text></svg>" />
-      </Head>
+    <ToastContext.Provider value={{ showToast }}>
+      <AuthContext.Provider value={{ user, token, login, logout, authLoading, updateProfileFaceShape, updateProfile }}>
+        <Head>
+          <title>Lekya Specs — Premium Eyewear E-Commerce Store</title>
+          <meta name="description" content="Shop luxury eyeglasses and sunglasses designed with premium materials. Try our interactive webcam-based AI Face Shape suggestion widget." />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👓</text></svg>" />
+        </Head>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
           <div className="flex flex-col min-h-screen">
@@ -483,9 +530,17 @@ export default function App({ Component, pageProps }) {
               </footer>
             )}
 
+            {/* Global Toast */}
+            {toast.visible && (
+              <div className={`fixed bottom-6 right-6 z-[100] px-4 py-3 rounded shadow-xl border flex items-center gap-3 animate-slide-up-toast bg-white ${toast.type === 'error' ? 'border-red-500 text-red-600' : toast.type === 'info' ? 'border-blue-500 text-blue-600' : 'border-premium-accent text-premium-black'}`}>
+                {toast.type === 'error' ? <XCircle className="w-5 h-5" /> : toast.type === 'info' ? <Info className="w-5 h-5" /> : <Check className="w-5 h-5 text-premium-accent" />}
+                <p className="text-sm font-semibold">{toast.message}</p>
+              </div>
+            )}
           </div>
         </WishlistContext.Provider>
       </CartContext.Provider>
-    </AuthContext.Provider>
+      </AuthContext.Provider>
+    </ToastContext.Provider>
   );
 }

@@ -7,9 +7,10 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ## 🔑 Global State Management (Contexts)
 
 [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js) provides three main global contexts:
-1.  **AuthContext:** Manages user login, session token persistency (localStorage sync), and logout.
-2.  **CartContext:** Manages shopping bag items, items count, additions, deletions, quantity changes, and persistency.
+1.  **AuthContext:** Manages user login, session token persistency (localStorage sync), logout, and profile updates.
+2.  **CartContext:** Manages shopping bag items, items count, stock limits, quantity changes, and persistency.
 3.  **WishlistContext:** Manages favorite items toggling and persistency.
+4.  **ToastContext:** Manages global slide-up notifications for user actions (cart additions, wishlist updates).
 
 ---
 
@@ -58,6 +59,8 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 ### 9. 🔍 Product Detail View ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
 *   Provides product specs, dimensions guides, user review forms, average ratings, and checks profile face-shape to suggest optimal matches.
+*   **Image Gallery:** Interactive gallery with thumbnail and chevron arrow navigation for premium browsing.
+*   **Related Products:** Dynamically fetches and displays 4 products from the same category at the bottom of the page.
 *   Uses dynamic `API_BASE` to prevent production routing breaks.
 *   **Recently Viewed Tracker:** Listens to product visits to build client-side browser browsing history.
 

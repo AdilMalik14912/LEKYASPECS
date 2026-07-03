@@ -1,16 +1,38 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
-const { useAuth } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle } = require('lucide-react');
+const { useAuth, useToast } = require('./_app');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
 
 export default function Account() {
-  const { user, token, login, logout } = useAuth();
+  const { user, token, login, logout, updateProfile } = useAuth();
+  const { showToast } = useToast();
   
+  // Profile Edit states
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setEditedName(user.name);
+    }
+  }, [user]);
+
+  const handleSaveName = async () => {
+    if (!editedName.trim()) return;
+    try {
+      updateProfile({ name: editedName.trim() });
+      setIsEditingName(false);
+      showToast('Profile name updated successfully');
+    } catch (err) {
+      showToast('Failed to update name', 'error');
+    }
+  };
+
   // Tab states for auth
   const [isLoginTab, setIsLoginTab] = useState(true);
 
@@ -211,10 +233,12 @@ export default function Account() {
 
 
           {/* Quick tester credentials */}
-          <div className="mt-8 pt-6 border-t border-premium-border text-center text-xs text-premium-gray leading-relaxed">
-            <span className="font-bold text-premium-accent block mb-1">Developer Testing Accounts:</span>
-            <span>Admin Dashboard: <strong>admin@specs.com</strong> / password: <strong>admin123</strong></span>
-          </div>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-8 pt-6 border-t border-premium-border text-center text-xs text-premium-gray leading-relaxed">
+              <span className="font-bold text-premium-accent block mb-1">Developer Testing Accounts:</span>
+              <span>Admin Dashboard: <strong>admin@specs.com</strong> / password: <strong>admin123</strong></span>
+            </div>
+          )}
 
         </div>
       </div>
@@ -229,11 +253,30 @@ export default function Account() {
         {/* Profile overview bar */}
         <div className="bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-premium-accent/20 border-2 border-premium-accent flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-premium-accent/20 border-2 border-premium-accent flex items-center justify-center shrink-0">
               <User className="w-8 h-8 text-premium-accent" />
             </div>
             <div>
-              <h2 className="font-serif text-2xl font-bold text-premium-black">{user.name}</h2>
+              {isEditingName ? (
+                <div className="flex items-center gap-2 mb-1">
+                  <input 
+                    type="text" 
+                    value={editedName} 
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="border border-premium-border rounded px-2 py-1 text-lg font-serif font-bold text-premium-black focus:outline-none focus:border-premium-accent"
+                    autoFocus
+                  />
+                  <button onClick={handleSaveName} className="p-1.5 bg-premium-black text-white rounded hover:bg-premium-accent transition-colors"><Save className="w-4 h-4" /></button>
+                  <button onClick={() => { setIsEditingName(false); setEditedName(user.name); }} className="p-1.5 bg-gray-200 text-premium-dark rounded hover:bg-gray-300 transition-colors"><X className="w-4 h-4" /></button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 group">
+                  <h2 className="font-serif text-2xl font-bold text-premium-black">{user.name}</h2>
+                  <button onClick={() => setIsEditingName(true)} className="text-premium-gray hover:text-premium-accent opacity-0 group-hover:opacity-100 transition-all">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               <p className="text-sm text-premium-gray font-light mt-0.5">{user.email}</p>
             </div>
           </div>

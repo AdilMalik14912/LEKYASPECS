@@ -2,8 +2,8 @@ const React = require('react');
 const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
-const { useCart, useWishlist, useAuth } = require('../_app');
-const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle } = require('lucide-react');
+const { useCart, useWishlist, useAuth, useToast } = require('../_app');
+const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -24,6 +24,8 @@ export default function ProductDetail() {
   const [isFaceShapeMatched, setIsFaceShapeMatched] = useState(false);
   const [inCart, setInCart] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const { showToast } = useToast();
 
   // Review Form State
   const [rating, setRating] = useState(5);
@@ -60,6 +62,14 @@ export default function ProductDetail() {
             localStorage.setItem('specs_recently_viewed', JSON.stringify(list));
           } catch (_) {}
         }
+
+        // Fetch related products
+        fetch(`${API_BASE}/api/products?category=${data.category}`)
+          .then(res => res.json())
+          .then(related => {
+            setRelatedProducts(related.filter(r => r.id !== data.id).slice(0, 4));
+          })
+          .catch(err => console.error(err));
       })
       .catch(err => {
         console.error(err);
@@ -174,12 +184,25 @@ export default function ProductDetail() {
           
           {/* 1. Left Column: Image Gallery */}
           <div className="flex flex-col gap-4">
-            <div className="relative overflow-hidden bg-premium-light border border-premium-border rounded aspect-square flex items-center justify-center hover-zoom shadow-inner">
+            <div className="relative overflow-hidden bg-premium-light border border-premium-border rounded aspect-square flex items-center justify-center hover-zoom shadow-inner group">
               <img 
                 src={activeImage} 
                 alt={product.name} 
                 className="w-full h-full object-cover"
               />
+              {/* Prev / Next Buttons */}
+              {product.image_urls.length > 1 && (
+                <>
+                  <button onClick={() => {
+                    const idx = product.image_urls.indexOf(activeImage);
+                    setActiveImage(product.image_urls[idx === 0 ? product.image_urls.length - 1 : idx - 1]);
+                  }} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronLeft className="w-5 h-5" /></button>
+                  <button onClick={() => {
+                    const idx = product.image_urls.indexOf(activeImage);
+                    setActiveImage(product.image_urls[idx === product.image_urls.length - 1 ? 0 : idx + 1]);
+                  }} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronRight className="w-5 h-5" /></button>
+                </>
+              )}
             </div>
             
             {/* Gallery Thumbnails */}
@@ -437,6 +460,37 @@ export default function ProductDetail() {
           </div>
 
         </div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-16 border-t border-premium-border pt-12">
+            <h2 className="font-serif text-2xl font-bold text-premium-black mb-8 text-center sm:text-left">
+              You May Also Like
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedProducts.map(prod => (
+                <Link key={prod.id} href={`/product/${prod.id}`} className="block group">
+                  <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                    <img 
+                      src={prod.image_urls[0]} 
+                      alt={prod.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                    {prod.gender} • {prod.category}
+                  </div>
+                  <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                    {prod.name}
+                  </h3>
+                  <div className="font-semibold text-premium-black text-sm mt-1">
+                    ₹{parseFloat(prod.price).toLocaleString('en-IN')}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

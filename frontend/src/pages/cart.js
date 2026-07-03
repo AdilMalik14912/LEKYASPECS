@@ -54,6 +54,12 @@ export default function Cart() {
                     </h3>
                     <p className="text-xs text-premium-gray mt-1">Shape: {item.product.frame_shape} • Gender: {item.product.gender}</p>
                     <p className="text-sm font-semibold text-premium-accent mt-2">₹{parseFloat(item.product.price).toLocaleString('en-IN')}</p>
+                    {item.product.stock <= 5 && item.product.stock > 0 && (
+                      <p className="text-[10px] text-amber-600 font-bold mt-1 uppercase tracking-wider">Only {item.product.stock} left</p>
+                    )}
+                    {item.product.stock === 0 && (
+                      <p className="text-[10px] text-red-600 font-bold mt-1 uppercase tracking-wider">Out of stock</p>
+                    )}
                   </div>
                 </div>
 
@@ -110,6 +116,10 @@ export default function Cart() {
               </h2>
 
               <div className="space-y-3 text-sm font-medium mb-6">
+                <div className="bg-premium-light border border-premium-border rounded p-3 mb-4 flex items-center justify-between text-xs font-semibold text-premium-dark">
+                  <span>Have a coupon?</span>
+                  <span className="text-premium-gray">Apply at checkout</span>
+                </div>
                 <div className="flex items-center justify-between text-premium-gray">
                   <span>Bag Subtotal</span>
                   <span className="text-premium-dark">₹{subtotal.toLocaleString('en-IN')}</span>
