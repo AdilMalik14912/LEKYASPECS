@@ -2,16 +2,21 @@ const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones } = require('lucide-react');
+const { useAuth } = require('./_app');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
 
 export default function Home() {
+  const { user } = useAuth();
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recLoading, setRecLoading] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterDone, setNewsletterDone] = useState(false);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [settings, setSettings] = useState({
     hero_title: 'Engineered for Style & Clarity',
     hero_subtitle: 'Designed with hand-polished premium materials and engineered for visual clarity. We believe in high-fashion, high-function eyewear without the luxury markup.',
@@ -40,7 +45,36 @@ export default function Home() {
         }
       })
       .catch(err => console.error('Error fetching store settings:', err));
+
+    // Load recently viewed from localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('specs_recently_viewed');
+        if (stored) {
+          setRecentlyViewed(JSON.parse(stored));
+        }
+      } catch (_) {}
+    }
   }, []);
+
+  // Fetch face shape recommendations if shape exists in user profile
+  useEffect(() => {
+    if (user && user.face_shape) {
+      setRecLoading(true);
+      fetch(`${API_BASE}/api/products/recommendations/${user.face_shape}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.products) {
+            setRecommendedProducts(data.products.slice(0, 4));
+          }
+          setRecLoading(false);
+        })
+        .catch(err => {
+          console.error('Error fetching recommendations:', err);
+          setRecLoading(false);
+        });
+    }
+  }, [user]);
 
   return (
     <div className="bg-premium-light min-h-screen">
@@ -239,6 +273,89 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 4.5 Personalized Recommendations Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 border-t border-premium-border/60">
+        {user && user.face_shape ? (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-12">
+              <div>
+                <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-golddark text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-2">
+                  <Sparkles className="w-3 h-3 animate-pulse" /> AI Custom Curation
+                </span>
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black tracking-tight mb-2">
+                  Recommended for Your <span className="capitalize text-premium-accent">{user.face_shape}</span> Face
+                </h2>
+                <p className="text-sm text-premium-gray font-light">Frames mathematically optimized to complement your facial structure</p>
+              </div>
+              <Link href={recommendedProducts.length > 0 ? `/shop?shape=${recommendedProducts[0].frame_shape}` : '/shop'} className="text-sm uppercase tracking-wider text-premium-black hover:text-premium-accent font-semibold flex items-center gap-1 mt-4 sm:mt-0">
+                Explore More Fits <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {recLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map(n => (
+                  <div key={n} className="animate-pulse bg-white border border-premium-border rounded p-4 h-[320px]">
+                    <div className="bg-premium-light h-48 w-full rounded mb-4"></div>
+                    <div className="h-4 bg-premium-light rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-premium-light rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : recommendedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {recommendedProducts.map(product => (
+                  <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+                    <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                      <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-all" />
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                      {product.gender} • {product.category}
+                    </div>
+                    <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
+                      <Star className="w-3.5 h-3.5 fill-current" />
+                      <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
+                      <span className="text-gray-400">({product.review_count})</span>
+                    </div>
+                    <div className="font-semibold text-premium-black mt-auto text-lg">
+                      ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-premium-gray font-light text-center py-6">Could not find specific matching frames in stock. Browse our full catalog instead!</p>
+            )}
+          </div>
+        ) : (
+          <div className="bg-premium-black border border-premium-accent/20 rounded-xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-xl">
+            <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #C5A028 0%, transparent 60%)' }} />
+            <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-accent text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
+              <Sparkles className="w-3 h-3 animate-pulse" /> AI Styling Assistant
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+              Get Personalized Frame Recommendations
+            </h2>
+            <p className="text-sm text-gray-400 font-light max-w-lg mx-auto mb-8 leading-relaxed">
+              Every face structure is unique. Take a quick webcam scan using our Face Shape Analyzer to save your profile shape and unlock a personalized collection curated just for your eyes.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/face-shape" className="bg-premium-accent hover:bg-premium-golddark text-premium-black px-8 py-4 rounded font-bold text-xs tracking-widest uppercase transition-all shadow-md inline-block">
+                Start Shape Scan
+              </Link>
+              {!user && (
+                <Link href="/account" className="border border-white/40 hover:bg-white hover:text-premium-black text-white px-8 py-4 rounded font-bold text-xs tracking-widest uppercase transition-all inline-block">
+                  Login to Save Profile
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* 5. Trending / Featured Frames Showcase */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-12">
@@ -294,6 +411,30 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* 5.5 Recently Viewed Products Section */}
+      {recentlyViewed.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-premium-border/60">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-premium-black mb-6 flex items-center gap-2">
+            <span className="text-xl">🕐</span> Recently Viewed
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {recentlyViewed.map(product => (
+              <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-3 shadow-sm hover:shadow-md transition-all flex flex-col text-center">
+                <div className="relative overflow-hidden bg-premium-light rounded mb-2 aspect-square flex items-center justify-center">
+                  <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                </div>
+                <h4 className="font-serif text-xs font-bold text-premium-black truncate group-hover:text-premium-accent">
+                  {product.name}
+                </h4>
+                <div className="text-[10px] text-premium-accent font-semibold mt-1">
+                  ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 6. Testimonials Section */}
       <section className="bg-white py-16 sm:py-24 border-t border-premium-border">

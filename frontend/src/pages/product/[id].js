@@ -48,6 +48,18 @@ export default function ProductDetail() {
         setLoading(false);
         setReviewSuccess('');
         setReviewError('');
+        
+        // Track recently viewed product
+        if (typeof window !== 'undefined') {
+          try {
+            const stored = localStorage.getItem('specs_recently_viewed');
+            let list = stored ? JSON.parse(stored) : [];
+            list = list.filter(item => item.id !== data.id);
+            list.unshift(data);
+            list = list.slice(0, 6);
+            localStorage.setItem('specs_recently_viewed', JSON.stringify(list));
+          } catch (_) {}
+        }
       })
       .catch(err => {
         console.error(err);

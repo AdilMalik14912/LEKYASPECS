@@ -2,8 +2,8 @@ const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
-const { useAuth } = require('./_app');
-const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search } = require('lucide-react');
+const { useAuth, useCart, useWishlist } = require('./_app');
+const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -11,6 +11,11 @@ const API_BASE = typeof window !== 'undefined'
 export default function Shop() {
   const router = useRouter();
   const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { wishlist, toggleWishlist } = useWishlist();
+
+  const [activeQuickViewProduct, setActiveQuickViewProduct] = useState(null);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   
   // Loading & State
   const [products, setProducts] = useState([]);
@@ -27,6 +32,12 @@ export default function Shop() {
   const [priceRange, setPriceRange] = useState(10000);
   const [sortOption, setSortOption] = useState('newest');
   const [catalogSearch, setCatalogSearch] = useState('');
+
+  const openQuickView = (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveQuickViewProduct(product);
+  };
 
   // Sync search state with URL query parameter
   useEffect(() => {
@@ -141,6 +152,18 @@ export default function Shop() {
     router.push('/shop');
     setPriceRange(10000);
   };
+
+  // Load recently viewed from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('specs_recently_viewed');
+        if (stored) {
+          setRecentlyViewed(JSON.parse(stored));
+        }
+      } catch (_) {}
+    }
+  }, []);
 
   return (
     <div className="bg-premium-light min-h-screen py-8 sm:py-12">
@@ -352,14 +375,23 @@ export default function Shop() {
                     href={`/product/${product.id}`}
                     className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col"
                   >
-                    <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                    <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center group/image">
                       <img 
                         src={product.image_urls[0]} 
                         alt={product.name} 
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-105"
                       />
-                      {product.stock === 0 && (
+                      {product.stock === 0 ? (
                         <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
+                      ) : (
+                        <button
+                          onClick={(e) => openQuickView(e, product)}
+                          className="absolute inset-0 bg-premium-black/40 opacity-0 group-hover/image:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]"
+                        >
+                          <span className="bg-white text-premium-black hover:bg-premium-accent text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-full shadow-md flex items-center gap-1.5 transition-all transform translate-y-2 group-hover/image:translate-y-0 duration-300">
+                            <Eye className="w-3.5 h-3.5" /> Quick View
+                          </span>
+                        </button>
                       )}
                     </div>
                     <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
@@ -382,9 +414,111 @@ export default function Shop() {
             )}
           </div>
 
-        </div>
+        </div> {/* Closes grid grid-cols-1 lg:grid-cols-4 gap-8 */}
 
-      </div>
+        {/* Recently Viewed Products strip */}
+        {recentlyViewed.length > 0 && (
+          <div className="mt-16 pt-12 border-t border-premium-border">
+            <h3 className="font-serif text-xl font-bold text-premium-black mb-6 flex items-center gap-2">
+              <span className="text-xl">🕐</span> Your Recently Viewed Frames
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {recentlyViewed.map(product => (
+                <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-3 shadow-sm hover:shadow-md transition-all flex flex-col text-center">
+                  <div className="relative overflow-hidden bg-premium-light rounded mb-2 aspect-square flex items-center justify-center">
+                    <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  </div>
+                  <h4 className="font-serif text-xs font-bold text-premium-black truncate group-hover:text-premium-accent">
+                    {product.name}
+                  </h4>
+                  <div className="text-[10px] text-premium-accent font-semibold mt-1">
+                    ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div> {/* Closes the outer page container */}
+
+      {/* Quick View Modal */}
+      {activeQuickViewProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white border border-premium-border rounded-lg max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => setActiveQuickViewProduct(null)} 
+              className="absolute top-4 right-4 text-premium-gray hover:text-premium-accent transition-colors p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Left: Product Image */}
+            <div className="md:w-1/2 flex flex-col items-center justify-center bg-premium-light rounded p-4 border border-premium-border">
+              <img 
+                src={activeQuickViewProduct.image_urls[0]} 
+                alt={activeQuickViewProduct.name} 
+                className="max-h-[250px] object-cover rounded-lg"
+              />
+            </div>
+
+            {/* Right: Product Details */}
+            <div className="md:w-1/2 flex flex-col">
+              <div className="text-[10px] uppercase tracking-wider text-premium-accent font-bold mb-1">
+                {activeQuickViewProduct.gender} • {activeQuickViewProduct.category}
+              </div>
+              <h3 className="font-serif text-2xl font-bold text-premium-black mb-2">
+                {activeQuickViewProduct.name}
+              </h3>
+              
+              <div className="flex items-center gap-1.5 mb-4 text-xs text-amber-500">
+                <Star className="w-4 h-4 fill-current" />
+                <span className="font-semibold text-premium-dark">{parseFloat(activeQuickViewProduct.average_rating || 0).toFixed(1)}</span>
+                <span className="text-gray-400">({activeQuickViewProduct.review_count} reviews)</span>
+              </div>
+
+              <div className="text-2xl font-black text-premium-black mb-4">
+                ₹{parseFloat(activeQuickViewProduct.price).toLocaleString('en-IN')}
+              </div>
+
+              <p className="text-xs text-premium-gray leading-relaxed mb-6 font-light">
+                {activeQuickViewProduct.description}
+              </p>
+
+              <div className="border border-premium-border rounded p-3 bg-premium-light text-xs font-semibold text-premium-dark mb-6 space-y-1">
+                <div><span className="text-premium-gray">Shape:</span> {activeQuickViewProduct.frame_shape}</div>
+                <div><span className="text-premium-gray">Stock status:</span> {activeQuickViewProduct.stock > 0 ? `${activeQuickViewProduct.stock} frames left` : <span className="text-red-600 font-bold">Out of stock</span>}</div>
+              </div>
+
+              <div className="flex gap-3 mt-auto pt-4 border-t border-premium-border/40">
+                <button
+                  disabled={activeQuickViewProduct.stock === 0}
+                  onClick={() => {
+                    addToCart(activeQuickViewProduct);
+                    setActiveQuickViewProduct(null);
+                  }}
+                  className="flex-grow bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3 rounded transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                >
+                  <ShoppingBag className="w-4 h-4" /> Add to Cart
+                </button>
+                <button
+                  onClick={() => {
+                    toggleWishlist(activeQuickViewProduct);
+                  }}
+                  className={`p-3 border rounded transition-all ${
+                    wishlist.some(w => w.id === activeQuickViewProduct.id) 
+                      ? 'border-premium-accent bg-premium-accent/10 text-premium-accent' 
+                      : 'border-premium-border hover:border-premium-accent text-premium-gray'
+                  }`}
+                >
+                  <Heart className="w-4 h-4 fill-current" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

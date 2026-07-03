@@ -1,3 +1,4 @@
+
 # Lekya Specs — Core System Context & Architecture
 
 Welcome to the comprehensive Lekya Specs repository context guide. This documentation is designed to serve as a complete reference for any developer or AI assistant working on the repository. It details every aspect of the project's codebase, structure, features, configurations, and deployment pipeline.

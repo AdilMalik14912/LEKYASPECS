@@ -20,7 +20,7 @@ if (!isDummyKey) {
 
 // 1. Create Razorpay Order (Backend calculates total from DB)
 const createOrder = async (req, res) => {
-  const { items, couponCode } = req.body;
+  const { items, couponCode, prescription } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ message: 'No items in order' });
@@ -41,6 +41,16 @@ const createOrder = async (req, res) => {
       }
 
       totalAmount += parseFloat(product.price) * item.quantity;
+    }
+
+    if (prescription) {
+      if (prescription.lensIndex === '1.61') totalAmount += 800;
+      else if (prescription.lensIndex === '1.67') totalAmount += 1600;
+      else if (prescription.lensIndex === '1.74') totalAmount += 2800;
+
+      if (prescription.antiGlare) totalAmount += 250;
+      if (prescription.blueShield) totalAmount += 300;
+      if (prescription.photochromic) totalAmount += 600;
     }
 
     if (couponCode) {
@@ -137,6 +147,17 @@ const verifyPayment = async (req, res) => {
 
         // Reduce stock
         await tx.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, product.id]);
+      }
+
+      if (shipping_address && shipping_address.prescription) {
+        const rx = shipping_address.prescription;
+        if (rx.lensIndex === '1.61') totalAmount += 800;
+        else if (rx.lensIndex === '1.67') totalAmount += 1600;
+        else if (rx.lensIndex === '1.74') totalAmount += 2800;
+
+        if (rx.antiGlare) totalAmount += 250;
+        if (rx.blueShield) totalAmount += 300;
+        if (rx.photochromic) totalAmount += 600;
       }
 
       if (couponCode) {

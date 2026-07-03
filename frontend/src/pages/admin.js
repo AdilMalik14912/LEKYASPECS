@@ -631,8 +631,37 @@ export default function Admin() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-xs font-mono">{order.payment_id || 'N/A'}</td>
-                            <td className="px-6 py-4 text-xs max-w-[200px] truncate" title={`${order.shipping_address.address}, ${order.shipping_address.city}`}>
-                              {order.shipping_address.address}, {order.shipping_address.city} (PIN {order.shipping_address.zip})
+                            <td className="px-6 py-4 text-xs">
+                              <div>
+                                <span className="font-semibold block">{order.shipping_address.address}, {order.shipping_address.city}</span>
+                                <span className="text-premium-gray block text-[10px] mt-0.5">PIN {order.shipping_address.zip} | Phone: {order.shipping_address.phone}</span>
+                                {order.shipping_address.prescription && (
+                                  <div className="mt-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-black p-2 rounded text-[10px] space-y-1 font-mono max-w-[240px]">
+                                    <p className="font-bold uppercase tracking-wider text-[8px] text-premium-golddark">👓 Prescription Applied</p>
+                                    <div className="border-t border-premium-accent/20 pt-1 flex justify-between">
+                                      <span>OD (R): SPH {order.shipping_address.prescription.odSph}</span>
+                                      <span>CYL {order.shipping_address.prescription.odCyl}</span>
+                                      <span>AX {order.shipping_address.prescription.odAxis}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span>OS (L): SPH {order.shipping_address.prescription.osSph}</span>
+                                      <span>CYL {order.shipping_address.prescription.osCyl}</span>
+                                      <span>AX {order.shipping_address.prescription.osAxis}</span>
+                                    </div>
+                                    <div className="border-t border-premium-accent/20 pt-1 flex justify-between">
+                                      <span>PD: {order.shipping_address.prescription.pd} mm</span>
+                                      <span>Index: {order.shipping_address.prescription.lensIndex}</span>
+                                    </div>
+                                    <p className="text-[9px] text-premium-gray mt-1 leading-normal font-sans">
+                                      <strong>Coatings:</strong> {[
+                                        order.shipping_address.prescription.antiGlare && 'Anti-Reflective',
+                                        order.shipping_address.prescription.blueShield && 'Blue-Shield',
+                                        order.shipping_address.prescription.photochromic && 'Photochromic'
+                                      ].filter(Boolean).join(', ') || 'None (Standard)'}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-xs">
                               {new Date(order.created_at).toLocaleDateString('en-IN', {

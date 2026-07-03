@@ -3,7 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useCart, useAuth } = require('./_app');
-const { ShieldCheck, ShoppingBag, CreditCard, ArrowLeft, Loader2, Sparkles, CheckCircle2 } = require('lucide-react');
+const { ShieldCheck, ShoppingBag, CreditCard, ArrowLeft, Loader2, Sparkles, CheckCircle2, Glasses, ChevronDown, ChevronUp } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -41,6 +41,20 @@ export default function Checkout() {
   // Success order state
   const [orderSuccessId, setOrderSuccessId] = useState(null);
 
+  // Prescription states
+  const [includePrescription, setIncludePrescription] = useState(false);
+  const [odSph, setOdSph] = useState('-2.00');
+  const [odCyl, setOdCyl] = useState('0.00');
+  const [odAxis, setOdAxis] = useState('0');
+  const [osSph, setOsSph] = useState('-2.00');
+  const [osCyl, setOsCyl] = useState('0.00');
+  const [osAxis, setOsAxis] = useState('0');
+  const [pd, setPd] = useState('63');
+  const [lensIndex, setLensIndex] = useState('1.56');
+  const [antiGlare, setAntiGlare] = useState(false);
+  const [blueShield, setBlueShield] = useState(false);
+  const [photochromic, setPhotochromic] = useState(false);
+
   // Load Razorpay Script dynamically
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -58,6 +72,23 @@ export default function Checkout() {
 
   // Subtotal calculation
   const subtotal = cart.reduce((acc, item) => acc + parseFloat(item.product.price) * item.quantity, 0);
+
+  const getPrescriptionCost = () => {
+    if (!includePrescription) return 0;
+    let cost = 0;
+    if (lensIndex === '1.61') cost += 800;
+    else if (lensIndex === '1.67') cost += 1600;
+    else if (lensIndex === '1.74') cost += 2800;
+    
+    if (antiGlare) cost += 250;
+    if (blueShield) cost += 300;
+    if (photochromic) cost += 600;
+    
+    return cost;
+  };
+
+  const prescriptionCost = getPrescriptionCost();
+  const subtotalWithLens = subtotal + prescriptionCost;
   
   // Coupon state
   const [couponInput, setCouponInput] = useState('');
@@ -83,8 +114,8 @@ export default function Checkout() {
     }
   };
 
-  const discountAmount = subtotal * couponDiscount;
-  const total = subtotal - discountAmount;
+  const discountAmount = subtotalWithLens * couponDiscount;
+  const total = subtotalWithLens - discountAmount;
 
   // Handle Checkout submission
   const handlePlaceOrder = async (e) => {
@@ -94,7 +125,8 @@ export default function Checkout() {
     setIsProcessing(true);
     setCheckoutError('');
 
-    const shippingAddress = { name, address, city, state: stateName, zip, phone };
+    const prescriptionPayload = includePrescription ? { odSph, odCyl, odAxis, osSph, osCyl, osAxis, pd, lensIndex, antiGlare, blueShield, photochromic } : null;
+    const shippingAddress = { name, address, city, state: stateName, zip, phone, prescription: prescriptionPayload };
     const itemsPayload = cart.map(item => ({
       productId: item.product.id,
       quantity: item.quantity
@@ -108,7 +140,7 @@ export default function Checkout() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ items: itemsPayload, couponCode: appliedCoupon })
+        body: JSON.stringify({ items: itemsPayload, couponCode: appliedCoupon, prescription: prescriptionPayload })
       });
 
       const orderData = await createRes.json();
@@ -362,6 +394,147 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Prescription Configurator Section */}
+              <div className="border-t border-premium-border pt-6 mt-6">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input 
+                    type="checkbox" 
+                    checked={includePrescription} 
+                    onChange={e => setIncludePrescription(e.target.checked)}
+                    className="w-4 h-4 rounded border-premium-border text-premium-accent focus:ring-premium-accent accent-premium-accent cursor-pointer"
+                  />
+                  <div className="flex items-center gap-1.5">
+                    <Glasses className="w-5 h-5 text-premium-accent" />
+                    <span className="text-sm font-bold text-premium-black group-hover:text-premium-accent transition-colors">Add Prescription Lenses (Optional)</span>
+                  </div>
+                </label>
+
+                {includePrescription && (
+                  <div className="mt-4 p-5 bg-premium-light border border-premium-border rounded-lg space-y-5">
+                    
+                    {/* SPH / CYL Input grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* OD */}
+                      <div className="bg-white p-4 rounded border border-premium-border">
+                        <p className="text-xs font-bold uppercase text-premium-golddark mb-3">Right Eye (OD)</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">SPH</label>
+                            <select value={odSph} onChange={e => setOdSph(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark">
+                              {Array.from({ length: 41 }, (_, i) => (-5.00 + i * 0.25).toFixed(2)).map(v => (
+                                <option key={v} value={v}>{v > 0 ? `+${v}` : v}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">CYL</label>
+                            <select value={odCyl} onChange={e => setOdCyl(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark">
+                              {Array.from({ length: 17 }, (_, i) => (-2.00 + i * 0.25).toFixed(2)).map(v => (
+                                <option key={v} value={v}>{v > 0 ? `+${v}` : v}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">Axis</label>
+                            <input type="number" min="0" max="180" value={odAxis} onChange={e => setOdAxis(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* OS */}
+                      <div className="bg-white p-4 rounded border border-premium-border">
+                        <p className="text-xs font-bold uppercase text-premium-golddark mb-3">Left Eye (OS)</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">SPH</label>
+                            <select value={osSph} onChange={e => setOsSph(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark">
+                              {Array.from({ length: 41 }, (_, i) => (-5.00 + i * 0.25).toFixed(2)).map(v => (
+                                <option key={v} value={v}>{v > 0 ? `+${v}` : v}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">CYL</label>
+                            <select value={osCyl} onChange={e => setOsCyl(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark">
+                              {Array.from({ length: 17 }, (_, i) => (-2.00 + i * 0.25).toFixed(2)).map(v => (
+                                <option key={v} value={v}>{v > 0 ? `+${v}` : v}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[9px] uppercase tracking-wider text-premium-gray mb-1">Axis</label>
+                            <input type="number" min="0" max="180" value={osAxis} onChange={e => setOsAxis(e.target.value)} className="w-full bg-premium-light border border-premium-border rounded p-1.5 text-xs focus:outline-none focus:border-premium-accent font-semibold text-premium-dark" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PD */}
+                    <div className="bg-white p-4 rounded border border-premium-border">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-xs font-bold text-premium-black">Pupil Distance (PD): <span className="text-premium-accent font-mono">{pd} mm</span></label>
+                      </div>
+                      <input type="range" min="55" max="75" value={pd} onChange={e => setPd(e.target.value)} className="w-full accent-premium-accent cursor-pointer" />
+                    </div>
+
+                    {/* Lens Index Choice */}
+                    <div className="bg-white p-4 rounded border border-premium-border">
+                      <p className="text-xs font-bold text-premium-black mb-3">Select Refractive Index</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { index: '1.56', label: '1.56 Std', price: 'Included' },
+                          { index: '1.61', label: '1.61 Thin', price: '+ ₹800' },
+                          { index: '1.67', label: '1.67 Super', price: '+ ₹1,600' },
+                          { index: '1.74', label: '1.74 Ultra', price: '+ ₹2,800' }
+                        ].map(opt => (
+                          <button
+                            key={opt.index}
+                            type="button"
+                            onClick={() => setLensIndex(opt.index)}
+                            className={`p-2.5 border rounded text-xs text-left flex flex-col justify-between transition-all ${
+                              lensIndex === opt.index ? 'border-premium-black bg-premium-black/5 font-bold text-premium-black' : 'border-premium-border hover:border-premium-accent'
+                            }`}
+                          >
+                            <span>{opt.label}</span>
+                            <span className="text-[10px] text-premium-accent font-semibold mt-1">{opt.price}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Coatings */}
+                    <div className="bg-white p-4 rounded border border-premium-border space-y-3">
+                      <p className="text-xs font-bold text-premium-black mb-2">Coatings & Protection</p>
+                      
+                      <label className="flex items-center justify-between cursor-pointer text-xs">
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" checked={antiGlare} onChange={e => setAntiGlare(e.target.checked)} className="rounded border-premium-border text-premium-accent accent-premium-accent" />
+                          <span>Premium Anti-Reflective (AR)</span>
+                        </div>
+                        <span className="font-bold text-premium-accent font-mono">+ ₹250</span>
+                      </label>
+
+                      <label className="flex items-center justify-between cursor-pointer text-xs">
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" checked={blueShield} onChange={e => setBlueShield(e.target.checked)} className="rounded border-premium-border text-premium-accent accent-premium-accent" />
+                          <span>Digital Screen Blue-Shield</span>
+                        </div>
+                        <span className="font-bold text-premium-accent font-mono">+ ₹300</span>
+                      </label>
+
+                      <label className="flex items-center justify-between cursor-pointer text-xs">
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" checked={photochromic} onChange={e => setPhotochromic(e.target.checked)} className="rounded border-premium-border text-premium-accent accent-premium-accent" />
+                          <span>Photochromic Transitions</span>
+                        </div>
+                        <span className="font-bold text-premium-accent font-mono">+ ₹600</span>
+                      </label>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
               {checkoutError && (
                 <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
                   {checkoutError}
@@ -435,9 +608,15 @@ export default function Checkout() {
 
               <div className="border-t border-premium-border pt-4 space-y-2 text-sm font-semibold mb-6">
                 <div className="flex justify-between text-premium-gray">
-                  <span>Subtotal</span>
+                  <span>Subtotal Frames</span>
                   <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
+                {includePrescription && prescriptionCost > 0 && (
+                  <div className="flex justify-between text-premium-gray text-xs">
+                    <span className="flex items-center gap-1">👓 Prescription Lenses ({lensIndex})</span>
+                    <span>+ ₹{prescriptionCost.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
                 {couponDiscount > 0 && (
                   <div className="flex justify-between text-green-700 text-xs">
                     <span>Coupon Discount ({(couponDiscount * 100)}%)</span>

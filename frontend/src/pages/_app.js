@@ -241,6 +241,13 @@ export default function App({ Component, pageProps }) {
                                 <p className="text-[10px] text-premium-gray">Find your frame personality</p>
                               </div>
                             </Link>
+                            <Link href="/lens-guide" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                              <span className="text-xl">👓</span>
+                              <div>
+                                <p className="text-xs font-bold text-premium-black">Prescription Lens Studio</p>
+                                <p className="text-[10px] text-premium-gray">AI Lens refraction & coatings lab</p>
+                              </div>
+                            </Link>
                             <Link href="/compare" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
                               <span className="text-xl">⚖️</span>
                               <div>
@@ -396,6 +403,13 @@ export default function App({ Component, pageProps }) {
                         className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
                       >
                         Bespoke Customizer
+                      </Link>
+                      <Link 
+                        href="/lens-guide" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                      >
+                        Prescription Lens Studio
                       </Link>
 
                     </div>
