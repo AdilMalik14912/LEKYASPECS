@@ -27,6 +27,13 @@ export default function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const { showToast } = useToast();
 
+  // Prescription and Lens Configurator States
+  const [includePrescription, setIncludePrescription] = useState(false);
+  const [lensIndex, setLensIndex] = useState('1.56');
+  const [antiGlare, setAntiGlare] = useState(false);
+  const [blueShield, setBlueShield] = useState(false);
+  const [photochromic, setPhotochromic] = useState(false);
+
   // Review Form State
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -166,6 +173,22 @@ export default function ProductDetail() {
     );
   }
 
+  const getDynamicPrice = () => {
+    if (!product) return 0;
+    let base = parseFloat(product.price);
+    if (!includePrescription) return base;
+    
+    if (lensIndex === '1.61') base += 800;
+    else if (lensIndex === '1.67') base += 1600;
+    else if (lensIndex === '1.74') base += 2800;
+    
+    if (antiGlare) base += 250;
+    if (blueShield) base += 300;
+    if (photochromic) base += 600;
+    
+    return base;
+  };
+
   return (
     <div className="bg-premium-light min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,7 +285,7 @@ export default function ProductDetail() {
 
             {/* Price */}
             <div className="text-3xl font-bold text-premium-black mb-6">
-              ₹{parseFloat(product.price).toLocaleString('en-IN')}
+              ₹{getDynamicPrice().toLocaleString('en-IN')}
             </div>
 
             {/* Description */}
@@ -296,6 +319,74 @@ export default function ProductDetail() {
                   <span className="font-bold text-premium-dark">145 mm</span>
                 </div>
               </div>
+            </div>
+
+            {/* Prescription Lenses Configurator */}
+            <div className="border border-premium-border rounded-xl p-5 mb-8 bg-white space-y-4">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input 
+                  type="checkbox"
+                  checked={includePrescription}
+                  onChange={(e) => setIncludePrescription(e.target.checked)}
+                  className="accent-premium-accent w-4.5 h-4.5 rounded"
+                />
+                <span className="font-serif text-sm font-bold text-premium-black">Add Custom Prescription Lenses</span>
+              </label>
+
+              {includePrescription && (
+                <div className="space-y-4 pt-3 border-t border-premium-border animate-fade-in text-xs text-premium-dark">
+                  <div>
+                    <span className="block font-bold mb-2">Select Lens Thickness (Index)</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: '1.56', label: 'Standard 1.56', price: 'Free' },
+                        { id: '1.61', label: 'Thin 1.61', price: '+₹800' },
+                        { id: '1.67', label: 'Ultra Thin 1.67', price: '+₹1,600' },
+                        { id: '1.74', label: 'Super Thin 1.74', price: '+₹2,800' },
+                      ].map(lens => (
+                        <button
+                          key={lens.id}
+                          onClick={() => setLensIndex(lens.id)}
+                          className={`p-2.5 rounded border text-left flex justify-between items-center transition-all ${
+                            lensIndex === lens.id ? 'border-premium-accent bg-premium-accent/5' : 'border-premium-border hover:border-premium-accent/50'
+                          }`}
+                        >
+                          <span className="font-semibold">{lens.label}</span>
+                          <span className="font-mono text-premium-accent text-[10px]">{lens.price}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="block font-bold mb-2">Select Lens Coatings</span>
+                    <div className="space-y-2">
+                      {[
+                        { state: antiGlare, setState: setAntiGlare, label: 'Anti-Glare coating', price: '+₹250' },
+                        { state: blueShield, setState: setBlueShield, label: 'Blue Light protection shield', price: '+₹300' },
+                        { state: photochromic, setState: setPhotochromic, label: 'Photochromic transition lenses', price: '+₹600' },
+                      ].map((coat, idx) => (
+                        <label key={idx} className="flex items-center justify-between p-2 rounded border border-premium-border bg-premium-light/30 cursor-pointer">
+                          <span className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={coat.state}
+                              onChange={(e) => coat.setState(e.target.checked)}
+                              className="accent-premium-accent w-4 h-4 rounded"
+                            />
+                            <span className="font-medium">{coat.label}</span>
+                          </span>
+                          <span className="font-mono text-premium-accent text-[10px]">{coat.price}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-800 leading-relaxed">
+                    ℹ️ You will input your exact sphere (SPH), cylinder (CYL), axis, and pupil distance (PD) measurements on the Checkout page before finalizing your purchase.
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

@@ -3,7 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -34,6 +34,15 @@ export default function Account() {
   // Profile Edit states
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (!user) return;
+    const link = `${window.location.origin}/account?ref=${user.referral_code || 'REF-USER'}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     if (user) {
@@ -353,6 +362,65 @@ export default function Account() {
               )}
             </div>
 
+            {/* Loyalty points and Referral system card */}
+            <div className="bg-white border border-premium-border rounded p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-premium-border pb-3">
+                <h3 className="font-serif text-lg font-bold text-premium-black flex items-center gap-1.5">
+                  <Award className="w-5 h-5 text-premium-accent" /> Specs Rewards Club
+                </h3>
+                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded ${
+                  (user.loyalty_points || 0) >= 300 ? 'bg-yellow-100 text-yellow-800' :
+                  (user.loyalty_points || 0) >= 100 ? 'bg-gray-100 text-gray-800' :
+                  'bg-orange-100 text-orange-800'
+                }`}>
+                  {(user.loyalty_points || 0) >= 300 ? 'Gold Ambassador' :
+                   (user.loyalty_points || 0) >= 100 ? 'Silver VIP' :
+                   'Bronze Member'}
+                </span>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs font-semibold mb-1">
+                  <span>Reward Balance</span>
+                  <span className="text-premium-accent font-bold font-mono">{user.loyalty_points || 0} pts</span>
+                </div>
+                {/* Progress bar towards next reward milestone */}
+                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-premium-accent h-full transition-all duration-500" 
+                    style={{ width: `${Math.min(100, ((user.loyalty_points || 0) % 500) / 500 * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-premium-gray mt-1.5">
+                  {500 - ((user.loyalty_points || 0) % 500)} points remaining to unlock a ₹500 store credit.
+                </p>
+              </div>
+
+              <div className="border-t border-premium-border pt-4">
+                <span className="block text-xs font-bold text-premium-dark mb-1.5 flex items-center gap-1">
+                  <Gift className="w-4 h-4 text-premium-accent" /> Share the Love
+                </span>
+                <p className="text-[10px] text-premium-gray mb-3 leading-relaxed">
+                  Invite your friends! When they place their first eyewear order, they get a 10% discount and you get 100 loyalty points!
+                </p>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={user ? `${window.location.origin}/account?ref=${user.referral_code || 'REF-USER'}` : ''}
+                    className="flex-grow bg-premium-light border border-premium-border rounded px-2.5 py-1.5 text-[10px] text-premium-dark focus:outline-none"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black p-2 rounded transition-colors"
+                    title="Copy Referral Link"
+                  >
+                    {copied ? <span className="text-[9px] font-bold px-1 uppercase tracking-wider text-green-400">Copied</span> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Premium service warranty card */}
             <div className="bg-premium-black text-white border border-premium-accent/30 rounded p-6 shadow-sm">
               <h3 className="font-serif text-lg font-bold text-premium-accent mb-2">Specs Warranty</h3>
@@ -476,6 +544,16 @@ export default function Account() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Order visual tracking updates comments */}
+                    {order.tracking_comments && (
+                      <div className="mb-4 p-3 bg-amber-50/50 border border-amber-200/60 rounded text-xs text-premium-dark">
+                        <p className="font-bold text-amber-800 uppercase tracking-widest text-[9px] mb-1 flex items-center gap-1">
+                          <Truck className="w-3.5 h-3.5" /> Shipping / Dispatch Notes
+                        </p>
+                        <p className="font-medium leading-relaxed">{order.tracking_comments}</p>
+                      </div>
+                    )}
 
                     {/* Footer values */}
                     <div className="border-t border-premium-border/60 pt-3 flex justify-between items-center text-sm font-bold">

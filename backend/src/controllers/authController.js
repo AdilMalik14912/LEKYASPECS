@@ -31,14 +31,17 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    // Generate unique referral code
+    const referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+
     // Insert user
     await db.query(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
-      [name, email.toLowerCase().trim(), passwordHash]
+      'INSERT INTO users (name, email, password_hash, referral_code) VALUES (?, ?, ?, ?)',
+      [name, email.toLowerCase().trim(), passwordHash, referralCode]
     );
 
     // Fetch newly created user
-    const newUserRes = await db.query('SELECT id, name, email, face_shape, role, created_at FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+    const newUserRes = await db.query('SELECT id, name, email, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE email = ?', [email.toLowerCase().trim()]);
     const user = newUserRes.rows[0];
     const token = generateToken(user);
 
@@ -50,6 +53,8 @@ const register = async (req, res) => {
         email: user.email,
         face_shape: user.face_shape,
         role: user.role || 'user',
+        loyalty_points: user.loyalty_points || 0,
+        referral_code: user.referral_code,
         createdAt: user.created_at
       }
     });
@@ -91,6 +96,8 @@ const login = async (req, res) => {
         email: user.email,
         face_shape: user.face_shape,
         role: user.role || 'user',
+        loyalty_points: user.loyalty_points || 0,
+        referral_code: user.referral_code,
         createdAt: user.created_at
       }
     });
@@ -103,7 +110,7 @@ const login = async (req, res) => {
 // Get User Profile
 const getProfile = async (req, res) => {
   try {
-    const result = await db.query('SELECT id, name, email, face_shape, created_at FROM users WHERE id = ?', [req.user.id]);
+    const result = await db.query('SELECT id, name, email, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [req.user.id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -139,7 +146,7 @@ const updateProfile = async (req, res) => {
 
   try {
     await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
-    const updated = await db.query('SELECT id, name, email, face_shape, created_at FROM users WHERE id = ?', [userId]);
+    const updated = await db.query('SELECT id, name, email, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [userId]);
     res.json(updated.rows[0]);
   } catch (err) {
     console.error('Update profile error:', err);

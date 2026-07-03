@@ -101,17 +101,36 @@ export default function Checkout() {
     setCouponError('');
     setCouponSuccess('');
     const code = couponInput.toUpperCase().trim();
-    if (code === 'LEKYA20') {
-      setAppliedCoupon('LEKYA20');
-      setCouponDiscount(0.20);
-      setCouponSuccess('20% Discount Coupon Applied Successfully!');
-    } else if (code === 'WELCOME10') {
-      setAppliedCoupon('WELCOME10');
-      setCouponDiscount(0.10);
-      setCouponSuccess('10% Discount Coupon Applied Successfully!');
-    } else {
-      setCouponError('Invalid Coupon Code');
-    }
+    if (!code) return;
+
+    fetch(`${API_BASE}/api/coupons/validate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ code })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Invalid coupon') });
+        return res.json();
+      })
+      .then(data => {
+        setAppliedCoupon(code);
+        if (data.discount_type === 'percentage') {
+          setCouponDiscount(data.discount_value / 100);
+          setCouponSuccess(`${data.discount_value}% Discount Coupon Applied Successfully!`);
+        } else {
+          const fractionalDiscount = data.discount_value / subtotalWithLens;
+          setCouponDiscount(fractionalDiscount);
+          setCouponSuccess(`Flat ₹${data.discount_value} Discount Coupon Applied Successfully!`);
+        }
+      })
+      .catch(err => {
+        setCouponError(err.message || 'Invalid Coupon Code');
+        setAppliedCoupon('');
+        setCouponDiscount(0);
+      });
   };
 
   const discountAmount = subtotalWithLens * couponDiscount;

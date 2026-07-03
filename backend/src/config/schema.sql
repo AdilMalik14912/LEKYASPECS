@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     face_shape TEXT DEFAULT NULL,
     role TEXT DEFAULT 'user',
+    loyalty_points INTEGER DEFAULT 0,
+    referral_code TEXT DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -36,6 +38,10 @@ CREATE TABLE IF NOT EXISTS orders (
     status TEXT DEFAULT 'Pending',
     payment_id TEXT DEFAULT NULL,
     shipping_address TEXT NOT NULL DEFAULT '{}',
+    lens_type TEXT DEFAULT NULL,
+    lens_price REAL DEFAULT 0.0,
+    prescription_details TEXT DEFAULT NULL,
+    tracking_comments TEXT DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -90,5 +96,18 @@ CREATE TABLE IF NOT EXISTS admin_activity_log (
     admin_email TEXT NOT NULL,
     action_type TEXT NOT NULL,
     description TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 10. Contact Messages (Helpdesk Reply Hub)
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    reply_message TEXT DEFAULT NULL,
+    replied_at TEXT DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );

@@ -6,7 +6,7 @@ const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -228,6 +228,27 @@ export default function Admin() {
   const [logs, setLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(true);
 
+  // 10 new features: Helpdesk reply hub state
+  const [contactMessages, setContactMessages] = useState([]);
+  const [contactMessagesLoading, setContactMessagesLoading] = useState(true);
+  const [replyTextMap, setReplyTextMap] = useState({});
+  const [replyingMessageId, setReplyingMessageId] = useState(null);
+
+  // 10 new features: DB Health metrics state
+  const [dbHealth, setDbHealth] = useState(null);
+  const [dbHealthLoading, setDbHealthLoading] = useState(true);
+  const [optimizingDb, setOptimizingDb] = useState(false);
+
+  // 10 new features: Inspect customer profile state
+  const [inspectedCustomer, setInspectedCustomer] = useState(null);
+  const [inspectedCustomerLoading, setInspectedCustomerLoading] = useState(false);
+  const [showCustomerInspectModal, setShowCustomerInspectModal] = useState(false);
+
+  // 10 new features: Order shipping tracking modal state
+  const [selectedTrackingOrder, setSelectedTrackingOrder] = useState(null);
+  const [trackingCommentsText, setTrackingCommentsText] = useState('');
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+
   // Security gate: redirect if not admin
   useEffect(() => {
     if (!authLoading) {
@@ -312,6 +333,22 @@ export default function Admin() {
       })
         .then(res => res.json())
         .then(data => { setLogs(data); setLogsLoading(false); })
+        .catch(err => console.error(err));
+    } else if (activeTab === 'helpdesk') {
+      setContactMessagesLoading(true);
+      fetch(`${API_BASE}/api/admin/helpdesk`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setContactMessages(data); setContactMessagesLoading(false); })
+        .catch(err => console.error(err));
+    } else if (activeTab === 'db') {
+      setDbHealthLoading(true);
+      fetch(`${API_BASE}/api/admin/db/health`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setDbHealth(data); setDbHealthLoading(false); })
         .catch(err => console.error(err));
     }
   }, [activeTab, token, user]);
@@ -625,6 +662,122 @@ export default function Admin() {
       });
   };
 
+  // DB Optimization handler
+  const handleOptimizeDb = () => {
+    setOptimizingDb(true);
+    fetch(`${API_BASE}/api/admin/db/optimize`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || 'Database vacuum optimization complete!');
+        setOptimizingDb(false);
+        // Refresh DB health metrics
+        fetch(`${API_BASE}/api/admin/db/health`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(health => setDbHealth(health));
+      })
+      .catch(err => {
+        alert(err.message);
+        setOptimizingDb(false);
+      });
+  };
+
+  // Support Reply handler
+  const handleSupportReply = (e, msgId) => {
+    e.preventDefault();
+    const replyText = replyTextMap[msgId];
+    if (!replyText || !replyText.trim()) return;
+
+    setReplyingMessageId(msgId);
+
+    fetch(`${API_BASE}/api/admin/helpdesk/${msgId}/reply`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ reply_message: replyText })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        alert('Reply email successfully sent to customer!');
+        setReplyingMessageId(null);
+        // Reset reply textbox in state map
+        setReplyTextMap(prev => ({ ...prev, [msgId]: '' }));
+        // Refresh contact messages list
+        fetch(`${API_BASE}/api/admin/helpdesk`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setContactMessages(list));
+      })
+      .catch(err => {
+        alert(err.message);
+        setReplyingMessageId(null);
+      });
+  };
+
+  // Inspect Customer handler
+  const handleInspectCustomer = (custId) => {
+    setInspectedCustomerLoading(true);
+    setShowCustomerInspectModal(true);
+
+    fetch(`${API_BASE}/api/admin/customers/${custId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load profile');
+        return res.json();
+      })
+      .then(data => {
+        setInspectedCustomer(data);
+        setInspectedCustomerLoading(false);
+      })
+      .catch(err => {
+        alert(err.message);
+        setInspectedCustomerLoading(false);
+        setShowCustomerInspectModal(false);
+      });
+  };
+
+  // Save Order tracking update handler
+  const handleSaveTracking = (e) => {
+    e.preventDefault();
+    if (!selectedTrackingOrder) return;
+
+    fetch(`${API_BASE}/api/admin/orders/${selectedTrackingOrder.id}/tracking`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ trackingComments: trackingCommentsText })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
+        return res.json();
+      })
+      .then(data => {
+        alert('Shipping details updated successfully!');
+        setShowTrackingModal(false);
+        // Refresh orders list
+        fetch(`${API_BASE}/api/admin/orders`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setOrders(list));
+      })
+      .catch(err => alert(err.message));
+  };
+
+
   // --- RENDER SECURITY CHECKS ---
   if (authLoading) {
     return (
@@ -730,6 +883,24 @@ export default function Admin() {
             }`}
           >
             <ScrollText className="w-4 h-4" /> Activity Log
+          </button>
+
+          <button
+            onClick={() => setActiveTab('helpdesk')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'helpdesk' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <HelpCircle className="w-4 h-4" /> Support Helpdesk
+          </button>
+
+          <button
+            onClick={() => setActiveTab('db')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'db' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Activity className="w-4 h-4" /> DB Optimizer
           </button>
 
           <button
@@ -1083,6 +1254,7 @@ export default function Admin() {
                           <th className="px-6 py-4">Customer</th>
                           <th className="px-6 py-4">Payment ID</th>
                           <th className="px-6 py-4">Shipping Info</th>
+                          <th className="px-6 py-4">Tracking Info</th>
                           <th className="px-6 py-4">Date</th>
                           <th className="px-6 py-4">Total Amount</th>
                           <th className="px-6 py-4">Fulfillment Status</th>
@@ -1139,6 +1311,34 @@ export default function Admin() {
                                   </div>
                                 )}
                               </div>
+                            </td>
+                            <td className="px-6 py-4 text-xs">
+                              {order.tracking_comments ? (
+                                <div className="max-w-[200px] text-premium-dark">
+                                  <p className="font-semibold truncate" title={order.tracking_comments}>{order.tracking_comments}</p>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedTrackingOrder(order);
+                                      setTrackingCommentsText(order.tracking_comments || '');
+                                      setShowTrackingModal(true);
+                                    }}
+                                    className="text-[10px] text-premium-accent hover:underline font-bold mt-1"
+                                  >
+                                    Update details
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setSelectedTrackingOrder(order);
+                                    setTrackingCommentsText('');
+                                    setShowTrackingModal(true);
+                                  }}
+                                  className="text-[10px] bg-premium-light border border-premium-border text-premium-dark font-bold hover:bg-premium-accent hover:text-premium-black px-2.5 py-1 rounded transition-colors"
+                                >
+                                  + Add Dispatch
+                                </button>
+                              )}
                             </td>
                             <td className="px-6 py-4 text-xs">
                               {new Date(order.created_at).toLocaleDateString('en-IN', {
@@ -1254,7 +1454,14 @@ export default function Admin() {
                         ).map(cust => (
                           <tr key={cust.id} className="hover:bg-premium-light/50">
                             <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{cust.id}</td>
-                            <td className="px-6 py-4 font-semibold">{cust.name}</td>
+                            <td className="px-6 py-4">
+                              <button 
+                                onClick={() => handleInspectCustomer(cust.id)}
+                                className="font-semibold text-premium-black hover:text-premium-accent hover:underline transition-colors text-left"
+                              >
+                                {cust.name}
+                              </button>
+                            </td>
                             <td className="px-6 py-4 font-mono text-xs">{cust.email}</td>
                             <td className="px-6 py-4">
                               <span className={`text-[10px] uppercase font-bold tracking-wide ${cust.face_shape ? 'text-premium-golddark font-semibold' : 'text-gray-400'}`}>
@@ -1640,6 +1847,149 @@ export default function Admin() {
           </div>
         )}
 
+        {/* --- TAB 10: SUPPORT HELPDESK REPLY HUB --- */}
+        {activeTab === 'helpdesk' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              Support Helpdesk & Reply Hub
+            </h2>
+            <p className="text-xs text-premium-gray font-light mb-8">
+              Review messages submitted by customers and reply to them via direct support email blasts.
+            </p>
+
+            {contactMessagesLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : (
+              <div className="space-y-6">
+                {contactMessages.length === 0 ? (
+                  <p className="text-center py-10 bg-white border rounded text-premium-gray">No support contact queries received yet.</p>
+                ) : (
+                  contactMessages.map(msg => (
+                    <div key={msg.id} className="bg-white border border-premium-border rounded p-6 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-premium-border/60 pb-3 gap-2">
+                        <div>
+                          <span className="font-bold text-sm text-premium-dark block sm:inline">{msg.name}</span>
+                          <span className="text-xs text-premium-gray block sm:inline sm:ml-2">({msg.email})</span>
+                        </div>
+                        <div className="text-right text-xs text-premium-gray">
+                          <span>Submitted on: {new Date(msg.created_at).toLocaleDateString('en-IN')}</span>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <p className="font-semibold text-xs text-premium-accent uppercase tracking-wider mb-1">Subject: {msg.subject}</p>
+                        <p className="text-sm text-premium-dark bg-premium-light/50 p-3 rounded italic font-medium leading-relaxed">
+                          "{msg.message}"
+                        </p>
+                      </div>
+
+                      {msg.reply_message ? (
+                        <div className="p-3.5 bg-green-50 border border-green-200 rounded text-xs text-green-800 leading-relaxed">
+                          <strong>✓ Replied on {new Date(msg.replied_at).toLocaleDateString('en-IN')}:</strong><br/>
+                          <span className="italic">"{msg.reply_message}"</span>
+                        </div>
+                      ) : (
+                        <form onSubmit={(e) => handleSupportReply(e, msg.id)} className="space-y-3 pt-2">
+                          <textarea
+                            required
+                            rows="3"
+                            value={replyTextMap[msg.id] || ''}
+                            onChange={(e) => setReplyTextMap(prev => ({ ...prev, [msg.id]: e.target.value }))}
+                            placeholder="Type email response details..."
+                            className="w-full bg-premium-light text-xs border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium leading-relaxed"
+                          />
+                          <button
+                            type="submit"
+                            disabled={replyingMessageId === msg.id}
+                            className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-[10px] tracking-widest uppercase py-2 px-5 rounded transition-all disabled:opacity-50"
+                          >
+                            {replyingMessageId === msg.id ? 'Sending Email...' : 'Send Support Reply'}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- TAB 11: DATABASE HEALTH & VACUUM OPTIMIZER --- */}
+        {activeTab === 'db' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              Database Health & Optimizer
+            </h2>
+            <p className="text-xs text-premium-gray font-light mb-8">
+              Monitor active connections, query latencies, record counts, and run storage defragmentation.
+            </p>
+
+            {dbHealthLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : dbHealth ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                {/* Left col: Stats cards */}
+                <div className="md:col-span-2 space-y-6">
+                  
+                  {/* Status metrics grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
+                      <span className="block text-[10px] uppercase font-bold text-premium-gray tracking-wider">Engine Status</span>
+                      <span className="text-lg font-bold text-green-600 block mt-1">✓ {dbHealth.status}</span>
+                      <span className="text-xs text-premium-gray block font-medium mt-0.5">{dbHealth.engine} client active</span>
+                    </div>
+
+                    <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
+                      <span className="block text-[10px] uppercase font-bold text-premium-gray tracking-wider">Query Latency (PING)</span>
+                      <span className="text-lg font-bold text-premium-black block mt-1 font-mono">{dbHealth.latency_ms} ms</span>
+                      <span className="text-xs text-premium-gray block font-medium mt-0.5">Turso read benchmark</span>
+                    </div>
+                  </div>
+
+                  {/* Table Stats list */}
+                  <div className="bg-white border border-premium-border rounded-lg shadow-sm overflow-hidden">
+                    <div className="bg-premium-light border-b border-premium-border px-5 py-3.5 flex justify-between">
+                      <span className="text-xs uppercase font-bold text-premium-dark tracking-wider">Table Storage Summary</span>
+                      <span className="text-xs font-semibold text-premium-accent font-mono">Row Counts</span>
+                    </div>
+                    <div className="divide-y divide-premium-border text-sm">
+                      {Object.keys(dbHealth.records).map(tbl => (
+                        <div key={tbl} className="px-5 py-3 flex justify-between items-center hover:bg-premium-light/30">
+                          <span className="font-semibold text-premium-dark capitalize">{tbl.replace(/_/g, ' ')}</span>
+                          <span className="font-mono text-xs font-bold text-premium-accent">{dbHealth.records[tbl]} rows</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right col: Optimization trigger */}
+                <div className="bg-white border border-premium-border rounded-lg p-6 shadow-sm h-fit space-y-4">
+                  <h3 className="font-serif text-lg font-bold text-premium-black flex items-center gap-1.5 border-b border-premium-border pb-3">
+                    <Activity className="w-5 h-5 text-premium-accent" /> DB Optimization
+                  </h3>
+                  <p className="text-xs text-premium-gray leading-relaxed font-light">
+                    Over time, creating and removing rows (like orders and logs) leaves fragmented index pages. Clicking below executes `VACUUM` programmatically to clean up index trees, defragment sqlite pages, and minimize database size.
+                  </p>
+                  <button
+                    onClick={handleOptimizeDb}
+                    disabled={optimizingDb}
+                    className="w-full bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3.5 rounded transition-all shadow flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {optimizingDb ? 'Running VACUUM...' : 'Optimize Storage (VACUUM)'}
+                  </button>
+                </div>
+
+              </div>
+            ) : (
+              <p className="text-xs text-red-600 font-semibold">Failed to fetch database health records.</p>
+            )}
+          </div>
+        )}
+
       </main>
 
       {/* --- ADD/EDIT PRODUCT MODAL POPUP --- */}
@@ -1951,6 +2301,136 @@ export default function Admin() {
                 <button
                   type="button"
                   onClick={() => setShowCouponModal(false)}
+                  className="border border-premium-border hover:bg-gray-50 text-premium-dark font-semibold text-xs tracking-widest uppercase py-3.5 px-6 rounded transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- CUSTOMER INSPECT PROFILE MODAL POPUP --- */}
+      {showCustomerInspectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-premium-border rounded-lg max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-8 text-premium-dark">
+            <button 
+              onClick={() => setShowCustomerInspectModal(false)}
+              className="absolute top-4 right-4 text-premium-gray hover:text-premium-black transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-serif text-2xl font-bold text-premium-black mb-6">
+              Customer Inspection Report
+            </h3>
+
+            {inspectedCustomerLoading ? (
+              <div className="text-center py-10"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : inspectedCustomer ? (
+              <div className="space-y-6 text-sm">
+                
+                {/* Profile Grid */}
+                <div className="bg-premium-light border border-premium-border rounded p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">User ID:</span>
+                    <span className="font-bold">#{inspectedCustomer.profile.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">Name:</span>
+                    <span className="font-bold">{inspectedCustomer.profile.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">Email:</span>
+                    <span className="font-mono text-xs">{inspectedCustomer.profile.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">Loyalty Points:</span>
+                    <span className="font-bold text-premium-accent">{inspectedCustomer.profile.loyalty_points || 0} points</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">Referral Code:</span>
+                    <span className="font-mono font-bold text-premium-accent">{inspectedCustomer.profile.referral_code || 'None'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-premium-gray font-semibold">Registered On:</span>
+                    <span>{new Date(inspectedCustomer.profile.created_at).toLocaleDateString('en-IN')}</span>
+                  </div>
+                </div>
+
+                {/* Purchase list */}
+                <div>
+                  <h4 className="font-serif font-bold text-premium-black mb-2 border-b pb-1">Order History ({inspectedCustomer.orders.length})</h4>
+                  {inspectedCustomer.orders.length === 0 ? (
+                    <p className="text-xs text-premium-gray italic py-2">No purchases recorded yet.</p>
+                  ) : (
+                    <div className="max-h-[200px] overflow-y-auto space-y-2 divide-y divide-premium-border">
+                      {inspectedCustomer.orders.map(ord => (
+                        <div key={ord.id} className="pt-2 flex justify-between items-center text-xs">
+                          <div>
+                            <span className="font-bold">Order #{ord.id}</span>
+                            <span className="text-premium-gray block mt-0.5">{new Date(ord.created_at).toLocaleDateString('en-IN')}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold block text-premium-accent">₹{parseFloat(ord.total_amount).toLocaleString('en-IN')}</span>
+                            <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
+                              ord.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                            }`}>{ord.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            ) : (
+              <p className="text-xs text-red-600 font-semibold">Failed to load customer profile details.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* --- ORDER TRACKING DISPATCH MODAL POPUP --- */}
+      {showTrackingModal && selectedTrackingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-premium-border rounded-lg max-w-md w-full p-6 sm:p-8 shadow-2xl relative my-8 text-premium-dark">
+            <button 
+              onClick={() => setShowTrackingModal(false)}
+              className="absolute top-4 right-4 text-premium-gray hover:text-premium-black transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-serif text-2xl font-bold text-premium-black mb-2">
+              Order Fulfillment Tracking
+            </h3>
+            <p className="text-xs text-premium-gray font-light mb-6">Order ID: #{selectedTrackingOrder.id}</p>
+
+            <form onSubmit={handleSaveTracking} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Fulfillment Comments / Dispatch updates</label>
+                <textarea
+                  required
+                  rows="4"
+                  value={trackingCommentsText}
+                  onChange={(e) => setTrackingCommentsText(e.target.value)}
+                  placeholder="e.g. Dispatched via Bluedart, Tracking Airway bill no: 4893729. ETA: 4 days."
+                  className="w-full bg-premium-light text-xs border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium leading-relaxed"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-premium-border">
+                <button
+                  type="submit"
+                  className="flex-grow bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-3.5 rounded transition-all shadow"
+                >
+                  Save Dispatch Notes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTrackingModal(false)}
                   className="border border-premium-border hover:bg-gray-50 text-premium-dark font-semibold text-xs tracking-widest uppercase py-3.5 px-6 rounded transition-all"
                 >
                   Cancel

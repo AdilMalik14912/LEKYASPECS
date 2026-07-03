@@ -529,14 +529,166 @@ const exportCustomersCSV = async (req, res) => {
   }
 };
 
-// --- ADMIN ACTIVITY LOG ---
-const getActivityLogs = async (req, res) => {
+// --- DATABASE HEALTH & OPTIMIZATION ---
+const getDatabaseHealth = async (req, res) => {
   try {
-    const logsRes = await db.query('SELECT * FROM admin_activity_log ORDER BY created_at DESC LIMIT 100');
-    res.json(logsRes.rows);
+    const start = Date.now();
+    await db.query('SELECT 1');
+    const latency = Date.now() - start;
+
+    const tables = ['users', 'products', 'orders', 'order_items', 'reviews', 'coupons', 'admin_activity_log', 'contact_messages'];
+    const tableStats = {};
+
+    for (const tbl of tables) {
+      try {
+        const countRes = await db.query(`SELECT COUNT(*) as count FROM ${tbl}`);
+        tableStats[tbl] = countRes.rows[0].count;
+      } catch (_) {
+        tableStats[tbl] = 0;
+      }
+    }
+
+    res.json({
+      status: 'Healthy',
+      engine: 'SQLite/Turso',
+      latency_ms: latency,
+      records: tableStats
+    });
   } catch (err) {
-    console.error('Get activity logs error:', err);
-    res.status(500).json({ message: 'Server error retrieving activity logs' });
+    console.error('Get database health error:', err);
+    res.status(500).json({ message: 'Server error retrieving database stats' });
+  }
+};
+
+const optimizeDatabase = async (req, res) => {
+  try {
+    await db.query('VACUUM');
+    await logAdminActivity(req.user.email, 'VACUUM_OPTIMIZATION', 'Optimized database index pages and space storage via VACUUM');
+    res.json({ message: 'Database optimized successfully' });
+  } catch (err) {
+    console.error('Optimize database error:', err);
+    res.status(500).json({ message: 'Server error running database optimization' });
+  }
+};
+
+// --- HELPDESK / REPLY HUB ---
+const getContactMessages = async (req, res) => {
+  try {
+    const messagesRes = await db.query('SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT 100');
+    res.json(messagesRes.rows);
+  } catch (err) {
+    console.error('Get contact messages error:', err);
+    res.status(500).json({ message: 'Server error retrieving contact messages' });
+  }
+};
+
+const replyContactMessage = async (req, res) => {
+  const { id } = req.params;
+  const { reply_message } = req.body;
+
+  if (!reply_message) {
+    return res.status(400).json({ message: 'Reply message is required' });
+  }
+
+  try {
+    const msgRes = await db.query('SELECT * FROM contact_messages WHERE id = ?', [id]);
+    if (msgRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Contact message not found' });
+    }
+
+    const customerMsg = msgRes.rows[0];
+
+    // Send reply email using sendMail helper from mailer.js
+    const { sendMail } = require('../utils/mailer');
+    const mailHtml = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;">
+        <div style="background:#1a1a1a;padding:24px;text-align:center;">
+          <h1 style="color:#C5A028;margin:0;font-size:22px;letter-spacing:3px;">LEKYA SPECS</h1>
+          <p style="color:#999;margin:4px 0 0;font-size:12px;">Support Helpdesk Response</p>
+        </div>
+        <div style="padding:32px;">
+          <h3 style="color:#1a1a1a;margin-top:0;">Hi ${customerMsg.name},</h3>
+          <p style="color:#555;line-height:1.6;">Our support team has reviewed your query regarding: <strong>"${customerMsg.subject}"</strong>.</p>
+          <div style="margin:20px 0;padding:16px;background:#f9f9f9;border-left:4px solid #C5A028;border-radius:4px;color:#1a1a1a;line-height:1.6;">
+            <strong>Reply:</strong><br/>
+            ${reply_message}
+          </div>
+          <p style="color:#777;font-size:12px;">Original Message submitted on ${new Date(customerMsg.created_at).toLocaleDateString('en-IN')}:<br/>
+          <em>"${customerMsg.message}"</em></p>
+        </div>
+      </div>
+    `;
+
+    await sendMail({
+      to: customerMsg.email,
+      subject: `Re: ${customerMsg.subject} — Lekya Specs Helpdesk`,
+      html: mailHtml
+    });
+
+    // Update database
+    const nowStr = new Date().toISOString();
+    await db.query(
+      `UPDATE contact_messages SET reply_message = ?, replied_at = ? WHERE id = ?`,
+      [reply_message, nowStr, id]
+    );
+
+    await logAdminActivity(
+      req.user.email,
+      'REPLY_CONTACT',
+      `Sent support reply to ${customerMsg.email} about subject: ${customerMsg.subject}`
+    );
+
+    res.json({ message: 'Reply sent successfully' });
+  } catch (err) {
+    console.error('Reply contact error:', err);
+    res.status(500).json({ message: 'Server error sending support reply' });
+  }
+};
+
+// --- CUSTOMER DEEP INSPECT PROFILE ---
+const getCustomerDetail = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userRes = await db.query('SELECT id, name, email, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [id]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    const customer = userRes.rows[0];
+
+    // Fetch order history for customer
+    const ordersRes = await db.query(
+      `SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+      [id]
+    );
+
+    res.json({
+      profile: customer,
+      orders: ordersRes.rows
+    });
+  } catch (err) {
+    console.error('Get customer details error:', err);
+    res.status(500).json({ message: 'Server error retrieving customer profile details' });
+  }
+};
+
+// --- ORDER TRACKING VISUAL TIMELINE UPDATE ---
+const updateOrderTracking = async (req, res) => {
+  const { id } = req.params;
+  const { trackingComments } = req.body;
+
+  try {
+    const existing = await db.query('SELECT id FROM orders WHERE id = ?', [id]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    await db.query('UPDATE orders SET tracking_comments = ? WHERE id = ?', [trackingComments, id]);
+    await logAdminActivity(req.user.email, 'UPDATE_TRACKING', `Updated tracking updates for order ID #${id}`);
+    res.json({ message: 'Order tracking details updated successfully' });
+  } catch (err) {
+    console.error('Update order tracking error:', err);
+    res.status(500).json({ message: 'Server error updating shipping details' });
   }
 };
 
@@ -560,5 +712,11 @@ module.exports = {
   broadcastEmail,
   exportOrdersCSV,
   exportCustomersCSV,
-  getActivityLogs
+  getActivityLogs,
+  getDatabaseHealth,
+  optimizeDatabase,
+  getContactMessages,
+  replyContactMessage,
+  getCustomerDetail,
+  updateOrderTracking
 };

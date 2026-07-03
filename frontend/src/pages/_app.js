@@ -60,7 +60,33 @@ export default function App({ Component, pageProps }) {
 
       if (storedToken && storedUser) {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+
+        // Define API Base locally inside useEffect to match backend port resolving
+        const apiBaseUrl = typeof window !== 'undefined'
+          ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+          : '';
+
+        fetch(`${apiBaseUrl}/api/auth/profile`, {
+          headers: { 'Authorization': `Bearer ${storedToken}` }
+        })
+          .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+          })
+          .then(freshUser => {
+            const updatedUser = {
+              ...parsedUser,
+              face_shape: freshUser.face_shape,
+              role: freshUser.role || 'user',
+              loyalty_points: freshUser.loyalty_points || 0,
+              referral_code: freshUser.referral_code
+            };
+            setUser(updatedUser);
+            localStorage.setItem('specs_user', JSON.stringify(updatedUser));
+          })
+          .catch(() => {});
       }
       if (storedCart) {
         setCart(JSON.parse(storedCart));
@@ -272,6 +298,13 @@ export default function App({ Component, pageProps }) {
                               <div>
                                 <p className="text-xs font-bold text-premium-black">Live AR Try-On</p>
                                 <p className="text-[10px] text-premium-gray">Real-time glasses on your webcam</p>
+                              </div>
+                            </Link>
+                            <Link href="/tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                              <span className="text-xl">🕶️</span>
+                              <div>
+                                <p className="text-xs font-bold text-premium-black">2D Try-On Studio</p>
+                                <p className="text-[10px] text-premium-gray">Upload portrait & size frames</p>
                               </div>
                             </Link>
                             <Link href="/skin-analysis" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">

@@ -164,6 +164,52 @@ const initDb = async () => {
       console.log('Migration: admin_activity_log table ready.');
     } catch (_) {}
 
+    // 10 new e-commerce features migrations:
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN loyalty_points INTEGER DEFAULT 0");
+      console.log('Migration: Added loyalty_points to users table.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN referral_code TEXT DEFAULT NULL");
+      console.log('Migration: Added referral_code to users table.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN lens_type TEXT DEFAULT NULL");
+      console.log('Migration: Added lens_type to orders table.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN lens_price REAL DEFAULT 0.0");
+      console.log('Migration: Added lens_price to orders table.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN prescription_details TEXT DEFAULT NULL");
+      console.log('Migration: Added prescription_details to orders table.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN tracking_comments TEXT DEFAULT NULL");
+      console.log('Migration: Added tracking_comments to orders table.');
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS contact_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT,
+        subject TEXT NOT NULL,
+        message TEXT NOT NULL,
+        reply_message TEXT DEFAULT NULL,
+        replied_at TEXT DEFAULT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: contact_messages table ready.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

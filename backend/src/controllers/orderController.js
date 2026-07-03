@@ -55,8 +55,29 @@ const createOrder = async (req, res) => {
 
     if (couponCode) {
       const code = couponCode.toUpperCase().trim();
-      if (code === 'LEKYA20')   totalAmount = totalAmount * 0.80;
-      else if (code === 'WELCOME10') totalAmount = totalAmount * 0.90;
+      const couponRes = await db.query('SELECT * FROM coupons WHERE code = ? AND is_active = 1', [code]);
+      if (couponRes.rows.length > 0) {
+        const coupon = couponRes.rows[0];
+        let isValid = true;
+        if (coupon.expiry_date) {
+          const expiry = new Date(coupon.expiry_date);
+          if (expiry < new Date()) isValid = false;
+        }
+        if (coupon.max_uses !== null && coupon.times_used >= coupon.max_uses) {
+          isValid = false;
+        }
+
+        if (isValid) {
+          if (coupon.discount_type === 'percentage') {
+            totalAmount = totalAmount * (1 - coupon.discount_value / 100);
+          } else if (coupon.discount_type === 'flat') {
+            totalAmount = Math.max(0, totalAmount - coupon.discount_value);
+          }
+        }
+      } else {
+        if (code === 'LEKYA20')   totalAmount = totalAmount * 0.80;
+        else if (code === 'WELCOME10') totalAmount = totalAmount * 0.90;
+      }
     }
 
     const receiptId = `receipt_order_${Date.now()}`;
@@ -162,15 +183,52 @@ const verifyPayment = async (req, res) => {
 
       if (couponCode) {
         const code = couponCode.toUpperCase().trim();
-        if (code === 'LEKYA20')   totalAmount = totalAmount * 0.80;
-        else if (code === 'WELCOME10') totalAmount = totalAmount * 0.90;
+        const couponRes = await tx.query('SELECT * FROM coupons WHERE code = ? AND is_active = 1', [code]);
+        if (couponRes.rows.length > 0) {
+          const coupon = couponRes.rows[0];
+          let isValid = true;
+          if (coupon.expiry_date) {
+            const expiry = new Date(coupon.expiry_date);
+            if (expiry < new Date()) isValid = false;
+          }
+          if (coupon.max_uses !== null && coupon.times_used >= coupon.max_uses) {
+            isValid = false;
+          }
+
+          if (isValid) {
+            if (coupon.discount_type === 'percentage') {
+              totalAmount = totalAmount * (1 - coupon.discount_value / 100);
+            } else if (coupon.discount_type === 'flat') {
+              totalAmount = Math.max(0, totalAmount - coupon.discount_value);
+            }
+            await tx.query('UPDATE coupons SET times_used = times_used + 1 WHERE id = ?', [coupon.id]);
+          }
+        } else {
+          if (code === 'LEKYA20')   totalAmount = totalAmount * 0.80;
+          else if (code === 'WELCOME10') totalAmount = totalAmount * 0.90;
+        }
       }
 
-      // Insert Order
+      // Prescription Add-ons Calculation
+      const lensType = shipping_address?.prescription?.lensIndex ? `Index ${shipping_address.prescription.lensIndex}` : null;
+      let lensPrice = 0.0;
+      if (shipping_address && shipping_address.prescription) {
+        const rx = shipping_address.prescription;
+        if (rx.lensIndex === '1.61') lensPrice += 800;
+        else if (rx.lensIndex === '1.67') lensPrice += 1600;
+        else if (rx.lensIndex === '1.74') lensPrice += 2800;
+
+        if (rx.antiGlare) lensPrice += 250;
+        if (rx.blueShield) lensPrice += 300;
+        if (rx.photochromic) lensPrice += 600;
+      }
+      const prescriptionDetails = shipping_address?.prescription ? JSON.stringify(shipping_address.prescription) : null;
+
+      // Insert Order with new columns
       await tx.query(
-        `INSERT INTO orders (user_id, total_amount, status, payment_id, shipping_address)
-         VALUES (?, ?, 'Paid', ?, ?)`,
-        [userId, totalAmount, razorpay_payment_id, JSON.stringify(shipping_address)]
+        `INSERT INTO orders (user_id, total_amount, status, payment_id, shipping_address, lens_type, lens_price, prescription_details)
+         VALUES (?, ?, 'Paid', ?, ?, ?, ?, ?)`,
+        [userId, totalAmount, razorpay_payment_id, JSON.stringify(shipping_address), lensType, lensPrice, prescriptionDetails]
       );
 
       // Get newly created order ID
@@ -187,6 +245,10 @@ const verifyPayment = async (req, res) => {
           [orderId, item.id, item.quantity, item.price]
         );
       }
+
+      // Award Loyalty points to user (5% of order amount)
+      const earnedPoints = Math.round(totalAmount * 0.05);
+      await tx.query('UPDATE users SET loyalty_points = loyalty_points + ? WHERE id = ?', [earnedPoints, userId]);
     });
 
     console.log(`[EMAIL] Order confirmation sent to User ${userId} for Order ${orderId}`);
@@ -278,9 +340,52 @@ const addReview = async (req, res) => {
   }
 };
 
+// 5. Validate Coupon Code (Checkout API)
+const validateCouponCode = async (req, res) => {
+  const { code } = req.body;
+  if (!code) {
+    return res.status(400).json({ message: 'Coupon code is required' });
+  }
+
+  try {
+    const couponRes = await db.query('SELECT * FROM coupons WHERE code = ? AND is_active = 1', [code.toUpperCase().trim()]);
+    if (couponRes.rows.length === 0) {
+      const upperCode = code.toUpperCase().trim();
+      if (upperCode === 'LEKYA20') {
+        return res.json({ valid: true, discount_type: 'percentage', discount_value: 20 });
+      } else if (upperCode === 'WELCOME10') {
+        return res.json({ valid: true, discount_type: 'percentage', discount_value: 10 });
+      }
+      return res.status(400).json({ valid: false, message: 'Invalid or inactive promo code' });
+    }
+
+    const coupon = couponRes.rows[0];
+    if (coupon.expiry_date) {
+      const expiry = new Date(coupon.expiry_date);
+      if (expiry < new Date()) {
+        return res.status(400).json({ valid: false, message: 'Promo code has expired' });
+      }
+    }
+
+    if (coupon.max_uses !== null && coupon.times_used >= coupon.max_uses) {
+      return res.status(400).json({ valid: false, message: 'Promo code usage limit reached' });
+    }
+
+    res.json({
+      valid: true,
+      discount_type: coupon.discount_type,
+      discount_value: coupon.discount_value
+    });
+  } catch (err) {
+    console.error('Validate coupon error:', err);
+    res.status(500).json({ message: 'Server error validating promo code' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   getOrders,
-  addReview
+  addReview,
+  validateCouponCode
 };

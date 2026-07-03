@@ -18,9 +18,12 @@ const SPEC_FIELDS = [
   { key: 'review_count',   label: 'Reviews',    format: (v) => `${v || 0} reviews` },
 ];
 
+const useRouter = require('next/router').useRouter;
+
 export default function CompareFrames() {
   const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
+  const router = useRouter();
   const [allProducts, setAllProducts] = useState([]);
   const [compareList, setCompareList] = useState([null, null, null]);
   const [searchQuery, setSearchQuery] = useState(['', '', '']);
@@ -30,9 +33,24 @@ export default function CompareFrames() {
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
       .then(res => res.json())
-      .then(data => { setAllProducts(data); setLoading(false); })
+      .then(data => {
+        setAllProducts(data);
+        setLoading(false);
+
+        if (router.isReady && router.query.ids) {
+          const idsArr = router.query.ids.split(',').map(Number);
+          const initialCompare = [null, null, null];
+          idsArr.slice(0, 3).forEach((id, idx) => {
+            const found = data.find(p => p.id === id);
+            if (found) {
+              initialCompare[idx] = found;
+            }
+          });
+          setCompareList(initialCompare);
+        }
+      })
       .catch(() => setLoading(false));
-  }, []);
+  }, [router.isReady, router.query.ids]);
 
   const handleSearch = (slotIdx, query) => {
     const newQueries = [...searchQuery];

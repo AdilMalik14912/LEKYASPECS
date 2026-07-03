@@ -187,6 +187,10 @@ app.post('/api/contact', async (req, res) => {
     return res.status(400).json({ message: 'Name, email, subject and message are required' });
   }
   try {
+    await db.query(
+      `INSERT INTO contact_messages (name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)`,
+      [name, email, phone || null, subject, message]
+    );
     await sendContactEmail({ name, email, phone, subject, message });
     res.json({ message: 'Message sent successfully! We will get back to you within 24 hours.' });
   } catch (err) {
@@ -223,6 +227,23 @@ app.get('/api/admin/export/customers', authenticateToken, isAdmin, adminControll
 
 // Admin Activity Log
 app.get('/api/admin/logs', authenticateToken, isAdmin, adminController.getActivityLogs);
+
+// Real-time Coupon validation
+app.post('/api/coupons/validate', authenticateToken, orderController.validateCouponCode);
+
+// Database Health & Performance Monitor
+app.get('/api/admin/db/health', authenticateToken, isAdmin, adminController.getDatabaseHealth);
+app.post('/api/admin/db/optimize', authenticateToken, isAdmin, adminController.optimizeDatabase);
+
+// Helpdesk Reply Hub
+app.get('/api/admin/helpdesk', authenticateToken, isAdmin, adminController.getContactMessages);
+app.post('/api/admin/helpdesk/:id/reply', authenticateToken, isAdmin, adminController.replyContactMessage);
+
+// Customer Deep Inspect Profile details
+app.get('/api/admin/customers/:id', authenticateToken, isAdmin, adminController.getCustomerDetail);
+
+// Order tracking Visual updates
+app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminController.updateOrderTracking);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
