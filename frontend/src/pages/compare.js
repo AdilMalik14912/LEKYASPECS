@@ -3,6 +3,9 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useCart, useWishlist } = require('./_app');
 const { Plus, X, ShoppingBag, Heart, Scale, Check, Star, ChevronDown } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 const SPEC_FIELDS = [
   { key: 'price',       label: 'Price',         format: (v) => `₹${parseFloat(v).toLocaleString('en-IN')}` },
@@ -25,7 +28,7 @@ export default function CompareFrames() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
+    fetch(`${API_BASE}/api/products`)
       .then(res => res.json())
       .then(data => { setAllProducts(data); setLoading(false); })
       .catch(() => setLoading(false));

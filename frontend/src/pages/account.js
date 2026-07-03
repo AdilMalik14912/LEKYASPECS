@@ -4,6 +4,10 @@ const Link = require('next/link').default;
 const { useAuth } = require('./_app');
 const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle } = require('lucide-react');
 
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
+
 export default function Account() {
   const { user, token, login, logout } = useAuth();
   
@@ -26,7 +30,7 @@ export default function Account() {
     if (!token) return;
     
     setOrdersLoading(true);
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/history', {
+    fetch(`${API_BASE}/api/orders/history`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -53,7 +57,7 @@ export default function Account() {
       ? { email, password } 
       : { name, email, password };
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/${endpoint}`, {
+    fetch(`${API_BASE}/api/auth/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -182,7 +186,7 @@ export default function Account() {
           {/* Google & Facebook OAuth Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <a
-              href="${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/google"
+              href={`${API_BASE}/api/auth/google`}
               className="flex items-center justify-center gap-2 border border-premium-border hover:border-premium-accent rounded-lg py-3 text-xs font-bold text-premium-dark hover:bg-premium-light transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -195,7 +199,7 @@ export default function Account() {
             </a>
 
             <a
-              href="${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/facebook"
+              href={`${API_BASE}/api/auth/facebook`}
               className="flex items-center justify-center gap-2 border border-premium-border hover:border-premium-accent rounded-lg py-3 text-xs font-bold text-premium-dark hover:bg-premium-light transition-all cursor-pointer"
             >
               <svg className="w-4 h-4 fill-[#1877F2] shrink-0" viewBox="0 0 24 24">

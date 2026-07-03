@@ -7,6 +7,9 @@ const {
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders 
 } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function Admin() {
   const router = useRouter();
@@ -79,7 +82,7 @@ export default function Admin() {
 
     if (activeTab === 'stats') {
       setAnalyticsLoading(true);
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/stats', {
+      fetch(`${API_BASE}/api/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -87,13 +90,13 @@ export default function Admin() {
         .catch(err => console.error(err));
     } else if (activeTab === 'products') {
       setProductsLoading(true);
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
+      fetch(`${API_BASE}/api/products`)
         .then(res => res.json())
         .then(data => { setProducts(data); setProductsLoading(false); })
         .catch(err => console.error(err));
     } else if (activeTab === 'orders') {
       setOrdersLoading(true);
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders', {
+      fetch(`${API_BASE}/api/admin/orders`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -101,7 +104,7 @@ export default function Admin() {
         .catch(err => console.error(err));
     } else if (activeTab === 'customers') {
       setCustomersLoading(true);
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/customers', {
+      fetch(`${API_BASE}/api/admin/customers`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -111,7 +114,7 @@ export default function Admin() {
       setSettingsLoading(true);
       setSettingsError('');
       setSettingsSuccess('');
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings')
+      fetch(`${API_BASE}/api/settings`)
         .then(res => res.json())
         .then(data => {
           setHeroTitle(data.hero_title || '');
@@ -163,8 +166,8 @@ export default function Admin() {
     setCrudError('');
 
     const url = editingProduct 
-      ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${editingProduct.id}` 
-      : '${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products';
+      ? `${API_BASE}/api/admin/products/${editingProduct.id}` 
+      : `${API_BASE}/api/admin/products`;
     const method = editingProduct ? 'PUT' : 'POST';
 
     const payload = {
@@ -206,7 +209,7 @@ export default function Admin() {
     setSettingsError('');
     setSettingsSuccess('');
 
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/settings', {
+    fetch(`${API_BASE}/api/admin/settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -238,7 +241,7 @@ export default function Admin() {
   const handleDeleteProduct = (id) => {
     if (!confirm('Are you sure you want to delete this eyewear frame from the catalog?')) return;
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/products/${id}`, {
+    fetch(`${API_BASE}/api/admin/products/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -251,7 +254,7 @@ export default function Admin() {
 
   // Update order status trigger
   const handleStatusUpdate = (orderId, newStatus) => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/orders/${orderId}`, {
+    fetch(`${API_BASE}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

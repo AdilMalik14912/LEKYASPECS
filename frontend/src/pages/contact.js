@@ -3,6 +3,9 @@ const { useState } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
 const { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare, Instagram, Twitter } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
@@ -18,7 +21,7 @@ export default function ContactPage() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/contact', {
+      const res = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

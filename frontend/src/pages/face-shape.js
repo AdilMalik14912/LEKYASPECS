@@ -3,6 +3,9 @@ const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useAuth } = require('./_app');
 const { Camera, Upload, RefreshCw, Sparkles, Check, Info, ShieldCheck, HelpCircle, Star } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function FaceShapeSuggestion() {
   const { user, token, updateProfileFaceShape } = useAuth();
@@ -296,7 +299,7 @@ export default function FaceShapeSuggestion() {
 
     // Fetch matched recommendations
     const fetchShape = shape === 'oblong' ? 'oval' : shape; // map oblong -> oval for API
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/recommendations/${fetchShape}`)
+    fetch(`${API_BASE}/api/products/recommendations/${fetchShape}`)
       .then(res => res.json())
       .then(data => {
         setRecommendedFrames(data.products || []);
@@ -306,7 +309,7 @@ export default function FaceShapeSuggestion() {
     // Save to user profile
     if (token) {
       setSavingResult(true);
-      fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/profile', {
+      fetch(`${API_BASE}/api/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

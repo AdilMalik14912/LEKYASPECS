@@ -3,6 +3,9 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useCart, useWishlist } = require('./_app');
 const { ShoppingBag, Heart, Sparkles, ArrowRight, Camera } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 const LOOKBOOK_COLLECTIONS = [
   {
@@ -85,7 +88,7 @@ export default function Lookbook() {
   useEffect(() => {
     const col = LOOKBOOK_COLLECTIONS[activeCollection];
     setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?category=${encodeURIComponent(col.category)}&limit=4`)
+    fetch(`${API_BASE}/api/products?category=${encodeURIComponent(col.category)}&limit=4`)
       .then(res => res.json())
       .then(data => {
         setCollectionProducts(Array.isArray(data) ? data.slice(0, 4) : []);

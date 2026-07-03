@@ -4,6 +4,9 @@ const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useCart, useAuth } = require('./_app');
 const { ShieldCheck, ShoppingBag, CreditCard, ArrowLeft, Loader2, Sparkles, CheckCircle2 } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function Checkout() {
   const router = useRouter();
@@ -99,7 +102,7 @@ export default function Checkout() {
 
     try {
       // 1. Create order on backend
-      const createRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/create', {
+      const createRes = await fetch(`${API_BASE}/api/orders/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +140,7 @@ export default function Checkout() {
         handler: async function (response) {
           try {
             setIsProcessing(true);
-            const verifyRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/verify', {
+            const verifyRes = await fetch(`${API_BASE}/api/orders/verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -202,7 +205,7 @@ export default function Checkout() {
 
     setIsProcessing(true);
     try {
-      const verifyRes = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/verify', {
+      const verifyRes = await fetch(`${API_BASE}/api/orders/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

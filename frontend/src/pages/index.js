@@ -3,6 +3,10 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones } = require('lucide-react');
 
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
+
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +21,7 @@ export default function Home() {
 
   // Fetch featured products + store settings
   useEffect(() => {
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products')
+    fetch(`${API_BASE}/api/products`)
       .then(res => res.json())
       .then(data => {
         setFeaturedProducts(data.slice(0, 4));
@@ -28,7 +32,7 @@ export default function Home() {
         setLoading(false);
       });
 
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/settings')
+    fetch(`${API_BASE}/api/settings`)
       .then(res => res.json())
       .then(data => {
         if (data && data.hero_title) {

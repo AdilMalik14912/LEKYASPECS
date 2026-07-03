@@ -4,6 +4,9 @@ const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
 const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search } = require('lucide-react');
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function Shop() {
   const router = useRouter();
@@ -46,7 +49,7 @@ export default function Shop() {
 
   // Load filter options on mount
   useEffect(() => {
-    fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/filters')
+    fetch(`${API_BASE}/api/products/filters`)
       .then(res => res.json())
       .then(data => {
         setFilterOptions(data);
@@ -62,7 +65,7 @@ export default function Shop() {
     if (!router.isReady) return;
     
     setLoading(true);
-    let url = '${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products?';
+    let url = `${API_BASE}/api/products?`;
     
     const params = new URLSearchParams();
     if (category) params.append('category', category);

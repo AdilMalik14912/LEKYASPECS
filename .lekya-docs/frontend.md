@@ -1,0 +1,48 @@
+# Frontend Core Documentation — Pages & Client Logic
+
+The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
+
+---
+
+## 🔑 Global State Management (Contexts)
+
+[_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js) provides three main global contexts:
+1.  **AuthContext:** Manages user login, session token persistency (localStorage sync), and logout.
+2.  **CartContext:** Manages shopping bag items, items count, additions, deletions, quantity changes, and persistency.
+3.  **WishlistContext:** Manages favorite items toggling and persistency.
+
+---
+
+## 🖥️ Primary Application Pages
+
+### 1. 🏠 Homepage ([index.js](file:///C:/Users/Admin/Specs/frontend/src/pages/index.js))
+*   **Hero Slider:** Displays sliding premium banner images with dynamically configured CMS headlines.
+*   **Discovery Grid:** Promotes core features: Face Shape Detector, Bespoke Customizer, and Try-On Lab.
+*   **Featured Items:** Dynamically queries the backend to show the top 4 featured glasses frames.
+
+### 2. 🛍️ Shop Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
+*   **Server Filtering:** Queries `/api/products` using query parameters: `category`, `gender`, `frame_shape`, and `search`.
+*   **Dynamic Sorting:** Supports price sorting (low to high, high to low) and alphabetic sorting.
+
+### 3. 🤖 AI Face Shape Detector ([face-shape.js](file:///C:/Users/Admin/Specs/frontend/src/pages/face-shape.js))
+*   **neural Network:** Uses `TinyFaceDetector` and `FaceLandmark68Net` loaded dynamically from jsDelivr CDN.
+*   **Auto-Calibration:** Detects 68 landmark coordinates client-side to calculate face height-to-width ratios and determines shape (oval, round, square, heart, diamond).
+*   **Profile Save:** Instantly updates the logged-in user profile shape recommendation in DB via `/api/auth/profile`.
+
+### 4. 🥽 Live AR Try-On Lab ([ar-tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/ar-tryon.js))
+*   **Optimized Render Loop:** Uses a non-blocking render architecture running `requestAnimationFrame` at a smooth 60fps.
+*   **Background AI Detection:** Runs the face-api detection at a slower interval (~80ms) in the background. It uses `inputSize: 160` (instead of 320) for 4× faster processing.
+*   **Glasses Rendering:** Draws 6 frame styles (Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal) directly on the canvas using eye coordinates.
+*   **Snapshot:** Captures the canvas as PNG and supports instant local downloading.
+
+### 5. 🎨 Skin Tone AI Lab ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
+*   **Pixel Sampling:** Uses canvas context `getImageData()` to extract color pixels from 4 facial zones (cheeks, nose-tip, forehead) from user-uploaded images.
+*   **Classification:** Computes Fitzpatrick Scale (I-VI) and matches undertones (warm, cool, neutral).
+*   **AI DNA Report:** Recommends frame colors, lens colors, style icons, and alerts about colors to avoid.
+
+### 6. 🛠️ Bespoke Customizer ([customizer.js](file:///C:/Users/Admin/Specs/frontend/src/pages/customizer.js))
+*   **SVG Rendering:** Renders vector glass frames dynamically using client sliders for size, lens opacity, material color, and monograms.
+
+### 7. 💳 Checkout & Razorpay Sandbox ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
+*   **Razorpay Integration:** Opens standard Razorpay Checkout window on payment action.
+*   **Sandbox Simulator:** Fallback mock simulation modal for testing full payment completions without real cards.
