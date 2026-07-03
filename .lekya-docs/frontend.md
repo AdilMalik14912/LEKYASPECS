@@ -6,68 +6,106 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 ## 🔑 Global State Management (Contexts)
 
-[_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js) provides three main global contexts:
-1.  **AuthContext:** Manages user login, session token persistency (localStorage sync), logout, and profile updates.
-2.  **CartContext:** Manages shopping bag items, items count, stock limits, quantity changes, and persistency.
-3.  **WishlistContext:** Manages favorite items toggling and persistency.
-4.  **ToastContext:** Manages global slide-up notifications for user actions (cart additions, wishlist updates).
+[_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js) provides the following global contexts:
+
+1. **AuthContext** — User login/logout, JWT token persistence in localStorage, profile updates.
+2. **CartContext** — Cart items, quantity changes, stock limits, localStorage sync.
+3. **WishlistContext** — Wishlist toggle & persistence.
+4. **ToastContext** — Slide-up toast notifications for user actions.
 
 ---
 
-## 🖥️ Primary Application Pages
+## 🖥️ All Application Pages
 
 ### 1. 🏠 Homepage ([index.js](file:///C:/Users/Admin/Specs/frontend/src/pages/index.js))
-*   **Hero Slider:** Displays sliding premium banner images with dynamically configured CMS headlines.
-*   **Discovery Grid:** Promotes core features: Face Shape Detector, Bespoke Customizer, and Try-On Lab.
-*   **Featured Items:** Dynamically queries the backend to show the top 4 featured glasses frames.
+- Hero slider with CMS-configurable headlines.
+- Discovery grid: Face Shape Detector, Bespoke Customizer, Try-On Lab.
+- Smart Recommendations based on saved face shape profile.
+- Recently Viewed product strip.
 
 ### 2. 🛍️ Shop Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
-*   **Server Filtering:** Queries `/api/products` using query parameters: `category`, `gender`, `frame_shape`, and `search`.
-*   **Dynamic Sorting:** Supports price sorting (low to high, high to low) and alphabetic sorting.
+- Filters: category, gender, frame_shape, search query.
+- Sorting: price low→high, high→low, alphabetic.
+- Quick View modal for fast product inspection.
+- **Product Comparison Tray** — floating sticky tray allowing comparison of up to 3 frames simultaneously.
 
 ### 3. 🤖 AI Face Shape Detector ([face-shape.js](file:///C:/Users/Admin/Specs/frontend/src/pages/face-shape.js))
-*   **neural Network:** Uses `TinyFaceDetector` and `FaceLandmark68Net` loaded dynamically from jsDelivr CDN.
-*   **Auto-Calibration:** Detects 68 landmark coordinates client-side to calculate face height-to-width ratios and determines shape (oval, round, square, heart, diamond).
-*   **Profile Save:** Instantly updates the logged-in user profile shape recommendation in DB via `/api/auth/profile`.
+- `TinyFaceDetector` + `FaceLandmark68Net` loaded from jsDelivr CDN.
+- Detects 68 landmark points, calculates face ratios → oval/round/square/heart/diamond.
+- Saves shape to user profile via `/api/auth/profile`.
 
 ### 4. 🥽 Live AR Try-On Lab ([ar-tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/ar-tryon.js))
-*   **Optimized Render Loop:** Uses a non-blocking render architecture running `requestAnimationFrame` at a smooth 60fps.
-*   **Background AI Detection:** Runs the face-api detection at a slower interval (~80ms) in the background. It uses `inputSize: 160` (instead of 320) for 4× faster processing.
-*   **Glasses Rendering:** Draws 6 frame styles (Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal) directly on the canvas using eye coordinates.
-*   **Snapshot:** Captures the canvas as PNG and supports instant local downloading.
+- 60fps `requestAnimationFrame` render loop.
+- 6 frame styles drawn on canvas using eye landmark coordinates.
+- Snapshot + download PNG support.
 
 ### 5. 🎨 Skin Tone AI Lab ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
-*   **Pixel Sampling:** Uses canvas context `getImageData()` to extract color pixels from 4 facial zones (cheeks, nose-tip, forehead) from user-uploaded images.
-*   **Classification:** Computes Fitzpatrick Scale (I-VI) and matches undertones (warm, cool, neutral).
-*   **AI DNA Report:** Recommends frame colors, lens colors, style icons, and alerts about colors to avoid.
+- Canvas `getImageData()` pixel sampling from facial zones.
+- Fitzpatrick Scale (I-VI) + undertone (warm/cool/neutral) classification.
+- Frame color + lens color recommendations.
 
 ### 6. 🛠️ Bespoke Customizer ([customizer.js](file:///C:/Users/Admin/Specs/frontend/src/pages/customizer.js))
-*   **SVG Rendering:** Renders vector glass frames dynamically using client sliders for size, lens opacity, material color, and monograms.
+- SVG-based frame rendering with sliders for size, opacity, color, monogram.
 
-### 7. 💳 Checkout & Razorpay Sandbox ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
-*   **Razorpay Integration:** Opens standard Razorpay Checkout window on payment action.
-*   **Sandbox Simulator:** Fallback mock simulation modal for testing full payment completions without real cards.
-*   **Prescription Intake Wizard:** Optional checkout panel where users configure SPH, CYL, Axis, PD, lens indexes (1.56 to 1.74), and custom lens protective coatings. Lens custom pricing options dynamically adjust the final order grand total billing.
+### 7. 💳 Checkout & Razorpay ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
+- Razorpay Checkout window integration.
+- Mock sandbox fallback simulator for testing.
+- **Prescription Intake Wizard** — SPH, CYL, Axis, PD fields + lens index (1.56–1.74) + coatings (Anti-Glare, Blue Shield, Photochromic). Dynamically adjusts final order total.
+- **Coupon Code Input** — validates via `/api/coupons/validate` and applies discount live.
 
 ### 8. 👓 AI Prescription Lens Studio ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
-*   **Vision Distortion Engine:** Canvas-based rendering that dynamically distorts the background grid to simulate lens refraction based on user sphere inputs (minimized for myopia (-), magnified for hyperopia (+)).
-*   **Edge Thickness Silhouette:** Multi-index (1.56 to 1.74) 2D thickness visualizer which updates automatically based on selected refractive indexes and prescription power.
-*   **Premium Interactive Coatings:**
-    *   *Anti-Reflective Coating:* Glare-line refractions vanish on toggle.
-    *   *Blue Light Protection:* Purple/blue lens reflection arcs activate.
-    *   *Photochromic transitions:* Sunlight exposure slider shifts transparency to sunglasses charcoal tints.
+- Canvas-based vision distortion engine simulating lens refraction.
+- Multi-index (1.56–1.74) edge thickness silhouette visualizer.
+- Interactive coating toggles: Anti-Reflective, Blue Light, Photochromic.
 
-### 9. 🔍 Product Detail View ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
-*   Provides product specs, dimensions guides, user review forms, average ratings, and checks profile face-shape to suggest optimal matches.
-*   **Image Gallery:** Interactive gallery with thumbnail and chevron arrow navigation for premium browsing.
-*   **Related Products:** Dynamically fetches and displays 4 products from the same category at the bottom of the page.
-*   Uses dynamic `API_BASE` to prevent production routing breaks.
-*   **Recently Viewed Tracker:** Listens to product visits to build client-side browser browsing history.
+### 9. 🔍 Product Detail Page ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
+- Product specs, image gallery, reviews, face-shape match indicator.
+- Related products (same category).
+- Recently Viewed tracker in localStorage.
+- **Prescription Lens Configurator** — checkbox expands a full lens selector with:
+  - Lens Index: 1.56 Standard / 1.61 Thin / 1.67 Ultra Thin / 1.74 Super Ultra Thin
+  - Coatings: Anti-Glare (+₹300), Blue Shield (+₹400), Photochromic (+₹800)
+  - Live dynamic price update shown on Add to Cart button.
 
-### 10. 🏠 Homepage Dashboard ([index.js](file:///C:/Users/Admin/Specs/frontend/src/pages/index.js))
-*   **Smart Recommendations:** Checks profile face shape data to display personal eyewear suggestions. Shows custom call-to-actions to take the AI Scan if no profile shape is saved.
-*   **Recently Viewed Strip:** Renders horizontal sliding product cards tracking items visited during the session.
+### 10. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
+- Profile info, face shape, edit modal.
+- Order history with status badges.
+- **Specs Rewards Club** — displays loyalty points balance, tier (Bronze/Silver/Gold), and referral link copy button.
+- **Order Tracking Notes** — shows admin-added dispatch notes per order.
+- **AI Face Scanner** — simulates face shape scan and saves result to profile.
 
-### 11. 🛍️ Eyewear Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
-*   **Quick View Modal:** Allows customers to inspect specifications, stock alerts, description copy, and checkout immediately in a quick popup window from the main list.
-*   **Recently Viewed Strip:** Renders horizontal sliding product cards tracking items visited during the session.
+### 11. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
+Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gmail.com` can enter.
+
+**Tabs & Features:**
+
+| Tab | Feature |
+|-----|---------|
+| Dashboard | Sales analytics, revenue chart, low stock alerts, recent activity log |
+| Customer Orders | List orders, update status, add dispatch/tracking notes per order |
+| Product Catalog | Add / Edit / Delete eyewear products with images |
+| View Customers | List all customers, click to Inspect Profile (order history overlay) |
+| Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
+| Broadcast Email | Send personalized bulk email to all customers |
+| Settings CMS | Update hero banner, headline text, background images |
+| Admin Roles | Create new sub-admins, view admin list, demote admins |
+| Support Helpdesk | View contact form messages, reply via email directly |
+| DB Optimizer | See DB latency, table row counts, run VACUUM optimization |
+| Export Data | Download orders or customers as CSV |
+
+---
+
+## 🎨 Design System
+
+- **Theme:** Rich Black (`#0A0A0A` / `#121212`) + Metallic Gold (`#C5A028`) + Off-white
+- **Typography:** Inter / Outfit (Google Fonts)
+- **Effects:** Glassmorphism nav, smooth micro-animations, gold borders, dark premium panels
+- **Styling:** Vanilla CSS in `globals.css` — no Tailwind
+
+---
+
+## ⚠️ Important Import Notes
+
+- All pages use `const React = require('react')` (CommonJS) — **do NOT use ES module `import` syntax**
+- lucide-react icons must all be included in the single destructured `require('lucide-react')` call at the top of each page
+- Missing icon imports (e.g., `X` for close buttons) will silently fail — always verify before adding new modals
