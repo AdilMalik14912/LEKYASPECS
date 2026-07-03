@@ -67,14 +67,14 @@ export default function ContactPage() {
             {
               icon: <Phone className="w-5 h-5" />,
               title: 'Call Us',
-              lines: ['+91 98765 43210', 'Mon–Sat, 10am – 7pm IST'],
+              lines: ['+91 96541 19262', 'Mon–Sat, 10am – 7pm IST'],
               color: 'text-green-600',
               bg: 'bg-green-50'
             },
             {
               icon: <MapPin className="w-5 h-5" />,
               title: 'Visit Us',
-              lines: ['Karol Bagh, New Delhi', 'India – 110005'],
+              lines: ['102-J (part of 102), Hari Nagar Ashram', 'South Delhi, New Delhi - 110014'],
               color: 'text-red-500',
               bg: 'bg-red-50'
             },
@@ -164,7 +164,7 @@ export default function ContactPage() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-premium-gray mb-1.5">Phone Number</label>
                   <input
                     name="phone" value={form.phone} onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 96541 19262"
                     className="w-full border border-premium-border rounded-lg px-4 py-3 text-sm text-premium-black focus:outline-none focus:border-premium-accent transition-colors"
                   />
                 </div>

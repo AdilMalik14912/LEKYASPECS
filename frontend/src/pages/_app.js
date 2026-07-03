@@ -445,13 +445,13 @@ export default function App({ Component, pageProps }) {
                     <div>
                       <h3 className="text-xs uppercase tracking-widest text-premium-accent font-bold mb-4">Contact Specs</h3>
                       <p className="text-sm text-gray-400 leading-relaxed mb-2">
-                        102, Premium Arcade, Connaught Place, New Delhi - 110001
+                        102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014
                       </p>
                       <p className="text-sm text-premium-accent">
-                        support@specs-eyewear.com
+                        support@lekyaspecs.com
                       </p>
                       <p className="text-sm text-gray-400 mt-2">
-                        +91 11 4050 6070
+                        +91 96541 19262
                       </p>
                     </div>
 

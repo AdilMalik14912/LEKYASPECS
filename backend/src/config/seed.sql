@@ -76,10 +76,10 @@ INSERT INTO products (name, description, price, category, gender, frame_shape, i
 ('Kids Hero Square Blue-blocker', 'Ergonomic, flexible square glasses for kids in bright navy blue. Keeps eyes protected during tablet screen play and desktop studies.', 1750.00, 'Eyeglasses', 'Kids', 'Square', ARRAY['https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=600&q=80'], 55);
 
 -- 3. Seed Default Admin User (Password is 'admin123' bcrypt-hashed)
--- bcryptjs hash for 'admin123': $2a$10$Vb9tOklD4ksqkw8AWg2AJOD88R2t113Cj6s5SFrwW.kb1ohkYCdBe
+-- bcryptjs hash for 'admin123': $2a$10$q2mJiCxdZCYfid9VXL3ro.76LVkCLNhjNMq5awBcavpMt7ja45X1S
 -- Let's insert a default administrator account.
 INSERT INTO users (name, email, password_hash, face_shape) VALUES
-('Specs Admin', 'admin@specs.com', '$2a$10$Vb9tOklD4ksqkw8AWg2AJOD88R2t113Cj6s5SFrwW.kb1ohkYCdBe', NULL)
+('Specs Admin', 'admin@specs.com', '$2a$10$q2mJiCxdZCYfid9VXL3ro.76LVkCLNhjNMq5awBcavpMt7ja45X1S', NULL)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Seed default CMS Settings

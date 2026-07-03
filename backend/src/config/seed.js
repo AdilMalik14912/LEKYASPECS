@@ -44,7 +44,7 @@ const settings = [
 const adminUser = {
   name: 'Specs Admin',
   email: 'admin@specs.com',
-  password_hash: '$2a$10$Vb9tOklD4ksqkw8AWg2AJOD88R2t113Cj6s5SFrwW.kb1ohkYCdBe',
+  password_hash: '$2a$10$q2mJiCxdZCYfid9VXL3ro.76LVkCLNhjNMq5awBcavpMt7ja45X1S',
   face_shape: null,
 };
 
