@@ -529,6 +529,22 @@ const exportCustomersCSV = async (req, res) => {
   }
 };
 
+
+
+
+// --- ADMIN ACTIVITY LOG ---
+const getActivityLogs = async (req, res) => {
+  try {
+    const logsRes = await db.query(
+      'SELECT * FROM admin_activity_log ORDER BY created_at DESC LIMIT 200'
+    );
+    res.json(logsRes.rows);
+  } catch (err) {
+    console.error('Get activity logs error:', err);
+    res.status(500).json({ message: 'Server error retrieving activity logs' });
+  }
+};
+
 // --- DATABASE HEALTH & OPTIMIZATION ---
 const getDatabaseHealth = async (req, res) => {
   try {
