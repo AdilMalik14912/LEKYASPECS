@@ -46,3 +46,15 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ### 7. 💳 Checkout & Razorpay Sandbox ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
 *   **Razorpay Integration:** Opens standard Razorpay Checkout window on payment action.
 *   **Sandbox Simulator:** Fallback mock simulation modal for testing full payment completions without real cards.
+
+### 8. 👓 AI Prescription Lens Studio ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
+*   **Vision Distortion Engine:** Canvas-based rendering that dynamically distorts the background grid to simulate lens refraction based on user sphere inputs (minimized for myopia (-), magnified for hyperopia (+)).
+*   **Edge Thickness Silhouette:** Multi-index (1.56 to 1.74) 2D thickness visualizer which updates automatically based on selected refractive indexes and prescription power.
+*   **Premium Interactive Coatings:**
+    *   *Anti-Reflective Coating:* Glare-line refractions vanish on toggle.
+    *   *Blue Light Protection:* Purple/blue lens reflection arcs activate.
+    *   *Photochromic transitions:* Sunlight exposure slider shifts transparency to sunglasses charcoal tints.
+
+### 9. 🔍 Product Detail View ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
+*   Provides product specs, dimensions guides, user review forms, average ratings, and checks profile face-shape to suggest optimal matches.
+*   Uses dynamic `API_BASE` to prevent production routing breaks.
