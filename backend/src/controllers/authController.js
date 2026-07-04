@@ -67,15 +67,23 @@ const registerInitiate = async (req, res) => {
         console.warn('SMTP OTP send failed, falling back to console:', mailErr.message);
       }
       console.log(`[OTP Sent to ${targetEmail}]: ${otpCode}`);
-    } else {
+    }
+
+    // Send OTP via SMS if phone provided
+    if (phone) {
+      try {
+        const { sendOtpSms } = require('../utils/sms');
+        await sendOtpSms({ to: targetPhone, otp: otpCode });
+      } catch (smsErr) {
+        console.warn('SMS OTP send failed, falling back to console:', smsErr.message);
+      }
       console.log(`[SMS OTP Sent to ${targetPhone}]: ${otpCode}`);
     }
 
     res.status(200).json({ 
       message: 'Verification OTP sent successfully.', 
       email: email ? targetEmail : null, 
-      phone: targetPhone,
-      otp: otpCode
+      phone: targetPhone
     });
   } catch (err) {
     console.error('Register initiate error:', err);

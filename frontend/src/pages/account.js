@@ -74,7 +74,6 @@ export default function Account() {
   const [registrationStep, setRegistrationStep] = useState(1); // 1 = details, 2 = verify OTP
   const [otpCode, setOtpCode] = useState('');
   const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
-  const [devOtp, setDevOtp] = useState('');
 
   // User Dashboard states
   const [orders, setOrders] = useState([]);
@@ -148,7 +147,6 @@ export default function Account() {
           .then(data => {
             setFormLoading(false);
             setOtpTarget({ email: data.email || '', phone: data.phone || '' });
-            setDevOtp(data.otp || '');
             setRegistrationStep(2);
           })
           .catch(err => {
@@ -334,12 +332,6 @@ export default function Account() {
                       className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold tracking-widest text-center"
                     />
                   </div>
-                  {devOtp && (
-                    <div className="mt-2 text-center text-xs font-semibold text-premium-golddark bg-premium-accent/15 border border-premium-accent/30 rounded p-2 flex items-center justify-center gap-1.5 animate-pulse">
-                      <CheckCircle2 className="w-4 h-4 text-premium-accent" />
-                      <span>[Test Mode] Verification Code: <strong>{devOtp}</strong></span>
-                    </div>
-                  )}
                 </div>
               </>
             )}
