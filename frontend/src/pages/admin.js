@@ -139,6 +139,226 @@ function RevenueChart({ data }) {
   return <canvas ref={canvasRef} className="w-full" style={{ height: '300px' }} />;
 }
 
+const EMAIL_TEMPLATES = [
+  {
+    id: 'luxury_showcase',
+    name: '👑 Luxury Collection Showcase',
+    subject: '🕶️ Discover the Elite New Eyewear Collection from Lekya Specs',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs - Elite Eyewear Collection</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase; font-weight: 700;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">Luxury Eyewear &amp; AI Studio</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; text-align: center;">
+              <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">Greetings, {{name}}</h2>
+              <p style="margin: 0 0 30px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Step into a world where cutting-edge AI meets premium craftsmanship. Our new collection has arrived, featuring handcrafted details, custom prescription indexes, and timeless gold-accented frames.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="http://localhost:3000/shop" target="_blank" style="display: inline-block; padding: 15px 35px; font-size: 12px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Discover the Collection</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 30px 40px 30px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td width="270" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #C5A028;">The Aviator Elite</h3>
+                    <p style="margin: 0 0 15px 0; font-size: 12px; color: #A6A6A6; line-height: 1.6;">Classic silhouette engineered with lightweight premium alloy and anti-glare finish.</p>
+                    <a href="http://localhost:3000/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
+                  </td>
+                  <td width="20">&nbsp;</td>
+                  <td width="270" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #C5A028;">The Classic Wayfarer</h3>
+                    <p style="margin: 0 0 15px 0; font-size: 12px; color: #A6A6A6; line-height: 1.6;">Bold contours crafted from hand-polished gold acetate for a timeless premium statement.</p>
+                    <a href="http://localhost:3000/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="background-color: #1A150A; border-top: 1px solid rgba(197, 160, 40, 0.15); border-bottom: 1px solid rgba(197, 160, 40, 0.15); padding: 30px; text-align: center;">
+              <h3 style="margin: 0 0 10px 0; color: #C5A028;">Try Them On Instantly From Home</h3>
+              <p style="margin: 0 0 20px 0; font-size: 13px; color: #D4AF37; line-height: 1.6; font-weight: 300;">Use our new AI-Powered 2D Try-On Studio to see how frames look on your face shape with auto-alignment.</p>
+              <a href="http://localhost:3000/tryon" style="display: inline-block; padding: 10px 25px; font-size: 11px; font-weight: 700; color: #C5A028; border: 1px solid #C5A028; text-decoration: none; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">Open Try-On Studio</a>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0 0 10px 0; font-size: 11px; color: #777; line-height: 1.6;">You are receiving this email because you registered on our store.</p>
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'exclusive_promo',
+    name: '🎟️ Exclusive Coupon Invitation',
+    subject: '✨ An Exclusive Invitation & Luxury Saving Gift for {{name}}',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Your Exclusive Lekya Specs Invitation</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">Elevated Vision</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 40px 40px; text-align: center;">
+              <span style="font-size: 11px; font-weight: 700; color: #C5A028; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 15px;">Private Invitation</span>
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">An Exclusive Gift For {{name}}</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                To express our gratitude for being an esteemed client of Lekya Specs, we invite you to experience our premium sunglasses and prescription frames with a luxury savings gesture.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1A150A; border: 1px dashed #C5A028; border-radius: 6px; padding: 25px; margin-bottom: 35px;">
+                <tr>
+                  <td align="center" style="text-align: center;">
+                    <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #B3B3B3; display: block; margin-bottom: 8px;">Use Coupon Code At Checkout</span>
+                    <span style="font-family: monospace; font-size: 28px; font-weight: 700; color: #C5A028; letter-spacing: 3px; display: block; margin-bottom: 8px;">LEKYA20</span>
+                    <span style="font-size: 12px; color: #FFFFFF; font-weight: 600; display: block;">Enjoy Flat 20% Off Storewide + Free Shipping</span>
+                  </td>
+                </tr>
+              </table>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="http://localhost:3000/shop" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Shop With Code</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 40px 45px 40px; border-top: 1px solid rgba(255,255,255,0.03);">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px; text-align: center;">
+                <tr>
+                  <td width="33%" style="font-size: 12px; color: #A6A6A6; line-height: 1.6;">
+                    <strong style="color: #FFFFFF; display: block; margin-bottom: 5px;">Bespoke Lenses</strong>
+                    Multi-index anti-glare coatings
+                  </td>
+                  <td width="33%" style="font-size: 12px; color: #A6A6A6; line-height: 1.6;">
+                    <strong style="color: #FFFFFF; display: block; margin-bottom: 5px;">AI Face Scan</strong>
+                    Tailored frame alignment matching
+                  </td>
+                  <td width="33%" style="font-size: 12px; color: #A6A6A6; line-height: 1.6;">
+                    <strong style="color: #FFFFFF; display: block; margin-bottom: 5px;">Bespoke Tinting</strong>
+                    Personalized style customizer
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0 0 10px 0; font-size: 11px; color: #666; line-height: 1.6;">Offer valid for limited time. Only one coupon can be used per order.</p>
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'loyalty_club',
+    name: '💎 Elite Loyalty Club Update',
+    subject: '✨ Lekya Specs Rewards Club: Unlocking Your Elite Privileges',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs Rewards Club Update</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">REWARDS CLUB</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 30px 40px; text-align: center;">
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">Unlocking Elite Privileges</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Hello {{name}}, you are a valued member of the Lekya Specs family. We've updated your Rewards Portal with new ways to earn points, exclusive tiers, and special gift redemptions.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1A1A1A; border: 1px solid rgba(197,160,40,0.15); border-radius: 6px; padding: 25px; margin-bottom: 35px; text-align: left;">
+                <tr>
+                  <td style="padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span style="font-size: 11px; text-transform: uppercase; color: #999; letter-spacing: 1px;">Your Current Tier</span>
+                    <strong style="font-size: 18px; color: #C5A028; display: block; margin-top: 3px;">GOLD ELITE MEMBER</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 15px;">
+                    <span style="font-size: 11px; text-transform: uppercase; color: #999; letter-spacing: 1px;">Earning Power</span>
+                    <strong style="font-size: 14px; color: #FFFFFF; display: block; margin-top: 3px;">10% Points Cashback on all purchases</strong>
+                  </td>
+                </tr>
+              </table>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="http://localhost:3000/account" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">View Rewards Portal</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0 0 10px 0; font-size: 11px; color: #666; line-height: 1.6;">Points expire 12 months from award date. Terms apply.</p>
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  }
+];
+
 export default function Admin() {
   const router = useRouter();
   const { user, token, authLoading } = useAuth();
@@ -1753,6 +1973,28 @@ export default function Admin() {
             </p>
 
             <form onSubmit={handleBroadcastSubmit} className="bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm space-y-6 max-w-2xl">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Select Template Preset</label>
+                <select
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    if (!selectedId) return;
+                    const template = EMAIL_TEMPLATES.find(t => t.id === selectedId);
+                    if (template) {
+                      setBroadcastSubject(template.subject);
+                      setBroadcastBody(template.body);
+                    }
+                  }}
+                  className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                  defaultValue=""
+                >
+                  <option value="" disabled>-- Select a pre-styled luxury email template --</option>
+                  {EMAIL_TEMPLATES.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Subject Line</label>
                 <input
