@@ -691,7 +691,7 @@ const replyContactMessage = async (req, res) => {
 const getCustomerDetail = async (req, res) => {
   const { id } = req.params;
   try {
-    const userRes = await db.query('SELECT id, name, email, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [id]);
+    const userRes = await db.query('SELECT id, name, email, phone, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [id]);
     if (userRes.rows.length === 0) {
       return res.status(404).json({ message: 'Customer not found' });
     }
@@ -711,6 +711,81 @@ const getCustomerDetail = async (req, res) => {
   } catch (err) {
     console.error('Get customer details error:', err);
     res.status(500).json({ message: 'Server error retrieving customer profile details' });
+  }
+};
+
+// --- EDIT CUSTOMER CREDENTIALS ---
+const updateCustomerCredentials = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone, role, password } = req.body;
+
+  try {
+    const userRes = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+    const customer = userRes.rows[0];
+
+    // Email uniqueness check if changed
+    if (email && email.toLowerCase().trim() !== customer.email.toLowerCase().trim()) {
+      const emailCheck = await db.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+      if (emailCheck.rows.length > 0) {
+        return res.status(400).json({ message: 'Email already in use by another account' });
+      }
+    }
+
+    // Phone uniqueness check if changed
+    if (phone && phone.trim() !== (customer.phone || '').trim()) {
+      const phoneCheck = await db.query('SELECT id FROM users WHERE phone = ?', [phone.trim()]);
+      if (phoneCheck.rows.length > 0) {
+        return res.status(400).json({ message: 'Phone number already in use by another account' });
+      }
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (name) {
+      updates.push('name = ?');
+      params.push(name.trim());
+    }
+    if (email) {
+      updates.push('email = ?');
+      params.push(email.toLowerCase().trim());
+    }
+    if (phone) {
+      updates.push('phone = ?');
+      params.push(phone.trim());
+    } else if (phone === '') {
+      updates.push('phone = NULL');
+    }
+    if (role) {
+      updates.push('role = ?');
+      params.push(role.trim());
+    }
+    if (password && password.trim() !== '') {
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt);
+      updates.push('password_hash = ?');
+      params.push(passwordHash);
+    }
+
+    if (updates.length > 0) {
+      params.push(id);
+      await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+      
+      await logAdminActivity(
+        req.user.email,
+        'EDIT_CUSTOMER_CREDENTIALS',
+        `Edited credentials/profile details of user ID #${id} (${customer.email})`
+      );
+    }
+
+    res.json({ message: 'Customer credentials updated successfully.' });
+  } catch (err) {
+    console.error('Edit customer credentials error:', err);
+    res.status(500).json({ message: 'Server error updating customer credentials' });
   }
 };
 
@@ -760,5 +835,6 @@ module.exports = {
   getContactMessages,
   replyContactMessage,
   getCustomerDetail,
+  updateCustomerCredentials,
   updateOrderTracking
 };

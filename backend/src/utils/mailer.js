@@ -230,6 +230,30 @@ const sendBroadcastEmail = async ({ to, subject, bodyHtml }) => {
   return sendMail({ to, subject, html });
 };
 
+// ── 6. Send OTP Verification Email ──────────────────────────────────────────
+const sendOtpEmail = async ({ to, otp }) => {
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0A0A0A;border:1px solid #C5A028;border-radius:8px;overflow:hidden;">
+      <div style="background:#121212;padding:32px;text-align:center;border-bottom:1px solid rgba(197,160,40,0.2);">
+        <h1 style="color:#C5A028;margin:0;font-size:24px;letter-spacing:4px;">LEKYA SPECS</h1>
+        <p style="color:#fff;margin:8px 0 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:0.8;">Verification Portal</p>
+      </div>
+      <div style="padding:40px 32px;text-align:center;background:#121212;">
+        <h2 style="color:#fff;margin:0 0 16px 0;font-weight:600;">Verify Your Registration</h2>
+        <p style="color:#b3b3b3;font-size:14px;line-height:1.6;margin:0 0 32px 0;">Thank you for choosing Lekya Specs. Please enter the following 6-digit OTP code to complete your registration. This code is valid for 5 minutes.</p>
+        <div style="background:#1A1A1A;border:1px dashed #C5A028;padding:24px;border-radius:6px;display:inline-block;margin-bottom:32px;">
+          <span style="font-family:monospace;font-size:36px;font-weight:bold;color:#C5A028;letter-spacing:6px;display:block;">${otp}</span>
+        </div>
+        <p style="color:#777;font-size:12px;margin:0;">If you did not initiate this registration request, please ignore this email safely.</p>
+      </div>
+      <div style="background:#0d0d0d;padding:16px;text-align:center;border-top:1px solid rgba(255,255,255,0.02);">
+        <p style="color:#555;font-size:11px;margin:0;">&copy; 2026 Lekya Specs. Premium Eyewear &amp; AI Studio.</p>
+      </div>
+    </div>
+  `;
+  return sendMail({ to, subject: `${otp} is your Lekya Specs verification code`, html });
+};
+
 module.exports = {
   sendMail,
   sendContactEmail,
@@ -237,4 +261,5 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendBroadcastEmail,
+  sendOtpEmail,
 };

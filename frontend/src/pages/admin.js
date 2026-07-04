@@ -674,6 +674,14 @@ export default function Admin() {
   const [inspectedCustomer, setInspectedCustomer] = useState(null);
   const [inspectedCustomerLoading, setInspectedCustomerLoading] = useState(false);
   const [showCustomerInspectModal, setShowCustomerInspectModal] = useState(false);
+  const [isEditingCredentials, setIsEditingCredentials] = useState(false);
+  const [editCustName, setEditCustName] = useState('');
+  const [editCustEmail, setEditCustEmail] = useState('');
+  const [editCustPhone, setEditCustPhone] = useState('');
+  const [editCustRole, setEditCustRole] = useState('user');
+  const [editCustPassword, setEditCustPassword] = useState('');
+  const [editCustError, setEditCustError] = useState('');
+  const [editCustSuccess, setEditCustSuccess] = useState('');
 
   // 10 new features: Order shipping tracking modal state
   const [selectedTrackingOrder, setSelectedTrackingOrder] = useState(null);
@@ -1168,6 +1176,10 @@ export default function Admin() {
   const handleInspectCustomer = (custId) => {
     setInspectedCustomerLoading(true);
     setShowCustomerInspectModal(true);
+    setIsEditingCredentials(false);
+    setEditCustPassword('');
+    setEditCustError('');
+    setEditCustSuccess('');
 
     fetch(`${API_BASE}/api/admin/customers/${custId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -1178,12 +1190,71 @@ export default function Admin() {
       })
       .then(data => {
         setInspectedCustomer(data);
+        setEditCustName(data.profile.name);
+        setEditCustEmail(data.profile.email);
+        setEditCustPhone(data.profile.phone || '');
+        setEditCustRole(data.profile.role || 'user');
         setInspectedCustomerLoading(false);
       })
       .catch(err => {
         alert(err.message);
         setInspectedCustomerLoading(false);
         setShowCustomerInspectModal(false);
+      });
+  };
+
+  // Update Customer Credentials handler
+  const handleUpdateCustomerCredentials = (e) => {
+    e.preventDefault();
+    if (!inspectedCustomer) return;
+    setEditCustError('');
+    setEditCustSuccess('');
+
+    fetch(`${API_BASE}/api/admin/customers/${inspectedCustomer.profile.id}/credentials`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: editCustName,
+        email: editCustEmail,
+        phone: editCustPhone,
+        role: editCustRole,
+        password: editCustPassword
+      })
+    })
+      .then(res => {
+        if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'Failed to update credentials') });
+        return res.json();
+      })
+      .then(data => {
+        setEditCustSuccess('Credentials updated successfully!');
+        setEditCustPassword('');
+        // Refresh the inspection modal data!
+        fetch(`${API_BASE}/api/admin/customers/${inspectedCustomer.profile.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(newData => {
+            setInspectedCustomer(newData);
+            // Also reload the main customers list so grid updates!
+            fetch(`${API_BASE}/api/admin/customers`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+              .then(res => res.json())
+              .then(custData => setCustomers(custData))
+              .catch(err => console.error(err));
+          })
+          .catch(err => console.error(err));
+
+        setTimeout(() => {
+          setIsEditingCredentials(false);
+          setEditCustSuccess('');
+        }, 1500);
+      })
+      .catch(err => {
+        setEditCustError(err.message);
       });
   };
 
@@ -1879,7 +1950,7 @@ export default function Admin() {
                         <tr>
                           <th className="px-6 py-4">User ID</th>
                           <th className="px-6 py-4">Customer Name</th>
-                          <th className="px-6 py-4">Email</th>
+                          <th className="px-6 py-4">Email & Phone</th>
                           <th className="px-6 py-4">Face Profile</th>
                           <th className="px-6 py-4">Registration Date</th>
                           <th className="px-6 py-4">Paid Orders</th>
@@ -1890,6 +1961,7 @@ export default function Admin() {
                         {customers.filter(c =>
                           c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
                           c.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                          (c.phone || '').includes(customerSearch) ||
                           (c.face_shape || '').toLowerCase().includes(customerSearch.toLowerCase())
                         ).map(cust => (
                           <tr key={cust.id} className="hover:bg-premium-light/50">
@@ -1902,7 +1974,10 @@ export default function Admin() {
                                 {cust.name}
                               </button>
                             </td>
-                            <td className="px-6 py-4 font-mono text-xs">{cust.email}</td>
+                            <td className="px-6 py-4">
+                              <div className="font-mono text-xs">{cust.email}</div>
+                              {cust.phone && <div className="text-[10px] text-premium-gray font-normal mt-0.5">{cust.phone}</div>}
+                            </td>
                             <td className="px-6 py-4">
                               <span className={`text-[10px] uppercase font-bold tracking-wide ${cust.face_shape ? 'text-premium-golddark font-semibold' : 'text-gray-400'}`}>
                                 {cust.face_shape || 'No Scan'}
@@ -2884,33 +2959,142 @@ export default function Admin() {
             ) : inspectedCustomer ? (
               <div className="space-y-6 text-sm">
                 
-                {/* Profile Grid */}
-                <div className="bg-premium-light border border-premium-border rounded p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">User ID:</span>
-                    <span className="font-bold">#{inspectedCustomer.profile.id}</span>
+                {/* Profile Details & Credentials Editor */}
+                {isEditingCredentials ? (
+                  <form onSubmit={handleUpdateCustomerCredentials} className="bg-premium-light border border-premium-border rounded p-4 space-y-4">
+                    <h4 className="font-semibold text-xs uppercase tracking-wider text-premium-accent mb-2">Edit Customer Credentials</h4>
+                    
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editCustName}
+                        onChange={(e) => setEditCustName(e.target.value)}
+                        className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={editCustEmail}
+                        onChange={(e) => setEditCustEmail(e.target.value)}
+                        className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Phone Number</label>
+                      <input
+                        type="text"
+                        value={editCustPhone}
+                        onChange={(e) => setEditCustPhone(e.target.value)}
+                        placeholder="e.g. 9876543210"
+                        className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Role</label>
+                        <select
+                          value={editCustRole}
+                          onChange={(e) => setEditCustRole(e.target.value)}
+                          className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                        >
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Reset Password</label>
+                        <input
+                          type="password"
+                          value={editCustPassword}
+                          onChange={(e) => setEditCustPassword(e.target.value)}
+                          placeholder="Leave empty to keep current"
+                          className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {editCustError && (
+                      <div className="text-red-600 text-[11px] font-semibold">
+                        {editCustError}
+                      </div>
+                    )}
+
+                    {editCustSuccess && (
+                      <div className="text-green-700 text-[11px] font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                        {editCustSuccess}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        className="flex-grow bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-[10px] tracking-wider uppercase py-2 rounded transition-all shadow"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCredentials(false)}
+                        className="border border-premium-border hover:bg-white text-premium-dark font-semibold text-[10px] tracking-wider uppercase py-2 px-4 rounded transition-all"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="bg-premium-light border border-premium-border rounded p-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">User ID:</span>
+                      <span className="font-bold">#{inspectedCustomer.profile.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Name:</span>
+                      <span className="font-bold">{inspectedCustomer.profile.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Email:</span>
+                      <span className="font-mono text-xs">{inspectedCustomer.profile.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Phone:</span>
+                      <span className="font-mono text-xs">{inspectedCustomer.profile.phone || 'Not Specified'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Account Role:</span>
+                      <span className="font-bold uppercase text-xs text-premium-accent">{inspectedCustomer.profile.role || 'user'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Loyalty Points:</span>
+                      <span className="font-bold text-premium-accent">{inspectedCustomer.profile.loyalty_points || 0} points</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-premium-gray font-semibold">Referral Code:</span>
+                      <span className="font-mono font-bold text-premium-accent">{inspectedCustomer.profile.referral_code || 'None'}</span>
+                    </div>
+                    <div className="flex justify-between border-b pb-2 mb-2">
+                      <span className="text-premium-gray font-semibold">Registered On:</span>
+                      <span>{new Date(inspectedCustomer.profile.created_at).toLocaleDateString('en-IN')}</span>
+                    </div>
+                    
+                    <button
+                      onClick={() => setIsEditingCredentials(true)}
+                      className="w-full text-center border border-premium-accent hover:bg-premium-accent hover:text-premium-black text-premium-accent font-semibold text-xs tracking-wider uppercase py-2.5 rounded transition-all mt-2 flex items-center justify-center gap-1.5"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit Credentials &amp; Profile
+                    </button>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">Name:</span>
-                    <span className="font-bold">{inspectedCustomer.profile.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">Email:</span>
-                    <span className="font-mono text-xs">{inspectedCustomer.profile.email}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">Loyalty Points:</span>
-                    <span className="font-bold text-premium-accent">{inspectedCustomer.profile.loyalty_points || 0} points</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">Referral Code:</span>
-                    <span className="font-mono font-bold text-premium-accent">{inspectedCustomer.profile.referral_code || 'None'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-premium-gray font-semibold">Registered On:</span>
-                    <span>{new Date(inspectedCustomer.profile.created_at).toLocaleDateString('en-IN')}</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Purchase list */}
                 <div>

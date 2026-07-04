@@ -63,6 +63,8 @@ app.get('/api/health', (req, res) => {
 
 // 2. Authentication API
 app.post('/api/auth/register', authController.register);
+app.post('/api/auth/register/initiate', authController.registerInitiate);
+app.post('/api/auth/register/verify', authController.registerVerify);
 app.post('/api/auth/login', authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
@@ -241,6 +243,7 @@ app.post('/api/admin/helpdesk/:id/reply', authenticateToken, isAdmin, adminContr
 
 // Customer Deep Inspect Profile details
 app.get('/api/admin/customers/:id', authenticateToken, isAdmin, adminController.getCustomerDetail);
+app.put('/api/admin/customers/:id/credentials', authenticateToken, isAdmin, adminController.updateCustomerCredentials);
 
 // Order tracking Visual updates
 app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminController.updateOrderTracking);

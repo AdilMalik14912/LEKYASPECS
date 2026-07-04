@@ -210,6 +210,35 @@ const initDb = async () => {
       console.log('Migration: contact_messages table ready.');
     } catch (_) {}
 
+    // Migration: Add phone column to users table
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT NULL");
+      console.log('Migration: Added phone column to users table.');
+    } catch (_) {}
+
+    // Migration: Create otps table for phone/email verification codes
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS otps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT DEFAULT NULL,
+        email TEXT NOT NULL,
+        phone TEXT DEFAULT NULL,
+        password_hash TEXT DEFAULT NULL,
+        otp_code TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        verified INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: otps table ready.');
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE otps ADD COLUMN name TEXT DEFAULT NULL");
+    } catch (_) {}
+    try {
+      await client.execute("ALTER TABLE otps ADD COLUMN password_hash TEXT DEFAULT NULL");
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

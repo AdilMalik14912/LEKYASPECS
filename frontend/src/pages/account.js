@@ -3,7 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -67,9 +67,13 @@ export default function Account() {
   // Form input states
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
+  const [registrationStep, setRegistrationStep] = useState(1); // 1 = details, 2 = verify OTP
+  const [otpCode, setOtpCode] = useState('');
+  const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
 
   // User Dashboard states
   const [orders, setOrders] = useState([]);
@@ -102,29 +106,76 @@ export default function Account() {
     setFormError('');
     setFormLoading(true);
 
-    const endpoint = isLoginTab ? 'login' : 'register';
-    const payload = isLoginTab 
-      ? { email, password } 
-      : { name, email, password };
-
-    fetch(`${API_BASE}/api/auth/${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(data => {
-        setFormLoading(false);
-        if (data.token) {
-          login(data.token, data.user);
-        } else {
-          setFormError(data.message || 'Authentication failed');
-        }
+    if (isLoginTab) {
+      // Login flow: email field holds either email or phone
+      fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       })
-      .catch(err => {
-        setFormLoading(false);
-        setFormError('Connection to server failed. Please try again.');
-      });
+        .then(res => res.json())
+        .then(data => {
+          setFormLoading(false);
+          if (data.token) {
+            login(data.token, data.user);
+          } else {
+            setFormError(data.message || 'Invalid credentials');
+          }
+        })
+        .catch(err => {
+          setFormLoading(false);
+          setFormError('Connection to server failed. Please try again.');
+        });
+    } else {
+      // Registration flow
+      if (registrationStep === 1) {
+        if (!email && !phone) {
+          setFormLoading(false);
+          setFormError('Either Email or Phone Number is required for registration.');
+          return;
+        }
+
+        fetch(`${API_BASE}/api/auth/register/initiate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email: email || '', phone: phone || '', password })
+        })
+          .then(res => {
+            if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'Initiation failed') });
+            return res.json();
+          })
+          .then(data => {
+            setFormLoading(false);
+            setOtpTarget({ email: data.email || '', phone: data.phone || '' });
+            setRegistrationStep(2);
+          })
+          .catch(err => {
+            setFormLoading(false);
+            setFormError(err.message);
+          });
+      } else {
+        // OTP Verification step
+        fetch(`${API_BASE}/api/auth/register/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: otpTarget.email, phone: otpTarget.phone, otp: otpCode })
+        })
+          .then(res => {
+            if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'OTP verification failed') });
+            return res.json();
+          })
+          .then(data => {
+            setFormLoading(false);
+            setRegistrationStep(1);
+            setOtpCode('');
+            login(data.token, data.user);
+          })
+          .catch(err => {
+            setFormLoading(false);
+            setFormError(err.message);
+          });
+      }
+    }
   };
 
   // --- RENDERING: Logged Out (Auth Screen) ---
@@ -158,56 +209,132 @@ export default function Account() {
           </h2>
 
           <form onSubmit={handleAuthSubmit} className="space-y-4">
-            
-            {/* Name field (Register only) */}
-            {!isLoginTab && (
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
-                  />
+            {isLoginTab ? (
+              // --- SIGN IN FORM ---
+              <>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Email Address or Phone Number</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="text"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g. mail@example.com or 9876543210"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Password</label>
+                  <div className="relative">
+                    <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : registrationStep === 1 ? (
+              // --- REGISTRATION STEP 1: INPUT DETAILS ---
+              <>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your name"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Email Address (Optional if Phone is set)</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter email address"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Phone Number (Optional if Email is set)</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="text"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. 9876543210"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Password</label>
+                  <div className="relative">
+                    <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              // --- REGISTRATION STEP 2: OTP VERIFICATION ---
+              <>
+                <div className="bg-premium-light border border-premium-border rounded p-4 text-center space-y-2">
+                  <p className="text-xs text-premium-dark font-medium">
+                    We've sent a 6-digit OTP code to:
+                  </p>
+                  <strong className="text-xs text-premium-accent block font-mono">
+                    {otpTarget.email && !otpTarget.email.startsWith('phone_') ? otpTarget.email : otpTarget.phone}
+                  </strong>
+                  <p className="text-[10px] text-premium-gray">
+                    Please check your inbox (and spam folder) or messages to verify.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Enter 6-Digit OTP</label>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
+                    <input
+                      type="text"
+                      required
+                      maxLength="6"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="e.g. 123456"
+                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold tracking-widest text-center"
+                    />
+                  </div>
+                </div>
+              </>
             )}
-
-            {/* Email field */}
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email address"
-                  className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
-                />
-              </div>
-            </div>
-
-            {/* Password field */}
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Password</label>
-              <div className="relative">
-                <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
-                />
-              </div>
-            </div>
 
             {formError && (
               <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
@@ -220,9 +347,28 @@ export default function Account() {
               disabled={formLoading}
               className="w-full bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-4 rounded transition-all flex items-center justify-center gap-2"
             >
-              {formLoading ? 'Authenticating...' : isLoginTab ? 'Sign In' : 'Create Account'}
+              {formLoading 
+                ? 'Processing...' 
+                : isLoginTab 
+                  ? 'Sign In' 
+                  : registrationStep === 1 
+                    ? 'Get OTP Code' 
+                    : 'Verify & Register'}
             </button>
 
+            {!isLoginTab && registrationStep === 2 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRegistrationStep(1);
+                  setOtpCode('');
+                  setFormError('');
+                }}
+                className="w-full text-center text-xs font-semibold text-premium-gray hover:text-premium-black py-1 mt-2 focus:outline-none transition-colors"
+              >
+                &larr; Back to edit details
+              </button>
+            )}
           </form>
 
           {/* Social connection divider */}
