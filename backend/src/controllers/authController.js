@@ -14,6 +14,7 @@ const generateToken = (user) => {
 
 // Register Step 1: Initiate & Send OTP
 const registerInitiate = async (req, res) => {
+  console.log('[Auth API] Initiate registration request received:', req.body);
   const { name, email, phone, password } = req.body;
 
   if (!name || !password) {
