@@ -22,7 +22,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 ### Database Tables
 
-1. **users** — name, email, password_hash, face_shape, role, loyalty_points, referral_code, created_at
+1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, created_at
 2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls
 3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, created_at
 4. **order_items** — order_id, product_id, quantity, price
@@ -31,11 +31,14 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 7. **coupons** — code, discount_type, discount_value, expiry_date, max_uses, times_used, is_active
 8. **admin_activity_log** — admin_email, action_type, description, created_at
 9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
+10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at (cached registration details before OTP verification)
 
 ### DB Migrations (auto-applied on startup in `db.js`)
 - `role` column on `users`
 - `loyalty_points` column on `users`
 - `referral_code` column on `users`
+- `phone` column on `users`
+- `otps` table creation
 - `lens_type`, `lens_price`, `prescription_details`, `tracking_comments` columns on `orders`
 - `coupons` table
 - `admin_activity_log` table
@@ -48,10 +51,12 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/src/app.js):
 
 ### 1. Authentication (`/api/auth`)
-- `POST /register` → Creates user, hashes password, signs JWT. Also generates unique referral code.
-- `POST /login` → Compares bcrypt hash, returns JWT token + full user object.
+- `POST /register/initiate` → Pre-registers details and sends 6-digit verification OTP.
+- `POST /register/verify` → Verifies OTP code and creates customer account (JWT token returned).
+- `POST /register` → Legacy single-step registration fallback.
+- `POST /login` → Dual login method supporting either Email address OR Phone number.
 - `GET /profile` → Returns authenticated user profile.
-- `PUT /profile` → Updates user details (face_shape, name, etc.).
+- `PUT /profile` → Updates user details (face_shape, name, phone, etc.).
 - `GET /google` & `GET /facebook` → OAuth integrations. Auto-simulated with mock users if credentials missing in `.env`.
 
 ### 2. Products Catalog (`/api/products`)
@@ -75,6 +80,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `PUT /orders/:id/tracking` → Update dispatch/tracking notes per order
 - `GET /customers` → List all customers
 - `GET /customers/:id` → Deep inspect a specific customer (profile + order history)
+- `PUT /customers/:id/credentials` → Edit customer details (name, email, phone, role) and reset/re-hash password
 - `POST/PUT/DELETE /products` → Full CRUD for eyewear catalog
 - `GET/PUT /settings` → CMS settings management
 - `POST /create-admin` → Create a new admin sub-user

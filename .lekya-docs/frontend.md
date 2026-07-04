@@ -68,7 +68,7 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
   - Live dynamic price update shown on Add to Cart button.
 
 ### 10. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
-- Profile info, face shape, edit modal.
+- Profile info, face shape, edit modal, and Dual Phone/Email login & registration with 6-digit OTP verification.
 - Order history with status badges.
 - **Specs Rewards Club** — displays loyalty points balance, tier (Bronze/Silver/Gold), and referral link copy button.
 - **Order Tracking Notes** — shows admin-added dispatch notes per order.
@@ -84,7 +84,7 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | Dashboard | Sales analytics, revenue chart, low stock alerts, recent activity log |
 | Customer Orders | List orders, update status, add dispatch/tracking notes per order |
 | Product Catalog | Add / Edit / Delete eyewear products with images |
-| View Customers | List all customers, click to Inspect Profile (order history overlay) |
+| View Customers | List all customers (with phone number search/grid column), click to Inspect Profile (order history overlay & Edit Credentials form) |
 | Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
 | Broadcast Email | Send personalized bulk or targeted email to specific customers using 7 pre-styled luxury HTML templates |
 | Settings CMS | Update hero banner, headline text, background images |
