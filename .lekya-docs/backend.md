@@ -111,6 +111,13 @@ Uses `nodemailer` connecting to Google SMTP with App Passwords (`SMTP_EMAIL` and
 
 ---
 
+## 📱 SMS Utilities ([sms.js](file:///C:/Users/Admin/Specs/backend/src/utils/sms.js))
+Uses `fetch` connecting to **Fast2SMS API gateway** (`/dev/bulkV2` endpoint) using `FAST2SMS_API_KEY` environment variable.
+
+- `sendOtpSms({ to, otp })` → Dispatches a 6-digit OTP code to the recipient's mobile number via Fast2SMS's `"q"` (Quick SMS) route.
+
+---
+
 ## 🔑 Auth Middleware ([auth.js](file:///C:/Users/Admin/Specs/backend/src/middleware/auth.js))
 
 - `authenticateToken` — Reads `Authorization: Bearer <token>` header, verifies JWT.
