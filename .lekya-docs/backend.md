@@ -81,7 +81,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `GET /admins` → List all admins
 - `POST /demote-admin` → Revoke admin access
 - `POST/GET/PUT/DELETE /coupons` → Coupon management
-- `POST /broadcast` → Send bulk email to all customers
+- `POST /broadcast` → Send bulk email or targeted email to a specific customer with placeholder name replacements and luxury templates.
 - `GET /export/orders` → Download orders as CSV
 - `GET /export/customers` → Download customers as CSV
 - `GET /logs` → Admin activity log viewer

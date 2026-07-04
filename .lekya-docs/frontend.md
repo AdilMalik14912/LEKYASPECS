@@ -86,7 +86,7 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | Product Catalog | Add / Edit / Delete eyewear products with images |
 | View Customers | List all customers, click to Inspect Profile (order history overlay) |
 | Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
-| Broadcast Email | Send personalized bulk email to all customers |
+| Broadcast Email | Send personalized bulk or targeted email to specific customers using 7 pre-styled luxury HTML templates |
 | Settings CMS | Update hero banner, headline text, background images |
 | Admin Roles | Create new sub-admins, view admin list, demote admins |
 | Support Helpdesk | View contact form messages, reply via email directly |
