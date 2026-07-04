@@ -37,8 +37,8 @@ async function sendOtpSms({ to, otp }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        variables_values: otp,
-        route: 'otp',
+        route: 'q',
+        message: `Your Lekya Specs verification code is: ${otp}`,
         numbers: formattedPhone
       })
     });
