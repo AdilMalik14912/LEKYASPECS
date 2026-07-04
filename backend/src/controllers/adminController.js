@@ -465,10 +465,20 @@ const broadcastEmail = async (req, res) => {
     let sentCount = 0;
     for (const customer of customers) {
       try {
-        const customizedBody = bodyHtml.replace(/\{\{name\}\}/gi, customer.name);
+        const fullName = customer.name ? customer.name.split('(')[0].trim() : 'Valued Customer';
+        const firstName = fullName.split(' ')[0] || 'Customer';
+
+        const customizedSubject = subject
+          .replace(/\{\{name\}\}/gi, firstName)
+          .replace(/\{\{full_name\}\}/gi, fullName);
+
+        const customizedBody = bodyHtml
+          .replace(/\{\{name\}\}/gi, firstName)
+          .replace(/\{\{full_name\}\}/gi, fullName);
+
         await sendBroadcastEmail({
           to: customer.email,
-          subject: subject,
+          subject: customizedSubject,
           bodyHtml: customizedBody
         });
         sentCount++;
