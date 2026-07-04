@@ -74,7 +74,8 @@ const registerInitiate = async (req, res) => {
     res.status(200).json({ 
       message: 'Verification OTP sent successfully.', 
       email: email ? targetEmail : null, 
-      phone: targetPhone 
+      phone: targetPhone,
+      otp: otpCode
     });
   } catch (err) {
     console.error('Register initiate error:', err);
