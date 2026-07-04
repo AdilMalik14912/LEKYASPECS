@@ -211,7 +211,9 @@ const sendPasswordResetEmail = async ({ to, name, resetLink }) => {
 
 // ── 5. Broadcast Promotional Email ─────────────────────────────────────────
 const sendBroadcastEmail = async ({ to, subject, bodyHtml }) => {
-  const html = `
+  const trimmed = bodyHtml.trim();
+  const isFullHtml = trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html') || trimmed.toLowerCase().includes('<body');
+  const html = isFullHtml ? bodyHtml : `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;">
       <div style="background:#1a1a1a;padding:32px;text-align:center;">
         <h1 style="color:#C5A028;margin:0;font-size:24px;letter-spacing:3px;">LEKYA SPECS</h1>

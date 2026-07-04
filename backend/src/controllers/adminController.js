@@ -437,15 +437,25 @@ const deleteCoupon = async (req, res) => {
 
 // --- BROADCAST EMAIL CAMPAIGN ---
 const broadcastEmail = async (req, res) => {
-  const { subject, bodyHtml } = req.body;
+  const { subject, bodyHtml, targetEmail } = req.body;
   if (!subject || !bodyHtml) {
     return res.status(400).json({ message: 'Subject and HTML content are required' });
   }
 
   try {
     const { sendBroadcastEmail } = require('../utils/mailer');
-    const usersRes = await db.query("SELECT email, name FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com'");
-    const customers = usersRes.rows;
+    let customers = [];
+    
+    if (targetEmail && targetEmail.trim() !== '') {
+      const userRes = await db.query("SELECT email, name FROM users WHERE email = ?", [targetEmail.trim()]);
+      if (userRes.rows.length === 0) {
+        return res.status(400).json({ message: `Customer with email ${targetEmail} not found` });
+      }
+      customers = userRes.rows;
+    } else {
+      const usersRes = await db.query("SELECT email, name FROM users WHERE role != 'admin' AND email != 'admin@specs.com' AND email != 'dev.parceluncle@gmail.com'");
+      customers = usersRes.rows;
+    }
 
     if (customers.length === 0) {
       return res.status(400).json({ message: 'No customers found to broadcast to' });
@@ -470,10 +480,16 @@ const broadcastEmail = async (req, res) => {
     await logAdminActivity(
       req.user.email,
       'BROADCAST_EMAIL',
-      `Sent email broadcast '${subject}' to ${sentCount} customers`
+      targetEmail 
+        ? `Sent targeted email '${subject}' to specific customer: ${targetEmail}`
+        : `Sent email broadcast '${subject}' to ${sentCount} customers`
     );
 
-    res.json({ message: `Broadcast sent successfully to ${sentCount} customers.` });
+    res.json({ 
+      message: targetEmail 
+        ? `Email successfully sent to ${targetEmail}.` 
+        : `Broadcast sent successfully to ${sentCount} customers.` 
+    });
   } catch (err) {
     console.error('Broadcast email error:', err);
     res.status(500).json({ message: 'Server error sending email broadcast' });

@@ -170,7 +170,7 @@ const EMAIL_TEMPLATES = [
               <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                 <tr>
                   <td align="center" style="background-color: #C5A028; border-radius: 4px;">
-                    <a href="http://localhost:3000/shop" target="_blank" style="display: inline-block; padding: 15px 35px; font-size: 12px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Discover the Collection</a>
+                    <a href="{{origin}}/shop" target="_blank" style="display: inline-block; padding: 15px 35px; font-size: 12px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Discover the Collection</a>
                   </td>
                 </tr>
               </table>
@@ -180,16 +180,16 @@ const EMAIL_TEMPLATES = [
             <td style="padding: 0 30px 40px 30px;">
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
-                  <td width="270" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
+                  <td width="260" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
                     <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #C5A028;">The Aviator Elite</h3>
                     <p style="margin: 0 0 15px 0; font-size: 12px; color: #A6A6A6; line-height: 1.6;">Classic silhouette engineered with lightweight premium alloy and anti-glare finish.</p>
-                    <a href="http://localhost:3000/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
+                    <a href="{{origin}}/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
                   </td>
                   <td width="20">&nbsp;</td>
-                  <td width="270" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
+                  <td width="260" valign="top" style="background-color: #1A1A1A; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 20px; text-align: center;">
                     <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #C5A028;">The Classic Wayfarer</h3>
                     <p style="margin: 0 0 15px 0; font-size: 12px; color: #A6A6A6; line-height: 1.6;">Bold contours crafted from hand-polished gold acetate for a timeless premium statement.</p>
-                    <a href="http://localhost:3000/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
+                    <a href="{{origin}}/shop" style="font-size: 11px; font-weight: 700; color: #C5A028; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">View Frame &rarr;</a>
                   </td>
                 </tr>
               </table>
@@ -199,7 +199,7 @@ const EMAIL_TEMPLATES = [
             <td align="center" style="background-color: #1A150A; border-top: 1px solid rgba(197, 160, 40, 0.15); border-bottom: 1px solid rgba(197, 160, 40, 0.15); padding: 30px; text-align: center;">
               <h3 style="margin: 0 0 10px 0; color: #C5A028;">Try Them On Instantly From Home</h3>
               <p style="margin: 0 0 20px 0; font-size: 13px; color: #D4AF37; line-height: 1.6; font-weight: 300;">Use our new AI-Powered 2D Try-On Studio to see how frames look on your face shape with auto-alignment.</p>
-              <a href="http://localhost:3000/tryon" style="display: inline-block; padding: 10px 25px; font-size: 11px; font-weight: 700; color: #C5A028; border: 1px solid #C5A028; text-decoration: none; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">Open Try-On Studio</a>
+              <a href="{{origin}}/tryon" style="display: inline-block; padding: 10px 25px; font-size: 11px; font-weight: 700; color: #C5A028; border: 1px solid #C5A028; text-decoration: none; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">Open Try-On Studio</a>
             </td>
           </tr>
           <tr>
@@ -255,7 +255,7 @@ const EMAIL_TEMPLATES = [
               <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                 <tr>
                   <td align="center" style="background-color: #C5A028; border-radius: 4px;">
-                    <a href="http://localhost:3000/shop" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Shop With Code</a>
+                    <a href="{{origin}}/shop" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Shop With Code</a>
                   </td>
                 </tr>
               </table>
@@ -338,7 +338,7 @@ const EMAIL_TEMPLATES = [
               <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                 <tr>
                   <td align="center" style="background-color: #C5A028; border-radius: 4px;">
-                    <a href="http://localhost:3000/account" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">View Rewards Portal</a>
+                    <a href="{{origin}}/account" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">View Rewards Portal</a>
                   </td>
                 </tr>
               </table>
@@ -347,6 +347,214 @@ const EMAIL_TEMPLATES = [
           <tr>
             <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
               <p style="margin: 0 0 10px 0; font-size: 11px; color: #666; line-height: 1.6;">Points expire 12 months from award date. Terms apply.</p>
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'face_scanner',
+    name: '📸 AI Face Shape Scanner Invite',
+    subject: '📸 Find Your Perfect Frame: Get a Free AI Face Scan',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs AI Face Scanner</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">AI VISION STUDIO</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 40px 40px; text-align: center;">
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">Your Face. Your Perfect Fit.</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Hello {{name}}, wearing the wrong glasses shape can throw off your facial symmetry. Our new **AI Face Scanner** uses real neural models to scan your facial structures in 10 seconds and instantly recommend the most flattering geometry for you.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #161a22; border: 1px solid #C5A028; border-radius: 6px; padding: 20px; margin-bottom: 35px; text-align: center;">
+                <tr>
+                  <td>
+                    <span style="font-size: 12px; color: #FFFFFF; font-weight: 700; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Step 1: Open Scanner on Dashboard</span>
+                    <span style="font-size: 12px; color: #C5A028; font-weight: 700; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Step 2: Scan your landmarks live</span>
+                    <span style="font-size: 12px; color: #FFFFFF; font-weight: 700; display: block; text-transform: uppercase; letter-spacing: 1px;">Step 3: Access tailored matches</span>
+                  </td>
+                </tr>
+              </table>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="{{origin}}/account" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Run AI Scanner Now</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'tryon_lab',
+    name: '🕶️ AI Try-On Studio Spotlight',
+    subject: '🕶️ {{name}}, Try Eyewear Instantly with VTO AI Auto-Fit',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs VTO Studio</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">VIRTUAL TRY-ON STUDIO</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 40px 40px; text-align: center;">
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">The Try-On Studio. Redefined.</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Hello {{name}}, skip the physical showrooms. Our brand new **AI Auto-Fit Virtual Try-On** automatically detects your eye center landmarks, aligns frames with exact scale and rotation, and keys out product backgrounds so you only see the glasses on your face.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="{{origin}}/tryon" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Open Try-On Session</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'cart_recovery',
+    name: '🛒 Abandoned Cart Recovery',
+    subject: '🛒 {{name}}, Complete Your Handcrafted Eyewear Order',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs - Complete Your Order</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">SHOPPING CART ASSISTANT</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 40px 40px; text-align: center;">
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">Almost Yours.</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Hello {{name}}, we noticed you left premium eyewear in your shopping cart. These frames are handcrafted from elite lightweight acetate and have high stock demand. Don't lose them!
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1A1A1A; border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 20px; margin-bottom: 35px; text-align: center;">
+                <tr>
+                  <td>
+                    <span style="font-size: 12px; color: #B3B3B3; display: block;">Your items are saved. Click checkout to select your lens indexes (1.56 - 1.74) and custom coatings.</span>
+                  </td>
+                </tr>
+              </table>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="{{origin}}/cart" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Complete Checkout Now</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+  },
+  {
+    id: 'support_feedback',
+    name: '💬 Share Your Feedback Survey',
+    subject: '💬 {{name}}, Help Us Elevate Your Vision Experience',
+    body: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lekya Specs - Client Feedback</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #EAEAEA;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0A0A0A; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #121212; border: 1px solid #C5A028; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; border-bottom: 1px solid rgba(197, 160, 40, 0.2);">
+              <h1 style="margin: 0; font-size: 32px; color: #C5A028; letter-spacing: 4px; text-transform: uppercase;">LEKYA SPECS</h1>
+              <p style="margin: 5px 0 0 0; font-size: 10px; color: #EAEAEA; letter-spacing: 6px; text-transform: uppercase; opacity: 0.8;">CLIENT RELATIONS</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 50px 40px 40px 40px; text-align: center;">
+              <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #FFFFFF; font-weight: 600; line-height: 1.4;">Elevating the Standards.</h2>
+              <p style="margin: 0 0 35px 0; font-size: 14px; color: #B3B3B3; line-height: 1.8; font-weight: 300;">
+                Hello {{name}}, we are committed to delivering the ultimate eyewear and shopping experience. We would be extremely grateful if you could spare 1 minute to share your feedback or suggestions with our team.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="background-color: #C5A028; border-radius: 4px;">
+                    <a href="{{origin}}/contact" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 11px; font-weight: 700; color: #0A0A0A; text-decoration: none; letter-spacing: 2px; text-transform: uppercase;">Submit Feedback</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px; background-color: #0d0d0d; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #C5A028; font-weight: 600;">&copy; 2026 Lekya Specs Admin. All rights reserved.</p>
             </td>
           </tr>
@@ -443,6 +651,9 @@ export default function Admin() {
   const [broadcastSending, setBroadcastSending] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState('');
   const [broadcastError, setBroadcastError] = useState('');
+  const [broadcastMode, setBroadcastMode] = useState('all'); // 'all' or 'specific'
+  const [broadcastTargetEmail, setBroadcastTargetEmail] = useState('');
+  const [broadcastSearchQuery, setBroadcastSearchQuery] = useState('');
 
   // Activity Log State
   const [logs, setLogs] = useState([]);
@@ -504,13 +715,13 @@ export default function Admin() {
         .then(res => res.json())
         .then(data => { setOrders(data); setOrdersLoading(false); })
         .catch(err => console.error(err));
-    } else if (activeTab === 'customers') {
+    } else if (activeTab === 'customers' || activeTab === 'broadcast') {
       setCustomersLoading(true);
       fetch(`${API_BASE}/api/admin/customers`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
-        .then(data => { setCustomers(data); setCustomersLoading(false); })
+        .then(data => { setCustomers(data || []); setCustomersLoading(false); })
         .catch(err => console.error(err));
     } else if (activeTab === 'customizer') {
       setSettingsLoading(true);
@@ -858,13 +1069,20 @@ export default function Admin() {
     setBroadcastSuccess('');
     setBroadcastSending(true);
 
+    // Replace {{origin}} dynamically
+    const processedBody = broadcastBody.replaceAll('{{origin}}', window.location.origin);
+
     fetch(`${API_BASE}/api/admin/broadcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ subject: broadcastSubject, bodyHtml: broadcastBody })
+      body: JSON.stringify({ 
+        subject: broadcastSubject, 
+        bodyHtml: processedBody,
+        targetEmail: broadcastMode === 'specific' ? broadcastTargetEmail : null
+      })
     })
       .then(res => {
         if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Failed') });
@@ -874,6 +1092,8 @@ export default function Admin() {
         setBroadcastSuccess(data.message || 'Email campaign broadcast completed successfully.');
         setBroadcastSubject('');
         setBroadcastBody('');
+        setBroadcastTargetEmail('');
+        setBroadcastSearchQuery('');
         setBroadcastSending(false);
       })
       .catch(err => {
@@ -1973,6 +2193,97 @@ export default function Admin() {
             </p>
 
             <form onSubmit={handleBroadcastSubmit} className="bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm space-y-6 max-w-2xl">
+              {/* Recipient Mode Selection */}
+              <div className="bg-premium-light border border-premium-border rounded p-4">
+                <label className="block text-xs uppercase tracking-wider text-premium-gray font-bold mb-2">Recipient Mode</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-premium-dark cursor-pointer">
+                    <input
+                      type="radio"
+                      name="broadcastMode"
+                      value="all"
+                      checked={broadcastMode === 'all'}
+                      onChange={() => {
+                        setBroadcastMode('all');
+                        setBroadcastTargetEmail('');
+                        setBroadcastSearchQuery('');
+                      }}
+                      className="accent-premium-accent"
+                    />
+                    All Registered Customers
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-premium-dark cursor-pointer">
+                    <input
+                      type="radio"
+                      name="broadcastMode"
+                      value="specific"
+                      checked={broadcastMode === 'specific'}
+                      onChange={() => setBroadcastMode('specific')}
+                      className="accent-premium-accent"
+                    />
+                    Specific Target Customer
+                  </label>
+                </div>
+
+                {broadcastMode === 'specific' && (
+                  <div className="mt-4 pt-3 border-t border-premium-border space-y-3 relative">
+                    <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold">Search Target Customer</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Type customer name or email to search..."
+                        value={broadcastSearchQuery}
+                        onChange={(e) => setBroadcastSearchQuery(e.target.value)}
+                        className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                      />
+                      {broadcastSearchQuery && (
+                        <div className="absolute left-0 right-0 mt-1 bg-white border border-premium-border rounded shadow-lg max-h-40 overflow-y-auto z-50">
+                          {customers.filter(c => 
+                            c.name.toLowerCase().includes(broadcastSearchQuery.toLowerCase()) ||
+                            c.email.toLowerCase().includes(broadcastSearchQuery.toLowerCase())
+                          ).slice(0, 5).map(cust => (
+                            <button
+                              key={cust.email}
+                              type="button"
+                              onClick={() => {
+                                setBroadcastTargetEmail(cust.email);
+                                setBroadcastSearchQuery(`${cust.name} (${cust.email})`);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs hover:bg-premium-light border-b border-premium-border last:border-0 flex justify-between text-premium-dark font-medium"
+                            >
+                              <span>{cust.name}</span>
+                              <span className="text-[10px] text-premium-gray font-mono">{cust.email}</span>
+                            </button>
+                          ))}
+                          {customers.filter(c => 
+                            c.name.toLowerCase().includes(broadcastSearchQuery.toLowerCase()) ||
+                            c.email.toLowerCase().includes(broadcastSearchQuery.toLowerCase())
+                          ).length === 0 && (
+                            <div className="p-3 text-[10px] text-premium-gray text-center">No customers found.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {broadcastTargetEmail && (
+                      <div className="flex items-center gap-2 bg-premium-black border border-premium-accent/20 rounded-full px-3 py-1.5 w-fit">
+                        <span className="text-[10px] text-premium-accent font-semibold uppercase tracking-wider">Target:</span>
+                        <span className="text-[10px] text-white font-mono">{broadcastTargetEmail}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBroadcastTargetEmail('');
+                            setBroadcastSearchQuery('');
+                          }}
+                          className="text-premium-gray hover:text-white transition-all ml-1.5 focus:outline-none"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Select Template Preset</label>
                 <select
