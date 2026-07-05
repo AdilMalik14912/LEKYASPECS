@@ -8,6 +8,45 @@ const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
 
+// Interactive 3D Card Tilt component helper
+function ThreeDTiltCard({ children, className = '', style = {} }) {
+  const cardRef = React.useRef(null);
+  const [transformStyle, setTransformStyle] = React.useState('');
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left; 
+    const y = e.clientY - rect.top;  
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = -(y - centerY) / 10; 
+    const rotateY = (x - centerX) / 10;  
+
+    setTransformStyle(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+  };
+
+  const handleMouseLeave = () => {
+    setTransformStyle('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`transition-all duration-200 ease-out cursor-pointer preserve-3d ${className}`}
+      style={{
+        ...style,
+        transform: transformStyle,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   const { user } = useAuth();
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -80,36 +119,111 @@ export default function Home() {
     <div className="bg-premium-light min-h-screen">
       
       {/* 1. Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-premium-black">
+      <section className="relative min-h-[85vh] lg:h-[90vh] flex items-center justify-center overflow-hidden bg-premium-black py-16 lg:py-0">
         {/* Background Image with Overlay */}
         <div 
           style={{ backgroundImage: `url('${settings.hero_image}')` }} 
-          className="absolute inset-0 opacity-50 bg-cover bg-center"
+          className="absolute inset-0 opacity-40 bg-cover bg-center"
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-premium-black via-premium-black/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-premium-black via-premium-black/90 to-black/80"></div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-left">
-          <div className="max-w-2xl animate-slide-up">
-            <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Fitting Included
+        {/* Glowing background 3D ambient lights */}
+        <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-premium-accent/10 rounded-full blur-[120px] pointer-events-none animate-pulse-subtle"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-premium-accent/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-7 text-left space-y-6 animate-slide-up">
+              <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase">
+                <Sparkles className="w-3.5 h-3.5" />
+                AI-Powered Fitting Included
+              </div>
+              
+              <h1 
+                className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-none"
+                dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
+              ></h1>
+              
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-light max-w-xl">
+                {settings.hero_subtitle}
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <Link href="/shop" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
+                  Explore All Frames
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/face-shape" className="border border-white/60 hover:bg-white hover:text-premium-black hover:border-white text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
+                  Try Face Shape Analyzer
+                </Link>
+              </div>
             </div>
-            <h1 
-              className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-none mb-6"
-              dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
-            ></h1>
-            <p className="text-base sm:text-lg text-gray-300 mb-10 leading-relaxed font-light">
-              {settings.hero_subtitle}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/shop" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
-                Explore All Frames
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/face-shape" className="border border-white hover:bg-white hover:text-premium-black text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
-                Try Face Shape Analyzer
-              </Link>
+
+            {/* Right Content: Premium 3D Floating Glasses Showcase */}
+            <div className="lg:col-span-5 flex items-center justify-center perspective-3d">
+              <div className="w-full max-w-[400px] aspect-square rounded-2xl glass-morphic-3d p-8 shadow-premium-3d border border-white/10 flex flex-col justify-between relative overflow-hidden animate-float-3d preserve-3d">
+                
+                {/* Gold abstract lights inside card */}
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-premium-accent/20 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-premium-accent/10 rounded-full blur-2xl"></div>
+
+                <div className="flex justify-between items-center z-10">
+                  <span className="text-[10px] tracking-widest uppercase font-bold text-premium-accent">Model: Lekya Carbon-T</span>
+                  <span className="text-[10px] tracking-widest uppercase font-bold text-emerald-500 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> 3D Virtual Try-On Ready
+                  </span>
+                </div>
+
+                {/* SVG 3D Glasses display rotating and floating */}
+                <div className="my-8 flex justify-center items-center z-10 animate-float-glasses preserve-3d">
+                  <svg width="280" height="100" viewBox="0 0 280 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
+                    {/* Left frame rim */}
+                    <path d="M20 50 C20 20, 110 20, 110 50 C110 80, 20 80, 20 50 Z" stroke="#C5A028" strokeWidth="4.5" fill="rgba(255,255,255,0.05)" />
+                    {/* Left lens (dark polarized glass gradient) */}
+                    <path d="M22 50 C22 23, 108 23, 108 50 C108 77, 22 77, 22 50 Z" fill="url(#lensGrad)" opacity="0.8" />
+                    
+                    {/* Right frame rim */}
+                    <path d="M170 50 C170 20, 260 20, 260 50 C260 80, 170 80, 170 50 Z" stroke="#C5A028" strokeWidth="4.5" fill="rgba(255,255,255,0.05)" />
+                    {/* Right lens */}
+                    <path d="M172 50 C172 23, 258 23, 258 50 C258 77, 172 77, 172 50 Z" fill="url(#lensGrad)" opacity="0.8" />
+                    
+                    {/* Bridge */}
+                    <path d="M110 42 C125 35, 145 35, 160 42" stroke="#C5A028" strokeWidth="5.5" strokeLinecap="round" />
+                    <path d="M110 48 C125 41, 145 41, 160 48" stroke="#E2C974" strokeWidth="2" strokeLinecap="round" />
+                    
+                    {/* Left end hinge */}
+                    <path d="M20 48 H5 C0 48, 0 35, 0 30" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+                    {/* Right end hinge */}
+                    <path d="M260 48 H275 C280 48, 280 35, 280 30" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+
+                    {/* Gradient definition */}
+                    <defs>
+                      <linearGradient id="lensGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#121212" />
+                        <stop offset="30%" stopColor="#2A2A2A" />
+                        <stop offset="70%" stopColor="#0B132B" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#C5A028" stopOpacity="0.4" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+
+                <div className="flex justify-between items-end z-10 border-t border-white/5 pt-4">
+                  <div>
+                    <span className="block text-[8px] text-gray-400 uppercase tracking-widest font-semibold">Structure</span>
+                    <span className="text-xs text-white font-serif font-bold">Aerospace Titanium</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-[8px] text-gray-400 uppercase tracking-widest font-semibold">Finishing</span>
+                    <span className="text-xs text-premium-accent font-mono font-bold">18K Gold Plated</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -305,25 +419,27 @@ export default function Home() {
             ) : recommendedProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {recommendedProducts.map(product => (
-                  <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
-                    <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
-                      <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-all" />
-                    </div>
-                    <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
-                      {product.gender} • {product.category}
-                    </div>
-                    <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                      <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
-                      <span className="text-gray-400">({product.review_count})</span>
-                    </div>
-                    <div className="font-semibold text-premium-black mt-auto text-lg">
-                      ₹{parseFloat(product.price).toLocaleString('en-IN')}
-                    </div>
-                  </Link>
+                  <ThreeDTiltCard key={product.id} className="bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+                    <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
+                      <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                        <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-all" />
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                        {product.gender} • {product.category}
+                      </div>
+                      <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
+                        <span className="text-gray-400">({product.review_count})</span>
+                      </div>
+                      <div className="font-semibold text-premium-black mt-auto text-lg">
+                        ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                      </div>
+                    </Link>
+                  </ThreeDTiltCard>
                 ))}
               </div>
             ) : (
@@ -381,32 +497,34 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {featuredProducts.map(product => (
-              <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
-                <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
-                  <img 
-                    src={product.image_urls[0]} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover transition-all"
-                  />
-                  {product.stock === 0 && (
-                    <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
-                  )}
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
-                  {product.gender} • {product.category}
-                </div>
-                <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
-                  {product.name}
-                </h3>
-                <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
-                  <Star className="w-3.5 h-3.5 fill-current" />
-                  <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
-                  <span className="text-gray-400">({product.review_count})</span>
-                </div>
-                <div className="font-semibold text-premium-black mt-auto text-lg">
-                  ₹{parseFloat(product.price).toLocaleString('en-IN')}
-                </div>
-              </Link>
+              <ThreeDTiltCard key={product.id} className="bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+                <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
+                  <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                    <img 
+                      src={product.image_urls[0]} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover transition-all"
+                    />
+                    {product.stock === 0 && (
+                      <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
+                    )}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                    {product.gender} • {product.category}
+                  </div>
+                  <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
+                    <Star className="w-3.5 h-3.5 fill-current" />
+                    <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
+                    <span className="text-gray-400">({product.review_count})</span>
+                  </div>
+                  <div className="font-semibold text-premium-black mt-auto text-lg">
+                    ₹{parseFloat(product.price).toLocaleString('en-IN')}
+                  </div>
+                </Link>
+              </ThreeDTiltCard>
             ))}
           </div>
         )}

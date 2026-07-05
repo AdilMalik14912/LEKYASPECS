@@ -74,3 +74,80 @@ h1, h2, h3, h4, .font-serif {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
+
+/* Premium 3D Perspective & Float Styles */
+.perspective-3d {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@keyframes float3d {
+  0% {
+    transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(197, 160, 40, 0.1);
+  }
+  50% {
+    transform: perspective(1000px) translateY(-12px) rotateX(14deg) rotateY(-8deg);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 10px 25px rgba(197, 160, 40, 0.2);
+  }
+  100% {
+    transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(197, 160, 40, 0.1);
+  }
+}
+
+.animate-float-3d {
+  animation: float3d 6s ease-in-out infinite;
+}
+
+@keyframes float-glasses {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5));
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg) scale(1.03);
+    filter: drop-shadow(0 25px 30px rgba(197, 160, 40, 0.35));
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5));
+  }
+}
+
+.animate-float-glasses {
+  animation: float-glasses 4.5s ease-in-out infinite;
+}
+
+@keyframes slow-rotate-3d {
+  0% {
+    transform: rotate3d(1, 1, 1, 0deg);
+  }
+  100% {
+    transform: rotate3d(1, 1, 1, 360deg);
+  }
+}
+
+.animate-slow-rotate-3d {
+  animation: slow-rotate-3d 25s linear infinite;
+}
+
+.shadow-premium-3d {
+  box-shadow: 
+    0 1px 1px rgba(0,0,0,0.1),
+    0 2px 2px rgba(0,0,0,0.1),
+    0 4px 4px rgba(0,0,0,0.1),
+    0 8px 8px rgba(0,0,0,0.1),
+    0 16px 16px rgba(0,0,0,0.15);
+}
+
+.glass-morphic-3d {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
