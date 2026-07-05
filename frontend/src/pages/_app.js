@@ -555,7 +555,7 @@ export default function App({ Component, pageProps }) {
                     <p>© 2026 Lekya Specs Eyewear. All rights reserved.</p>
                     <div className="flex space-x-6 mt-4 sm:mt-0">
                       <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                      <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                      <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
                       <a href="#" className="hover:text-white transition-colors">Sitemap</a>
                     </div>
                   </div>

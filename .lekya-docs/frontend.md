@@ -117,7 +117,10 @@ Access: `/stylist` — A panel separate from operations where creative directors
 - **Sandbox Preview**: Test mock frame overlays instantly on different face models.
 
 ### 13. 🛡️ Privacy Policy Page ([privacy.js](file:///C:/Users/Admin/Specs/frontend/src/pages/privacy.js))
-- Comprehensive disclosures detailing local browser-side biometric processing (auto-fit parameters never leaving user device), Secure PCI payments processing (via Razorpay), and zero-spam guidelines.
+- Comprehensive disclosures detailing local browser-side biometric processing (auto-fit parameters never leaving user device), browser storage cookies, encryption details, third-party PCI processing, and data deletion controls.
+
+### 14. ⚖️ Terms of Service Page ([terms.js](file:///C:/Users/Admin/Specs/frontend/src/pages/terms.js))
+- Store guidelines, user authentication requirements, custom prescription eyewear specifications, return limits, cancellation guidelines, and loyalty rewards redemption metrics.
 
 ---
 

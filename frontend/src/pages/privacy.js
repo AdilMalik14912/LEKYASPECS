@@ -1,7 +1,7 @@
 const React = require('react');
 const Link = require('next/link').default;
 const Head = require('next/head').default;
-const { ArrowLeft, ShieldCheck, Lock, Eye, FileText, CheckCircle } = require('lucide-react');
+const { ArrowLeft, ShieldCheck, Lock, Eye, FileText, CheckCircle, ScrollText } = require('lucide-react');
 
 export default function PrivacyPolicy() {
   return (
@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
               <span className="text-xs uppercase tracking-widest text-premium-gray font-bold">Lekya Trust Agreement</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl font-bold text-premium-black tracking-tight">
-              Privacy Policy
+              Privacy Policy &amp; Data Disclosures
             </h1>
             <p className="text-xs text-premium-gray font-medium mt-3">
               Last Updated: July 05, 2026
@@ -66,48 +66,71 @@ export default function PrivacyPolicy() {
             <section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">1. Information We Collect</h3>
               <p className="mb-3">
-                Lekya Specs collects only the minimum personal data required to manage your account and fulfill order shipments. This includes:
+                Lekya Specs collects only the minimum personal data required to manage your account, verify your identity, and fulfill order shipments. This data collection process spans three primary categories:
               </p>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong>Account Credentials</strong>: Name, verified email address, phone number, and password hashes created during verification.</li>
-                <li><strong>Order Information</strong>: Shipping address, billing details, items bought, and optional prescription lens details.</li>
-                <li><strong>Style Profiling</strong>: Face shapes (calculated by scanner) to customize eyewear recommendations.</li>
+                <li><strong>Account Credentials</strong>: Name, verified email address, phone number, and encrypted password hashes created during phone/email OTP validation.</li>
+                <li><strong>Transactional Details</strong>: Shipping address coordinates, billing information, purchase history, and custom prescription indices (sphere, cylinder, axis, and pupillary distance).</li>
+                <li><strong>Style Customization</strong>: Face shape identifiers calculated during scanner modules to provide tailored frame model recommendations.</li>
               </ul>
             </section>
 
             <section>
-              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">2. AI Try-On & Biometric Data Privacy</h3>
+              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">2. Biometric Privacy &amp; Live Web Camera Processing</h3>
               <p className="mb-3">
-                Our Virtual Try-On Studio uses the <code className="bg-white border px-1.5 py-0.5 rounded text-xs font-mono">face-api.js</code> framework to auto-align frame overlays onto your facial features.
+                Our Virtual Try-On Studio utilizes browser camera elements and the <code className="bg-white border px-1.5 py-0.5 rounded text-xs font-mono">face-api.js</code> detection model to locate facial coordinates and overlay transparent SVG frame designs.
               </p>
-              <div className="border-l-2 border-premium-accent pl-4 my-4 font-normal text-premium-black italic bg-amber-50/30 py-3 pr-3 rounded-r">
-                📢 <strong>Biometric Privacy Notice:</strong> No video or photo streams are uploaded, saved, or analysed on Lekya Specs servers. All eye alignment calculations and background removal algorithms run entirely client-side inside your browser engine. The only face shape tag stored is saved directly to your secure user profile settings.
+              <div className="border-l-2 border-premium-accent pl-4 my-4 font-normal text-premium-black italic bg-amber-50/30 py-3 pr-3 rounded-r space-y-2">
+                <p>📢 <strong>Biometric Verification Standard:</strong></p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>No camera video feeds or captured photos are uploaded, stored, or processed on Lekya Specs servers.</li>
+                  <li>All landmarks detection and background removal canvas computations run client-side in your active browser instance.</li>
+                  <li>Images are converted to localized URL paths temporarily to render styling frames, and are purged instantly when you reload the window or change pages.</li>
+                </ul>
               </div>
             </section>
 
             <section>
-              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">3. How We Protect Your Data</h3>
-              <p>
-                We use secure JSON Web Tokens (JWT) for user authentication and state protection. Password database storage is encrypted using bcrypt salting. All data transfers between the customer client and the Express.js server utilize TLS/SSL secure protocols.
+              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">3. Cookies &amp; Browser Cache Storage</h3>
+              <p className="mb-3">
+                We use localized browser storage cookies to remember your state and improve page loading performance:
               </p>
-            </section>
-
-            <section>
-              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">4. Third-Party Services</h3>
-              <p className="mb-2">
-                We partner with trusted external systems to power core ecommerce activities:
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Turso DB</strong>: Our serverless SQL database client storing encrypted profile records.</li>
-                <li><strong>Razorpay</strong>: Complete payment gateway handling credit cards and UPI verification.</li>
-                <li><strong>Google SMTP</strong>: Safe delivery of otp verification mails and promotional broadcasts.</li>
+              <ul className="list-disc pl-5 space-y-2">
+                <li><strong>specs_token</strong>: Secure JSON Web Token (JWT) identifying your active authentication session.</li>
+                <li><strong>specs_cart</strong>: Temporary storage of chosen frame models before checkout.</li>
+                <li><strong>specs_wishlist</strong>: Caching products you marked as favorites.</li>
               </ul>
             </section>
 
             <section>
-              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">5. Your Consent & Control Rights</h3>
+              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">4. Security Measures &amp; Data Retention</h3>
+              <p className="mb-3">
+                We employ robust safety parameters to guarantee transaction integrity:
+              </p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Passwords are salted and securely encrypted using bcrypt libraries.</li>
+                <li>API calls require JWT headers to prevent administrative privilege escalations.</li>
+                <li>Customer database records (orders, profiles) are stored on encrypted cloud nodes managed by Turso.</li>
+                <li>We retain transactional information for compliance audit guidelines, but user account records can be wiped upon explicit request.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">5. Third-Party Data Integrations</h3>
+              <p className="mb-2">
+                We do not sell, rent, or lease your profile coordinates to third-party ad networks. We share details only with essential processors to complete store operations:
+              </p>
+              <ul className="list-disc pl-5 space-y-1.5">
+                <li><strong>Razorpay</strong>: Handles debit/credit and UPI processing using encrypted PCI-compliant interfaces.</li>
+                <li><strong>Nodemailer/Google SMTP</strong>: Delivers transactional OTP codes, helpdesk replies, and loyalty updates.</li>
+                <li><strong>Turso DB</strong>: Distributes database storage globally for fast page renders.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h3 className="font-serif text-lg font-bold text-premium-black mb-3">6. Customer Rights &amp; Access Controls</h3>
               <p>
-                You can review, modify, or delete your account records directly from your account page, or request assistance by contacting our customer care department at <a href="mailto:support@lekyaspecs.com" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.com</a>.
+                You hold absolute rights to inspect, update, or purge your profile logs. You can change profile details directly from the Account Dashboard or contact our privacy team at <a href="mailto:support@lekyaspecs.com" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.com</a> to request absolute record deletion.
               </p>
             </section>
 
