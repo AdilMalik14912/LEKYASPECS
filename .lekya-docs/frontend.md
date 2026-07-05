@@ -122,6 +122,9 @@ Access: `/stylist` — A panel separate from operations where creative directors
 ### 14. ⚖️ Terms of Service Page ([terms.js](file:///C:/Users/Admin/Specs/frontend/src/pages/terms.js))
 - Store guidelines, user authentication requirements, custom prescription eyewear specifications, return limits, cancellation guidelines, and loyalty rewards redemption metrics.
 
+### 15. 🗺️ Website Sitemap Directory ([sitemap.js](file:///C:/Users/Admin/Specs/frontend/src/pages/sitemap.js))
+- Visual sitemap index page categorizing ecommerce catalog routes, AI scanners, legal policy links, support forums, and internal administrative dashboard workspaces.
+
 ---
 
 

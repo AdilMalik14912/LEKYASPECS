@@ -556,7 +556,7 @@ export default function App({ Component, pageProps }) {
                     <div className="flex space-x-6 mt-4 sm:mt-0">
                       <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                       <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-                      <a href="#" className="hover:text-white transition-colors">Sitemap</a>
+                      <Link href="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
                     </div>
                   </div>
                 </div>
