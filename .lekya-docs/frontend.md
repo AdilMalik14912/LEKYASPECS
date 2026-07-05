@@ -100,7 +100,24 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | DB Optimizer | See DB latency, table row counts, run VACUUM optimization |
 | Export Data | Download orders or customers as CSV |
 
+### 12. 🎨 Brand Stylist Hub ([stylist.js](file:///C:/Users/Admin/Specs/frontend/src/pages/stylist.js))
+Access: `/stylist` — A panel separate from operations where creative directors/stylists manage content, curation, and visual brand language.
+
+**Modules & Features:**
+- **Lookbook Builder**: Create/manage themed editorial campaigns combining descriptions with selected frames.
+- **Face Shape Advisor**: Link facial categories (oval, round) to recommended frame geometries.
+- **Spotlight Manager**: Feature preferred design frames dynamically on the main shop pages.
+- **Style Tag Editor**: Append descriptive aesthetic keywords to catalog items.
+- **Color Story Board**: Bundle frames into curated color stories (e.g., Summer Neon, Classic Blacks).
+- **Product Photo Hub**: Examine and audit all visual assets and image URLs.
+- **Content Calendar**: Schedule upcoming drops, marketing themes, and channel timelines.
+- **Review Spotlight**: Feature specific customer testimonials directly on details pages.
+- **Comparison Matrix**: Side-by-side spec comparison table for creative analysis.
+- **Brand Voice Checker**: Scan copy for luxury keywords and check for un-premium banned words.
+- **Sandbox Preview**: Test mock frame overlays instantly on different face models.
+
 ---
+
 
 ## 🎨 Design System
 

@@ -216,6 +216,20 @@ const initDb = async () => {
       console.log('Migration: Added phone column to users table.');
     } catch (_) {}
 
+    // Migration: Add style_tags column to products table
+    try {
+      await client.execute("ALTER TABLE products ADD COLUMN style_tags TEXT DEFAULT NULL");
+      console.log('Migration: Added style_tags column to products table.');
+    } catch (_) {}
+
+    // Migration: Add spotlight column to reviews table
+    try {
+      await client.execute("ALTER TABLE reviews ADD COLUMN spotlight INTEGER DEFAULT 0");
+      console.log('Migration: Added spotlight column to reviews table.');
+    } catch (_) {}
+
+
+
     // Migration: Create otps table for phone/email verification codes
     try {
       await client.execute(`CREATE TABLE IF NOT EXISTS otps (

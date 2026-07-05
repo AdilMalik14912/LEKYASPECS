@@ -5,8 +5,9 @@ const Head = require('next/head').default;
 const {
   Upload, RefreshCw, ArrowLeft, Download, Check, Wand2, Eye, ZoomIn, ZoomOut,
   Move, RotateCw, Sparkles, Camera, FlipHorizontal, SplitSquareHorizontal,
-  Sliders, X, Play, Pause, Image, ShoppingBag
+  Sliders, X, Play, Pause, Image as ImageIcon, ShoppingBag
 } = require('lucide-react');
+
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -1064,9 +1065,10 @@ export default function TryOnStudio() {
               {/* ── 1. Choose Face Photo ── */}
               <div className="glass-card" style={{ padding: 22 }}>
                 <div className="section-label">
-                  <Image style={{ width: 12, height: 12 }} />
+                  <ImageIcon style={{ width: 12, height: 12 }} />
                   1. Choose Face Photo
                 </div>
+
 
                 {/* Upload zone */}
                 <label className="upload-zone">

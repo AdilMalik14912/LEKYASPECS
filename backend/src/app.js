@@ -10,6 +10,8 @@ const authController = require('./controllers/authController');
 const productController = require('./controllers/productController');
 const orderController = require('./controllers/orderController');
 const adminController = require('./controllers/adminController');
+const stylistController = require('./controllers/stylistController');
+
 
 // Middlewares
 const { authenticateToken, isAdmin } = require('./middleware/auth');
@@ -248,7 +250,26 @@ app.put('/api/admin/customers/:id/credentials', authenticateToken, isAdmin, admi
 // Order tracking Visual updates
 app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminController.updateOrderTracking);
 
+// --- Brand Stylist Hub APIs ---
+app.get('/api/stylist/products', authenticateToken, stylistController.getProducts);
+app.put('/api/stylist/products/:id/tags', authenticateToken, stylistController.updateProductTags);
+app.get('/api/stylist/lookbook', stylistController.getLookbook);
+app.post('/api/stylist/lookbook', authenticateToken, stylistController.updateLookbook);
+app.get('/api/stylist/calendar', stylistController.getCalendar);
+app.post('/api/stylist/calendar', authenticateToken, stylistController.updateCalendar);
+app.get('/api/stylist/spotlight', stylistController.getSpotlight);
+app.post('/api/stylist/spotlight', authenticateToken, stylistController.updateSpotlight);
+app.get('/api/stylist/color-stories', stylistController.getColorStories);
+app.post('/api/stylist/color-stories', authenticateToken, stylistController.updateColorStories);
+app.get('/api/stylist/advisor', stylistController.getAdvisor);
+app.post('/api/stylist/advisor', authenticateToken, stylistController.updateAdvisor);
+app.get('/api/stylist/reviews', authenticateToken, stylistController.getReviews);
+app.put('/api/stylist/reviews/:id/spotlight', authenticateToken, stylistController.toggleReviewSpotlight);
+app.get('/api/stylist/tone-profile', stylistController.getToneProfile);
+app.post('/api/stylist/tone-profile', authenticateToken, stylistController.updateToneProfile);
+
 // Global Error Handler
+
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err);
   res.status(500).json({ message: 'Internal server error occurred' });

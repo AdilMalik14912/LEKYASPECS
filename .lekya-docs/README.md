@@ -136,6 +136,21 @@ The `API_BASE` auto-detects from `window.location.hostname` at runtime.
 9. **Order Dispatch Notes** — Add tracking/shipping updates per order
 10. **Coupon Validation** — Real-time coupon validator at checkout
 
+### Curation-Specific
+11. **Brand Stylist & Curation Hub** (`/stylist`) — A completely separate panel designed for creative brand directors:
+    - **Lookbook Builder** — Curate collections with titles, custom cover images, and paired frames.
+    - **Face Shape Advisor** — Control recommendation rules (frame shape recommendation map per face type).
+    - **Frame Spotlight Manager** — Pin and promote selected frames to frontpage lists.
+    - **Style Tag Editor** — Label frames with customized style vibes (e.g., Bold, Retro, Minimalist).
+    - **Color Story Board** — Design custom color stories matching seasonal palettes.
+    - **Product Photo Hub** — Audit visual assets and image URLs.
+    - **Content Calendar** — Schedule launch calendars by channel.
+    - **Review Spotlight** — Select and pin customer reviews as testimonials on detail pages.
+    - **Comparison Matrix** — Analyze specs side-by-side.
+    - **Brand Voice Checker** — Grade copy luxury score, checking for un-premium banned keywords.
+    - **Sandbox Preview** — Test frame overlays on face models with vertical/scale adjustment.
+
+
 ---
 
 ## 🛠️ Local Dev Setup
