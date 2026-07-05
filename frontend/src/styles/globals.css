@@ -225,4 +225,68 @@ h1, h2, h3, h4, .font-serif {
   pointer-events: none;
 }
 
+/* Premium 3D Preloader & Route progress indicators */
+@keyframes preloader-spin-3d {
+  0% { transform: rotateY(0deg) rotateX(15deg); }
+  50% { transform: rotateY(180deg) rotateX(-5deg); }
+  100% { transform: rotateY(360deg) rotateX(15deg); }
+}
+
+.animate-preloader-spin-3d {
+  animation: preloader-spin-3d 3.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes gold-shimmer-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-gold-text {
+  background: linear-gradient(90deg, #9d8059 0%, #E2C974 25%, #C5A028 50%, #E2C974 75%, #9d8059 100%);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: gold-shimmer-text 4s linear infinite;
+}
+
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #0A0A0A;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.preloader-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.08) translateY(-20px);
+}
+
+/* Shimmer top route progress bar */
+.top-route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #C5A028, #E2C974, #9d8059);
+  z-index: 999999;
+  transform-origin: left;
+  animation: top-bar-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes top-bar-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
 

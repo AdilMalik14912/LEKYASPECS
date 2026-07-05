@@ -37,7 +37,13 @@ export default function App({ Component, pageProps }) {
   // 5. Header Search State
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 6. Toast State
+  // 6. Preloader and Route transitions State
+  const [preloaderVisible, setPreloaderVisible] = useState(true);
+  const [preloaderFade, setPreloaderFade] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [routeChanging, setRouteChanging] = useState(false);
+
+  // 7. Toast State
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const [toastTimeout, setToastTimeout] = useState(null);
 
@@ -99,6 +105,39 @@ export default function App({ Component, pageProps }) {
     }
     setAuthLoading(false);
   }, []);
+
+  // Preloader progress counter hook
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLoadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setPreloaderFade(true), 250);
+          setTimeout(() => setPreloaderVisible(false), 1050);
+          return 100;
+        }
+        const step = Math.floor(Math.random() * 18) + 6;
+        return Math.min(100, prev + step);
+      });
+    }, 120);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Route transition progress indicator hook
+  useEffect(() => {
+    const handleStart = () => setRouteChanging(true);
+    const handleComplete = () => setRouteChanging(false);
+
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
 
   // Sync Cart to localStorage
   const saveCart = (newCart) => {
@@ -223,6 +262,45 @@ export default function App({ Component, pageProps }) {
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
           <div className="flex flex-col min-h-screen">
+            
+            {/* Top route change loader bar */}
+            {routeChanging && <div className="top-route-progress" />}
+
+            {/* Premium 3D Preloader Overlay */}
+            {preloaderVisible && (
+              <div className={`preloader-overlay ${preloaderFade ? 'fade-out' : ''}`}>
+                <div className="flex flex-col items-center justify-center space-y-8 max-w-sm px-6 text-center">
+                  
+                  {/* Rotating 3D Logo wireframe silhouette */}
+                  <div className="w-24 h-24 flex items-center justify-center perspective-3d">
+                    <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-preloader-spin-3d">
+                      <rect x="2" y="8" width="38" height="26" rx="13" stroke="#C5A028" strokeWidth="4" fill="none"/>
+                      <rect x="60" y="8" width="38" height="26" rx="13" stroke="#C5A028" strokeWidth="4" fill="none"/>
+                      <path d="M40 21 Q50 15 60 21" stroke="#C5A028" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+
+                  {/* Brand name with gold shimmer */}
+                  <h1 className="font-serif text-3xl font-bold tracking-widest uppercase shimmer-gold-text">
+                    LEKYASPECS
+                  </h1>
+
+                  {/* Loading percentage status */}
+                  <div className="w-full bg-white/5 border border-white/10 rounded-full h-1.5 overflow-hidden p-0.5">
+                    <div 
+                      className="bg-gradient-to-r from-premium-accent via-yellow-400 to-premium-accent h-full rounded-full transition-all duration-150"
+                      style={{ width: `${loadProgress}%` }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center text-[10px] text-gray-500 font-mono w-full">
+                    <span className="uppercase tracking-widest">3D Optical Engine</span>
+                    <span>{loadProgress}%</span>
+                  </div>
+
+                </div>
+              </div>
+            )}
             
             {/* --- Premium Navigation Header --- */}
             {!isAdminRoute && (
