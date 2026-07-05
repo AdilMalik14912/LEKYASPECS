@@ -116,6 +116,9 @@ Access: `/stylist` — A panel separate from operations where creative directors
 - **Brand Voice Checker**: Scan copy for luxury keywords and check for un-premium banned words.
 - **Sandbox Preview**: Test mock frame overlays instantly on different face models.
 
+### 13. 🛡️ Privacy Policy Page ([privacy.js](file:///C:/Users/Admin/Specs/frontend/src/pages/privacy.js))
+- Comprehensive disclosures detailing local browser-side biometric processing (auto-fit parameters never leaving user device), Secure PCI payments processing (via Razorpay), and zero-spam guidelines.
+
 ---
 
 
