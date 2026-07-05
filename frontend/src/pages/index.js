@@ -47,6 +47,62 @@ function ThreeDTiltCard({ children, className = '', style = {} }) {
   );
 }
 
+// 3D Scroll-Triggered Reveal Component
+function ScrollReveal3D({ children, className = '' }) {
+  const ref = React.useRef(null);
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal-3d ${isVisible ? 'active' : ''} ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Glow Spotlight wrapper that follows cursor
+function GlowSpotlightCard({ children, className = '', style = {} }) {
+  const cardRef = React.useRef(null);
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      className={`glow-spotlight-card ${className}`}
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   const { user } = useAuth();
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -253,78 +309,106 @@ export default function Home() {
 
       {/* 3. Category Navigation Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-12">
-          Shop by Collection
-        </h2>
+        <ScrollReveal3D>
+          <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-12">
+            Shop by Collection
+          </h2>
+        </ScrollReveal3D>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Eyeglasses */}
-          <div className="relative group overflow-hidden rounded h-[350px] shadow-sm hover-zoom">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
-            <div className="absolute bottom-8 left-8 z-10">
-              <h3 className="text-2xl font-serif font-bold text-white mb-2">Eyeglasses</h3>
-              <p className="text-sm text-gray-300 mb-4">Anti-glare, blue-light blockers, and reading lenses</p>
-              <Link href="/shop?category=Eyeglasses" className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
-                Shop Eyeglasses <ArrowRight className="w-3.5 h-3.5" />
+          <ScrollReveal3D>
+            <ThreeDTiltCard className="relative overflow-hidden rounded h-[350px] shadow-lg border border-premium-border/40">
+              <Link href="/shop?category=Eyeglasses" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
+                <div className="absolute bottom-8 left-8 z-10">
+                  <h3 className="text-2xl font-serif font-bold text-white mb-2">Eyeglasses</h3>
+                  <p className="text-sm text-gray-300 mb-4">Anti-glare, blue-light blockers, and reading lenses</p>
+                  <span className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+                    Shop Eyeglasses <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
               </Link>
-            </div>
-          </div>
+            </ThreeDTiltCard>
+          </ScrollReveal3D>
 
           {/* Sunglasses */}
-          <div className="relative group overflow-hidden rounded h-[350px] shadow-sm hover-zoom">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
-            <div className="absolute bottom-8 left-8 z-10">
-              <h3 className="text-2xl font-serif font-bold text-white mb-2">Sunglasses</h3>
-              <p className="text-sm text-gray-300 mb-4">100% UV polarized fashion shades</p>
-              <Link href="/shop?category=Sunglasses" className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
-                Shop Sunglasses <ArrowRight className="w-3.5 h-3.5" />
+          <ScrollReveal3D>
+            <ThreeDTiltCard className="relative overflow-hidden rounded h-[350px] shadow-lg border border-premium-border/40">
+              <Link href="/shop?category=Sunglasses" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
+                <div className="absolute bottom-8 left-8 z-10">
+                  <h3 className="text-2xl font-serif font-bold text-white mb-2">Sunglasses</h3>
+                  <p className="text-sm text-gray-300 mb-4">100% UV polarized fashion shades</p>
+                  <span className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+                    Shop Sunglasses <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
               </Link>
-            </div>
-          </div>
+            </ThreeDTiltCard>
+          </ScrollReveal3D>
         </div>
 
         {/* Small grids for Men/Women/Kids */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
-          <Link href="/shop?gender=Men" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">MEN</span>
-              <span className="text-xs text-white/70 tracking-widest uppercase">Premium Collection</span>
-            </div>
-          </Link>
+          <ScrollReveal3D>
+            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
+              <Link href="/shop?gender=Men" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">MEN</span>
+                  <span className="text-xs text-white/70 tracking-widest uppercase">Premium Collection</span>
+                </div>
+              </Link>
+            </ThreeDTiltCard>
+          </ScrollReveal3D>
 
-          <Link href="/shop?gender=Women" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">WOMEN</span>
-              <span className="text-xs text-white/70 tracking-widest uppercase">Elegant Frames</span>
-            </div>
-          </Link>
+          <ScrollReveal3D>
+            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
+              <Link href="/shop?gender=Women" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">WOMEN</span>
+                  <span className="text-xs text-white/70 tracking-widest uppercase">Elegant Frames</span>
+                </div>
+              </Link>
+            </ThreeDTiltCard>
+          </ScrollReveal3D>
 
-          <Link href="/shop?gender=Kids" className="relative group overflow-hidden rounded-xl h-[220px] shadow-md block">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">KIDS</span>
-              <span className="text-xs text-white/70 tracking-widest uppercase">Fun & Safe Eyewear</span>
-            </div>
-          </Link>
+          <ScrollReveal3D>
+            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
+              <Link href="/shop?gender=Kids" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">KIDS</span>
+                  <span className="text-xs text-white/70 tracking-widest uppercase">Fun & Safe Eyewear</span>
+                </div>
+              </Link>
+            </ThreeDTiltCard>
+          </ScrollReveal3D>
         </div>
       </section>
 
 
       {/* 3.5 Five Premium Tools Section */}
-      <section className="bg-white border-y border-premium-border py-16">
+      <section className="bg-white border-y border-premium-border py-16 relative overflow-hidden">
+        {/* Subtle background moving shapes */}
+        <div className="absolute top-10 right-10 w-24 h-24 bg-premium-accent/5 rounded-full blur-xl animate-float-slow float-delay-1"></div>
+        <div className="absolute bottom-10 left-10 w-32 h-32 bg-premium-accent/5 rounded-full blur-xl animate-float-slow float-delay-2"></div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <ScrollReveal3D className="text-center mb-10">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black mb-2">
               Powerful Tools, Just For You
             </h2>
             <p className="text-sm text-premium-gray font-light">Everything you need to find the perfect pair — smarter, faster, better.</p>
-          </div>
+          </ScrollReveal3D>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { href: '/face-shape',    emoji: '🤳', title: 'Face Shape AI', desc: '68-point neural mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
@@ -336,23 +420,25 @@ export default function Home() {
               { href: '/lens-guide',    emoji: '👁️', title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses', badge: null },
               { href: '/lookbook',      emoji: '📸', title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore', badge: null },
             ].map(({ href, emoji, title, desc, label, badge }) => (
-              <Link
-                key={href}
-                href={href}
-                className="group relative border border-premium-border rounded-lg p-5 text-center hover:border-premium-black hover:shadow-md transition-all bg-premium-light hover:bg-white"
-              >
-                {badge && (
-                  <span className="absolute -top-2 -right-2 bg-premium-accent text-premium-black text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full">
-                    {badge}
-                  </span>
-                )}
-                <div className="text-4xl mb-3">{emoji}</div>
-                <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
-                <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-premium-accent group-hover:text-premium-black transition-colors">
-                  {label} <ArrowRight className="w-3 h-3" />
-                </span>
-              </Link>
+              <ScrollReveal3D key={href}>
+                <ThreeDTiltCard className="h-full">
+                  <GlowSpotlightCard className="group relative border border-premium-border rounded-lg p-5 text-center transition-all bg-premium-light hover:bg-white hover:border-premium-black hover:shadow-md h-full flex flex-col justify-between">
+                    <Link href={href} className="block w-full h-full" style={{ textDecoration: 'none' }}>
+                      {badge && (
+                        <span className="absolute -top-2 -right-2 bg-premium-accent text-premium-black text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full z-20">
+                          {badge}
+                        </span>
+                      )}
+                      <div className="text-4xl mb-3 animate-float-fast float-delay-1">{emoji}</div>
+                      <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
+                      <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-premium-accent group-hover:text-premium-black transition-colors">
+                        {label} <ArrowRight className="w-3 h-3" />
+                      </span>
+                    </Link>
+                  </GlowSpotlightCard>
+                </ThreeDTiltCard>
+              </ScrollReveal3D>
             ))}
           </div>
         </div>
@@ -549,76 +635,90 @@ export default function Home() {
                   ₹{parseFloat(product.price).toLocaleString('en-IN')}
                 </div>
               </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 6. Testimonials Section */}
+            ))}      {/* 6. Testimonials Section */}
       <section className="bg-white py-16 sm:py-24 border-t border-premium-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-4">
-            Loved by Visionaries
-          </h2>
-          <p className="text-center text-premium-gray text-sm font-light max-w-md mx-auto mb-16">
-            Hear from our community who have upgraded their eyewear experience.
-          </p>
+          <ScrollReveal3D className="text-center">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-4">
+              Loved by Visionaries
+            </h2>
+            <p className="text-center text-premium-gray text-sm font-light max-w-md mx-auto mb-16">
+              Hear from our community who have upgraded their eyewear experience.
+            </p>
+          </ScrollReveal3D>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex text-premium-accent mb-4">
-                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                  <div>
+                    <div className="flex text-premium-accent mb-4">
+                      {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                    </div>
+                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                      "I was skeptic about the face-shape tool but it suggested Square frames for my round face. I ordered the Classic Onyx and it looks unbelievably sharp! The lens quality is superior to my previous designer spectacles."
+                    </p>
+                  </div>
+                  <div className="border-t border-premium-border pt-4">
+                    <p className="font-bold text-sm text-premium-black">Amit Sharma</p>
+                    <p className="text-xs text-premium-gray">Mumbai, India</p>
+                  </div>
                 </div>
-                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
-                  "I was skeptic about the face-shape tool but it suggested Square frames for my round face. I ordered the Classic Onyx and it looks unbelievably sharp! The lens quality is superior to my previous designer spectacles."
-                </p>
-              </div>
-              <div className="border-t border-premium-border pt-4">
-                <p className="font-bold text-sm text-premium-black">Amit Sharma</p>
-                <p className="text-xs text-premium-gray">Mumbai, India</p>
-              </div>
-            </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
 
-            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex text-premium-accent mb-4">
-                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                  <div>
+                    <div className="flex text-premium-accent mb-4">
+                      {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                    </div>
+                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                      "Absolutely love the minimal gold aviator shades! The polarization is excellent for driving in bright sun. Delivery took just 2 days. The box packaging feels extremely luxurious like a premium design brand."
+                    </p>
+                  </div>
+                  <div className="border-t border-premium-border pt-4">
+                    <p className="font-bold text-sm text-premium-black">Priya Patel</p>
+                    <p className="text-xs text-premium-gray">Bangalore, India</p>
+                  </div>
                 </div>
-                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
-                  "Absolutely love the minimal gold aviator shades! The polarization is excellent for driving in bright sun. Delivery took just 2 days. The box packaging feels extremely luxurious like a premium design brand."
-                </p>
-              </div>
-              <div className="border-t border-premium-border pt-4">
-                <p className="font-bold text-sm text-premium-black">Priya Patel</p>
-                <p className="text-xs text-premium-gray">Bangalore, India</p>
-              </div>
-            </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
 
-            <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex text-premium-accent mb-4">
-                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                  <div>
+                    <div className="flex text-premium-accent mb-4">
+                      {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                    </div>
+                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                      "The Blue-light blockers for my daughter are indestructible. She drops them constantly, but the flexible silicon frames survive everything. Extremely happy with Lekya Specs service!"
+                    </p>
+                  </div>
+                  <div className="border-t border-premium-border pt-4">
+                    <p className="font-bold text-sm text-premium-black">Dr. Rajesh Kumar</p>
+                    <p className="text-xs text-premium-gray">New Delhi, India</p>
+                  </div>
                 </div>
-                <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
-                  "The Blue-light blockers for my daughter are indestructible. She drops them constantly, but the flexible silicon frames survive everything. Extremely happy with Lekya Specs service!"
-                </p>
-              </div>
-              <div className="border-t border-premium-border pt-4">
-                <p className="font-bold text-sm text-premium-black">Dr. Rajesh Kumar</p>
-                <p className="text-xs text-premium-gray">New Delhi, India</p>
-              </div>
-            </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
           </div>
         </div>
       </section>
 
       {/* 6. Why Choose Us Trust Badges */}
-      <section className="bg-premium-black py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white text-center mb-12">
-            Why <span className="text-premium-accent">Lekya Specs</span>?
-          </h2>
+      <section className="bg-premium-black py-16 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ background: 'radial-gradient(circle at bottom left, #C5A028 0%, transparent 60%)' }} />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <ScrollReveal3D>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white text-center mb-12">
+              Why <span className="text-premium-accent">Lekya Specs</span>?
+            </h2>
+          </ScrollReveal3D>
+          
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: Gem, title: 'Premium Materials', desc: 'Handcrafted acetate & titanium frames tested for durability' },
@@ -626,13 +726,19 @@ export default function Home() {
               { icon: Truck, title: 'Free Express Delivery', desc: 'Pan-India free shipping on all orders, no minimum required' },
               { icon: Headphones, title: '24/7 Support', desc: 'Dedicated eyewear experts available via chat, call, and email' },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-white/5 border border-white/10 rounded p-6 text-center hover:bg-white/10 hover:border-premium-accent/40 transition-all">
-                <div className="w-12 h-12 bg-premium-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-6 h-6 text-premium-accent" />
-                </div>
-                <h3 className="font-bold text-white text-sm mb-2">{title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{desc}</p>
-              </div>
+              <ScrollReveal3D key={title}>
+                <ThreeDTiltCard className="h-full">
+                  <div className="bg-white/5 border border-white/10 rounded p-6 text-center hover:bg-white/10 hover:border-premium-accent/40 transition-all h-full flex flex-col justify-between">
+                    <div>
+                      <div className="w-12 h-12 bg-premium-accent/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-float-slow">
+                        <Icon className="w-6 h-6 text-premium-accent" />
+                      </div>
+                      <h3 className="font-bold text-white text-sm mb-2">{title}</h3>
+                    </div>
+                    <p className="text-gray-400 text-xs leading-relaxed mt-2">{desc}</p>
+                  </div>
+                </ThreeDTiltCard>
+              </ScrollReveal3D>
             ))}
           </div>
         </div>

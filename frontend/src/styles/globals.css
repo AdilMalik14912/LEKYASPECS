@@ -151,3 +151,78 @@ h1, h2, h3, h4, .font-serif {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* 3D Scroll Reveal Animations */
+.reveal-3d {
+  opacity: 0;
+  transform: perspective(1000px) rotateX(15deg) translateY(50px) scale(0.94);
+  transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+.reveal-3d.active {
+  opacity: 1;
+  transform: perspective(1000px) rotateX(0deg) translateY(0px) scale(1);
+}
+
+/* Float Delay Helpers for Multi-Floating backgrounds */
+@keyframes floating-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes floating-fast {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-8px) rotate(-10deg) scale(1.05); }
+}
+
+.animate-float-slow {
+  animation: floating-slow 8s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: floating-fast 4s ease-in-out infinite;
+}
+
+.float-delay-1 {
+  animation-delay: 1.5s;
+}
+
+.float-delay-2 {
+  animation-delay: 3s;
+}
+
+/* 3D button hover dynamics */
+.btn-3d {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(197, 160, 40, 0.25);
+}
+
+.btn-3d:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Spotlight dynamic border/glow layers */
+.glow-spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(197, 160, 40, 0.06), transparent 40%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+
