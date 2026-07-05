@@ -6,7 +6,7 @@ const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -3237,7 +3237,7 @@ export default function Admin() {
                       onClick={() => setIsEditingCredentials(true)}
                       className="w-full text-center border border-premium-accent hover:bg-premium-accent hover:text-premium-black text-premium-accent font-semibold text-xs tracking-wider uppercase py-2.5 rounded transition-all mt-2 flex items-center justify-center gap-1.5"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit className="w-3.5 h-3.5" />
                       Edit Credentials &amp; Profile
                     </button>
                   </div>
