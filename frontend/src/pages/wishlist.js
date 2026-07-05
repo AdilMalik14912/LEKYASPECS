@@ -11,7 +11,7 @@ export default function Wishlist() {
     return (
       <div className="bg-premium-light min-h-screen py-16 sm:py-24 text-center">
         <div className="max-w-md mx-auto px-4">
-          <Heart className="w-16 h-16 text-premium-accent mx-auto mb-4 animate-pulse-subtle" />
+          <Heart className="w-20 h-20 text-red-400 mx-auto mb-4 animate-heartbeat" fill="currentColor" />
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black mb-2">Your Wishlist is Empty</h2>
           <p className="text-sm text-premium-gray mb-8">
             Keep track of the eyewear frames you love! Tap the heart icon on any frame in our shop, and they will appear here.
@@ -29,7 +29,8 @@ export default function Wishlist() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4">
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black text-center sm:text-left">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black text-center sm:text-left flex items-center gap-3">
+            <Heart className="w-8 h-8 text-red-400 animate-heartbeat flex-shrink-0" fill="currentColor" />
             My Saved Frames
           </h1>
           <button
@@ -44,8 +45,8 @@ export default function Wishlist() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {wishlist.map(product => (
-            <div key={product.id} className="relative group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+          {wishlist.map((product, idx) => (
+            <div key={product.id} className="stagger-item relative group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col" style={{ animationDelay: `${idx * 0.08}s` }}>
               
               {/* Remove button */}
               <button 

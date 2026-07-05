@@ -1,9 +1,26 @@
 const React = require('react');
+const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { ArrowLeft, Landmark, Scale, FileText, ClipboardList, RefreshCw, Star } = require('lucide-react');
 
+function useSectionHighlight() {
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const sections = containerRef.current.querySelectorAll('[data-policy-section]');
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.target.classList.toggle('in-view', e.isIntersecting)),
+      { threshold: 0.2, rootMargin: '-60px 0px' }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
+  return containerRef;
+}
+
 export default function TermsOfService() {
+  const containerRef = useSectionHighlight();
   return (
     <>
       <Head>
@@ -61,23 +78,23 @@ export default function TermsOfService() {
           </div>
 
           {/* Detailed sections */}
-          <div className="space-y-10 text-sm leading-relaxed text-premium-gray font-light">
+          <div ref={containerRef} className="space-y-10 text-sm leading-relaxed text-premium-gray font-light">
             
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">1. Acceptance of Terms</h3>
               <p>
                 By creating an account, browsing our eyewear catalog, or completing purchases at Lekya Specs, you agree to be bound by these Terms of Service. If you do not accept these rules, please discontinue use.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">2. Account Registration & Verifications</h3>
               <p>
                 To complete orders or join the Specs Rewards Club, you must verify your account using our one-time OTP codes sent via email or SMS. You are responsible for safeguarding your session authentication tokens.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">3. Prescription Eyewear Customization</h3>
               <p className="mb-2">
                 Lekya Specs crafts high-quality prescription lenses tailored strictly to parameters inputted during purchase (sphere, cylinder, axis, index index, coatings). 
@@ -88,14 +105,14 @@ export default function TermsOfService() {
               </ul>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">4. Pricing, Payments & Razorpay Transaction Rules</h3>
               <p>
                 All pricing listed on the storefront is in Indian Rupees (INR) and inclusive of taxes where indicated. Payments are processed securely via Razorpay PCI-compliant gateways. We authorize payments at checkout, and orders are confirmed once payment captures successfully.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">5. Delivery, Dispatch and Logistics Timelines</h3>
               <p className="mb-2">
                 We strive to fulfill and dispatch frames swiftly. The following timelines apply:
@@ -107,7 +124,7 @@ export default function TermsOfService() {
               </ul>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">6. Returns, Replacements & Refund Policy</h3>
               <p className="mb-2">
                 Your satisfaction is paramount. Our return terms are structured as follows:
@@ -118,28 +135,28 @@ export default function TermsOfService() {
               </ul>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">7. Specs Rewards Club & Referral Rules</h3>
               <p>
                 Loyalty points are granted upon order confirmation and vest following order dispatch. Points can be redeemed for promotional discounts up to 30% of total cart amounts. Exploiting referral verification pipelines (e.g. self-referral checks) will result in immediate termination of points and account suspensions.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">8. AI Studio webcam consent</h3>
               <p>
                 Use of the Virtual Try-On Studio requires browser camera permissions. Webcam video frames are processed strictly client-side to overlay SVG eyewear shapes. No image records are saved globally or on servers unless you explicitly click the "Download PNG" button to export a try-on file.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">9. Intellectual Property & Brand Rights</h3>
               <p>
                 Lekya Specs, including its typography patterns, custom interactive try-on modules, lookbooks, design shapes, and stylesheets, remains the exclusive property of Lekya Specs. Unauthorized scraping or distribution is prohibited.
               </p>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">10. Contact Information</h3>
               <p>
                 For questions regarding prescription compliance, shipping delays, or system policies, please open a contact query or email us at <a href="mailto:support@lekyaspecs.com" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.com</a>.

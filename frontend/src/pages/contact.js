@@ -1,5 +1,5 @@
 const React = require('react');
-const { useState } = React;
+const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
 const { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare, Instagram, Twitter } = require('lucide-react');
@@ -7,11 +7,25 @@ const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
 
+const CONTACT_HEADING = 'We\'d Love to Hear From You';
+
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [typedText, setTypedText] = useState('');
+
+  // Typewriter effect on mount
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setTypedText(CONTACT_HEADING.slice(0, i));
+      if (i >= CONTACT_HEADING.length) clearInterval(interval);
+    }, 55);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -48,7 +62,9 @@ export default function ContactPage() {
       <div className="bg-premium-black pt-32 pb-16 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(ellipse at center, #C5A028 0%, transparent 70%)' }} />
         <span className="text-[10px] uppercase font-bold text-premium-accent tracking-widest mb-3 block">Get In Touch</span>
-        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-4">Contact Us</h1>
+        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-4">
+          {typedText}<span className="typewriter-cursor text-premium-accent" style={{ opacity: typedText.length < CONTACT_HEADING.length ? 1 : 0 }} />
+        </h1>
         <p className="text-gray-400 max-w-lg mx-auto text-sm leading-relaxed">
           Have a question about frames, lenses, or your order? Our team is ready to help.
         </p>

@@ -253,7 +253,7 @@ export default function Home() {
         ))}
 
         {/* Main content grid */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12 lg:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             {/* ── Left Copy ── */}
@@ -311,8 +311,9 @@ export default function Home() {
 
             {/* ── Right: Immersive 3D Showcase ── */}
             <div
-              className="relative flex items-center justify-center"
+              className="relative flex items-center justify-center overflow-hidden"
               style={{
+                minHeight: 420,
                 transform: `perspective(1200px) rotateY(${mousePos.x * -8}deg) rotateX(${mousePos.y * 5}deg)`,
                 transition: 'transform 0.12s ease-out',
               }}
@@ -321,36 +322,36 @@ export default function Home() {
               <div
                 className="absolute animate-orbit"
                 style={{
-                  width: 480, height: 480,
+                  width: 360, height: 360,
                   border: '1px solid rgba(197,160,40,0.08)',
                   borderRadius: '50%',
-                  borderTopColor: 'rgba(197,160,40,0.25)',
+                  borderTopColor: 'rgba(197,160,40,0.3)',
                 }}
               />
               {/* Outer orbit ring 2 */}
               <div
                 className="absolute animate-orbit-rev"
                 style={{
-                  width: 380, height: 380,
-                  border: '1px dashed rgba(197,160,40,0.1)',
+                  width: 280, height: 280,
+                  border: '1px dashed rgba(197,160,40,0.12)',
                   borderRadius: '50%',
-                  borderBottomColor: 'rgba(197,160,40,0.2)',
+                  borderBottomColor: 'rgba(197,160,40,0.25)',
                 }}
               />
 
               {/* Orbit dot markers */}
-              <div className="absolute animate-orbit" style={{ width: 480, height: 480 }}>
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-premium-accent/80 shadow-[0_0_12px_4px_rgba(197,160,40,0.6)]" />
+              <div className="absolute animate-orbit" style={{ width: 360, height: 360 }}>
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-premium-accent/80 shadow-[0_0_10px_3px_rgba(197,160,40,0.6)]" />
               </div>
-              <div className="absolute animate-orbit-rev" style={{ width: 380, height: 380, animationDelay: '-6s' }}>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-premium-accent/60 shadow-[0_0_8px_3px_rgba(197,160,40,0.5)]" />
+              <div className="absolute animate-orbit-rev" style={{ width: 280, height: 280, animationDelay: '-6s' }}>
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-premium-accent/60 shadow-[0_0_8px_2px_rgba(197,160,40,0.5)]" />
               </div>
 
               {/* Central showcase card */}
               <div
                 className="relative z-10 glass-morphic-3d rounded-3xl border border-white/8 shadow-premium-3d overflow-hidden"
                 style={{
-                  width: 340, height: 420,
+                  width: 300, height: 370,
                   background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(197,160,40,0.03) 50%, rgba(0,0,0,0.3) 100%)',
                 }}
               >

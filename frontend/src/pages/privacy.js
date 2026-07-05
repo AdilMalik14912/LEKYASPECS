@@ -1,9 +1,36 @@
 const React = require('react');
+const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { ArrowLeft, ShieldCheck, Lock, Eye, FileText, CheckCircle, ScrollText } = require('lucide-react');
 
+// Hook: highlights policy sections as they scroll into view
+function useSectionHighlight() {
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const sections = containerRef.current.querySelectorAll('section[data-policy-section]');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+          } else {
+            entry.target.classList.remove('in-view');
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: '-60px 0px' }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
+  return containerRef;
+}
+
 export default function PrivacyPolicy() {
+  const containerRef = useSectionHighlight();
+
   return (
     <>
       <Head>
@@ -61,9 +88,9 @@ export default function PrivacyPolicy() {
           </div>
 
           {/* Text body content */}
-          <div className="space-y-10 text-sm leading-relaxed text-premium-gray font-light">
+          <div ref={containerRef} className="space-y-10 text-sm leading-relaxed text-premium-gray font-light">
             
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">1. Information We Collect</h3>
               <p className="mb-3">
                 Lekya Specs collects only the minimum personal data required to manage your account, verify your identity, and fulfill order shipments. This data collection process spans three primary categories:
@@ -75,7 +102,7 @@ export default function PrivacyPolicy() {
               </ul>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">2. Biometric Privacy &amp; Live Web Camera Processing</h3>
               <p className="mb-3">
                 Our Virtual Try-On Studio utilizes browser camera elements and the <code className="bg-white border px-1.5 py-0.5 rounded text-xs font-mono">face-api.js</code> detection model to locate facial coordinates and overlay transparent SVG frame designs.
@@ -90,7 +117,7 @@ export default function PrivacyPolicy() {
               </div>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">3. Cookies &amp; Browser Cache Storage</h3>
               <p className="mb-3">
                 We use localized browser storage cookies to remember your state and improve page loading performance:
@@ -102,7 +129,7 @@ export default function PrivacyPolicy() {
               </ul>
             </section>
 
-            <section>
+            <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">4. Security Measures &amp; Data Retention</h3>
               <p className="mb-3">
                 We employ robust safety parameters to guarantee transaction integrity:

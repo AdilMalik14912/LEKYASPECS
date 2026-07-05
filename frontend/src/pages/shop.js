@@ -387,11 +387,12 @@ export default function Shop() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {products.map(product => (
+                {products.map((product, idx) => (
                   <Link 
                     key={product.id} 
                     href={`/product/${product.id}`}
-                    className="group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col"
+                    className="stagger-item group bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col"
+                    style={{ animationDelay: `${Math.min(idx * 0.07, 0.7)}s` }}
                   >
                     <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center group/image">
                       <img 
@@ -447,6 +448,7 @@ export default function Shop() {
               </div>
             )}
           </div>
+
 
         </div> {/* Closes grid grid-cols-1 lg:grid-cols-4 gap-8 */}
 

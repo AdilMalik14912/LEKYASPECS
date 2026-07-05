@@ -1,5 +1,5 @@
 const React = require('react');
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
@@ -8,6 +8,30 @@ const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, Refr
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
+
+// Count-up hook: animates a number from 0 to target over duration ms
+function useCountUp(target, duration = 1200) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (target <= 0 || started.current) return;
+    started.current = true;
+    const steps = 40;
+    const step = target / steps;
+    let current = 0;
+    const interval = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(interval);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    return () => clearInterval(interval);
+  }, [target, duration]);
+  return count;
+}
 
 export default function Account() {
   const { user, token, login, logout, updateProfile } = useAuth();
@@ -420,12 +444,14 @@ export default function Account() {
   }
 
   // --- RENDERING: Logged In (Dashboard) ---
+  const loyaltyCount = useCountUp(user ? (user.loyalty_points || 0) : 0, 1500);
+
   return (
     <div className="bg-premium-light min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Profile overview bar */}
-        <div className="bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+        <div className="stat-card-enter bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-premium-accent/20 border-2 border-premium-accent flex items-center justify-center shrink-0">
               <User className="w-8 h-8 text-premium-accent" />
@@ -528,7 +554,7 @@ export default function Account() {
               <div>
                 <div className="flex justify-between text-xs font-semibold mb-1">
                   <span>Reward Balance</span>
-                  <span className="text-premium-accent font-bold font-mono">{user.loyalty_points || 0} pts</span>
+                  <span className="text-premium-accent font-bold font-mono">{loyaltyCount} pts</span>
                 </div>
                 {/* Progress bar towards next reward milestone */}
                 <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
