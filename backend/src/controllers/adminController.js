@@ -809,6 +809,58 @@ const updateOrderTracking = async (req, res) => {
   }
 };
 
+// --- GET ACTIVE/ONLINE SESSIONS ---
+const getActiveSessions = async (req, res) => {
+  try {
+    // Online within 5 minutes
+    const onlineUsersRes = await db.query(
+      `SELECT COUNT(DISTINCT user_id) as online_users FROM active_sessions 
+       WHERE last_active_at >= datetime('now', '-5 minutes')`
+    );
+
+    // All active sessions (can include multiple tabs/devices for 1 user)
+    const activeSessionsRes = await db.query(
+      `SELECT COUNT(*) as active_sessions FROM active_sessions`
+    );
+
+    // Group active sessions by user to show multi-login counts
+    const sessionsListRes = await db.query(`
+      SELECT 
+        u.name as name,
+        COALESCE(s.email, u.email) as email,
+        COALESCE(s.phone, u.phone) as phone,
+        COUNT(*) as session_count,
+        MAX(s.last_active_at) as last_active_at,
+        GROUP_CONCAT(s.ip_address) as ip_addresses,
+        GROUP_CONCAT(s.user_agent) as user_agents
+      FROM active_sessions s
+      LEFT JOIN users u ON s.user_id = u.id
+      GROUP BY s.user_id, s.email, s.phone
+      ORDER BY last_active_at DESC
+    `);
+
+    // Complete list of raw sessions for detail viewing
+    const rawSessionsRes = await db.query(`
+      SELECT s.*, u.name as name 
+      FROM active_sessions s
+      LEFT JOIN users u ON s.user_id = u.id
+      ORDER BY s.last_active_at DESC
+    `);
+
+    res.json({
+      metrics: {
+        online_users: onlineUsersRes.rows[0]?.online_users || 0,
+        active_sessions: activeSessionsRes.rows[0]?.active_sessions || 0
+      },
+      grouped_sessions: sessionsListRes.rows,
+      raw_sessions: rawSessionsRes.rows
+    });
+  } catch (err) {
+    console.error('Get active sessions error:', err);
+    res.status(500).json({ message: 'Server error retrieving active sessions' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminOrders,
@@ -836,5 +888,7 @@ module.exports = {
   replyContactMessage,
   getCustomerDetail,
   updateCustomerCredentials,
-  updateOrderTracking
+  updateOrderTracking,
+  getActiveSessions
 };
+

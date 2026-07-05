@@ -250,6 +250,10 @@ app.put('/api/admin/customers/:id/credentials', authenticateToken, isAdmin, admi
 // Order tracking Visual updates
 app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminController.updateOrderTracking);
 
+// Real-time Active Sessions list
+app.get('/api/admin/active-sessions', authenticateToken, isAdmin, adminController.getActiveSessions);
+
+
 // --- Brand Stylist Hub APIs ---
 app.get('/api/stylist/products', authenticateToken, stylistController.getProducts);
 app.put('/api/stylist/products/:id/tags', authenticateToken, stylistController.updateProductTags);

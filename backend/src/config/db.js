@@ -228,6 +228,23 @@ const initDb = async () => {
       console.log('Migration: Added spotlight column to reviews table.');
     } catch (_) {}
 
+    // Migration: Create active_sessions table
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS active_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        email TEXT,
+        phone TEXT,
+        session_key TEXT UNIQUE NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        last_active_at TEXT DEFAULT (datetime('now')),
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: active_sessions table ready.');
+    } catch (_) {}
+
+
 
 
     // Migration: Create otps table for phone/email verification codes

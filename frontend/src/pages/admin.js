@@ -670,6 +670,11 @@ export default function Admin() {
   const [dbHealthLoading, setDbHealthLoading] = useState(true);
   const [optimizingDb, setOptimizingDb] = useState(false);
 
+  // Live session tracker state
+  const [activeSessionsData, setActiveSessionsData] = useState(null);
+  const [activeSessionsLoading, setActiveSessionsLoading] = useState(true);
+
+
   // 10 new features: Inspect customer profile state
   const [inspectedCustomer, setInspectedCustomer] = useState(null);
   const [inspectedCustomerLoading, setInspectedCustomerLoading] = useState(false);
@@ -788,6 +793,14 @@ export default function Admin() {
       })
         .then(res => res.json())
         .then(data => { setDbHealth(data); setDbHealthLoading(false); })
+        .catch(err => console.error(err));
+    } else if (activeTab === 'sessions') {
+      setActiveSessionsLoading(true);
+      fetch(`${API_BASE}/api/admin/active-sessions`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setActiveSessionsData(data); setActiveSessionsLoading(false); })
         .catch(err => console.error(err));
     }
   }, [activeTab, token, user]);
@@ -1422,6 +1435,23 @@ export default function Admin() {
           >
             <Sliders className="w-4 h-4" /> Store Customizer (CMS)
           </button>
+
+          <button
+            onClick={() => setActiveTab('sessions')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'sessions' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Users className="w-4 h-4" /> Live User Monitor
+          </button>
+
+          <Link
+            href="/stylist"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-premium-accent hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
+            style={{ textDecoration: 'none' }}
+          >
+            <Sparkles className="w-4 h-4" /> Brand Stylist Hub 🎨
+          </Link>
         </nav>
 
         <div className="border-t border-gray-800 pt-6 mt-10 flex items-center gap-2 text-[10px] text-premium-accent">
@@ -2614,6 +2644,123 @@ export default function Admin() {
               </div>
             ) : (
               <p className="text-xs text-red-600 font-semibold">Failed to fetch database health records.</p>
+            )}
+          </div>
+        )}
+
+        {/* --- TAB 12: REALTIME ONLINE USERS & ACTIVE SESSIONS MONITOR --- */}
+        {activeTab === 'sessions' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              Real-Time Active Sessions Monitor
+            </h2>
+            <p className="text-xs text-premium-gray font-light mb-8">
+              Track live users currently logged in. Identifies multiple parallel logins from the same user account across different devices or browser tabs.
+            </p>
+
+            {activeSessionsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : activeSessionsData ? (
+              <div className="space-y-6">
+                
+                {/* Metrics boxes */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
+                    <span className="block text-[10px] uppercase font-bold text-premium-gray tracking-wider">Online Users</span>
+                    <span className="text-3xl font-extrabold text-green-600 block mt-1">{activeSessionsData.metrics.online_users} Users</span>
+                    <span className="text-xs text-premium-gray block font-medium mt-0.5">Active in the last 5 minutes</span>
+                  </div>
+
+                  <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
+                    <span className="block text-[10px] uppercase font-bold text-premium-gray tracking-wider">Total Active Sessions</span>
+                    <span className="text-3xl font-extrabold text-premium-black block mt-1 font-mono">{activeSessionsData.metrics.active_sessions} Sessions</span>
+                    <span className="text-xs text-premium-gray block font-medium mt-0.5">Open browser tabs and client devices</span>
+                  </div>
+                </div>
+
+                {/* Grouped sessions */}
+                <div className="bg-white border border-premium-border rounded-lg shadow-sm overflow-hidden">
+                  <div className="bg-premium-light border-b border-premium-border px-5 py-3.5 flex justify-between">
+                    <span className="text-xs uppercase font-bold text-premium-dark tracking-wider">Active Logged-In User Accounts</span>
+                    <span className="text-xs font-semibold text-premium-accent">Session Summary</span>
+                  </div>
+
+                  {activeSessionsData.grouped_sessions.length === 0 ? (
+                    <div className="p-10 text-center text-xs text-premium-gray">No active user sessions recorded in database.</div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-premium-border text-left">
+                        <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                          <tr>
+                            <th className="px-6 py-4">Customer Name</th>
+                            <th className="px-6 py-4">Credentials (Email / Phone)</th>
+                            <th className="px-6 py-4 text-center">Active Sessions</th>
+                            <th className="px-6 py-4">Last Activity</th>
+                            <th className="px-6 py-4">IP Address(es)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                          {activeSessionsData.grouped_sessions.map((sess, i) => {
+                            const isMulti = sess.session_count >= 2;
+                            return (
+                              <tr key={i} className={`hover:bg-premium-light/50 transition-colors ${isMulti ? 'bg-amber-50/50' : ''}`}>
+                                <td className="px-6 py-4">
+                                  <span className="font-bold text-premium-black">{sess.name || 'Anonymous User'}</span>
+                                  {isMulti && (
+                                    <span className="block text-[8px] uppercase tracking-widest font-black bg-amber-100 text-amber-700 w-fit px-1.5 py-0.5 rounded mt-1">
+                                      ⚠️ MULTI-SESSION ({sess.session_count} Open Tabs)
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 font-mono text-xs">
+                                  <div className="text-premium-black">{sess.email}</div>
+                                  {sess.phone && <div className="text-premium-gray text-[10px] mt-0.5">{sess.phone}</div>}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${isMulti ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
+                                    {sess.session_count}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-xs text-premium-gray font-mono">
+                                  {new Date(sess.last_active_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </td>
+                                <td className="px-6 py-4 text-xs text-premium-gray font-mono max-w-[200px] overflow-hidden text-ellipsis">
+                                  {sess.ip_addresses}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Raw Sessions list for device audit */}
+                <div className="bg-white border border-premium-border rounded-lg shadow-sm overflow-hidden">
+                  <div className="bg-premium-light border-b border-premium-border px-5 py-3.5 flex justify-between">
+                    <span className="text-xs uppercase font-bold text-premium-dark tracking-wider">Device & Browser Audit Logs</span>
+                    <span className="text-xs font-semibold text-premium-accent">Raw Sessions ({activeSessionsData.raw_sessions.length})</span>
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto divide-y divide-premium-border">
+                    {activeSessionsData.raw_sessions.map((raw, i) => (
+                      <div key={i} className="p-4 hover:bg-premium-light/50 transition-colors flex justify-between items-center text-xs">
+                        <div>
+                          <div className="font-bold text-premium-dark">{raw.name || 'Anonymous User'} <span className="font-mono font-normal text-premium-gray">({raw.email || raw.phone})</span></div>
+                          <div className="text-[10px] text-premium-gray mt-1 font-mono font-medium max-w-[500px] overflow-hidden text-ellipsis">{raw.user_agent}</div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-bold text-premium-accent block font-mono">IP: {raw.ip_address}</span>
+                          <span className="text-[9px] text-gray-400 block mt-0.5">Last active: {new Date(raw.last_active_at).toLocaleTimeString('en-IN')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            ) : (
+              <p className="text-xs text-red-600 font-semibold">Failed to fetch active session records.</p>
             )}
           </div>
         )}

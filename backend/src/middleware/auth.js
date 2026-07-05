@@ -14,7 +14,26 @@ const authenticateToken = (req, res, next) => {
   }
 
   req.user = decoded;
+
+  // Real-time multi-session tracking in database
+  const db = require('../config/db');
+  const sessionKey = token.slice(-35); // Use unique signature slice as session key
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const ua = req.headers['user-agent'] || 'unknown';
+
+  // Run async insert/update
+  db.query(
+    `INSERT OR REPLACE INTO active_sessions (user_id, email, phone, session_key, ip_address, user_agent, last_active_at)
+     VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+    [decoded.id, decoded.email || null, decoded.phone || null, sessionKey, ip, ua]
+  ).catch(err => console.error('Session log failed:', err));
+
+  // Periodically clean up old sessions (inactive > 30 minutes)
+  db.query(`DELETE FROM active_sessions WHERE last_active_at < datetime('now', '-30 minutes')`)
+    .catch(err => console.error('Clean old sessions failed:', err));
+
   next();
+
 };
 
 const isAdmin = (req, res, next) => {
