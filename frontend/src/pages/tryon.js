@@ -5,8 +5,9 @@ const Head = require('next/head').default;
 const {
   Upload, RefreshCw, ArrowLeft, Download, Check, Wand2, Eye, ZoomIn, ZoomOut,
   Move, RotateCw, Sparkles, Camera, FlipHorizontal, SplitSquareHorizontal,
-  Sliders, X, Play, Pause, Image as ImageIcon, ShoppingBag
+  Sliders, X, Play, Pause, Image: ImageIcon, ShoppingBag
 } = require('lucide-react');
+
 
 
 const API_BASE = typeof window !== 'undefined'
