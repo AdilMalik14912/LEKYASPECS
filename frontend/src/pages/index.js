@@ -112,6 +112,7 @@ export default function Home() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterDone, setNewsletterDone] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [settings, setSettings] = useState({
     hero_title: 'Engineered for Style & Clarity',
     hero_subtitle: 'Designed with hand-polished premium materials and engineered for visual clarity. We believe in high-fashion, high-function eyewear without the luxury markup.',
@@ -141,7 +142,6 @@ export default function Home() {
       })
       .catch(err => console.error('Error fetching store settings:', err));
 
-    // Load recently viewed from localStorage
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem('specs_recently_viewed');
@@ -152,7 +152,7 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch face shape recommendations if shape exists in user profile
+  // Face shape recommendations
   useEffect(() => {
     if (user && user.face_shape) {
       setRecLoading(true);
@@ -171,135 +171,317 @@ export default function Home() {
     }
   }, [user]);
 
+  // Parallax mouse tracking for hero
+  const handleHeroMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+  const handleHeroMouseLeave = () => setMousePos({ x: 0, y: 0 });
+
   return (
     <div className="bg-premium-light min-h-screen">
-      
-      {/* 1. Hero Section */}
-      <section className="relative min-h-[85vh] lg:h-[90vh] flex items-center justify-center overflow-hidden bg-premium-black py-16 lg:py-0">
-        {/* Background Image with Overlay */}
-        <div 
-          style={{ backgroundImage: `url('${settings.hero_image}')` }} 
-          className="absolute inset-0 opacity-40 bg-cover bg-center"
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-premium-black via-premium-black/90 to-black/80"></div>
-        
-        {/* Glowing background 3D ambient lights */}
-        <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-premium-accent/10 rounded-full blur-[120px] pointer-events-none animate-pulse-subtle"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-premium-accent/5 rounded-full blur-[150px] pointer-events-none"></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-7 text-left space-y-6 animate-slide-up">
-              <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase">
-                <Sparkles className="w-3.5 h-3.5" />
-                AI-Powered Fitting Included
+      {/* ═══════════════════════════════════════════════════
+          1. HERO — Full Immersive Parallax 3D Showcase
+      ═══════════════════════════════════════════════════ */}
+      <section
+        className="relative min-h-[90vh] lg:h-screen flex items-center justify-center overflow-hidden bg-[#080808]"
+        onMouseMove={handleHeroMouseMove}
+        onMouseLeave={handleHeroMouseLeave}
+      >
+        {/* Deep background image */}
+        <div
+          style={{
+            backgroundImage: `url('${settings.hero_image}')`,
+            transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -12}px) scale(1.08)`,
+            transition: 'transform 0.1s ease-out',
+          }}
+          className="absolute inset-0 bg-cover bg-center opacity-25"
+        />
+
+        {/* Multi-layer dark overlays */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#080808] via-[#0f0f0f]/95 to-[#111]/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 via-transparent to-transparent" />
+
+        {/* Ambient gold glow blobs — parallax reactive */}
+        <div
+          className="absolute animate-ambient-glow"
+          style={{
+            top: '20%', left: '55%',
+            width: 500, height: 500,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(197,160,40,0.18) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            transform: `translate(${mousePos.x * 40}px, ${mousePos.y * 25}px)`,
+            transition: 'transform 0.15s ease-out',
+          }}
+        />
+        <div
+          className="absolute animate-ambient-glow-slow"
+          style={{
+            bottom: '15%', right: '25%',
+            width: 350, height: 350,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(197,160,40,0.1) 0%, transparent 70%)',
+            filter: 'blur(80px)',
+            transform: `translate(${mousePos.x * -30}px, ${mousePos.y * 20}px)`,
+            transition: 'transform 0.2s ease-out',
+          }}
+        />
+
+        {/* Floating gold particles */}
+        {[
+          { top: '15%', left: '12%', size: 4, cls: 'particle-1' },
+          { top: '70%', left: '8%',  size: 3, cls: 'particle-2' },
+          { top: '30%', left: '85%', size: 5, cls: 'particle-3' },
+          { top: '80%', left: '75%', size: 3, cls: 'particle-4' },
+          { top: '50%', left: '48%', size: 2, cls: 'particle-5' },
+          { top: '10%', left: '60%', size: 4, cls: 'particle-6' },
+        ].map((p, i) => (
+          <div
+            key={i}
+            className={`particle ${p.cls} absolute rounded-full pointer-events-none`}
+            style={{
+              top: p.top, left: p.left,
+              width: p.size, height: p.size,
+              background: '#C5A028',
+              boxShadow: `0 0 ${p.size * 4}px ${p.size * 2}px rgba(197,160,40,0.6)`,
+            }}
+          />
+        ))}
+
+        {/* Main content grid */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* ── Left Copy ── */}
+            <div className="space-y-8">
+              <div className="animate-slide-up">
+                <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  AI-Powered Fitting Included
+                </div>
               </div>
-              
-              <h1 
-                className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-none"
+
+              <h1
+                className="animate-slide-up-delay-1 text-5xl sm:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.05]"
                 dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
-              ></h1>
-              
-              <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-light max-w-xl">
+              />
+
+              <p className="animate-slide-up-delay-2 text-lg text-gray-400 leading-relaxed font-light max-w-lg">
                 {settings.hero_subtitle}
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Link href="/shop" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
-                  Explore All Frames
-                  <ArrowRight className="w-4 h-4" />
+
+              <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/shop"
+                  className="btn-3d group relative bg-premium-accent text-premium-black font-bold tracking-widest uppercase text-sm px-8 py-4 rounded overflow-hidden flex items-center justify-center gap-2"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Explore All Frames
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-premium-accent via-yellow-300 to-premium-accent bg-[length:200%] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
-                <Link href="/face-shape" className="border border-white/60 hover:bg-white hover:text-premium-black hover:border-white text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all text-center flex items-center justify-center gap-2">
+                <Link
+                  href="/face-shape"
+                  className="btn-3d border border-white/40 hover:border-premium-accent/60 hover:bg-white/5 text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all flex items-center justify-center gap-2 group"
+                >
                   Try Face Shape Analyzer
+                  <Sparkles className="w-3.5 h-3.5 text-premium-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
+              </div>
+
+              {/* Micro stats bar */}
+              <div className="animate-slide-up-delay-3 flex items-center gap-8 pt-4 border-t border-white/10">
+                {[
+                  { val: '10K+', label: 'Happy Customers' },
+                  { val: '500+', label: 'Frame Designs' },
+                  { val: '4.9★', label: 'Avg Rating' },
+                ].map(({ val, label }) => (
+                  <div key={label} className="text-left">
+                    <p className="text-xl font-bold text-premium-accent font-mono">{val}</p>
+                    <p className="text-[11px] text-gray-500 uppercase tracking-wider">{label}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right Content: Premium 3D Floating Glasses Showcase */}
-            <div className="lg:col-span-5 flex items-center justify-center perspective-3d">
-              <div className="w-full max-w-[400px] aspect-square rounded-2xl glass-morphic-3d p-8 shadow-premium-3d border border-white/10 flex flex-col justify-between relative overflow-hidden animate-float-3d preserve-3d">
-                
-                {/* Gold abstract lights inside card */}
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-premium-accent/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-premium-accent/10 rounded-full blur-2xl"></div>
+            {/* ── Right: Immersive 3D Showcase ── */}
+            <div
+              className="relative flex items-center justify-center"
+              style={{
+                transform: `perspective(1200px) rotateY(${mousePos.x * -8}deg) rotateX(${mousePos.y * 5}deg)`,
+                transition: 'transform 0.12s ease-out',
+              }}
+            >
+              {/* Outer orbit ring 1 */}
+              <div
+                className="absolute animate-orbit"
+                style={{
+                  width: 480, height: 480,
+                  border: '1px solid rgba(197,160,40,0.08)',
+                  borderRadius: '50%',
+                  borderTopColor: 'rgba(197,160,40,0.25)',
+                }}
+              />
+              {/* Outer orbit ring 2 */}
+              <div
+                className="absolute animate-orbit-rev"
+                style={{
+                  width: 380, height: 380,
+                  border: '1px dashed rgba(197,160,40,0.1)',
+                  borderRadius: '50%',
+                  borderBottomColor: 'rgba(197,160,40,0.2)',
+                }}
+              />
 
-                <div className="flex justify-between items-center z-10">
-                  <span className="text-[10px] tracking-widest uppercase font-bold text-premium-accent">Model: Lekya Carbon-T</span>
-                  <span className="text-[10px] tracking-widest uppercase font-bold text-emerald-500 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> 3D Virtual Try-On Ready
-                  </span>
-                </div>
+              {/* Orbit dot markers */}
+              <div className="absolute animate-orbit" style={{ width: 480, height: 480 }}>
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-premium-accent/80 shadow-[0_0_12px_4px_rgba(197,160,40,0.6)]" />
+              </div>
+              <div className="absolute animate-orbit-rev" style={{ width: 380, height: 380, animationDelay: '-6s' }}>
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-premium-accent/60 shadow-[0_0_8px_3px_rgba(197,160,40,0.5)]" />
+              </div>
 
-                {/* SVG 3D Glasses display rotating and floating */}
-                <div className="my-8 flex justify-center items-center z-10 animate-float-glasses preserve-3d">
-                  <svg width="280" height="100" viewBox="0 0 280 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
-                    {/* Left frame rim */}
-                    <path d="M20 50 C20 20, 110 20, 110 50 C110 80, 20 80, 20 50 Z" stroke="#C5A028" strokeWidth="4.5" fill="rgba(255,255,255,0.05)" />
-                    {/* Left lens (dark polarized glass gradient) */}
-                    <path d="M22 50 C22 23, 108 23, 108 50 C108 77, 22 77, 22 50 Z" fill="url(#lensGrad)" opacity="0.8" />
-                    
-                    {/* Right frame rim */}
-                    <path d="M170 50 C170 20, 260 20, 260 50 C260 80, 170 80, 170 50 Z" stroke="#C5A028" strokeWidth="4.5" fill="rgba(255,255,255,0.05)" />
-                    {/* Right lens */}
-                    <path d="M172 50 C172 23, 258 23, 258 50 C258 77, 172 77, 172 50 Z" fill="url(#lensGrad)" opacity="0.8" />
-                    
-                    {/* Bridge */}
-                    <path d="M110 42 C125 35, 145 35, 160 42" stroke="#C5A028" strokeWidth="5.5" strokeLinecap="round" />
-                    <path d="M110 48 C125 41, 145 41, 160 48" stroke="#E2C974" strokeWidth="2" strokeLinecap="round" />
-                    
-                    {/* Left end hinge */}
-                    <path d="M20 48 H5 C0 48, 0 35, 0 30" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
-                    {/* Right end hinge */}
-                    <path d="M260 48 H275 C280 48, 280 35, 280 30" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+              {/* Central showcase card */}
+              <div
+                className="relative z-10 glass-morphic-3d rounded-3xl border border-white/8 shadow-premium-3d overflow-hidden"
+                style={{
+                  width: 340, height: 420,
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(197,160,40,0.03) 50%, rgba(0,0,0,0.3) 100%)',
+                }}
+              >
+                {/* Inner ambient glows */}
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-premium-accent/15 blur-3xl animate-ambient-glow" />
+                <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-premium-accent/08 blur-2xl animate-ambient-glow-slow" />
 
-                    {/* Gradient definition */}
-                    <defs>
-                      <linearGradient id="lensGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#121212" />
-                        <stop offset="30%" stopColor="#2A2A2A" />
-                        <stop offset="70%" stopColor="#0B132B" stopOpacity="0.9" />
-                        <stop offset="100%" stopColor="#C5A028" stopOpacity="0.4" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-
-                <div className="flex justify-between items-end z-10 border-t border-white/5 pt-4">
+                {/* Card header */}
+                <div className="flex justify-between items-center p-6 border-b border-white/5">
                   <div>
-                    <span className="block text-[8px] text-gray-400 uppercase tracking-widest font-semibold">Structure</span>
-                    <span className="text-xs text-white font-serif font-bold">Aerospace Titanium</span>
+                    <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-premium-accent/70">Collection 2025</p>
+                    <p className="text-sm font-bold text-white font-serif mt-0.5">Lekya Carbon-T</p>
                   </div>
-                  <div className="text-right">
-                    <span className="block text-[8px] text-gray-400 uppercase tracking-widest font-semibold">Finishing</span>
-                    <span className="text-xs text-premium-accent font-mono font-bold">18K Gold Plated</span>
+                  <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2.5 py-1">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                    <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">AR Ready</span>
                   </div>
                 </div>
 
+                {/* Glasses 3D SVG showcase */}
+                <div className="flex items-center justify-center flex-1 py-10 px-6">
+                  <div className="animate-glasses-showcase w-full">
+                    <svg width="100%" viewBox="0 0 300 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <radialGradient id="lensL" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#1a1a2e" />
+                          <stop offset="60%" stopColor="#0d1117" />
+                          <stop offset="100%" stopColor="#C5A028" stopOpacity="0.3" />
+                        </radialGradient>
+                        <radialGradient id="lensR" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#1a1a2e" />
+                          <stop offset="60%" stopColor="#0d1117" />
+                          <stop offset="100%" stopColor="#C5A028" stopOpacity="0.3" />
+                        </radialGradient>
+                        <filter id="glow">
+                          <feGaussianBlur stdDeviation="3" result="blur" />
+                          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                      </defs>
+                      {/* Left lens fill */}
+                      <ellipse cx="75" cy="55" rx="68" ry="44" fill="url(#lensL)" opacity="0.9" />
+                      {/* Left frame rim */}
+                      <ellipse cx="75" cy="55" rx="68" ry="44" stroke="#C5A028" strokeWidth="3.5" fill="none" filter="url(#glow)" />
+                      {/* Left shine */}
+                      <ellipse cx="55" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.06)" />
+                      
+                      {/* Right lens fill */}
+                      <ellipse cx="225" cy="55" rx="68" ry="44" fill="url(#lensR)" opacity="0.9" />
+                      {/* Right frame rim */}
+                      <ellipse cx="225" cy="55" rx="68" ry="44" stroke="#C5A028" strokeWidth="3.5" fill="none" filter="url(#glow)" />
+                      {/* Right shine */}
+                      <ellipse cx="205" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.06)" />
+
+                      {/* Bridge */}
+                      <path d="M143 47 C153 38, 163 38, 157 47" stroke="#E2C974" strokeWidth="4" strokeLinecap="round" fill="none" filter="url(#glow)" />
+                      <path d="M143 52 C153 43, 163 43, 157 52" stroke="#C5A028" strokeWidth="2" strokeLinecap="round" fill="none" />
+
+                      {/* Temples */}
+                      <path d="M7 54 L0 40" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M293 54 L300 40" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+
+                      {/* Gold accent dots on frame corners */}
+                      <circle cx="18" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
+                      <circle cx="132" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
+                      <circle cx="168" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
+                      <circle cx="282" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Card footer specs */}
+                <div className="px-6 pb-6 grid grid-cols-3 gap-3 border-t border-white/5 pt-4">
+                  {[
+                    { label: 'Material', value: 'Titanium' },
+                    { label: 'Finish', value: '18K Gold' },
+                    { label: 'Lens', value: 'Polarized' },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="text-center">
+                      <p className="text-[9px] text-gray-500 uppercase tracking-wider mb-0.5">{label}</p>
+                      <p className="text-xs font-bold text-premium-accent font-mono">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating badge chips around the card */}
+              <div
+                className="absolute -top-4 -left-4 bg-premium-black border border-premium-accent/30 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-1"
+                style={{ backdropFilter: 'blur(10px)' }}
+              >
+                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Try-On</p>
+                <p className="text-xs font-bold text-white">Live AR 🥽</p>
+              </div>
+              <div
+                className="absolute -bottom-4 -right-4 bg-premium-black border border-emerald-500/30 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-2"
+                style={{ backdropFilter: 'blur(10px)' }}
+              >
+                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Delivery</p>
+                <p className="text-xs font-bold text-emerald-400">Free & Fast ✓</p>
               </div>
             </div>
 
           </div>
         </div>
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-premium-light to-transparent pointer-events-none" />
       </section>
 
       {/* 2. Brand Value Pillars */}
       <section className="bg-white border-y border-premium-border py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-            <div className="flex flex-col items-center p-4">
-              <Truck className="w-8 h-8 text-premium-accent mb-2" />
+            <div className="flex flex-col items-center p-4 group cursor-default">
+              <div className="w-12 h-12 bg-premium-accent/10 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:bg-premium-accent/20 group-hover:scale-110">
+                <Truck className="w-6 h-6 text-premium-accent" />
+              </div>
               <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">Free Delivery & Returns</h3>
               <p className="text-xs text-premium-gray">Free standard shipping on all orders in India</p>
             </div>
-            <div className="flex flex-col items-center p-4 border-y sm:border-y-0 sm:border-x border-premium-border">
-              <ShieldCheck className="w-8 h-8 text-premium-accent mb-2" />
+            <div className="flex flex-col items-center p-4 border-y sm:border-y-0 sm:border-x border-premium-border group cursor-default">
+              <div className="w-12 h-12 bg-premium-accent/10 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:bg-premium-accent/20 group-hover:scale-110">
+                <ShieldCheck className="w-6 h-6 text-premium-accent" />
+              </div>
               <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">1-Year Warranty</h3>
               <p className="text-xs text-premium-gray">Premium anti-scratch coating guaranteed for 365 days</p>
             </div>
-            <div className="flex flex-col items-center p-4">
-              <RefreshCw className="w-8 h-8 text-premium-accent mb-2" />
+            <div className="flex flex-col items-center p-4 group cursor-default">
+              <div className="w-12 h-12 bg-premium-accent/10 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:bg-premium-accent/20 group-hover:scale-110">
+                <RefreshCw className="w-6 h-6 text-premium-accent" />
+              </div>
               <h3 className="font-semibold text-sm uppercase tracking-wider mb-1">14-Day Easy Exchange</h3>
               <p className="text-xs text-premium-gray">No questions asked return and replacement policy</p>
             </div>
@@ -310,90 +492,95 @@ export default function Home() {
       {/* 3. Category Navigation Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <ScrollReveal3D>
-          <h2 className="text-center font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-12">
-            Shop by Collection
-          </h2>
+          <div className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-premium-accent font-bold mb-2">Curated Collections</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black">
+              Shop by Collection
+            </h2>
+          </div>
         </ScrollReveal3D>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Eyeglasses */}
           <ScrollReveal3D>
-            <ThreeDTiltCard className="relative overflow-hidden rounded h-[350px] shadow-lg border border-premium-border/40">
-              <Link href="/shop?category=Eyeglasses" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
-                <div className="absolute bottom-8 left-8 z-10">
-                  <h3 className="text-2xl font-serif font-bold text-white mb-2">Eyeglasses</h3>
-                  <p className="text-sm text-gray-300 mb-4">Anti-glare, blue-light blockers, and reading lenses</p>
-                  <span className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+            <Link href="/shop?category=Eyeglasses" style={{ textDecoration: 'none' }}>
+              <div className="cat-card rounded-2xl h-[380px] cursor-pointer" style={{ overflow: 'hidden' }}>
+                <div
+                  className="cat-img absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=900&q=80')", position: 'absolute', inset: 0 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div className="cat-border-reveal rounded-2xl" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                  <div className="cat-label">
+                    <p className="text-[10px] uppercase tracking-widest text-premium-accent font-bold mb-1">Category</p>
+                    <h3 className="text-3xl font-serif font-bold text-white mb-2">Eyeglasses</h3>
+                    <p className="text-sm text-gray-300 leading-relaxed">Anti-glare, blue-light blockers, and reading lenses</p>
+                  </div>
+                  <div className="cat-cta mt-4 flex items-center gap-2 text-premium-accent text-xs font-bold uppercase tracking-widest">
                     Shop Eyeglasses <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  </div>
                 </div>
-              </Link>
-            </ThreeDTiltCard>
+              </div>
+            </Link>
           </ScrollReveal3D>
 
           {/* Sunglasses */}
           <ScrollReveal3D>
-            <ThreeDTiltCard className="relative overflow-hidden rounded h-[350px] shadow-lg border border-premium-border/40">
-              <Link href="/shop?category=Sunglasses" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-premium-black via-premium-black/40 to-transparent"></div>
-                <div className="absolute bottom-8 left-8 z-10">
-                  <h3 className="text-2xl font-serif font-bold text-white mb-2">Sunglasses</h3>
-                  <p className="text-sm text-gray-300 mb-4">100% UV polarized fashion shades</p>
-                  <span className="text-xs uppercase tracking-widest font-semibold text-premium-accent group-hover:text-white transition-colors flex items-center gap-1">
+            <Link href="/shop?category=Sunglasses" style={{ textDecoration: 'none' }}>
+              <div className="cat-card rounded-2xl h-[380px] cursor-pointer" style={{ overflow: 'hidden' }}>
+                <div
+                  className="cat-img absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=900&q=80')", position: 'absolute', inset: 0 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div className="cat-border-reveal rounded-2xl" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                  <div className="cat-label">
+                    <p className="text-[10px] uppercase tracking-widest text-premium-accent font-bold mb-1">Category</p>
+                    <h3 className="text-3xl font-serif font-bold text-white mb-2">Sunglasses</h3>
+                    <p className="text-sm text-gray-300 leading-relaxed">100% UV polarized fashion shades</p>
+                  </div>
+                  <div className="cat-cta mt-4 flex items-center gap-2 text-premium-accent text-xs font-bold uppercase tracking-widest">
                     Shop Sunglasses <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  </div>
                 </div>
-              </Link>
-            </ThreeDTiltCard>
+              </div>
+            </Link>
           </ScrollReveal3D>
         </div>
 
-        {/* Small grids for Men/Women/Kids */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
-          <ScrollReveal3D>
-            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
-              <Link href="/shop?gender=Men" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">MEN</span>
-                  <span className="text-xs text-white/70 tracking-widest uppercase">Premium Collection</span>
+        {/* Men / Women / Kids */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-5">
+          {[
+            { href: '/shop?gender=Men',   img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=700&q=80', label: 'Men',   sub: 'Premium Collection' },
+            { href: '/shop?gender=Women', img: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=700&q=80', label: 'Women', sub: 'Elegant Frames' },
+            { href: '/shop?gender=Kids',  img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80', label: 'Kids',  sub: 'Fun & Safe Eyewear' },
+          ].map(({ href, img, label, sub }) => (
+            <ScrollReveal3D key={href}>
+              <Link href={href} style={{ textDecoration: 'none' }}>
+                <div className="cat-card rounded-xl h-[240px] cursor-pointer" style={{ overflow: 'hidden' }}>
+                  <div
+                    className="cat-img absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url('${img}')`, position: 'absolute', inset: 0 }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="cat-border-reveal rounded-xl" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+                    <div className="cat-label">
+                      <h3 className="text-2xl font-serif font-bold text-white tracking-wide">{label}</h3>
+                      <p className="text-xs text-white/70 tracking-widest uppercase">{sub}</p>
+                    </div>
+                    <div className="cat-cta mt-3 flex items-center gap-1.5 text-premium-accent text-[10px] font-bold uppercase tracking-widest">
+                      Explore <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </div>
                 </div>
               </Link>
-            </ThreeDTiltCard>
-          </ScrollReveal3D>
-
-          <ScrollReveal3D>
-            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
-              <Link href="/shop?gender=Women" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">WOMEN</span>
-                  <span className="text-xs text-white/70 tracking-widest uppercase">Elegant Frames</span>
-                </div>
-              </Link>
-            </ThreeDTiltCard>
-          </ScrollReveal3D>
-
-          <ScrollReveal3D>
-            <ThreeDTiltCard className="relative overflow-hidden rounded-xl h-[220px] shadow-md border border-premium-border/40">
-              <Link href="/shop?gender=Kids" className="block w-full h-full group" style={{ textDecoration: 'none' }}>
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center scale-100 group-hover:scale-105 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-premium-black/80 via-premium-black/30 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <span className="font-serif text-2xl font-bold text-white tracking-wider group-hover:text-premium-accent transition-colors block">KIDS</span>
-                  <span className="text-xs text-white/70 tracking-widest uppercase">Fun & Safe Eyewear</span>
-                </div>
-              </Link>
-            </ThreeDTiltCard>
-          </ScrollReveal3D>
+            </ScrollReveal3D>
+          ))}
         </div>
       </section>
-
 
       {/* 3.5 Five Premium Tools Section */}
       <section className="bg-white border-y border-premium-border py-16 relative overflow-hidden">
