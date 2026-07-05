@@ -32,13 +32,17 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 8. **admin_activity_log** — admin_email, action_type, description, created_at
 9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
 10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at (cached registration details before OTP verification)
+11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at (tracks live active logins across different devices/tabs)
 
 ### DB Migrations (auto-applied on startup in `db.js`)
 - `role` column on `users`
 - `loyalty_points` column on `users`
 - `referral_code` column on `users`
 - `phone` column on `users`
+- `style_tags` column on `products`
+- `spotlight` column on `reviews`
 - `otps` table creation
+- `active_sessions` table creation
 - `lens_type`, `lens_price`, `prescription_details`, `tracking_comments` columns on `orders`
 - `coupons` table
 - `admin_activity_log` table
@@ -95,9 +99,22 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `POST /db/optimize` → Run SQLite VACUUM optimization
 - `GET /helpdesk` → Fetch all contact form submissions
 - `POST /helpdesk/:id/reply` → Reply to a customer support message via email
+- `GET /active-sessions` → Get real-time list of online users and multi-device sessions
 
-### 6. Contact Form (`/api/contact`)
+### 6. Brand Stylist Hub (`/api/stylist`) — require `authenticateToken`
+- `GET /products` → Get products list with their style tags
+- `PUT /products/:id/tags` → Add/remove customized style tags on a product
+- `GET/POST /lookbook` → View or curate seasonal visual lookbook collections
+- `GET/POST /calendar` → Retrieve or plan content launching calendars
+- `GET/POST /spotlight` → Pin specific frames to homepage showcase lists
+- `GET/POST /color-stories` → Set and group frames into curated color themes
+- `GET/POST /advisor` → Link face shapes categories to recommended frame types
+- `GET /reviews` & `PUT /reviews/:id/spotlight` → View product reviews and pin top review testimonials
+- `GET/POST /tone-profile` → Configure brand voice guides and track luxury score copy guidelines
+
+### 7. Contact Form (`/api/contact`)
 - `POST /` → Saves message to DB + sends email notification via SMTP.
+
 
 ---
 
