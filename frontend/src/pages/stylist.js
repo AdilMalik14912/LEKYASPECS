@@ -2,6 +2,7 @@ const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
+const Head = require('next/head').default;
 const { useAuth, useToast } = require('./_app');
 const {
   Sparkles, BookOpen, Layers, Eye, Tag, Image, Calendar, Star, Columns,
