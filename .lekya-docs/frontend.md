@@ -34,10 +34,17 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 - Detects 68 landmark points, calculates face ratios → oval/round/square/heart/diamond.
 - Saves shape to user profile via `/api/auth/profile`.
 
-### 4. 🥽 Live AR Try-On Lab ([ar-tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/ar-tryon.js))
-- 60fps `requestAnimationFrame` render loop.
-- 6 frame styles drawn on canvas using eye landmark coordinates.
-- Snapshot + download PNG support.
+### 4. 🥽 Virtual Try-On Studio ([tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/tryon.js))
+- **Smart BG Removal**: Canvas `getImageData()` pixel engine strips white/grey backgrounds from catalog product images — glasses float cleanly on face.
+- **Live Webcam Mode**: `getUserMedia()` webcam stream with real-time glasses overlay, Snap Photo button captures the frame.
+- **Mirror Mode**: Toggle CSS `scaleX(-1)` on preview for a realistic mirror experience.
+- **Before/After Split View**: Drag-to-compare divider reveals face before/after glasses overlay.
+- **8 SVG Frame Shapes**: Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal, Rimless, Browline — all with realistic drop shadows.
+- **10 Frame Colors** with live color dot picker.
+- **AI Auto-Fit**: face-api.js TinyFaceDetector aligns glasses to eye landmarks automatically.
+- **BG Tolerance Slider**: Fine-tune how aggressively background pixels are removed.
+- **Save PNG**: Canvas compositing exports face + transparent glasses as downloadable PNG.
+- **Catalog Product Try-On**: Select any product from the live database; background is auto-removed.
 
 ### 5. 🎨 Skin Tone AI Lab ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
 - Canvas `getImageData()` pixel sampling from facial zones.

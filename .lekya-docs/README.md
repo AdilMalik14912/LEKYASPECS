@@ -114,10 +114,16 @@ The `API_BASE` auto-detects from `window.location.hostname` at runtime.
 
 ---
 
-## 🚀 New Features Added (2026-07-04)
+## 🚀 New Features Added (2026-07-05)
 
 ### Customer-Facing
-1. **Virtual Try-On Studio** (`/tryon`) — 2D frame overlay on webcam
+1. **Virtual Try-On Studio** (`/tryon`) — Fully overhauled with 5 new sub-features:
+   - **Smart BG Removal Engine** — Canvas `getImageData()` strips white/grey backgrounds from catalog product images pixel-by-pixel with configurable tolerance slider
+   - **Live Webcam Mode** — `getUserMedia()` real-time webcam feed with glasses overlay + Snap Photo button
+   - **Mirror Mode** — Flip preview horizontally for natural mirror experience
+   - **Before/After Split View** — Drag divider to compare face without vs with glasses
+   - **8 Premium SVG Frames** — Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal, Rimless, Browline (all with drop shadows + glass tint)
+   - **10 Frame Colors** — Noir, Gold, Rose Gold, Silver, Tortoise, Navy, Crimson, Forest, Crystal, Amber
 2. **AI Face Scanner** (`/account`) — Simulated scan saving face shape to profile
 3. **Product Comparison Tray** (`/shop`) — Compare up to 3 frames side by side
 4. **Prescription Lens Configurator** (`/product/[id]`) — Live dynamic pricing with lens index + coatings
