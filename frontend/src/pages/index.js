@@ -635,7 +635,12 @@ export default function Home() {
                   ₹{parseFloat(product.price).toLocaleString('en-IN')}
                 </div>
               </Link>
-            ))}      {/* 6. Testimonials Section */}
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 6. Testimonials Section */}
       <section className="bg-white py-16 sm:py-24 border-t border-premium-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal3D className="text-center">
