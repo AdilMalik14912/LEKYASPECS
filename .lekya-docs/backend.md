@@ -149,3 +149,7 @@ Uses `fetch` connecting to **Fast2SMS API gateway** (`/dev/bulkV2` endpoint) usi
 | 2026-07-04 | `getActivityLogs` missing in adminController → server crash on startup | Added function definition |
 | 2026-07-04 | Duplicate `broadcastEmail` declaration → `SyntaxError` on require | Removed duplicate |
 | 2026-07-04 | Login showing "Connection to server failed" | Fixed by resolving server crash above |
+| 2026-07-05 | `tryon.js` shadowing native `Image` constructor with lucide import | Renamed import to `Image: ImageIcon` (CommonJS style) |
+| 2026-07-05 | `admin.js` undefined icon imports (`Sparkles`, `Edit2`) causing Next.js build compile failure | Imported `Sparkles` and replaced `Edit2` with imported `Edit` icon |
+| 2026-07-05 | `stylist.js` ReferenceError: `Head` is not defined during prerendering static generation | Added default require import for `next/head` component |
+
