@@ -249,6 +249,9 @@ export default function TryOnStudio() {
   const [webcamSnapped, setWebcamSnapped] = useState(null);
   const webcamVideoRef = useRef(null);
   const webcamCanvasRef = useRef(null);
+  const webcamRafRef = useRef(null);         // requestAnimationFrame id
+  const webcamGlassesRef = useRef(null);     // pre-loaded glasses image for webcam loop
+  const webcamLandmarksRef = useRef(null);   // latest detected eye positions for live draw
 
   // NEW: Mirror mode
   const [mirrorMode, setMirrorMode] = useState(false);
@@ -335,24 +338,140 @@ export default function TryOnStudio() {
   // ─── Webcam ───────────────────────────────────────────────────────────────
   const startWebcam = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 800, height: 900 } });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      });
       setWebcamStream(stream);
       setWebcamMode(true);
       setWebcamSnapped(null);
       setUserUploadedImage(null);
-      // Give DOM time to mount the video element
+
+      // Mount video and start canvas render loop
       setTimeout(() => {
-        if (webcamVideoRef.current) {
-          webcamVideoRef.current.srcObject = stream;
-          webcamVideoRef.current.play();
-        }
-      }, 200);
+        const video = webcamVideoRef.current;
+        const canvas = webcamCanvasRef.current;
+        if (!video || !canvas) return;
+        video.srcObject = stream;
+        video.play().then(() => {
+          canvas.width  = video.videoWidth  || 1280;
+          canvas.height = video.videoHeight || 720;
+          startWebcamLoop(video, canvas);
+        }).catch(() => {});
+      }, 400);
     } catch (err) {
-      alert('Camera access denied. Please allow camera permission in your browser.');
+      alert('Camera access denied. Please allow camera permission in your browser settings.');
     }
   }, []);
 
+  // ─── Webcam canvas render loop ────────────────────────────────────────────
+  // Draws live video + glasses overlay on canvas every frame.
+  // Uses latest landmark positions from webcamLandmarksRef (updated by periodic face detection).
+  const startWebcamLoop = useCallback((video, canvas) => {
+    const ctx = canvas.getContext('2d');
+    let faceapiLoaded = false;
+    let detectionRunning = false;
+
+    // Periodically run face detection (every 500ms) to update eye positions
+    const runDetection = async () => {
+      if (detectionRunning || !window.faceapi) return;
+      detectionRunning = true;
+      try {
+        const faceapi = window.faceapi;
+        if (!faceapi.nets.tinyFaceDetector.params) {
+          const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+          await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+          await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        }
+        const opts = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.12, inputSize: 224 });
+        const det = await faceapi.detectSingleFace(canvas, opts).withFaceLandmarks();
+        if (det) {
+          const lm = det.landmarks;
+          const getCenter = (pts) => { let x=0,y=0; pts.forEach(p=>{x+=p.x;y+=p.y;}); return {x:x/pts.length,y:y/pts.length}; };
+          const lc = getCenter(lm.getLeftEye());
+          const rc = getCenter(lm.getRightEye());
+          webcamLandmarksRef.current = { lc, rc, canvasW: canvas.width, canvasH: canvas.height };
+        }
+      } catch(_) {}
+      detectionRunning = false;
+    };
+
+    // Load face-api asynchronously then start detection interval
+    loadFaceApi().then(() => {
+      faceapiLoaded = true;
+      runDetection();
+    }).catch(() => {});
+    const detectionInterval = setInterval(runDetection, 500);
+
+    // Pre-load glasses image for drawing
+    const loadGlassesImage = () => {
+      const img = new Image();
+      img.onload = () => { webcamGlassesRef.current = img; };
+      img.onerror = () => {};
+      if (!useProductFrame) {
+        const svgBlob = new Blob([selectedFrame.svg(frameColor, lensOpacity)], { type: 'image/svg+xml' });
+        img.src = URL.createObjectURL(svgBlob);
+      } else if (bgRemovedUrl) {
+        img.crossOrigin = 'anonymous';
+        img.src = bgRemovedUrl;
+      } else if (selectedProduct) {
+        img.crossOrigin = 'anonymous';
+        img.src = getProductImgUrl(selectedProduct);
+      }
+    };
+    loadGlassesImage();
+
+    // Render loop
+    const drawFrame = () => {
+      if (!webcamVideoRef.current || !webcamCanvasRef.current) return;
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.save();
+      if (mirrorMode) { ctx.translate(W, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(video, 0, 0, W, H);
+      ctx.restore();
+
+      // Draw glasses from landmarks if available
+      const lm = webcamLandmarksRef.current;
+      const glassesImg = webcamGlassesRef.current;
+      if (lm && glassesImg) {
+        const { lc, rc, canvasW, canvasH } = lm;
+        const dx = rc.x - lc.x;
+        const dy = rc.y - lc.y;
+        const eyeDist = Math.sqrt(dx*dx + dy*dy);
+        const angle   = Math.atan2(dy, dx);
+        const midX    = (lc.x + rc.x) / 2;
+        const midY    = (lc.y + rc.y) / 2;
+
+        // Width = 2.4× eye distance; height scaled by aspect ratio
+        const glassW = eyeDist * 2.8;
+        const ar = glassesImg.height / Math.max(glassesImg.width, 1);
+        const glassH = glassW * ar;
+
+        ctx.save();
+        ctx.translate(midX, midY);
+        ctx.rotate(angle);
+        ctx.globalAlpha = 0.95;
+        ctx.drawImage(glassesImg, -glassW / 2, -glassH / 2, glassW, glassH);
+        ctx.restore();
+      }
+
+      webcamRafRef.current = requestAnimationFrame(drawFrame);
+    };
+    webcamRafRef.current = requestAnimationFrame(drawFrame);
+
+    // Store cleanup in ref so stopWebcam can call it
+    webcamGlassesRef._cleanup = () => {
+      clearInterval(detectionInterval);
+      if (webcamRafRef.current) cancelAnimationFrame(webcamRafRef.current);
+      webcamLandmarksRef.current = null;
+      webcamGlassesRef.current = null;
+    };
+  }, [mirrorMode, useProductFrame, selectedFrame, frameColor, lensOpacity, bgRemovedUrl, selectedProduct]);
+
   const stopWebcam = useCallback(() => {
+    // Stop canvas loop
+    if (webcamRafRef.current) cancelAnimationFrame(webcamRafRef.current);
+    if (webcamGlassesRef._cleanup) webcamGlassesRef._cleanup();
     if (webcamStream) {
       webcamStream.getTracks().forEach(t => t.stop());
       setWebcamStream(null);
@@ -361,23 +480,17 @@ export default function TryOnStudio() {
   }, [webcamStream]);
 
   const snapPhoto = useCallback(() => {
-    const video = webcamVideoRef.current;
-    if (!video) return;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 800;
-    canvas.height = video.videoHeight || 900;
-    const ctx = canvas.getContext('2d');
-    if (mirrorMode) {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Capture from canvas (already has glasses drawn on it)
+    const canvas = webcamCanvasRef.current;
+    if (!canvas) return;
     const snap = canvas.toDataURL('image/png');
     setWebcamSnapped(snap);
     stopWebcam();
+    // After snap, auto-fit will be triggered by the faceImage useEffect below
     setPosX(0); setPosY(0); setScale(1); setRotation(0);
-    setAutoFitDone(false); setAutoFitError(null);
-  }, [mirrorMode, stopWebcam]);
+    setAutoFitDone(true); // mark as fitted since canvas loop already placed glasses correctly
+    setAutoFitError(null);
+  }, [stopWebcam]);
 
   // ─── Face-api Loader ──────────────────────────────────────────────────────
   const loadFaceApi = () => new Promise((resolve, reject) => {
@@ -389,51 +502,92 @@ export default function TryOnStudio() {
     document.head.appendChild(s);
   });
 
-  // ─── AI Auto-Fit ──────────────────────────────────────────────────────────
+  // ─── AI Auto-Fit — FIXED coordinate mapping ─────────────────────────────
   const runAutoFit = useCallback(async () => {
     setAutoFitting(true);
     setAutoFitError(null);
     setAutoFitDone(false);
     try {
       const imgEl = faceImageRef.current;
-      if (!imgEl) throw new Error("Face image not loaded.");
+      if (!imgEl) throw new Error('Face image not loaded.');
+
       const faceapi = await loadFaceApi();
       const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-      if (!faceapi.nets.tinyFaceDetector.params) await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-      if (!faceapi.nets.faceLandmark68Net.params) await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-      const options = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.15, inputSize: 224 });
+      if (!faceapi.nets.tinyFaceDetector.params)
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      if (!faceapi.nets.faceLandmark68Net.params)
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+      // face-api detects landmarks in NATURAL (intrinsic) pixel coordinates.
+      // We need to map those to percentages of the DISPLAYED image size.
+      const options = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.12, inputSize: 320 });
       const detection = await faceapi.detectSingleFace(imgEl, options).withFaceLandmarks();
-      if (detection) {
-        const landmarks = detection.landmarks;
-        const leftEye = landmarks.getLeftEye();
-        const rightEye = landmarks.getRightEye();
-        const getCenter = (pts) => {
-          let x = 0, y = 0;
-          pts.forEach(p => { x += p.x; y += p.y; });
-          return { x: x / pts.length, y: y / pts.length };
-        };
-        const lc = getCenter(leftEye), rc = getCenter(rightEye);
-        const rect = imgEl.getBoundingClientRect();
-        const dispW = rect.width, dispH = rect.height;
-        const midX = (lc.x + rc.x) / 2, midY = (lc.y + rc.y) / 2;
-        const pctX = (midX / dispW) * 100;
-        const pctY = (midY / dispH) * 100;
-        const dx = rc.x - lc.x, dy = rc.y - lc.y;
-        const eyeDistance = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        const baseGlassesWidth = dispW * 0.72;
-        const calculatedScale = (eyeDistance * 2.4) / baseGlassesWidth;
-        setPosX(Math.round(pctX - 50));
-        setPosY(Math.round(pctY - 38));
-        setScale(Math.max(0.5, Math.min(1.6, calculatedScale)));
-        setRotation(Math.round(angle));
-        setAutoFitDone(true);
-      } else {
-        throw new Error("No face detected. Try another photo or adjust manually.");
-      }
+
+      if (!detection) throw new Error('No face detected. Please use a clear front-facing photo.');
+
+      const landmarks = detection.landmarks;
+      const leftEye  = landmarks.getLeftEye();
+      const rightEye = landmarks.getRightEye();
+      const nose     = landmarks.getNose();
+      const jaw      = landmarks.getJawOutline();
+
+      const getCenter = (pts) => {
+        let x = 0, y = 0;
+        pts.forEach(p => { x += p.x; y += p.y; });
+        return { x: x / pts.length, y: y / pts.length };
+      };
+
+      const lc = getCenter(leftEye);
+      const rc = getCenter(rightEye);
+
+      // face-api landmark coords are in RENDERED display dimensions, not naturalWidth.
+      // getBoundingClientRect gives the rendered size.
+      const rect = imgEl.getBoundingClientRect();
+      const dispW = rect.width;
+      const dispH = rect.height;
+
+      // However, with object-fit: cover the image may be cropped.
+      // Calculate the actual rendered scale factors:
+      const natW = imgEl.naturalWidth  || dispW;
+      const natH = imgEl.naturalHeight || dispH;
+      const scaleW = dispW / natW;
+      const scaleH = dispH / natH;
+      // face-api uses input element dimensions (rendered), so NO extra scaling needed.
+      // Landmark coords ARE already in rendered pixel space.
+
+      // Midpoint between eyes in rendered pixels
+      const midX = (lc.x + rc.x) / 2;
+      const midY = (lc.y + rc.y) / 2;
+
+      // Convert to percentage of displayed area
+      const eyeCenterXPct = (midX / dispW) * 100;   // 0-100%
+      const eyeCenterYPct = (midY / dispH) * 100;   // 0-100%
+
+      // Eye distance in rendered px → as fraction of display width
+      const dx = rc.x - lc.x;
+      const dy = rc.y - lc.y;
+      const eyeDistPx = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      // Glasses SVG is 320px wide, with lenses spanning roughly 70% of SVG width.
+      // We need the FULL glasses width to equal ~2.5× the inter-pupillary distance.
+      // Base width of overlay is (frameWidthPct=72)% of dispW.
+      const baseGlassesWidthPx = dispW * 0.72;
+      const scaleFactor = (eyeDistPx * 2.5) / baseGlassesWidthPx;
+
+      // posX/posY are OFFSETS from the default center (50%, 38%)
+      const newPosX = Math.round(eyeCenterXPct - 50);   // offset from horizontal center
+      const newPosY = Math.round(eyeCenterYPct - 38);   // offset from default 38% top
+
+      setPosX(Math.max(-25, Math.min(25, newPosX)));
+      setPosY(Math.max(-15, Math.min(25, newPosY)));
+      setScale(Math.max(0.45, Math.min(1.8, scaleFactor)));
+      setRotation(Math.round(angle * 10) / 10);
+      setAutoFitDone(true);
+
     } catch (err) {
-      setAutoFitError(err.message || "Could not detect face.");
-      setPosX(0); setPosY(0); setScale(1); setRotation(0);
+      setAutoFitError(err.message || 'Could not detect face.');
+      // Keep current settings rather than resetting to defaults
     } finally {
       setAutoFitting(false);
     }
@@ -492,9 +646,9 @@ export default function TryOnStudio() {
       const glassesImg = new Image();
       glassesImg.crossOrigin = 'anonymous';
       const draw = () => {
-        const eyeX = canvas.width * ((50 + posX) / 100);
+        const eyeX = canvas.width  * ((50 + posX) / 100);
         const eyeY = canvas.height * ((38 + posY) / 100);
-        const eyeW = canvas.width * 0.72 * scale;
+        const eyeW = canvas.width  * 0.55 * scale;  // matches frameWidthPct = 55
         const eyeH = useProductFrame ? (eyeW * glassesImg.height) / glassesImg.width : eyeW / 3;
         ctx.save();
         ctx.translate(eyeX, eyeY);
@@ -518,27 +672,33 @@ export default function TryOnStudio() {
     };
   };
 
-  // Computed values
-  const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(selectedFrame.svg(frameColor, lensOpacity))}`;
-  const eyeRegionTop = 38;
-  const frameWidthPct = 72;
+  // Overlay % dimensions
+  // Frame SVGs have viewBox 0 0 320 110 → aspect ratio 320:110 = 2.91:1
+  // Product images have varying aspect ratios
+  // We want glasses to span roughly 2.5× inter-eye distance.
+  // Default: 55% width (narrower than before), centred at 50% H and 38% V
+  const eyeRegionTop  = 38; // % from top (portrait head shots: eyes at ~38%)
+  const frameWidthPct = 55; // % of container width for the glasses overlay
 
-  // Overlay image source — for catalog: use bg-removed version if ready, else original
+  // Overlay image source
+  const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(selectedFrame.svg(frameColor, lensOpacity))}`;
   const overlayImgSrc = useProductFrame
     ? (bgRemovedUrl || getProductImgUrl(selectedProduct))
     : svgDataUrl;
 
-  // Glasses overlay styles shared
+  // Glasses overlay CSS — CORRECTED: center-transform at eye midpoint
   const glassesOverlayStyle = {
     position: 'absolute',
-    top: `${eyeRegionTop + posY}%`,
+    top:  `${eyeRegionTop + posY}%`,
     left: `${50 + posX}%`,
     width: `${frameWidthPct * scale}%`,
     transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-    transition: autoFitting ? 'all 0.6s cubic-bezier(0.34,1.56,0.64,1)' : 'none',
-    filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.5))',
+    transition: autoFitting ? 'all 0.5s cubic-bezier(0.34,1.56,0.64,1)' : 'none',
+    filter: 'drop-shadow(0 3px 12px rgba(0,0,0,0.55))',
     pointerEvents: 'none',
     zIndex: 3,
+    // Ensure product images don't blend with skin — keep normal blend mode always
+    mixBlendMode: 'normal',
   };
 
   return (
@@ -786,51 +946,53 @@ export default function TryOnStudio() {
                   style={{ aspectRatio: '4/5', maxHeight: 600, margin: '0 auto', maxWidth: 480 }}
                 >
                   {webcamMode && !webcamSnapped ? (
-                    /* ── Live Webcam Feed ── */
+                    /* ── Live Webcam Feed — glasses drawn on canvas via RAF loop ── */
                     <>
+                      {/* Hidden video feeds the canvas loop */}
                       <video
                         ref={webcamVideoRef}
                         autoPlay
                         playsInline
                         muted
+                        style={{ display: 'none' }}
+                      />
+
+                      {/* Canvas shows video + glasses at detected landmark positions */}
+                      <canvas
+                        ref={webcamCanvasRef}
                         style={{
-                          width: '100%', height: '100%', objectFit: 'cover',
-                          transform: mirrorMode ? 'scaleX(-1)' : 'none',
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
                           borderRadius: 22,
+                          display: 'block',
                         }}
                       />
-                      <canvas ref={webcamCanvasRef} style={{ display: 'none' }} />
-
-                      {/* Glasses overlay on top of webcam */}
-                      <div style={glassesOverlayStyle}>
-                        <img
-                          src={overlayImgSrc}
-                          alt="glasses frame"
-                          style={{ width: '100%', display: 'block' }}
-                        />
-                      </div>
 
                       <div className="ai-badge">
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff4444', display: 'inline-block', animation: 'pulse-gold 1s infinite' }} />
-                        Live Webcam
+                        Live · AI Tracking
                       </div>
 
                       <div className="webcam-overlay">
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12, textAlign: 'center' }}>
+                          Look straight ahead · Stay centred
+                        </p>
                         <button
                           onClick={snapPhoto}
                           style={{
-                            width: 64, height: 64, borderRadius: '50%',
+                            width: 68, height: 68, borderRadius: '50%',
                             background: 'linear-gradient(135deg, #C5A028, #e8c547)',
-                            border: '4px solid rgba(255,255,255,0.3)',
+                            border: '4px solid rgba(255,255,255,0.35)',
                             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 8px 30px rgba(197,160,40,0.6)',
+                            boxShadow: '0 8px 30px rgba(197,160,40,0.7)',
                             transition: 'transform 0.2s',
                           }}
                           title="Take Snapshot"
                         >
-                          <Camera style={{ width: 26, height: 26, color: '#0a0a0a' }} />
+                          <Camera style={{ width: 28, height: 28, color: '#0a0a0a' }} />
                         </button>
-                        <button onClick={stopWebcam} style={{ marginTop: 10, padding: '6px 16px', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 20, color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                        <button onClick={stopWebcam} style={{ marginTop: 10, padding: '6px 18px', background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 20, color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer' }}>
                           Stop Camera
                         </button>
                       </div>
