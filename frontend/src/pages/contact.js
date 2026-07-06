@@ -263,34 +263,36 @@ export default function ContactPage() {
                 <label className="block text-[10px] uppercase tracking-wider text-premium-accent font-bold">
                   Security Verification
                 </label>
-                <div className="flex items-center gap-3">
-                  {captchaSvg ? (
-                    <div 
-                      dangerouslySetInnerHTML={{ __html: captchaSvg }} 
-                      className="flex-shrink-0 cursor-pointer"
-                      title="Click to refresh"
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                    {captchaSvg ? (
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: captchaSvg }} 
+                        className="flex-shrink-0 cursor-pointer"
+                        title="Click to refresh"
+                        onClick={fetchCaptcha}
+                      />
+                    ) : (
+                      <div className="w-[160px] h-[50px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
+                        Loading...
+                      </div>
+                    )}
+                    <button
+                      type="button"
                       onClick={fetchCaptcha}
-                    />
-                  ) : (
-                    <div className="w-[160px] h-[50px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
-                      Loading...
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={fetchCaptcha}
-                    className="p-3 border border-premium-border text-premium-accent hover:border-premium-accent rounded bg-white transition-colors flex items-center justify-center"
-                    title="Refresh Security Code"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </button>
+                      className="p-3 border border-premium-border text-premium-accent hover:border-premium-accent rounded bg-white transition-colors flex items-center justify-center shrink-0"
+                      title="Refresh Security Code"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                  </div>
                   <input
                     type="text"
                     required
                     value={captchaInput}
                     onChange={(e) => setCaptchaInput(e.target.value)}
-                    placeholder="Enter code"
-                    className="flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center"
+                    placeholder="ENTER CODE"
+                    className="w-full sm:flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center"
                     maxLength="5"
                     autoComplete="off"
                   />
