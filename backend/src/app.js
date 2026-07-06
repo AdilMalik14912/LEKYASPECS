@@ -15,6 +15,16 @@ const stylistController = require('./controllers/stylistController');
 
 // Middlewares
 const { authenticateToken, isAdmin } = require('./middleware/auth');
+const { 
+  strictLimiter, 
+  generalLimiter, 
+  userAgentShield, 
+  validateHoneypot, 
+  validateCaptcha 
+} = require('./middleware/security');
+
+// Captcha Utility
+const { getCaptchaPayload } = require('./utils/captcha');
 
 // Email Service
 const { sendContactEmail } = require('./utils/mailer');
@@ -56,6 +66,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Global Security Middlewares
+app.use(userAgentShield);
+app.use('/api', generalLimiter);
+
 // --- ROUTES ---
 
 // 1. Health Check
@@ -63,11 +77,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
+// Captcha Endpoint
+app.get('/api/auth/captcha', (req, res) => {
+  res.json(getCaptchaPayload());
+});
+
 // 2. Authentication API
 app.post('/api/auth/register', authController.register);
-app.post('/api/auth/register/initiate', authController.registerInitiate);
+app.post('/api/auth/register/initiate', strictLimiter, validateHoneypot, validateCaptcha, authController.registerInitiate);
 app.post('/api/auth/register/verify', authController.registerVerify);
-app.post('/api/auth/login', authController.login);
+app.post('/api/auth/login', strictLimiter, validateHoneypot, validateCaptcha, authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
 
@@ -185,7 +204,7 @@ app.get('/api/orders/history', authenticateToken, orderController.getOrders);
 app.post('/api/orders/review', authenticateToken, orderController.addReview);
 
 // 6. Contact Us (Public)
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', strictLimiter, validateHoneypot, validateCaptcha, async (req, res) => {
   const { name, email, phone, subject, message } = req.body;
   if (!name || !email || !subject || !message) {
     return res.status(400).json({ message: 'Name, email, subject and message are required' });

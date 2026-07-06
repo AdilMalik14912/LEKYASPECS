@@ -2,7 +2,7 @@ const React = require('react');
 const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
-const { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare, Instagram, Twitter } = require('lucide-react');
+const { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare, Instagram, Twitter, RefreshCw } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -16,7 +16,26 @@ export default function ContactPage() {
   const [error, setError] = useState('');
   const [typedText, setTypedText] = useState('');
 
-  // Typewriter effect on mount
+  // Captcha & Honeypot states
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaSvg, setCaptchaSvg] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [websiteVerify, setWebsiteVerify] = useState('');
+
+  const fetchCaptcha = () => {
+    fetch(`${API_BASE}/api/auth/captcha`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.token) {
+          setCaptchaToken(data.token);
+          setCaptchaSvg(data.svg);
+          setCaptchaInput('');
+        }
+      })
+      .catch(err => console.error('Error fetching captcha:', err));
+  };
+
+  // Typewriter effect & Captcha fetch on mount
   useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
@@ -24,6 +43,9 @@ export default function ContactPage() {
       setTypedText(CONTACT_HEADING.slice(0, i));
       if (i >= CONTACT_HEADING.length) clearInterval(interval);
     }, 55);
+
+    fetchCaptcha();
+
     return () => clearInterval(interval);
   }, []);
 
@@ -38,14 +60,21 @@ export default function ContactPage() {
       const res = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          captchaToken,
+          captchaValue: captchaInput,
+          website_verify: websiteVerify
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to send');
       setSuccess(data.message);
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+      fetchCaptcha(); // Load fresh captcha on success
     } catch (err) {
       setError(err.message);
+      fetchCaptcha(); // Refresh captcha on failure
     } finally {
       setSending(false);
     }
@@ -214,6 +243,61 @@ export default function ContactPage() {
                   placeholder="Tell us how we can help you..."
                   className="w-full border border-premium-border rounded-lg px-4 py-3 text-sm text-premium-black focus:outline-none focus:border-premium-accent transition-colors resize-none"
                 />
+              </div>
+
+              {/* Honeypot field (hidden from view, bot trap) */}
+              <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', opacity: 0, zIndex: -1 }}>
+                <input
+                  type="text"
+                  name="website_verify"
+                  value={websiteVerify}
+                  onChange={(e) => setWebsiteVerify(e.target.value)}
+                  tabIndex="-1"
+                  autoComplete="off"
+                  placeholder="Do not fill this"
+                />
+              </div>
+
+              {/* Captcha Verification Widget */}
+              <div className="space-y-2 bg-premium-light border border-premium-border rounded-xl p-4">
+                <label className="block text-[10px] uppercase tracking-wider text-premium-accent font-bold">
+                  Security Verification
+                </label>
+                <div className="flex items-center gap-3">
+                  {captchaSvg ? (
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: captchaSvg }} 
+                      className="flex-shrink-0 cursor-pointer"
+                      title="Click to refresh"
+                      onClick={fetchCaptcha}
+                    />
+                  ) : (
+                    <div className="w-[160px] h-[50px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
+                      Loading...
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={fetchCaptcha}
+                    className="p-3 border border-premium-border text-premium-accent hover:border-premium-accent rounded bg-white transition-colors flex items-center justify-center"
+                    title="Refresh Security Code"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="text"
+                    required
+                    value={captchaInput}
+                    onChange={(e) => setCaptchaInput(e.target.value)}
+                    placeholder="Enter code"
+                    className="flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center"
+                    maxLength="5"
+                    autoComplete="off"
+                  />
+                </div>
+                <p className="text-[9px] text-premium-gray font-light">
+                  Please enter the 5-character visual captcha code above to send your message.
+                </p>
               </div>
 
               {/* Submit */}

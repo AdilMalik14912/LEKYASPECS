@@ -99,6 +99,31 @@ export default function Account() {
   const [otpCode, setOtpCode] = useState('');
   const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
 
+  // Captcha & Honeypot states
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaSvg, setCaptchaSvg] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [websiteVerify, setWebsiteVerify] = useState('');
+
+  const fetchCaptcha = () => {
+    fetch(`${API_BASE}/api/auth/captcha`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.token) {
+          setCaptchaToken(data.token);
+          setCaptchaSvg(data.svg);
+          setCaptchaInput('');
+        }
+      })
+      .catch(err => console.error('Error fetching captcha:', err));
+  };
+
+  useEffect(() => {
+    if (!user && (isLoginTab || registrationStep === 1)) {
+      fetchCaptcha();
+    }
+  }, [user, isLoginTab, registrationStep]);
+
   // User Dashboard states
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -135,7 +160,13 @@ export default function Account() {
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          captchaToken, 
+          captchaValue: captchaInput,
+          website_verify: websiteVerify
+        })
       })
         .then(res => res.json())
         .then(data => {
@@ -144,11 +175,13 @@ export default function Account() {
             login(data.token, data.user);
           } else {
             setFormError(data.message || 'Invalid credentials');
+            fetchCaptcha(); // Refresh captcha on failure
           }
         })
         .catch(err => {
           setFormLoading(false);
           setFormError('Connection to server failed. Please try again.');
+          fetchCaptcha(); // Refresh captcha
         });
     } else {
       // Registration flow
@@ -162,7 +195,15 @@ export default function Account() {
         fetch(`${API_BASE}/api/auth/register/initiate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email: email || '', phone: phone || '', password })
+          body: JSON.stringify({ 
+            name, 
+            email: email || '', 
+            phone: phone || '', 
+            password,
+            captchaToken,
+            captchaValue: captchaInput,
+            website_verify: websiteVerify
+          })
         })
           .then(res => {
             if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'Initiation failed') });
@@ -176,6 +217,7 @@ export default function Account() {
           .catch(err => {
             setFormLoading(false);
             setFormError(err.message);
+            fetchCaptcha(); // Refresh captcha on error
           });
       } else {
         // OTP Verification step
@@ -359,9 +401,65 @@ export default function Account() {
                 </div>
               </>
             )}
+            {/* Honeypot field (hidden from view, bot trap) */}
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', opacity: 0, zIndex: -1 }}>
+              <input
+                type="text"
+                name="website_verify"
+                value={websiteVerify}
+                onChange={(e) => setWebsiteVerify(e.target.value)}
+                tabIndex="-1"
+                autoComplete="off"
+                placeholder="Do not fill this"
+              />
+            </div>
+
+            {/* Captcha Verification Widget */}
+            {(isLoginTab || registrationStep === 1) && (
+              <div className="space-y-2 bg-premium-light border border-premium-border rounded p-4 mb-4">
+                <label className="block text-[10px] uppercase tracking-wider text-premium-accent font-bold">
+                  Security Verification
+                </label>
+                <div className="flex items-center gap-3">
+                  {captchaSvg ? (
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: captchaSvg }} 
+                      className="flex-shrink-0 cursor-pointer"
+                      title="Click to refresh"
+                      onClick={fetchCaptcha}
+                    />
+                  ) : (
+                    <div className="w-[160px] h-[50px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
+                      Loading...
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={fetchCaptcha}
+                    className="p-3 border border-premium-border text-premium-accent hover:border-premium-accent rounded bg-white transition-colors flex items-center justify-center"
+                    title="Refresh Security Code"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="text"
+                    required
+                    value={captchaInput}
+                    onChange={(e) => setCaptchaInput(e.target.value)}
+                    placeholder="Enter code"
+                    className="flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center"
+                    maxLength="5"
+                    autoComplete="off"
+                  />
+                </div>
+                <p className="text-[9px] text-premium-gray font-light">
+                  Please enter the 5-character visual captcha code above to verify you are a human.
+                </p>
+              </div>
+            )}
 
             {formError && (
-              <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+              <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200 mb-4">
                 {formError}
               </div>
             )}
