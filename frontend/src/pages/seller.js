@@ -2,7 +2,7 @@ const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
-const { useAuth, useToast } = require('./_app');
+const { useAuth } = require('./_app');
 const {
   BarChart3, Package, ShoppingBag, Users, AlertTriangle, TrendingUp,
   RefreshCw, Truck, CheckCircle2, Clock, ChevronRight, Search,
@@ -48,8 +48,14 @@ function StatCard({ icon: Icon, label, value, sub, color = 'gold', onClick }) {
 
 export default function SellerPanel() {
   const { user, token } = useAuth();
-  const { showToast } = useToast();
   const router = useRouter();
+
+  // Simple local toast
+  const [toastMsg, setToastMsg] = React.useState(null);
+  const showToast = (msg, type = 'success') => {
+    setToastMsg({ msg, type });
+    setTimeout(() => setToastMsg(null), 3000);
+  };
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
@@ -176,6 +182,14 @@ export default function SellerPanel() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className={`fixed top-4 right-4 z-[9999] px-4 py-3 rounded-lg text-xs font-bold shadow-2xl transition-all ${
+          toastMsg.type === 'error' ? 'bg-red-900 border border-red-500 text-red-200' : 'bg-emerald-900 border border-emerald-500 text-emerald-200'
+        }`}>
+          {toastMsg.msg}
+        </div>
+      )}
       {/* Header */}
       <header className="border-b border-white/10 bg-[#0f0f0f] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
