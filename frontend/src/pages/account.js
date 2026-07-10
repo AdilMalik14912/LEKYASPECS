@@ -430,7 +430,7 @@ export default function Account() {
                         onClick={fetchCaptcha}
                       />
                     ) : (
-                      <div className="w-[160px] h-[50px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
+                      <div className="w-[180px] h-[60px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
                         Loading...
                       </div>
                     )}
@@ -447,15 +447,15 @@ export default function Account() {
                     type="text"
                     required
                     value={captchaInput}
-                    onChange={(e) => setCaptchaInput(e.target.value)}
+                    onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
                     placeholder="ENTER CODE"
-                    className="w-full sm:flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center"
+                    className="w-full sm:flex-grow bg-white text-sm border border-premium-border rounded px-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold uppercase text-center tracking-widest"
                     maxLength="5"
                     autoComplete="off"
                   />
                 </div>
                 <p className="text-[9px] text-premium-gray font-light">
-                  Please enter the 5-character visual captcha code above to verify you are a human.
+                  Type the 5 characters shown above (uppercase letters &amp; digits only — case insensitive).
                 </p>
               </div>
             )}

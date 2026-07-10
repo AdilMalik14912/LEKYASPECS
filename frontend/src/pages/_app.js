@@ -473,18 +473,18 @@ export default function App({ Component, pageProps }) {
                       </Link>
 
                       {user ? (
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <Link href="/account" className="flex items-center gap-1 text-sm font-medium text-premium-dark hover:text-premium-accent transition-colors">
-                            <User className="h-5 w-5 sm:h-6 sm:w-6 text-premium-accent" />
-                            <span className="hidden md:inline max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
+                        <div className="flex items-center gap-1">
+                          <Link href="/account" className="flex items-center gap-1.5 text-sm font-medium text-premium-dark hover:text-premium-accent transition-colors p-1">
+                            <User className="h-5 w-5 shrink-0 text-premium-accent" />
+                            <span className="hidden md:inline max-w-[80px] truncate text-xs font-semibold">{user?.name?.split(' ')[0] || 'Account'}</span>
                           </Link>
                           {(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') && (
-                            <Link href="/admin" className="text-[10px] bg-premium-black text-premium-accent px-2 py-0.5 rounded tracking-wider uppercase font-bold hover:bg-premium-accent hover:text-white transition-all ml-1">
+                            <Link href="/admin" className="hidden sm:inline-flex text-[9px] bg-premium-black text-premium-accent px-1.5 py-0.5 rounded tracking-wider uppercase font-bold hover:bg-premium-accent hover:text-white transition-all">
                               Admin
                             </Link>
                           )}
-                          <button onClick={logout} className="p-2 text-premium-dark hover:text-red-600 transition-colors" title="Log Out">
-                            <LogOut className="h-5 w-5" />
+                          <button onClick={logout} className="p-1.5 text-premium-dark hover:text-red-600 transition-colors" title="Log Out">
+                            <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>
                         </div>
                       ) : (
