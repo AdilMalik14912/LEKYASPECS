@@ -3,7 +3,7 @@ const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, PackageCheck, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -822,7 +822,7 @@ export default function Account() {
                             { label: 'Ordered', icon: Package, statuses: ['Paid', 'Processing', 'Shipped', 'Delivered'] },
                             { label: 'Processing', icon: RefreshCw, statuses: ['Processing', 'Shipped', 'Delivered'] },
                             { label: 'Shipped', icon: Truck, statuses: ['Shipped', 'Delivered'] },
-                            { label: 'Delivered', icon: PackageCheck, statuses: ['Delivered'] },
+                            { label: 'Delivered', icon: CheckCircle2, statuses: ['Delivered'] },
                           ].map((step, idx, arr) => {
                             const isActive = step.statuses.includes(order.status);
                             const StepIcon = step.icon;
@@ -855,6 +855,20 @@ export default function Account() {
                     ) : (
                       <div className="mb-5 flex items-center gap-2 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-red-600 font-semibold">
                         <XCircle className="w-4 h-4" /> This order has been cancelled.
+                      </div>
+                    )}
+
+                    {order.status !== 'Cancelled' && order.delivery_otp && (
+                      <div className="mb-5 p-3.5 bg-premium-accent/10 border border-premium-accent/30 rounded flex items-center justify-between gap-4">
+                        <div>
+                          <span className="block text-[10px] text-premium-gray uppercase font-bold tracking-wider">Delivery Verification Code</span>
+                          <span className="text-[9px] text-premium-gray font-light mt-0.5 block">Share this code with the delivery agent only when you receive the shipment.</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xl font-bold font-mono text-premium-golddark tracking-widest bg-premium-accent/20 border border-premium-accent/40 rounded px-3.5 py-1.5 inline-block">
+                            {order.delivery_otp}
+                          </span>
+                        </div>
                       </div>
                     )}
 

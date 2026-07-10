@@ -96,7 +96,7 @@ const claimOrder = async (req, res) => {
 const updateDeliveryStatus = async (req, res) => {
   const agentId = req.user.id;
   const { id } = req.params;
-  const { status, delivery_notes } = req.body;
+  const { status, delivery_notes, delivery_otp } = req.body;
 
   const allowedStatuses = ['Shipped', 'Out for Delivery', 'Delivered'];
   if (!allowedStatuses.includes(status)) {
@@ -106,24 +106,40 @@ const updateDeliveryStatus = async (req, res) => {
   try {
     // Verify the agent owns this order
     const orderRes = await db.query(
-      'SELECT id, assigned_delivery_agent_id FROM orders WHERE id = ?',
+      'SELECT id, assigned_delivery_agent_id, delivery_otp FROM orders WHERE id = ?',
       [id]
     );
     if (orderRes.rows.length === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
+    const order = orderRes.rows[0];
     if (
-      orderRes.rows[0].assigned_delivery_agent_id !== agentId &&
+      order.assigned_delivery_agent_id !== agentId &&
       req.user.role !== 'admin' &&
       req.user.email !== 'dev.parceluncle@gmail.com'
     ) {
       return res.status(403).json({ message: 'You are not assigned to this order' });
     }
 
-    const finalStatus = status === 'Delivered' ? 'Delivered' : status;
+    if (status === 'Delivered') {
+      const storedOtp = order.delivery_otp;
+      if (storedOtp) {
+        if (!delivery_otp || delivery_otp.trim() !== storedOtp.trim()) {
+          return res.status(400).json({
+            message: 'Verification failed: Correct 6-digit customer Delivery OTP is required to complete delivery.'
+          });
+        }
+      }
+    }
+
+    let finalOtp = order.delivery_otp;
+    if (status === 'Out for Delivery' && !finalOtp) {
+      finalOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
     await db.query(
-      'UPDATE orders SET status = ?, delivery_notes = ? WHERE id = ?',
-      [finalStatus, delivery_notes || null, id]
+      'UPDATE orders SET status = ?, delivery_notes = ?, delivery_otp = ? WHERE id = ?',
+      [status, delivery_notes || null, finalOtp, id]
     );
 
     res.json({ message: `Order #${id} marked as "${status}"` });

@@ -145,12 +145,23 @@ export default function DeliveryPanel() {
   };
 
   const handleStatusUpdate = async (orderId, status, notes) => {
+    let deliveryOtpVal = null;
+    if (status === 'Delivered') {
+      const code = window.prompt("Please enter the 6-digit Customer Delivery OTP:");
+      if (code === null) return; // User cancelled
+      if (!code.trim()) {
+        showToast("Delivery OTP is required.", 'error');
+        return;
+      }
+      deliveryOtpVal = code.trim();
+    }
+
     setUpdatingId(orderId);
     try {
       const res = await fetch(`${API_BASE}/api/delivery/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, delivery_notes: notes })
+        body: JSON.stringify({ status, delivery_notes: notes, delivery_otp: deliveryOtpVal })
       });
       const data = await res.json();
       if (res.ok) {

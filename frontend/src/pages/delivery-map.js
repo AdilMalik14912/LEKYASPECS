@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect, useRef } = React;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
@@ -16,19 +16,65 @@ const STATUS_COLORS = {
 };
 
 const geocodeAddress = async (address) => {
-  try {
-    const parts = typeof address === 'object'
-      ? [address.line1, address.city, address.state, address.pincode, 'India'].filter(Boolean)
-      : [address, 'India'];
-    const query = parts.join(', ');
-    await new Promise(r => setTimeout(r, 1100));
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=in`,
-      { headers: { 'User-Agent': 'LekyaSpecs/1.0 delivery-map' } }
-    );
-    const data = await res.json();
-    if (data.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-  } catch {}
+  const getCoords = async (query) => {
+    try {
+      await new Promise(r => setTimeout(r, 1100));
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=in`,
+        { headers: { 'User-Agent': 'LekyaSpecs/1.0 delivery-map' } }
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data && data.length > 0) {
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      }
+    } catch {}
+    return null;
+  };
+
+  const addrObj = typeof address === 'object' ? address : null;
+
+  // Try 1: Full address
+  const fullParts = addrObj
+    ? [addrObj.line1, addrObj.city, addrObj.state, addrObj.pincode, 'India'].filter(Boolean)
+    : [address, 'India'];
+  let coords = await getCoords(fullParts.join(', '));
+  if (coords) return coords;
+
+  if (addrObj) {
+    // Try 2: Line2 + City + Pincode
+    const parts2 = [addrObj.line2, addrObj.city, addrObj.pincode, 'India'].filter(Boolean);
+    if (parts2.length > 1) {
+      coords = await getCoords(parts2.join(', '));
+      if (coords) return coords;
+    }
+
+    // Try 3: City + Pincode
+    const parts3 = [addrObj.city, addrObj.pincode, 'India'].filter(Boolean);
+    if (parts3.length > 1) {
+      coords = await getCoords(parts3.join(', '));
+      if (coords) return coords;
+    }
+
+    // Try 4: Pincode only
+    if (addrObj.pincode) {
+      coords = await getCoords(`${addrObj.pincode}, India`);
+      if (coords) return coords;
+    }
+
+    // Try 5: City only
+    if (addrObj.city) {
+      coords = await getCoords(`${addrObj.city}, India`);
+      if (coords) return coords;
+    }
+  } else {
+    // String fallback: slice first token
+    const strParts = address.split(',');
+    if (strParts.length > 1) {
+      coords = await getCoords(strParts.slice(1).join(', ') + ', India');
+      if (coords) return coords;
+    }
+  }
   return null;
 };
 
@@ -49,6 +95,7 @@ export default function DeliveryMap() {
   const routeRef = useRef(null);
   const watchIdRef = useRef(null);
   const locationIntervalRef = useRef(null);
+  const initialBoundsSetRef = useRef(false);
 
   const [locationStatus, setLocationStatus] = useState('requesting');
   const [riderLocation, setRiderLocation] = useState(null);
@@ -180,7 +227,7 @@ export default function DeliveryMap() {
         ? [order.shipping_address.line1, order.shipping_address.city].filter(Boolean).join(', ')
         : order.shipping_address || '';
       const m = L.marker([lat, lng], { icon }).addTo(map)
-        .bindPopup(`<div style="background:#111;color:white;padding:10px 14px;border-radius:10px;border:1px solid ${color};min-width:180px;font-family:sans-serif;"><b style="color:${color}">Order #${order.id}</b>${order.is_urgent ? '<span style="background:#ef4444;color:white;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:6px;">⚡ URGENT</span>' : ''}<div style="font-size:11px;color:#ccc;margin-top:6px;">${order.customer_name || 'Guest'}</div><div style="font-size:10px;color:#888;">📍 ${addr}</div><span style="display:inline-block;margin-top:6px;background:${color}22;color:${color};font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">${order.status}</span><br><a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="display:inline-block;margin-top:8px;background:#1d4ed8;color:white;font-size:9px;padding:4px 8px;border-radius:5px;text-decoration:none;font-weight:700;">🗺 Navigate</a></div>`);
+        .bindPopup(`<div style="background:#111;color:white;padding:10px 14px;border-radius:10px;border:1px solid #3b82f6;font-family:sans-serif;"><b style="color:${color}">Order #${order.id}</b>${order.is_urgent ? '<span style="background:#ef4444;color:white;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:6px;">⚡ URGENT</span>' : ''}<div style="font-size:11px;color:#ccc;margin-top:6px;">${order.customer_name || 'Guest'}</div><div style="font-size:10px;color:#888;">📍 ${addr}</div><span style="display:inline-block;margin-top:6px;background:${color}22;color:${color};font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">${order.status}</span><br><a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="display:inline-block;margin-top:8px;background:#1d4ed8;color:white;font-size:9px;padding:4px 8px;border-radius:5px;text-decoration:none;font-weight:700;">🗺 Navigate</a></div>`);
       markersRef.current.push(m);
       routePoints.push([lat, lng]);
       if (prev) totalDist += calcDistance(prev[0], prev[1], lat, lng);
@@ -189,9 +236,15 @@ export default function DeliveryMap() {
     setTotalDistance(totalDist);
     if (routePoints.length > 1) {
       routeRef.current = L.polyline(routePoints, { color: '#f59e0b', weight: 3, opacity: 0.85, dashArray: '10, 8' }).addTo(map);
-      map.fitBounds(routeRef.current.getBounds(), { padding: [60, 60] });
+      if (!initialBoundsSetRef.current) {
+        map.fitBounds(routeRef.current.getBounds(), { padding: [60, 60] });
+        initialBoundsSetRef.current = true;
+      }
     } else if (riderLocation) {
-      map.setView([riderLocation.lat, riderLocation.lng], 14);
+      if (!initialBoundsSetRef.current) {
+        map.setView([riderLocation.lat, riderLocation.lng], 14);
+        initialBoundsSetRef.current = true;
+      }
     }
   }, [riderLocation, geocodedOrders, mapInitialized]);
 

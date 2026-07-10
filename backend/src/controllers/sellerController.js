@@ -59,10 +59,18 @@ const updateSellerOrderStatus = async (req, res) => {
   }
 
   try {
-    await db.query(
-      'UPDATE orders SET status = ?, tracking_comments = ? WHERE id = ?',
-      [status, tracking_comments || null, id]
-    );
+    if (status === 'Shipped') {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      await db.query(
+        'UPDATE orders SET status = ?, tracking_comments = ?, delivery_otp = ? WHERE id = ?',
+        [status, tracking_comments || null, otp, id]
+      );
+    } else {
+      await db.query(
+        'UPDATE orders SET status = ?, tracking_comments = ? WHERE id = ?',
+        [status, tracking_comments || null, id]
+      );
+    }
     res.json({ message: `Order #${id} updated to ${status}` });
   } catch (err) {
     console.error('Seller updateOrderStatus error:', err);

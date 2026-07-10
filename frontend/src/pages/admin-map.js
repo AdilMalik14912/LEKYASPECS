@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect, useRef } = React;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
@@ -10,18 +10,65 @@ const API_BASE = typeof window !== 'undefined'
 const RIDER_COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#f97316', '#06b6d4', '#84cc16'];
 
 const geocodeAddress = async (address) => {
-  try {
-    const parts = typeof address === 'object'
-      ? [address.line1, address.city, address.state, address.pincode, 'India'].filter(Boolean)
-      : [address, 'India'];
-    await new Promise(r => setTimeout(r, 800));
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(parts.join(', '))}&format=json&limit=1&countrycodes=in`,
-      { headers: { 'User-Agent': 'LekyaSpecs/1.0 admin-map' } }
-    );
-    const data = await res.json();
-    if (data.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-  } catch {}
+  const getCoords = async (query) => {
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=in`,
+        { headers: { 'User-Agent': 'LekyaSpecs/1.0 admin-map' } }
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data && data.length > 0) {
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      }
+    } catch {}
+    return null;
+  };
+
+  const addrObj = typeof address === 'object' ? address : null;
+
+  // Try 1: Full address
+  const fullParts = addrObj
+    ? [addrObj.line1, addrObj.city, addrObj.state, addrObj.pincode, 'India'].filter(Boolean)
+    : [address, 'India'];
+  let coords = await getCoords(fullParts.join(', '));
+  if (coords) return coords;
+
+  if (addrObj) {
+    // Try 2: Line2 + City + Pincode
+    const parts2 = [addrObj.line2, addrObj.city, addrObj.pincode, 'India'].filter(Boolean);
+    if (parts2.length > 1) {
+      coords = await getCoords(parts2.join(', '));
+      if (coords) return coords;
+    }
+
+    // Try 3: City + Pincode
+    const parts3 = [addrObj.city, addrObj.pincode, 'India'].filter(Boolean);
+    if (parts3.length > 1) {
+      coords = await getCoords(parts3.join(', '));
+      if (coords) return coords;
+    }
+
+    // Try 4: Pincode only
+    if (addrObj.pincode) {
+      coords = await getCoords(`${addrObj.pincode}, India`);
+      if (coords) return coords;
+    }
+
+    // Try 5: City only
+    if (addrObj.city) {
+      coords = await getCoords(`${addrObj.city}, India`);
+      if (coords) return coords;
+    }
+  } else {
+    // String fallback: slice first token
+    const strParts = address.split(',');
+    if (strParts.length > 1) {
+      coords = await getCoords(strParts.slice(1).join(', ') + ', India');
+      if (coords) return coords;
+    }
+  }
   return null;
 };
 
@@ -40,6 +87,7 @@ export default function AdminMap() {
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
   const linesRef = useRef([]);
+  const initialBoundsSetRef = useRef(false);
   const [leafletReady, setLeafletReady] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [riders, setRiders] = useState([]);
@@ -171,8 +219,11 @@ export default function AdminMap() {
       }
     });
 
-    if (allPoints.length > 0) {
-      try { map.fitBounds(allPoints, { padding: [60, 60] }); } catch {}
+    if (allPoints.length > 0 && !initialBoundsSetRef.current) {
+      try {
+        map.fitBounds(allPoints, { padding: [60, 60] });
+        initialBoundsSetRef.current = true;
+      } catch {}
     }
   }, [riders, mapInitialized]);
 

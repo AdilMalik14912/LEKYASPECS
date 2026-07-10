@@ -288,10 +288,14 @@ const initDb = async () => {
       console.log('Migration: Added is_urgent flag to orders table.');
     } catch (_) {}
 
-    // Migration: Add urgent note to orders
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN delivery_otp TEXT DEFAULT NULL");
+      console.log('Migration: Added delivery_otp column to orders table.');
+    } catch (_) {}
+
     try {
       await client.execute("ALTER TABLE orders ADD COLUMN urgent_note TEXT DEFAULT NULL");
-      console.log('Migration: Added urgent_note to orders table.');
+      console.log('Migration: Added urgent_note column to orders table.');
     } catch (_) {}
 
     // Migration: Add rider GPS tracking to users table
