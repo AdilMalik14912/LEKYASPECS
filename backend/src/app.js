@@ -11,10 +11,12 @@ const productController = require('./controllers/productController');
 const orderController = require('./controllers/orderController');
 const adminController = require('./controllers/adminController');
 const stylistController = require('./controllers/stylistController');
+const sellerController = require('./controllers/sellerController');
+const deliveryController = require('./controllers/deliveryController');
 
 
 // Middlewares
-const { authenticateToken, isAdmin } = require('./middleware/auth');
+const { authenticateToken, isAdmin, isSeller, isDelivery } = require('./middleware/auth');
 const { 
   strictLimiter, 
   generalLimiter, 
@@ -272,6 +274,53 @@ app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminContr
 // Real-time Active Sessions list
 app.get('/api/admin/active-sessions', authenticateToken, isAdmin, adminController.getActiveSessions);
 
+
+// 8. Seller Panel API (seller + admin access)
+app.get('/api/seller/stats', authenticateToken, isSeller, sellerController.getSellerStats);
+app.get('/api/seller/products', authenticateToken, isSeller, sellerController.getSellerProducts);
+app.get('/api/seller/orders', authenticateToken, isSeller, sellerController.getSellerOrders);
+app.put('/api/seller/orders/:id/status', authenticateToken, isSeller, sellerController.updateSellerOrderStatus);
+app.put('/api/seller/orders/:id/assign', authenticateToken, isSeller, sellerController.assignDeliveryAgent);
+app.get('/api/seller/delivery-agents', authenticateToken, isSeller, sellerController.getDeliveryAgents);
+
+// 9. Delivery Agent Panel API (delivery + admin access)
+app.get('/api/delivery/stats', authenticateToken, isDelivery, deliveryController.getMyStats);
+app.get('/api/delivery/my-orders', authenticateToken, isDelivery, deliveryController.getMyDeliveries);
+app.get('/api/delivery/available', authenticateToken, isDelivery, deliveryController.getAvailableOrders);
+app.post('/api/delivery/claim/:id', authenticateToken, isDelivery, deliveryController.claimOrder);
+app.put('/api/delivery/orders/:id/status', authenticateToken, isDelivery, deliveryController.updateDeliveryStatus);
+
+// 10. Admin: Change user role
+app.put('/api/admin/users/:id/role', authenticateToken, isAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  const allowedRoles = ['user', 'seller', 'delivery', 'admin'];
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).json({ message: 'Invalid role' });
+  }
+  try {
+    await db.query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
+    const userRes = await db.query('SELECT id, name, email, role FROM users WHERE id = ?', [id]);
+    res.json({ message: `User role updated to ${role}`, user: userRes.rows[0] });
+  } catch (err) {
+    console.error('Role update error:', err);
+    res.status(500).json({ message: 'Server error updating role' });
+  }
+});
+
+// 11. Admin: Get all users with roles (for team management)
+app.get('/api/admin/team', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT id, name, email, phone, role, loyalty_points, created_at
+       FROM users ORDER BY role ASC, created_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get team error:', err);
+    res.status(500).json({ message: 'Server error fetching team' });
+  }
+});
 
 // --- Brand Stylist Hub APIs ---
 app.get('/api/stylist/products', authenticateToken, stylistController.getProducts);

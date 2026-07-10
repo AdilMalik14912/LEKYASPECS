@@ -633,6 +633,13 @@ export default function Admin() {
   const [adminError, setAdminError] = useState('');
   const [adminSuccess, setAdminSuccess] = useState('');
 
+  // Team Management State
+  const [teamUsers, setTeamUsers] = useState([]);
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [teamSearch, setTeamSearch] = useState('');
+  const [teamRoleFilter, setTeamRoleFilter] = useState('All');
+  const [updatingRoleId, setUpdatingRoleId] = useState(null);
+
   // Coupon System State
   const [coupons, setCoupons] = useState([]);
   const [couponsLoading, setCouponsLoading] = useState(true);
@@ -802,6 +809,14 @@ export default function Admin() {
         .then(res => res.json())
         .then(data => { setActiveSessionsData(data); setActiveSessionsLoading(false); })
         .catch(err => console.error(err));
+    } else if (activeTab === 'team') {
+      setTeamLoading(true);
+      fetch(`${API_BASE}/api/admin/team`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setTeamUsers(data || []); setTeamLoading(false); })
+        .catch(err => { console.error(err); setTeamLoading(false); });
     }
   }, [activeTab, token, user]);
 
@@ -1452,6 +1467,15 @@ export default function Admin() {
           >
             <Sparkles className="w-4 h-4" /> Brand Stylist Hub 🎨
           </Link>
+
+          <button
+            onClick={() => setActiveTab('team')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'team' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Users className="w-4 h-4" /> Team Management
+          </button>
         </nav>
 
         <div className="border-t border-gray-800 pt-6 mt-10 flex items-center gap-2 text-[10px] text-premium-accent">
@@ -2761,6 +2785,142 @@ export default function Admin() {
               </div>
             ) : (
               <p className="text-xs text-red-600 font-semibold">Failed to fetch active session records.</p>
+            )}
+          </div>
+        )}
+
+        {/* --- TEAM MANAGEMENT TAB --- */}
+        {activeTab === 'team' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              Team Management
+            </h2>
+            <p className="text-sm text-premium-gray mb-6">Assign roles to users: <strong>Seller</strong> (manages orders & inventory) or <strong>Delivery Agent</strong> (handles deliveries).</p>
+
+            {/* Role legend */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              {[
+                { role: 'admin',    label: 'Admin',          color: 'bg-red-100 text-red-800 border-red-200' },
+                { role: 'seller',   label: 'Seller',         color: 'bg-amber-100 text-amber-800 border-amber-200' },
+                { role: 'delivery', label: 'Delivery Agent', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+                { role: 'user',     label: 'Customer',       color: 'bg-gray-100 text-gray-700 border-gray-200' },
+              ].map(r => (
+                <span key={r.role} className={`text-[10px] font-bold px-3 py-1.5 rounded border tracking-widest uppercase ${r.color}`}>{r.label}</span>
+              ))}
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <input
+                type="text"
+                placeholder="Search name or email..."
+                value={teamSearch}
+                onChange={e => setTeamSearch(e.target.value)}
+                className="bg-premium-light border border-premium-border rounded px-3 py-2 text-xs text-premium-dark focus:outline-none focus:border-premium-accent w-full sm:w-64"
+              />
+              <select
+                value={teamRoleFilter}
+                onChange={e => setTeamRoleFilter(e.target.value)}
+                className="bg-premium-light border border-premium-border rounded px-3 py-2 text-xs text-premium-dark focus:outline-none focus:border-premium-accent"
+              >
+                <option value="All">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="seller">Seller</option>
+                <option value="delivery">Delivery</option>
+                <option value="user">Customer</option>
+              </select>
+            </div>
+
+            {teamLoading ? (
+              <div className="text-center py-16"><Loader2 className="w-8 h-8 text-premium-accent animate-spin mx-auto" /></div>
+            ) : (
+              <div className="bg-white border border-premium-border rounded overflow-hidden shadow-sm">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="bg-premium-light border-b border-premium-border">
+                      <th className="text-left px-4 py-3 font-bold text-premium-dark uppercase tracking-wider">Name</th>
+                      <th className="text-left px-4 py-3 font-bold text-premium-dark uppercase tracking-wider hidden sm:table-cell">Email</th>
+                      <th className="text-left px-4 py-3 font-bold text-premium-dark uppercase tracking-wider">Current Role</th>
+                      <th className="text-left px-4 py-3 font-bold text-premium-dark uppercase tracking-wider">Change Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {teamUsers
+                      .filter(u => {
+                        const q = teamSearch.toLowerCase();
+                        const matchSearch = !q || (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+                        const matchRole = teamRoleFilter === 'All' || u.role === teamRoleFilter;
+                        return matchSearch && matchRole;
+                      })
+                      .map((u, idx) => {
+                        const roleColors = {
+                          admin:    'bg-red-100 text-red-800 border border-red-200',
+                          seller:   'bg-amber-100 text-amber-800 border border-amber-200',
+                          delivery: 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                          user:     'bg-gray-100 text-gray-700 border border-gray-200',
+                        };
+                        const rc = roleColors[u.role] || roleColors['user'];
+                        return (
+                          <tr key={u.id} className={`border-b border-premium-border hover:bg-premium-light transition-colors ${idx % 2 === 0 ? '' : 'bg-gray-50/30'}`}>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold text-premium-black">{u.name || '—'}</span>
+                              <span className="block text-premium-gray text-[10px] sm:hidden">{u.email}</span>
+                            </td>
+                            <td className="px-4 py-3 text-premium-gray hidden sm:table-cell">{u.email}</td>
+                            <td className="px-4 py-3">
+                              <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${rc}`}>
+                                {u.role || 'user'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {updatingRoleId === u.id ? (
+                                <Loader2 className="w-4 h-4 text-premium-accent animate-spin" />
+                              ) : (
+                                <select
+                                  value={u.role || 'user'}
+                                  onChange={async (e) => {
+                                    const newRole = e.target.value;
+                                    if (newRole === u.role) return;
+                                    if (!window.confirm(`Change ${u.name}'s role to "${newRole}"?`)) return;
+                                    setUpdatingRoleId(u.id);
+                                    try {
+                                      const res = await fetch(`${API_BASE}/api/admin/users/${u.id}/role`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ role: newRole })
+                                      });
+                                      const data = await res.json();
+                                      if (res.ok) {
+                                        setTeamUsers(prev => prev.map(user => user.id === u.id ? { ...user, role: newRole } : user));
+                                      } else {
+                                        alert(data.message || 'Role update failed');
+                                      }
+                                    } catch { alert('Connection error'); }
+                                    setUpdatingRoleId(null);
+                                  }}
+                                  className="bg-premium-light border border-premium-border rounded px-2 py-1.5 text-[10px] text-premium-dark focus:outline-none focus:border-premium-accent font-semibold uppercase tracking-wider"
+                                >
+                                  <option value="user">Customer</option>
+                                  <option value="seller">Seller</option>
+                                  <option value="delivery">Delivery Agent</option>
+                                  <option value="admin">Admin</option>
+                                </select>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+                {teamUsers.filter(u => {
+                  const q = teamSearch.toLowerCase();
+                  const matchSearch = !q || (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+                  const matchRole = teamRoleFilter === 'All' || u.role === teamRoleFilter;
+                  return matchSearch && matchRole;
+                }).length === 0 && (
+                  <div className="text-center py-12 text-premium-gray text-sm">No users found.</div>
+                )}
+              </div>
             )}
           </div>
         )}

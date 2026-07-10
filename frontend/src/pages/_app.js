@@ -483,6 +483,16 @@ export default function App({ Component, pageProps }) {
                               Admin
                             </Link>
                           )}
+                          {user.role === 'seller' && (
+                            <Link href="/seller" className="hidden sm:inline-flex text-[9px] bg-amber-900 text-amber-300 px-1.5 py-0.5 rounded tracking-wider uppercase font-bold hover:bg-amber-500 hover:text-white transition-all">
+                              Seller
+                            </Link>
+                          )}
+                          {user.role === 'delivery' && (
+                            <Link href="/delivery" className="hidden sm:inline-flex text-[9px] bg-indigo-900 text-indigo-300 px-1.5 py-0.5 rounded tracking-wider uppercase font-bold hover:bg-indigo-500 hover:text-white transition-all">
+                              Delivery
+                            </Link>
+                          )}
                           <button onClick={logout} className="p-1.5 text-premium-dark hover:text-red-600 transition-colors" title="Log Out">
                             <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>

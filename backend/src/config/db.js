@@ -270,6 +270,18 @@ const initDb = async () => {
       await client.execute("ALTER TABLE otps ADD COLUMN password_hash TEXT DEFAULT NULL");
     } catch (_) {}
 
+    // Migration: Add delivery agent assignment column to orders
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN assigned_delivery_agent_id INTEGER DEFAULT NULL");
+      console.log('Migration: Added assigned_delivery_agent_id to orders table.');
+    } catch (_) {}
+
+    // Migration: Add notes column to orders for delivery agent notes
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN delivery_notes TEXT DEFAULT NULL");
+      console.log('Migration: Added delivery_notes to orders table.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

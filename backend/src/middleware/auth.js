@@ -52,7 +52,41 @@ const isAdmin = (req, res, next) => {
   }
 };
 
+const isSeller = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  if (
+    req.user.role === 'seller' ||
+    req.user.role === 'admin' ||
+    req.user.email === 'dev.parceluncle@gmail.com' ||
+    req.user.email === 'admin@specs.com'
+  ) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Seller access only' });
+  }
+};
+
+const isDelivery = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  if (
+    req.user.role === 'delivery' ||
+    req.user.role === 'admin' ||
+    req.user.email === 'dev.parceluncle@gmail.com' ||
+    req.user.email === 'admin@specs.com'
+  ) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Delivery agent access only' });
+  }
+};
+
 module.exports = {
   authenticateToken,
-  isAdmin
+  isAdmin,
+  isSeller,
+  isDelivery
 };
