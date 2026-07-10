@@ -99,43 +99,81 @@ export default function Account() {
   const [otpCode, setOtpCode] = useState('');
   const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
 
-  // Captcha & Honeypot states
-  const [captchaToken, setCaptchaToken] = useState('');
-  const [captchaSvg, setCaptchaSvg] = useState('');
+  // Client-side Canvas Captcha (no backend needed)
+  const [captchaCode, setCaptchaCode] = useState('');
   const [captchaInput, setCaptchaInput] = useState('');
   const [websiteVerify, setWebsiteVerify] = useState('');
-  const [captchaLoading, setCaptchaLoading] = useState(false);
-  const [captchaError, setCaptchaError] = useState(false);
+  const captchaCanvasRef = React.useRef(null);
 
-  const fetchCaptcha = (attempt = 1) => {
-    setCaptchaLoading(true);
-    setCaptchaError(false);
-    fetch(`${API_BASE}/api/auth/captcha`)
-      .then(res => { if (!res.ok) throw new Error('non-ok'); return res.json(); })
-      .then(data => {
-        if (data.token && data.svg) {
-          setCaptchaToken(data.token);
-          setCaptchaSvg(data.svg);
-          setCaptchaInput('');
-          setCaptchaLoading(false);
-          setCaptchaError(false);
-        } else throw new Error('bad payload');
-      })
-      .catch(() => {
-        if (attempt < 3) {
-          setTimeout(() => fetchCaptcha(attempt + 1), attempt * 1200);
-        } else {
-          setCaptchaLoading(false);
-          setCaptchaError(true);
-        }
-      });
+  const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const generateCaptchaCode = () => {
+    let c = '';
+    for (let i = 0; i < 5; i++) c += CAPTCHA_CHARS[Math.floor(Math.random() * CAPTCHA_CHARS.length)];
+    return c;
+  };
+
+  const drawCaptcha = (code) => {
+    if (typeof window === 'undefined') return;
+    const canvas = captchaCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    // Dark background
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+    // Noise dots
+    for (let i = 0; i < 40; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random()*W, Math.random()*H, Math.random()*2+0.5, 0, 2*Math.PI);
+      ctx.fillStyle = `rgba(197,160,40,${(Math.random()*0.25+0.05).toFixed(2)})`;
+      ctx.fill();
+    }
+    // Noise lines
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(Math.random()*W*0.3, Math.random()*H);
+      ctx.lineTo(Math.random()*W*0.5+W*0.5, Math.random()*H);
+      ctx.strokeStyle = `rgba(197,160,40,${(Math.random()*0.3+0.1).toFixed(2)})`;
+      ctx.lineWidth = Math.random()*1.5+0.5;
+      ctx.stroke();
+    }
+    // Draw each character
+    const colors = ['#C5A028','#e8c547','#ffffff','#aaaaaa','#d4870c'];
+    const cw = W / (code.length + 1);
+    code.split('').forEach((ch, i) => {
+      ctx.save();
+      const x = cw*(i+0.7) + (Math.random()*6-3);
+      const y = H/2 + 8 + (Math.random()*8-4);
+      const angle = (Math.random()*30-15) * Math.PI/180;
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.font = `bold ${Math.floor(Math.random()*6)+22}px 'Courier New',monospace`;
+      ctx.fillStyle = colors[Math.floor(Math.random()*colors.length)];
+      ctx.shadowColor = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur = 4;
+      ctx.fillText(ch, 0, 0);
+      ctx.restore();
+    });
+  };
+
+  const refreshCaptcha = () => {
+    const code = generateCaptchaCode();
+    setCaptchaCode(code);
+    setCaptchaInput('');
+    // Draw after state update
+    setTimeout(() => drawCaptcha(code), 30);
   };
 
   useEffect(() => {
     if (!user && (isLoginTab || registrationStep === 1)) {
-      fetchCaptcha();
+      refreshCaptcha();
     }
   }, [user, isLoginTab, registrationStep]);
+
+  // Redraw when canvas ref is available
+  useEffect(() => {
+    if (captchaCode && captchaCanvasRef.current) drawCaptcha(captchaCode);
+  }, [captchaCanvasRef.current]);
 
   // User Dashboard states
   const [orders, setOrders] = useState([]);
@@ -169,6 +207,13 @@ export default function Account() {
     setFormLoading(true);
 
     if (isLoginTab) {
+      // Client-side captcha verification
+      if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+        setFormLoading(false);
+        setFormError('Incorrect security code. Please try again.');
+        refreshCaptcha();
+        return;
+      }
       // Login flow: email field holds either email or phone
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
@@ -176,8 +221,6 @@ export default function Account() {
         body: JSON.stringify({ 
           email, 
           password, 
-          captchaToken, 
-          captchaValue: captchaInput,
           website_verify: websiteVerify
         })
       })
@@ -188,13 +231,13 @@ export default function Account() {
             login(data.token, data.user);
           } else {
             setFormError(data.message || 'Invalid credentials');
-            fetchCaptcha(); // Refresh captcha on failure
+            refreshCaptcha();
           }
         })
-        .catch(err => {
+        .catch(() => {
           setFormLoading(false);
           setFormError('Connection to server failed. Please try again.');
-          fetchCaptcha(); // Refresh captcha
+          refreshCaptcha();
         });
     } else {
       // Registration flow
@@ -202,6 +245,13 @@ export default function Account() {
         if (!email && !phone) {
           setFormLoading(false);
           setFormError('Either Email or Phone Number is required for registration.');
+          return;
+        }
+        // Client-side captcha check for registration too
+        if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+          setFormLoading(false);
+          setFormError('Incorrect security code. Please try again.');
+          refreshCaptcha();
           return;
         }
 
@@ -213,8 +263,6 @@ export default function Account() {
             email: email || '', 
             phone: phone || '', 
             password,
-            captchaToken,
-            captchaValue: captchaInput,
             website_verify: websiteVerify
           })
         })
@@ -435,31 +483,18 @@ export default function Account() {
                 </label>
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                    {captchaSvg ? (
-                      <div 
-                        dangerouslySetInnerHTML={{ __html: captchaSvg }} 
-                        className="flex-shrink-0 cursor-pointer"
-                        title="Click to refresh"
-                        onClick={fetchCaptcha}
-                      />
-                    ) : (
-                      <div 
-                        onClick={fetchCaptcha}
-                        className="w-[180px] h-[60px] bg-premium-black rounded flex items-center justify-center text-xs font-mono cursor-pointer select-none border border-dashed border-premium-border hover:border-premium-accent transition-colors"
-                        title="Click to load captcha"
-                      >
-                        {captchaError ? (
-                          <span className="text-red-400 text-center px-2">⚠ Tap to retry</span>
-                        ) : captchaLoading ? (
-                          <span className="text-premium-gray animate-pulse">Loading...</span>
-                        ) : (
-                          <span className="text-premium-gray">Click to load</span>
-                        )}
-                      </div>
-                    )}
+                    <canvas
+                      ref={captchaCanvasRef}
+                      width={180}
+                      height={60}
+                      onClick={refreshCaptcha}
+                      title="Click to refresh"
+                      className="flex-shrink-0 cursor-pointer rounded"
+                      style={{ border: '1px solid rgba(197,160,40,0.25)', borderRadius: 8 }}
+                    />
                     <button
                       type="button"
-                      onClick={fetchCaptcha}
+                      onClick={refreshCaptcha}
                       className="p-3 border border-premium-border text-premium-accent hover:border-premium-accent rounded bg-white transition-colors flex items-center justify-center shrink-0"
                       title="Refresh Security Code"
                     >
@@ -480,6 +515,7 @@ export default function Account() {
                 <p className="text-[9px] text-premium-gray font-light">
                   Type the 5 characters shown above (uppercase letters &amp; digits only — case insensitive).
                 </p>
+
               </div>
             )}
 
