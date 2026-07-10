@@ -26,7 +26,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, rider_lat, rider_lng, rider_last_seen, created_at
 2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls, style_tags
-3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, shipping_address, created_at
+3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, delivery_otp, shipping_address, created_at
 4. **order_items** — order_id, product_id, quantity, price
 5. **reviews** — user_id, product_id, rating, comment, spotlight, created_at
 6. **store_settings** — key, value (CMS key-value store)
@@ -54,6 +54,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 - `shipping_address` column on `orders` ← Added 2026-07-10
 - `is_urgent` column on `orders` ← Added 2026-07-10
 - `urgent_note` column on `orders` ← Added 2026-07-10
+- `delivery_otp` column on `orders` ← Added 2026-07-11 (for customer verification)
 - `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
 
 ---
@@ -129,7 +130,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `GET /my-orders` → All orders assigned to this agent
 - `GET /available` → Unassigned paid orders that agent can claim
 - `POST /claim/:id` → Claim an available order
-- `PUT /orders/:id/status` → Update order delivery status (Shipped/Out for Delivery/Delivered)
+- `PUT /orders/:id/status` → Update order delivery status (Shipped/Out for Delivery/Delivered). Generates a 6-digit Delivery OTP when marked as Out for Delivery or Shipped; requires correct `delivery_otp` in request body when marking as `Delivered`.
 - `PUT /location` → 📍 Update rider GPS location (lat/lng) — called every 30s
 - `GET /map-orders` → Active orders with shipping addresses for route map
 
