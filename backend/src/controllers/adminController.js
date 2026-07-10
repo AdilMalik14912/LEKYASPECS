@@ -889,6 +889,55 @@ module.exports = {
   getCustomerDetail,
   updateCustomerCredentials,
   updateOrderTracking,
-  getActiveSessions
+  getActiveSessions,
+  getRidersLiveMap
 };
+
+// Admin: Get all delivery riders with GPS + active orders for live map
+const getRidersLiveMap = async (req, res) => {
+  try {
+    // Get all delivery agents with their last known GPS
+    const ridersRes = await db.query(
+      `SELECT id, name, email, phone, rider_lat, rider_lng, rider_last_seen
+       FROM users
+       WHERE role = 'delivery'
+       ORDER BY rider_last_seen DESC`
+    );
+
+    // For each rider, fetch their active orders with shipping addresses
+    const riders = await Promise.all(ridersRes.rows.map(async (rider) => {
+      const ordersRes = await db.query(
+        `SELECT o.id, o.status, o.shipping_address, o.is_urgent, o.urgent_note,
+                u.name as customer_name, u.phone as customer_phone
+         FROM orders o
+         LEFT JOIN users u ON o.user_id = u.id
+         WHERE o.assigned_delivery_agent_id = ?
+           AND o.status NOT IN ('Delivered', 'Cancelled')
+         ORDER BY o.is_urgent DESC, o.created_at ASC`,
+        [rider.id]
+      );
+
+      // Calculate online status
+      let onlineStatus = 'offline';
+      if (rider.rider_last_seen) {
+        const lastSeen = new Date(rider.rider_last_seen + ' UTC');
+        const minutesAgo = (Date.now() - lastSeen.getTime()) / 60000;
+        if (minutesAgo < 5) onlineStatus = 'online';
+        else if (minutesAgo < 30) onlineStatus = 'idle';
+      }
+
+      return {
+        ...rider,
+        onlineStatus,
+        activeOrders: ordersRes.rows
+      };
+    }));
+
+    res.json(riders);
+  } catch (err) {
+    console.error('Get riders live map error:', err);
+    res.status(500).json({ message: 'Server error fetching riders map' });
+  }
+};
+
 

@@ -296,6 +296,11 @@ app.get('/api/delivery/available', authenticateToken, isDelivery, deliveryContro
 app.post('/api/delivery/claim/:id', authenticateToken, isDelivery, deliveryController.claimOrder);
 app.put('/api/delivery/orders/:id/status', authenticateToken, isDelivery, deliveryController.updateDeliveryStatus);
 
+// Map & Location Tracking
+app.put('/api/delivery/location', authenticateToken, isDelivery, deliveryController.updateRiderLocation);
+app.get('/api/delivery/map-orders', authenticateToken, isDelivery, deliveryController.getMyMapOrders);
+app.get('/api/admin/riders/live-map', authenticateToken, isAdmin, adminController.getRidersLiveMap);
+
 // 10. Admin: Change user role
 app.put('/api/admin/users/:id/role', authenticateToken, isAdmin, async (req, res) => {
   const { id } = req.params;

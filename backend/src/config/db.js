@@ -294,6 +294,20 @@ const initDb = async () => {
       console.log('Migration: Added urgent_note to orders table.');
     } catch (_) {}
 
+    // Migration: Add rider GPS tracking to users table
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN rider_lat REAL DEFAULT NULL");
+      console.log('Migration: Added rider_lat to users table.');
+    } catch (_) {}
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN rider_lng REAL DEFAULT NULL");
+      console.log('Migration: Added rider_lng to users table.');
+    } catch (_) {}
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN rider_last_seen TEXT DEFAULT NULL");
+      console.log('Migration: Added rider_last_seen to users table.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

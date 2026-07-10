@@ -209,6 +209,12 @@ export default function DeliveryPanel() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/delivery-map"
+              className="flex items-center gap-1.5 text-[10px] bg-blue-900/50 hover:bg-blue-800/60 text-blue-300 border border-blue-700/50 font-bold px-3 py-2 rounded-lg transition-colors uppercase tracking-wider"
+            >
+              <Navigation className="w-3.5 h-3.5" /> Route Map
+            </Link>
             <button onClick={fetchAll} className="p-2 text-gray-400 hover:text-orange-400 transition-colors" title="Refresh">
               <RefreshCw className="w-4 h-4" />
             </button>

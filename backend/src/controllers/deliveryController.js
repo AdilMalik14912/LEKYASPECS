@@ -176,5 +176,46 @@ module.exports = {
   getAvailableOrders,
   claimOrder,
   updateDeliveryStatus,
-  getMyStats
+  getMyStats,
+  updateRiderLocation,
+  getMyMapOrders
 };
+
+// 6. 📍 Update rider's GPS location (called every 30s from delivery map)
+async function updateRiderLocation(req, res) {
+  const agentId = req.user.id;
+  const { lat, lng } = req.body;
+  if (!lat || !lng) return res.status(400).json({ message: 'lat and lng required' });
+  try {
+    await db.query(
+      "UPDATE users SET rider_lat = ?, rider_lng = ?, rider_last_seen = datetime('now') WHERE id = ?",
+      [lat, lng, agentId]
+    );
+    res.json({ message: 'Location updated', lat, lng });
+  } catch (err) {
+    console.error('Update location error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+// 7. 🗺 Get my active orders with full address for route map
+async function getMyMapOrders(req, res) {
+  const agentId = req.user.id;
+  try {
+    const result = await db.query(
+      `SELECT o.id, o.status, o.shipping_address, o.is_urgent, o.urgent_note,
+              u.name as customer_name, u.phone as customer_phone
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.assigned_delivery_agent_id = ?
+         AND o.status NOT IN ('Delivered','Cancelled')
+       ORDER BY o.is_urgent DESC, o.created_at ASC`,
+      [agentId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get map orders error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
