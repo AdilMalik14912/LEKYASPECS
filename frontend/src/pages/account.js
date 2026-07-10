@@ -104,18 +104,31 @@ export default function Account() {
   const [captchaSvg, setCaptchaSvg] = useState('');
   const [captchaInput, setCaptchaInput] = useState('');
   const [websiteVerify, setWebsiteVerify] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
 
-  const fetchCaptcha = () => {
+  const fetchCaptcha = (attempt = 1) => {
+    setCaptchaLoading(true);
+    setCaptchaError(false);
     fetch(`${API_BASE}/api/auth/captcha`)
-      .then(res => res.json())
+      .then(res => { if (!res.ok) throw new Error('non-ok'); return res.json(); })
       .then(data => {
-        if (data.token) {
+        if (data.token && data.svg) {
           setCaptchaToken(data.token);
           setCaptchaSvg(data.svg);
           setCaptchaInput('');
-        }
+          setCaptchaLoading(false);
+          setCaptchaError(false);
+        } else throw new Error('bad payload');
       })
-      .catch(err => console.error('Error fetching captcha:', err));
+      .catch(() => {
+        if (attempt < 3) {
+          setTimeout(() => fetchCaptcha(attempt + 1), attempt * 1200);
+        } else {
+          setCaptchaLoading(false);
+          setCaptchaError(true);
+        }
+      });
   };
 
   useEffect(() => {
@@ -430,8 +443,18 @@ export default function Account() {
                         onClick={fetchCaptcha}
                       />
                     ) : (
-                      <div className="w-[180px] h-[60px] bg-premium-black rounded flex items-center justify-center text-xs text-premium-gray font-mono">
-                        Loading...
+                      <div 
+                        onClick={fetchCaptcha}
+                        className="w-[180px] h-[60px] bg-premium-black rounded flex items-center justify-center text-xs font-mono cursor-pointer select-none border border-dashed border-premium-border hover:border-premium-accent transition-colors"
+                        title="Click to load captcha"
+                      >
+                        {captchaError ? (
+                          <span className="text-red-400 text-center px-2">⚠ Tap to retry</span>
+                        ) : captchaLoading ? (
+                          <span className="text-premium-gray animate-pulse">Loading...</span>
+                        ) : (
+                          <span className="text-premium-gray">Click to load</span>
+                        )}
                       </div>
                     )}
                     <button
