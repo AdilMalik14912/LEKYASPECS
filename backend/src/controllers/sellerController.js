@@ -146,11 +146,162 @@ const getDeliveryAgents = async (req, res) => {
   }
 };
 
+// 7. 🤖 Auto-Assign: find least-busy delivery agent and assign automatically
+const autoAssignDeliveryAgent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get all delivery agents
+    const agentsRes = await db.query(
+      "SELECT id, name, email FROM users WHERE role = 'delivery' ORDER BY id ASC"
+    );
+
+    if (agentsRes.rows.length === 0) {
+      return res.status(404).json({ message: 'No delivery agents available. Please add agents from Team Management.' });
+    }
+
+    // Count active (non-delivered) orders per agent
+    const workloadRes = await db.query(
+      `SELECT assigned_delivery_agent_id as agent_id, COUNT(*) as active_count
+       FROM orders
+       WHERE assigned_delivery_agent_id IS NOT NULL
+         AND status NOT IN ('Delivered', 'Cancelled')
+       GROUP BY assigned_delivery_agent_id`
+    );
+
+    const workloadMap = {};
+    workloadRes.rows.forEach(row => {
+      workloadMap[row.agent_id] = row.active_count;
+    });
+
+    // Find agent with minimum workload
+    let bestAgent = agentsRes.rows[0];
+    let minLoad = workloadMap[agentsRes.rows[0].id] || 0;
+
+    for (const agent of agentsRes.rows) {
+      const load = workloadMap[agent.id] || 0;
+      if (load < minLoad) {
+        minLoad = load;
+        bestAgent = agent;
+      }
+    }
+
+    // Assign order
+    await db.query(
+      "UPDATE orders SET assigned_delivery_agent_id = ?, status = 'Shipped' WHERE id = ?",
+      [bestAgent.id, id]
+    );
+
+    res.json({
+      message: `✅ Order #${id} auto-assigned to ${bestAgent.name} (${minLoad} active orders)`,
+      agent: bestAgent,
+      agentLoad: minLoad
+    });
+  } catch (err) {
+    console.error('Auto-assign error:', err);
+    res.status(500).json({ message: 'Server error during auto-assignment' });
+  }
+};
+
+// 8. ⚡ Mark order as Urgent / Express delivery
+const toggleOrderUrgent = async (req, res) => {
+  const { id } = req.params;
+  const { is_urgent, urgent_note } = req.body;
+
+  try {
+    await db.query(
+      'UPDATE orders SET is_urgent = ?, urgent_note = ? WHERE id = ?',
+      [is_urgent ? 1 : 0, urgent_note || null, id]
+    );
+
+    res.json({
+      message: is_urgent
+        ? `🚨 Order #${id} marked as URGENT/Express`
+        : `Order #${id} urgency flag removed`,
+      is_urgent
+    });
+  } catch (err) {
+    console.error('Toggle urgent error:', err);
+    res.status(500).json({ message: 'Server error updating urgency' });
+  }
+};
+
+// 9. 📊 Get all delivery agents with workload + performance score
+const getAgentWorkloads = async (req, res) => {
+  try {
+    const agentsRes = await db.query(
+      "SELECT id, name, email, phone FROM users WHERE role = 'delivery' ORDER BY name ASC"
+    );
+
+    // For each agent: count active + delivered orders
+    const withStats = await Promise.all(agentsRes.rows.map(async (agent) => {
+      const activeRes = await db.query(
+        `SELECT COUNT(*) as count FROM orders
+         WHERE assigned_delivery_agent_id = ?
+           AND status NOT IN ('Delivered', 'Cancelled')`,
+        [agent.id]
+      );
+      const deliveredRes = await db.query(
+        "SELECT COUNT(*) as count FROM orders WHERE assigned_delivery_agent_id = ? AND status = 'Delivered'",
+        [agent.id]
+      );
+      const totalRes = await db.query(
+        'SELECT COUNT(*) as count FROM orders WHERE assigned_delivery_agent_id = ?',
+        [agent.id]
+      );
+
+      const total = totalRes.rows[0]?.count || 0;
+      const delivered = deliveredRes.rows[0]?.count || 0;
+      const active = activeRes.rows[0]?.count || 0;
+      const successRate = total > 0 ? Math.round((delivered / total) * 100) : 0;
+
+      return {
+        ...agent,
+        activeOrders: active,
+        totalDelivered: delivered,
+        totalAssigned: total,
+        successRate
+      };
+    }));
+
+    res.json(withStats);
+  } catch (err) {
+    console.error('Agent workloads error:', err);
+    res.status(500).json({ message: 'Server error fetching agent workloads' });
+  }
+};
+
+// 10. 🔔 Get stale orders: Paid but unassigned for more than 1 hour
+const getStaleOrders = async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT o.id, o.total_amount, o.status, o.created_at, o.is_urgent,
+              u.name as customer_name, u.email as customer_email,
+              CAST((julianday('now') - julianday(o.created_at)) * 24 AS INTEGER) as hours_elapsed
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.assigned_delivery_agent_id IS NULL
+         AND o.status IN ('Paid', 'Processing')
+         AND o.created_at < datetime('now', '-1 hour')
+       ORDER BY o.is_urgent DESC, o.created_at ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Stale orders error:', err);
+    res.status(500).json({ message: 'Server error fetching stale orders' });
+  }
+};
+
 module.exports = {
   getSellerProducts,
   getSellerOrders,
   updateSellerOrderStatus,
   getSellerStats,
   assignDeliveryAgent,
-  getDeliveryAgents
+  getDeliveryAgents,
+  autoAssignDeliveryAgent,
+  toggleOrderUrgent,
+  getAgentWorkloads,
+  getStaleOrders
 };
+

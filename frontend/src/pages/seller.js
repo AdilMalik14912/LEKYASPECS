@@ -62,6 +62,8 @@ export default function SellerPanel() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [deliveryAgents, setDeliveryAgents] = useState([]);
+  const [agentWorkloads, setAgentWorkloads] = useState([]);
+  const [staleOrders, setStaleOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [orderSearch, setOrderSearch] = useState('');
@@ -69,6 +71,9 @@ export default function SellerPanel() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [assigningAgent, setAssigningAgent] = useState(null);
+  const [autoAssigning, setAutoAssigning] = useState(null);
+  const [togglingUrgent, setTogglingUrgent] = useState(null);
+  const [showWorkloadModal, setShowWorkloadModal] = useState(false);
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -86,14 +91,18 @@ export default function SellerPanel() {
     if (!token) return;
     setLoading(true);
     try {
-      const [statsRes, ordersRes, agentsRes] = await Promise.all([
+      const [statsRes, ordersRes, agentsRes, workloadsRes, staleRes] = await Promise.all([
         fetch(`${API_BASE}/api/seller/stats`, { headers: authHeaders }),
         fetch(`${API_BASE}/api/seller/orders`, { headers: authHeaders }),
         fetch(`${API_BASE}/api/seller/delivery-agents`, { headers: authHeaders }),
+        fetch(`${API_BASE}/api/seller/agent-workloads`, { headers: authHeaders }),
+        fetch(`${API_BASE}/api/seller/stale-orders`, { headers: authHeaders }),
       ]);
       if (statsRes.ok) setStats(await statsRes.json());
       if (ordersRes.ok) setOrders(await ordersRes.json());
       if (agentsRes.ok) setDeliveryAgents(await agentsRes.json());
+      if (workloadsRes.ok) setAgentWorkloads(await workloadsRes.json());
+      if (staleRes.ok) setStaleOrders(await staleRes.json());
     } catch (err) {
       showToast('Failed to load data', 'error');
     }
@@ -110,6 +119,44 @@ export default function SellerPanel() {
 
   useEffect(() => { fetchAll(); }, [token]);
   useEffect(() => { if (activeTab === 'inventory') fetchProducts(); }, [activeTab]);
+
+  // 🤖 Auto-assign handler
+  const handleAutoAssign = async (orderId) => {
+    setAutoAssigning(orderId);
+    try {
+      const res = await fetch(`${API_BASE}/api/seller/orders/${orderId}/auto-assign`, {
+        method: 'POST', headers: authHeaders
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message, 'success');
+        fetchAll();
+      } else {
+        showToast(data.message || 'Auto-assign failed', 'error');
+      }
+    } catch { showToast('Connection error', 'error'); }
+    setAutoAssigning(null);
+  };
+
+  // ⚡ Toggle urgent handler
+  const handleToggleUrgent = async (orderId, currentUrgent) => {
+    setTogglingUrgent(orderId);
+    const newUrgent = !currentUrgent;
+    const urgentNote = newUrgent ? prompt('Enter urgent reason (e.g. "Gift, deliver by tonight"):') : null;
+    try {
+      const res = await fetch(`${API_BASE}/api/seller/orders/${orderId}/urgent`, {
+        method: 'PUT',
+        headers: { ...authHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_urgent: newUrgent, urgent_note: urgentNote })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message, newUrgent ? 'error' : 'success');
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, is_urgent: newUrgent ? 1 : 0, urgent_note: urgentNote } : o));
+      } else { showToast(data.message || 'Failed', 'error'); }
+    } catch { showToast('Connection error', 'error'); }
+    setTogglingUrgent(null);
+  };
 
   const handleStatusUpdate = async (orderId, status) => {
     setUpdatingStatus(orderId);
@@ -340,7 +387,65 @@ export default function SellerPanel() {
                       View all orders <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
+                  </div>
                 </div>
+
+                {/* 🔔 Stale Orders Alert */}
+                {staleOrders.length > 0 && (
+                  <div className="bg-red-950/60 border border-red-500/40 rounded-xl p-5">
+                    <h3 className="text-sm font-bold tracking-widest uppercase text-red-400 mb-3 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" /> {staleOrders.length} Unassigned Orders Need Attention!
+                    </h3>
+                    <div className="space-y-2">
+                      {staleOrders.slice(0, 4).map(o => (
+                        <div key={o.id} className="flex items-center justify-between bg-red-900/20 rounded-lg px-4 py-2.5">
+                          <div>
+                            <span className="text-xs font-bold text-white">Order #{o.id}</span>
+                            {o.is_urgent ? <span className="ml-2 text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">URGENT</span> : null}
+                            <p className="text-[10px] text-gray-400">{o.customer_name} · {o.hours_elapsed}h ago</p>
+                          </div>
+                          <button
+                            onClick={() => handleAutoAssign(o.id)}
+                            disabled={autoAssigning === o.id}
+                            className="text-[10px] bg-amber-500 hover:bg-amber-400 text-black font-bold px-3 py-1.5 rounded transition-colors uppercase tracking-wider"
+                          >
+                            {autoAssigning === o.id ? '...' : '🤖 Auto-Assign'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 📊 Agent Performance Leaderboard */}
+                {agentWorkloads.length > 0 && (
+                  <div className="bg-[#111] border border-white/10 rounded-xl p-6">
+                    <h3 className="text-sm font-bold tracking-widest uppercase text-amber-400 mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" /> 🏆 Delivery Agent Leaderboard
+                    </h3>
+                    <div className="space-y-3">
+                      {[...agentWorkloads].sort((a, b) => b.successRate - a.successRate).map((agent, idx) => (
+                        <div key={agent.id} className="flex items-center gap-3">
+                          <span className="text-lg">{idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-bold text-white">{agent.name}</span>
+                              <span className="text-xs font-bold text-amber-400">{agent.successRate}%</span>
+                            </div>
+                            <div className="w-full bg-white/10 rounded-full h-1.5">
+                              <div
+                                className="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full transition-all"
+                                style={{ width: `${agent.successRate}%` }}
+                              />
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-1">{agent.totalDelivered} delivered · {agent.activeOrders} active</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </>
             )}
           </div>
@@ -355,6 +460,12 @@ export default function SellerPanel() {
                 <p className="text-sm text-gray-500 mt-1">Manage and track all customer orders</p>
               </div>
               <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setShowWorkloadModal(true)}
+                  className="flex items-center gap-1.5 text-[10px] bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 border border-indigo-700 font-bold px-3 py-2 rounded-lg transition-colors uppercase tracking-wider"
+                >
+                  <Users className="w-3.5 h-3.5" /> Agent Workloads
+                </button>
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-gray-500" />
                   <input
@@ -400,6 +511,7 @@ export default function SellerPanel() {
                           <div className="text-center bg-white/5 rounded-lg px-3 py-2 shrink-0">
                             <p className="text-[10px] text-gray-500 uppercase">Order</p>
                             <p className="text-sm font-black text-amber-400">#{order.id}</p>
+                            {order.is_urgent ? <span className="text-[8px] bg-red-500 text-white px-1 py-0.5 rounded font-black uppercase block mt-1">⚡URGENT</span> : null}
                           </div>
                           <div>
                             <p className="text-sm font-bold text-white">{order.customer_name || 'Guest'}</p>
@@ -417,18 +529,42 @@ export default function SellerPanel() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2 shrink-0">
-                          <p className="text-base font-black text-amber-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
-                          <span className={`text-[10px] font-bold px-2 py-1 rounded border ${sc.bg} ${sc.text} ${sc.border}`}>
-                            {order.status}
-                          </span>
-                          <button
-                            onClick={() => setSelectedOrder(order)}
-                            className="text-[10px] text-gray-400 hover:text-amber-400 flex items-center gap-1 transition-colors"
-                          >
-                            <Eye className="w-3 h-3" /> Manage
-                          </button>
-                        </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <p className="text-base font-black text-amber-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded border ${sc.bg} ${sc.text} ${sc.border}`}>
+                              {order.status}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedOrder(order)}
+                                className="text-[10px] text-gray-400 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                              >
+                                <Eye className="w-3 h-3" /> Manage
+                              </button>
+                              {!order.assigned_delivery_agent_id && (
+                                <button
+                                  onClick={() => handleAutoAssign(order.id)}
+                                  disabled={autoAssigning === order.id}
+                                  title="Auto-assign to least busy agent"
+                                  className="text-[10px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 border border-amber-500/30 px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold"
+                                >
+                                  {autoAssigning === order.id ? '...' : '🤖'}
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleToggleUrgent(order.id, order.is_urgent)}
+                                disabled={togglingUrgent === order.id}
+                                title={order.is_urgent ? 'Remove urgent flag' : 'Mark as urgent/express'}
+                                className={`text-[10px] px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold border ${
+                                  order.is_urgent
+                                    ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/40'
+                                    : 'bg-white/5 text-gray-500 border-white/10 hover:text-red-400'
+                                }`}
+                              >
+                                {togglingUrgent === order.id ? '...' : '⚡'}
+                              </button>
+                            </div>
+                          </div>
                       </div>
                       {order.delivery_agent_name && (
                         <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
@@ -625,6 +761,59 @@ export default function SellerPanel() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 📊 AGENT WORKLOAD MODAL */}
+      {showWorkloadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg p-6 relative">
+            <button onClick={() => setShowWorkloadModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-base font-black text-white tracking-wider mb-1">📊 Agent Workload & Performance</h2>
+            <p className="text-xs text-gray-500 mb-5">Current active orders and delivery success rate per agent</p>
+            {agentWorkloads.length === 0 ? (
+              <p className="text-xs text-gray-500 text-center py-8">No delivery agents assigned yet. Go to Admin → Team Management to assign agents.</p>
+            ) : (
+              <div className="space-y-4">
+                {agentWorkloads.map(agent => (
+                  <div key={agent.id} className="bg-white/5 rounded-xl p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="text-sm font-bold text-white">{agent.name}</p>
+                        <p className="text-[10px] text-gray-500">{agent.email}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-black text-amber-400">{agent.successRate}%</p>
+                        <p className="text-[9px] text-gray-500 uppercase tracking-wider">Success Rate</p>
+                      </div>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2 mb-3">
+                      <div
+                        className={`h-2 rounded-full transition-all ${agent.successRate >= 80 ? 'bg-emerald-500' : agent.successRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                        style={{ width: `${agent.successRate || 0}%` }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="bg-black/30 rounded-lg p-2">
+                        <p className="text-sm font-black text-white">{agent.activeOrders}</p>
+                        <p className="text-[9px] text-yellow-500 uppercase">Active</p>
+                      </div>
+                      <div className="bg-black/30 rounded-lg p-2">
+                        <p className="text-sm font-black text-white">{agent.totalDelivered}</p>
+                        <p className="text-[9px] text-emerald-500 uppercase">Delivered</p>
+                      </div>
+                      <div className="bg-black/30 rounded-lg p-2">
+                        <p className="text-sm font-black text-white">{agent.totalAssigned}</p>
+                        <p className="text-[9px] text-gray-400 uppercase">Total</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

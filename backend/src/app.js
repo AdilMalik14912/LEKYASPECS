@@ -283,6 +283,12 @@ app.put('/api/seller/orders/:id/status', authenticateToken, isSeller, sellerCont
 app.put('/api/seller/orders/:id/assign', authenticateToken, isSeller, sellerController.assignDeliveryAgent);
 app.get('/api/seller/delivery-agents', authenticateToken, isSeller, sellerController.getDeliveryAgents);
 
+// Smart Rider Features
+app.post('/api/seller/orders/:id/auto-assign', authenticateToken, isSeller, sellerController.autoAssignDeliveryAgent);
+app.put('/api/seller/orders/:id/urgent', authenticateToken, isSeller, sellerController.toggleOrderUrgent);
+app.get('/api/seller/agent-workloads', authenticateToken, isSeller, sellerController.getAgentWorkloads);
+app.get('/api/seller/stale-orders', authenticateToken, isSeller, sellerController.getStaleOrders);
+
 // 9. Delivery Agent Panel API (delivery + admin access)
 app.get('/api/delivery/stats', authenticateToken, isDelivery, deliveryController.getMyStats);
 app.get('/api/delivery/my-orders', authenticateToken, isDelivery, deliveryController.getMyDeliveries);

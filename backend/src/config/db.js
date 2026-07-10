@@ -282,6 +282,18 @@ const initDb = async () => {
       console.log('Migration: Added delivery_notes to orders table.');
     } catch (_) {}
 
+    // Migration: Add urgent flag to orders for express delivery
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN is_urgent INTEGER DEFAULT 0");
+      console.log('Migration: Added is_urgent flag to orders table.');
+    } catch (_) {}
+
+    // Migration: Add urgent note to orders
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN urgent_note TEXT DEFAULT NULL");
+      console.log('Migration: Added urgent_note to orders table.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

@@ -472,51 +472,90 @@ export default function DeliveryPanel() {
                 <p className="text-[10px] text-gray-700 mt-1">Check back soon!</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {availableOrders.map(order => (
-                  <div key={order.id} className="bg-[#111] border border-white/10 rounded-xl p-5 hover:border-green-400/20 transition-all">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm font-black text-green-400">#{order.id}</span>
-                          <span className="text-[10px] text-gray-500 font-mono">
-                            {new Date(order.created_at).toLocaleDateString('en-IN')}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <User className="w-3.5 h-3.5 text-gray-500" />
-                          <p className="text-sm font-semibold text-white">{order.customer_name || 'Guest'}</p>
-                        </div>
-                        {order.customer_phone && (
-                          <p className="text-xs text-gray-500 mb-2">📞 {order.customer_phone}</p>
-                        )}
-                        <AddressDisplay address={order.shipping_address} />
-                        <div className="flex flex-wrap gap-1 mt-3">
-                          {(order.items || []).map((item, i) => (
-                            <span key={i} className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-400">
-                              {item.name} ×{item.quantity}
-                            </span>
-                          ))}
-                        </div>
+              <div className="space-y-6">
+                {/* 📍 City-Grouped Available Orders */}
+                {(() => {
+                  // Group by city
+                  const grouped = {};
+                  availableOrders.forEach(order => {
+                    const addr = typeof order.shipping_address === 'object' ? order.shipping_address : {};
+                    const city = addr.city || addr.City || 'Other';
+                    if (!grouped[city]) grouped[city] = [];
+                    grouped[city].push(order);
+                  });
+
+                  return Object.entries(grouped).map(([city, cityOrders]) => (
+                    <div key={city}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <MapPin className="w-3.5 h-3.5 text-orange-400" />
+                        <span className="text-xs font-black text-orange-400 uppercase tracking-widest">{city}</span>
+                        <span className="text-[10px] bg-white/10 text-gray-400 px-2 py-0.5 rounded-full">{cityOrders.length} order{cityOrders.length > 1 ? 's' : ''}</span>
                       </div>
-                      <div className="flex flex-col items-end gap-3 shrink-0">
-                        <p className="text-base font-black text-green-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
-                        <button
-                          disabled={claimingId === order.id}
-                          onClick={() => handleClaimOrder(order.id)}
-                          className="text-[10px] font-black bg-green-500/20 border border-green-500/40 text-green-400 hover:bg-green-500/30 px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 disabled:opacity-50"
-                        >
-                          {claimingId === order.id ? (
-                            <div className="w-3 h-3 border border-green-400/50 border-t-green-400 rounded-full animate-spin" />
-                          ) : (
-                            <Truck className="w-3 h-3" />
-                          )}
-                          Claim Order
-                        </button>
+                      <div className="space-y-3 pl-0">
+                        {cityOrders.map(order => (
+                          <div key={order.id} className={`bg-[#111] border rounded-xl p-5 hover:border-green-400/20 transition-all ${
+                            order.is_urgent ? 'border-red-500/40 shadow-red-900/20 shadow-lg' : 'border-white/10'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <span className="text-sm font-black text-green-400">#{order.id}</span>
+                                  {order.is_urgent && (
+                                    <span className="text-[9px] bg-red-500 text-white px-2 py-0.5 rounded font-black uppercase animate-pulse">
+                                      ⚡ URGENT EXPRESS
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-gray-500 font-mono">
+                                    {new Date(order.created_at).toLocaleDateString('en-IN')}
+                                  </span>
+                                </div>
+                                {order.is_urgent && order.urgent_note && (
+                                  <p className="text-[10px] text-red-400 bg-red-900/20 border border-red-500/20 px-2 py-1.5 rounded mb-2">
+                                    🚨 {order.urgent_note}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 mb-1">
+                                  <User className="w-3.5 h-3.5 text-gray-500" />
+                                  <p className="text-sm font-semibold text-white">{order.customer_name || 'Guest'}</p>
+                                </div>
+                                {order.customer_phone && (
+                                  <p className="text-xs text-gray-500 mb-2">📞 {order.customer_phone}</p>
+                                )}
+                                <AddressDisplay address={order.shipping_address} />
+                                <div className="flex flex-wrap gap-1 mt-3">
+                                  {(order.items || []).map((item, i) => (
+                                    <span key={i} className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-400">
+                                      {item.name} ×{item.quantity}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end gap-3 shrink-0">
+                                <p className="text-base font-black text-green-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
+                                <button
+                                  disabled={claimingId === order.id}
+                                  onClick={() => handleClaimOrder(order.id)}
+                                  className={`text-[10px] font-black border px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 disabled:opacity-50 ${
+                                    order.is_urgent
+                                      ? 'bg-red-500/20 border-red-500/40 text-red-400 hover:bg-red-500/30'
+                                      : 'bg-green-500/20 border-green-500/40 text-green-400 hover:bg-green-500/30'
+                                  }`}
+                                >
+                                  {claimingId === order.id ? (
+                                    <div className="w-3 h-3 border border-current/50 border-t-current rounded-full animate-spin" />
+                                  ) : (
+                                    <Truck className="w-3 h-3" />
+                                  )}
+                                  {order.is_urgent ? 'Claim URGENT' : 'Claim Order'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             )}
           </div>
