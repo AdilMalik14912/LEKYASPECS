@@ -861,38 +861,6 @@ const getActiveSessions = async (req, res) => {
   }
 };
 
-module.exports = {
-  getDashboardStats,
-  getAdminOrders,
-  updateOrderStatus,
-  getAdminCustomers,
-  addProduct,
-  updateProduct,
-  deleteProduct,
-  getSettings,
-  updateSettings,
-  createAdminUser,
-  getAdminList,
-  demoteAdminUser,
-  createCoupon,
-  getCoupons,
-  toggleCouponStatus,
-  deleteCoupon,
-  broadcastEmail,
-  exportOrdersCSV,
-  exportCustomersCSV,
-  getActivityLogs,
-  getDatabaseHealth,
-  optimizeDatabase,
-  getContactMessages,
-  replyContactMessage,
-  getCustomerDetail,
-  updateCustomerCredentials,
-  updateOrderTracking,
-  getActiveSessions,
-  getRidersLiveMap
-};
-
 // Admin: Get all delivery riders with GPS + active orders for live map
 const getRidersLiveMap = async (req, res) => {
   try {
@@ -940,4 +908,34 @@ const getRidersLiveMap = async (req, res) => {
   }
 };
 
-
+module.exports = {
+  getDashboardStats,
+  getAdminOrders,
+  updateOrderStatus,
+  getAdminCustomers,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  getSettings,
+  updateSettings,
+  createAdminUser,
+  getAdminList,
+  demoteAdminUser,
+  createCoupon,
+  getCoupons,
+  toggleCouponStatus,
+  deleteCoupon,
+  broadcastEmail,
+  exportOrdersCSV,
+  exportCustomersCSV,
+  getActivityLogs,
+  getDatabaseHealth,
+  optimizeDatabase,
+  getContactMessages,
+  replyContactMessage,
+  getCustomerDetail,
+  updateCustomerCredentials,
+  updateOrderTracking,
+  getActiveSessions,
+  getRidersLiveMap
+};

@@ -219,3 +219,12 @@ async function getMyMapOrders(req, res) {
   }
 }
 
+module.exports = {
+  getMyDeliveries,
+  getAvailableOrders,
+  claimOrder,
+  updateDeliveryStatus,
+  getMyStats,
+  updateRiderLocation,
+  getMyMapOrders
+};
