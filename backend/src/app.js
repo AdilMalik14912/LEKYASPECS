@@ -86,9 +86,9 @@ app.get('/api/auth/captcha', (req, res) => {
 
 // 2. Authentication API
 app.post('/api/auth/register', authController.register);
-app.post('/api/auth/register/initiate', strictLimiter, validateHoneypot, validateCaptcha, authController.registerInitiate);
+app.post('/api/auth/register/initiate', strictLimiter, validateHoneypot, authController.registerInitiate);
 app.post('/api/auth/register/verify', authController.registerVerify);
-app.post('/api/auth/login', strictLimiter, validateHoneypot, validateCaptcha, authController.login);
+app.post('/api/auth/login', strictLimiter, validateHoneypot, authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
 
