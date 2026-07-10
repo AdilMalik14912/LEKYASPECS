@@ -2,9 +2,11 @@
 
 The backend service is located in the [/backend](file:///C:/Users/Admin/Specs/backend) folder and handles user authentication, CRUD operations, Razorpay order verification, settings management, and automated mailing.
 
+**Last Updated:** 2026-07-11
+
 ---
 
-## 🔐 Admin Credentials (Updated)
+## 🔐 Admin Credentials
 
 | Field    | Value                         |
 |----------|-------------------------------|
@@ -22,17 +24,17 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 ### Database Tables
 
-1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, created_at
-2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls
-3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, created_at
+1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, rider_lat, rider_lng, rider_last_seen, created_at
+2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls, style_tags
+3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, shipping_address, created_at
 4. **order_items** — order_id, product_id, quantity, price
-5. **reviews** — user_id, product_id, rating, comment, created_at
+5. **reviews** — user_id, product_id, rating, comment, spotlight, created_at
 6. **store_settings** — key, value (CMS key-value store)
 7. **coupons** — code, discount_type, discount_value, expiry_date, max_uses, times_used, is_active
 8. **admin_activity_log** — admin_email, action_type, description, created_at
 9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
-10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at (cached registration details before OTP verification)
-11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at (tracks live active logins across different devices/tabs)
+10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at
+11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at
 
 ### DB Migrations (auto-applied on startup in `db.js`)
 - `role` column on `users`
@@ -47,6 +49,12 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 - `coupons` table
 - `admin_activity_log` table
 - `contact_messages` table
+- `assigned_delivery_agent_id` column on `orders` ← Added 2026-07-10
+- `delivery_notes` column on `orders` ← Added 2026-07-10
+- `shipping_address` column on `orders` ← Added 2026-07-10
+- `is_urgent` column on `orders` ← Added 2026-07-10
+- `urgent_note` column on `orders` ← Added 2026-07-10
+- `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
 
 ---
 
@@ -91,17 +99,41 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `GET /admins` → List all admins
 - `POST /demote-admin` → Revoke admin access
 - `POST/GET/PUT/DELETE /coupons` → Coupon management
-- `POST /broadcast` → Send bulk email or targeted email to a specific customer with placeholder name replacements and luxury templates.
+- `POST /broadcast` → Send bulk email or targeted email
 - `GET /export/orders` → Download orders as CSV
 - `GET /export/customers` → Download customers as CSV
 - `GET /logs` → Admin activity log viewer
-- `GET /db/health` → Database health stats (latency, row counts per table)
+- `GET /db/health` → Database health stats
 - `POST /db/optimize` → Run SQLite VACUUM optimization
 - `GET /helpdesk` → Fetch all contact form submissions
 - `POST /helpdesk/:id/reply` → Reply to a customer support message via email
-- `GET /active-sessions` → Get real-time list of online users and multi-device sessions
+- `GET /active-sessions` → Real-time list of online users
+- `GET /riders/live-map` → All riders with GPS + active orders for admin map ← NEW (2026-07-10)
 
-### 6. Brand Stylist Hub (`/api/stylist`) — require `authenticateToken`
+### 6. Seller Panel (`/api/seller`) — require `authenticateToken + isSeller` ← NEW (2026-07-10)
+- `GET /stats` → Seller dashboard stats (orders, revenue, products, agents)
+- `GET /orders` → All orders with customer + agent info
+- `PUT /orders/:id/status` → Update order status
+- `POST /orders/:id/assign` → Manually assign a delivery agent
+- `POST /orders/:id/auto-assign` → 🤖 Auto-assign to least-busy agent
+- `PUT /orders/:id/urgent` → ⚡ Toggle urgent/express flag with reason note
+- `GET /delivery-agents` → List all delivery agents
+- `GET /agent-workloads` → Per-agent stats: active orders, delivered count, success rate
+- `GET /stale-orders` → Orders paid > 1hr ago but still unassigned
+- `GET /inventory` → Product inventory list
+- `POST /products` → Add new product
+- `PUT /products/:id` → Edit product details
+
+### 7. Delivery Agent Panel (`/api/delivery`) — require `authenticateToken + isDelivery` ← NEW (2026-07-10)
+- `GET /stats` → Rider stats (total assigned, delivered, active, shipped, today)
+- `GET /my-orders` → All orders assigned to this agent
+- `GET /available` → Unassigned paid orders that agent can claim
+- `POST /claim/:id` → Claim an available order
+- `PUT /orders/:id/status` → Update order delivery status (Shipped/Out for Delivery/Delivered)
+- `PUT /location` → 📍 Update rider GPS location (lat/lng) — called every 30s
+- `GET /map-orders` → Active orders with shipping addresses for route map
+
+### 8. Brand Stylist Hub (`/api/stylist`) — require `authenticateToken`
 - `GET /products` → Get products list with their style tags
 - `PUT /products/:id/tags` → Add/remove customized style tags on a product
 - `GET/POST /lookbook` → View or curate seasonal visual lookbook collections
@@ -112,9 +144,17 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `GET /reviews` & `PUT /reviews/:id/spotlight` → View product reviews and pin top review testimonials
 - `GET/POST /tone-profile` → Configure brand voice guides and track luxury score copy guidelines
 
-### 7. Contact Form (`/api/contact`)
+### 9. Contact Form (`/api/contact`)
 - `POST /` → Saves message to DB + sends email notification via SMTP.
 
+---
+
+## 🔑 Auth Middleware ([auth.js](file:///C:/Users/Admin/Specs/backend/src/middleware/auth.js))
+
+- `authenticateToken` — Reads `Authorization: Bearer <token>` header, verifies JWT.
+- `isAdmin` — Checks `req.user.role === 'admin'` OR email matches `dev.parceluncle@gmail.com`.
+- `isSeller` — Checks `req.user.role === 'seller'` OR `isAdmin`.
+- `isDelivery` — Checks `req.user.role === 'delivery'` OR `isAdmin`.
 
 ---
 
@@ -129,16 +169,9 @@ Uses `nodemailer` connecting to Google SMTP with App Passwords (`SMTP_EMAIL` and
 ---
 
 ## 📱 SMS Utilities ([sms.js](file:///C:/Users/Admin/Specs/backend/src/utils/sms.js))
-Uses `fetch` connecting to **Fast2SMS API gateway** (`/dev/bulkV2` endpoint) using `FAST2SMS_API_KEY` environment variable.
+Uses `fetch` connecting to **Fast2SMS API gateway** using `FAST2SMS_API_KEY` environment variable.
 
-- `sendOtpSms({ to, otp })` → Dispatches a 6-digit OTP code to the recipient's mobile number via Fast2SMS's `"q"` (Quick SMS) route.
-
----
-
-## 🔑 Auth Middleware ([auth.js](file:///C:/Users/Admin/Specs/backend/src/middleware/auth.js))
-
-- `authenticateToken` — Reads `Authorization: Bearer <token>` header, verifies JWT.
-- `isAdmin` — Checks `req.user.role === 'admin'` OR email matches `dev.parceluncle@gmail.com`.
+- `sendOtpSms({ to, otp })` → Dispatches a 6-digit OTP code via Fast2SMS.
 
 ---
 
@@ -149,7 +182,8 @@ Uses `fetch` connecting to **Fast2SMS API gateway** (`/dev/bulkV2` endpoint) usi
 | 2026-07-04 | `getActivityLogs` missing in adminController → server crash on startup | Added function definition |
 | 2026-07-04 | Duplicate `broadcastEmail` declaration → `SyntaxError` on require | Removed duplicate |
 | 2026-07-04 | Login showing "Connection to server failed" | Fixed by resolving server crash above |
-| 2026-07-05 | `tryon.js` shadowing native `Image` constructor with lucide import | Renamed import to `Image: ImageIcon` (CommonJS style) |
-| 2026-07-05 | `admin.js` undefined icon imports (`Sparkles`, `Edit2`) causing Next.js build compile failure | Imported `Sparkles` and replaced `Edit2` with imported `Edit` icon |
-| 2026-07-05 | `stylist.js` ReferenceError: `Head` is not defined during prerendering static generation | Added default require import for `next/head` component |
-
+| 2026-07-05 | `tryon.js` shadowing native `Image` constructor with lucide import | Renamed import to `Image: ImageIcon` |
+| 2026-07-05 | `admin.js` undefined icon imports causing Next.js compile failure | Imported `Sparkles` and `Edit` icons |
+| 2026-07-05 | `stylist.js` ReferenceError: `Head` is not defined during prerendering | Added `next/head` import |
+| 2026-07-10 | `seller.js` and `delivery.js` crash on load due to invalid `useToast` import | Removed `useToast`, implemented local toast system |
+| 2026-07-10 | Seller page blank on `/seller` route | Fixed by properly exporting default function |

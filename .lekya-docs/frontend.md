@@ -2,6 +2,8 @@
 
 The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
 
+**Last Updated:** 2026-07-11
+
 ---
 
 ## 🔑 Global State Management (Contexts)
@@ -12,6 +14,8 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 2. **CartContext** — Cart items, quantity changes, stock limits, localStorage sync.
 3. **WishlistContext** — Wishlist toggle & persistence.
 4. **ToastContext** — Slide-up toast notifications for user actions.
+
+> ⚠️ `seller.js` and `delivery.js` do NOT use `useToast` from `_app.js` — they have their own local toast state to avoid SSR crashes. This is by design.
 
 ---
 
@@ -35,16 +39,14 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 - Saves shape to user profile via `/api/auth/profile`.
 
 ### 4. 🥽 Virtual Try-On Studio ([tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/tryon.js))
-- **Smart BG Removal**: Canvas `getImageData()` pixel engine strips white/grey backgrounds from catalog product images — glasses float cleanly on face.
-- **Live Webcam Mode**: `getUserMedia()` webcam stream with real-time glasses overlay, Snap Photo button captures the frame.
+- **Smart BG Removal**: Canvas `getImageData()` pixel engine strips white/grey backgrounds from catalog product images.
+- **Live Webcam Mode**: `getUserMedia()` webcam stream with real-time glasses overlay.
 - **Mirror Mode**: Toggle CSS `scaleX(-1)` on preview for a realistic mirror experience.
-- **Before/After Split View**: Drag-to-compare divider reveals face before/after glasses overlay.
-- **8 SVG Frame Shapes**: Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal, Rimless, Browline — all with realistic drop shadows.
+- **Before/After Split View**: Drag-to-compare divider.
+- **8 SVG Frame Shapes**: Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal, Rimless, Browline.
 - **10 Frame Colors** with live color dot picker.
-- **AI Auto-Fit**: face-api.js TinyFaceDetector aligns glasses to eye landmarks automatically.
-- **BG Tolerance Slider**: Fine-tune how aggressively background pixels are removed.
+- **AI Auto-Fit**: face-api.js aligns glasses to eye landmarks automatically.
 - **Save PNG**: Canvas compositing exports face + transparent glasses as downloadable PNG.
-- **Catalog Product Try-On**: Select any product from the live database; background is auto-removed.
 
 ### 5. 🎨 Skin Tone AI Lab ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
 - Canvas `getImageData()` pixel sampling from facial zones.
@@ -57,7 +59,7 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ### 7. 💳 Checkout & Razorpay ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
 - Razorpay Checkout window integration.
 - Mock sandbox fallback simulator for testing.
-- **Prescription Intake Wizard** — SPH, CYL, Axis, PD fields + lens index (1.56–1.74) + coatings (Anti-Glare, Blue Shield, Photochromic). Dynamically adjusts final order total.
+- **Prescription Intake Wizard** — SPH, CYL, Axis, PD fields + lens index (1.56–1.74) + coatings.
 - **Coupon Code Input** — validates via `/api/coupons/validate` and applies discount live.
 
 ### 8. 👓 AI Prescription Lens Studio ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
@@ -69,10 +71,7 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 - Product specs, image gallery, reviews, face-shape match indicator.
 - Related products (same category).
 - Recently Viewed tracker in localStorage.
-- **Prescription Lens Configurator** — checkbox expands a full lens selector with:
-  - Lens Index: 1.56 Standard / 1.61 Thin / 1.67 Ultra Thin / 1.74 Super Ultra Thin
-  - Coatings: Anti-Glare (+₹300), Blue Shield (+₹400), Photochromic (+₹800)
-  - Live dynamic price update shown on Add to Cart button.
+- **Prescription Lens Configurator** — full lens selector with live dynamic price update.
 
 ### 10. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
 - Profile info, face shape, edit modal, and Dual Phone/Email login & registration with 6-digit OTP verification.
@@ -84,49 +83,102 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 ### 11. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
 Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gmail.com` can enter.
 
-**Tabs & Features:**
+**Sidebar Tabs & Features:**
 
 | Tab | Feature |
 |-----|---------|
 | Dashboard | Sales analytics, revenue chart, low stock alerts, recent activity log |
 | Customer Orders | List orders, update status, add dispatch/tracking notes per order |
 | Product Catalog | Add / Edit / Delete eyewear products with images |
-| View Customers | List all customers (with phone number search/grid column), click to Inspect Profile (order history overlay & Edit Credentials form) |
+| View Customers | List all customers; click to Inspect Profile (order history overlay & Edit Credentials form) |
 | Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
-| Broadcast Email | Send personalized bulk or targeted email to specific customers using 7 pre-styled luxury HTML templates |
+| Broadcast Email | Send personalized bulk or targeted email using 7 pre-styled luxury HTML templates |
 | Settings CMS | Update hero banner, headline text, background images |
 | Admin Roles | Create new sub-admins, view admin list, demote admins |
 | Support Helpdesk | View contact form messages, reply via email directly |
 | DB Optimizer | See DB latency, table row counts, run VACUUM optimization |
 | Export Data | Download orders or customers as CSV |
+| Live User Monitor | Real-time active sessions across devices |
+| Team Management | Change user roles (user/seller/delivery/admin) |
+| 🛰 Live Rider Map | Opens `/admin-map` — real-time GPS tracking of all delivery agents |
 
-### 12. 🎨 Brand Stylist Hub ([stylist.js](file:///C:/Users/Admin/Specs/frontend/src/pages/stylist.js))
-Access: `/stylist` — A panel separate from operations where creative directors/stylists manage content, curation, and visual brand language.
+### 12. 🛰 Admin Live Rider Map ([admin-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin-map.js)) ← NEW (2026-07-10)
+Access: `/admin-map` — Admin only. Linked from Admin sidebar "🛰 Live Rider Map".
 
-**Modules & Features:**
-- **Lookbook Builder**: Create/manage themed editorial campaigns combining descriptions with selected frames.
-- **Face Shape Advisor**: Link facial categories (oval, round) to recommended frame geometries.
-- **Spotlight Manager**: Feature preferred design frames dynamically on the main shop pages.
-- **Style Tag Editor**: Append descriptive aesthetic keywords to catalog items.
-- **Color Story Board**: Bundle frames into curated color stories (e.g., Summer Neon, Classic Blacks).
-- **Product Photo Hub**: Examine and audit all visual assets and image URLs.
-- **Content Calendar**: Schedule upcoming drops, marketing themes, and channel timelines.
-- **Review Spotlight**: Feature specific customer testimonials directly on details pages.
-- **Comparison Matrix**: Side-by-side spec comparison table for creative analysis.
-- **Brand Voice Checker**: Scan copy for luxury keywords and check for un-premium banned words.
-- **Sandbox Preview**: Test mock frame overlays instantly on different face models.
+**Features:**
+- **Full-screen dark map** — CartoDB Dark Matter tiles via Leaflet.js
+- **All riders shown** — truck 🚚 markers, each rider gets a unique color
+- **Online/Idle/Offline detection** — Green dot (< 5min), Yellow (< 30min), Grey (offline)
+- **Order delivery pins** — 📦 markers for each rider's active order destinations
+- **Dashed route lines** — connects rider to their order pins
+- **Left sidebar panel** — rider cards with stats; click to zoom map to that rider
+- **Auto-refresh** — polls `/api/admin/riders/live-map` every 10 seconds
+- **Map legend** — icon explanations at bottom right
+- Uses Nominatim (OpenStreetMap free geocoding) to convert addresses to coordinates
 
-### 13. 🛡️ Privacy Policy Page ([privacy.js](file:///C:/Users/Admin/Specs/frontend/src/pages/privacy.js))
-- Comprehensive disclosures detailing local browser-side biometric processing (auto-fit parameters never leaving user device), browser storage cookies, encryption details, third-party PCI processing, and data deletion controls.
+### 13. 🏪 Seller Panel ([seller.js](file:///C:/Users/Admin/Specs/frontend/src/pages/seller.js)) ← NEW (2026-07-10)
+Access: `/seller` — users with `role: seller` or `role: admin`. Protected by `isSeller` middleware.
 
-### 14. ⚖️ Terms of Service Page ([terms.js](file:///C:/Users/Admin/Specs/frontend/src/pages/terms.js))
-- Store guidelines, user authentication requirements, custom prescription eyewear specifications, return limits, cancellation guidelines, and loyalty rewards redemption metrics.
+**Tabs & Features:**
 
-### 15. 🗺️ Website Sitemap Directory ([sitemap.js](file:///C:/Users/Admin/Specs/frontend/src/pages/sitemap.js))
-- Visual sitemap index page categorizing ecommerce catalog routes, AI scanners, legal policy links, support forums, and internal administrative dashboard workspaces.
+| Tab | Feature |
+|-----|---------|
+| Dashboard | Stats cards (orders, revenue, products, agents), Low stock alerts, Recent orders, 🔔 Stale orders alert (red panel for unassigned paid orders > 1hr), 🏆 Agent Performance Leaderboard |
+| Orders | Filter by status/search, 🤖 Auto-assign to least-busy agent, ⚡ Mark urgent/express with reason note, View all order details + manage modal |
+| Inventory | Product list with stock levels, edit products |
+| Delivery Agents | List of agents with assigned order counts |
+
+**Special UI in Orders Tab:**
+- **Agent Workloads button** → Opens modal showing each agent's: active orders, total delivered, success rate % with color bar
+- **🤖 Auto-assign** — on any unassigned order row
+- **⚡ Urgent toggle** — on every order row; prompts for reason, marks order red
+
+### 14. 🚚 Delivery Agent Panel ([delivery.js](file:///C:/Users/Admin/Specs/frontend/src/pages/delivery.js)) ← NEW (2026-07-10)
+Access: `/delivery` — users with `role: delivery` or `role: admin`. Protected by `isDelivery` middleware.
+
+**Tabs & Features:**
+
+| Tab | Feature |
+|-----|---------|
+| Dashboard | Agent stats: total assigned, delivered today, out for delivery, shipped |
+| My Deliveries | All assigned orders; status progress stepper (Processing → Shipped → Out for Delivery → Delivered); call customer button; full address display |
+| Available Orders | Unassigned paid orders **grouped by city** 📍; urgent orders shown with red glow + animated badge; "Claim Order" or "Claim URGENT" button |
+
+**Header Button:** "🗺 Route Map" → opens `/delivery-map`
+
+### 15. 🗺 Delivery Route Map ([delivery-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/delivery-map.js)) ← NEW (2026-07-10)
+Access: `/delivery-map` — Delivery agents only. Linked from Delivery Panel header.
+
+**Features:**
+- **Full-screen dark map** — CartoDB Dark Matter tiles via Leaflet.js
+- **Live GPS tracking** — `navigator.geolocation.watchPosition()` + sends to backend every 30s
+- **GPS Live badge** — green pulsing indicator if location permission granted
+- **Animated truck marker** — pulsing blue glow circle around rider's position
+- **Numbered order stops** — circular numbered markers, color-coded by status
+- **⚡ Urgent badge** — red glowing badge on urgent order markers + animated pulse
+- **Route polyline** — dashed amber line: rider → stop1 → stop2 → ...
+- **Stats bar** — Stops count, total km, estimated time (at 30km/h avg), urgent count
+- **Order card strip** — horizontal scroll; click card → jumps map to that order
+- **Geocoding progress bar** — shows progress while converting addresses to coordinates
+- **"Open in Google Maps"** → generates Google Maps URL with all waypoints for turn-by-turn navigation
+- **"📍" button** → centers map back to rider's current location
+- Uses Nominatim (free OSM geocoder) with 1.1s delay between requests to respect rate limits
+
+### 16. 🎨 Brand Stylist Hub ([stylist.js](file:///C:/Users/Admin/Specs/frontend/src/pages/stylist.js))
+Access: `/stylist` — A panel separate from operations for creative brand directors.
+
+**Modules:** Lookbook Builder, Face Shape Advisor, Spotlight Manager, Style Tag Editor, Color Story Board, Product Photo Hub, Content Calendar, Review Spotlight, Comparison Matrix, Brand Voice Checker, Sandbox Preview.
+
+### 17. 🛡️ Privacy Policy ([privacy.js](file:///C:/Users/Admin/Specs/frontend/src/pages/privacy.js))
+Comprehensive disclosures: biometric processing, browser storage, encryption, third-party PCI, data deletion controls.
+
+### 18. ⚖️ Terms of Service ([terms.js](file:///C:/Users/Admin/Specs/frontend/src/pages/terms.js))
+Store guidelines, authentication requirements, prescription eyewear specs, return limits, loyalty redemption metrics.
+
+### 19. 🗺️ Sitemap Directory ([sitemap.js](file:///C:/Users/Admin/Specs/frontend/src/pages/sitemap.js))
+Visual sitemap index page categorizing all routes.
 
 ---
-
 
 ## 🎨 Design System
 
@@ -134,11 +186,52 @@ Access: `/stylist` — A panel separate from operations where creative directors
 - **Typography:** Inter / Outfit (Google Fonts)
 - **Effects:** Glassmorphism nav, smooth micro-animations, gold borders, dark premium panels
 - **Styling:** Vanilla CSS in `globals.css` — no Tailwind
+- **Map pages:** Use inline styles (not global CSS) + Leaflet.js
 
 ---
 
-## ⚠️ Important Import Notes
+## ⚠️ Important Development Notes
 
+### Import Rules
 - All pages use `const React = require('react')` (CommonJS) — **do NOT use ES module `import` syntax**
-- lucide-react icons must all be included in the single destructured `require('lucide-react')` call at the top of each page
-- Missing icon imports (e.g., `X` for close buttons) will silently fail — always verify before adding new modals
+- lucide-react icons must all be included in the single destructured `require('lucide-react')` call
+- Missing icon imports will silently fail — always verify before adding new modals
+
+### Toast System
+- `seller.js` and `delivery.js` have their own **local toast state** — they do NOT use `useToast` from `_app.js`
+- This is because `useToast` caused SSR crashes on these pages
+- Local toast pattern:
+  ```js
+  const [toastMsg, setToastMsg] = useState(null);
+  const showToast = (msg, type = 'success') => {
+    setToastMsg({ msg, type });
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+  ```
+
+### Map Pages
+- `delivery-map.js` and `admin-map.js` load Leaflet.js via script injection in `useEffect` — this avoids SSR issues
+- Nominatim geocoder is rate-limited to 1 request/second — always add `setTimeout(r => r, 1100)` between calls
+- CartoDB Dark Matter tile URL: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
+
+### Role Guards
+- `seller.js` and `delivery.js` check `user.role` in `useEffect` and redirect to `/account` if unauthorized
+- Always check both `user.role` AND `user.email === 'admin@specs.com'` for admin bypass
+
+---
+
+## 🔗 Direct Panel Links (Production)
+
+| Panel | URL |
+|-------|-----|
+| Homepage | `https://lekyaspecs.vercel.app/` |
+| Shop | `https://lekyaspecs.vercel.app/shop` |
+| Account / Login | `https://lekyaspecs.vercel.app/account` |
+| Admin Panel | `https://lekyaspecs.vercel.app/admin` |
+| Admin Live Map | `https://lekyaspecs.vercel.app/admin-map` |
+| Seller Panel | `https://lekyaspecs.vercel.app/seller` |
+| Delivery Panel | `https://lekyaspecs.vercel.app/delivery` |
+| Delivery Route Map | `https://lekyaspecs.vercel.app/delivery-map` |
+| Virtual Try-On | `https://lekyaspecs.vercel.app/tryon` |
+| Face Shape AI | `https://lekyaspecs.vercel.app/face-shape` |
+| Brand Stylist Hub | `https://lekyaspecs.vercel.app/stylist` |
