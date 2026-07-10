@@ -387,8 +387,8 @@ export default function SellerPanel() {
                       View all orders <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
-                  </div>
                 </div>
+
 
                 {/* 🔔 Stale Orders Alert */}
                 {staleOrders.length > 0 && (
@@ -507,6 +507,7 @@ export default function SellerPanel() {
                   return (
                     <div key={order.id} className="bg-[#111] border border-white/10 rounded-xl p-4 hover:border-amber-400/20 transition-all">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {/* Left: order info */}
                         <div className="flex items-start gap-4">
                           <div className="text-center bg-white/5 rounded-lg px-3 py-2 shrink-0">
                             <p className="text-[10px] text-gray-500 uppercase">Order</p>
@@ -529,42 +530,43 @@ export default function SellerPanel() {
                             </div>
                           </div>
                         </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <p className="text-base font-black text-amber-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
-                            <span className={`text-[10px] font-bold px-2 py-1 rounded border ${sc.bg} ${sc.text} ${sc.border}`}>
-                              {order.status}
-                            </span>
-                            <div className="flex items-center gap-2">
+                        {/* Right: price + actions */}
+                        <div className="flex flex-col items-end gap-2 shrink-0">
+                          <p className="text-base font-black text-amber-400">₹{order.total_amount?.toLocaleString('en-IN')}</p>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded border ${sc.bg} ${sc.text} ${sc.border}`}>
+                            {order.status}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              className="text-[10px] text-gray-400 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                            >
+                              <Eye className="w-3 h-3" /> Manage
+                            </button>
+                            {!order.assigned_delivery_agent_id && (
                               <button
-                                onClick={() => setSelectedOrder(order)}
-                                className="text-[10px] text-gray-400 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                                onClick={() => handleAutoAssign(order.id)}
+                                disabled={autoAssigning === order.id}
+                                title="Auto-assign to least busy agent"
+                                className="text-[10px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 border border-amber-500/30 px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold"
                               >
-                                <Eye className="w-3 h-3" /> Manage
+                                {autoAssigning === order.id ? '...' : '🤖'}
                               </button>
-                              {!order.assigned_delivery_agent_id && (
-                                <button
-                                  onClick={() => handleAutoAssign(order.id)}
-                                  disabled={autoAssigning === order.id}
-                                  title="Auto-assign to least busy agent"
-                                  className="text-[10px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 border border-amber-500/30 px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold"
-                                >
-                                  {autoAssigning === order.id ? '...' : '🤖'}
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleToggleUrgent(order.id, order.is_urgent)}
-                                disabled={togglingUrgent === order.id}
-                                title={order.is_urgent ? 'Remove urgent flag' : 'Mark as urgent/express'}
-                                className={`text-[10px] px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold border ${
-                                  order.is_urgent
-                                    ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/40'
-                                    : 'bg-white/5 text-gray-500 border-white/10 hover:text-red-400'
-                                }`}
-                              >
-                                {togglingUrgent === order.id ? '...' : '⚡'}
-                              </button>
-                            </div>
+                            )}
+                            <button
+                              onClick={() => handleToggleUrgent(order.id, order.is_urgent)}
+                              disabled={togglingUrgent === order.id}
+                              title={order.is_urgent ? 'Remove urgent flag' : 'Mark as urgent/express'}
+                              className={`text-[10px] px-2 py-1 rounded flex items-center gap-1 transition-colors font-bold border ${
+                                order.is_urgent
+                                  ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/40'
+                                  : 'bg-white/5 text-gray-500 border-white/10 hover:text-red-400'
+                              }`}
+                            >
+                              {togglingUrgent === order.id ? '...' : '⚡'}
+                            </button>
                           </div>
+                        </div>
                       </div>
                       {order.delivery_agent_name && (
                         <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
