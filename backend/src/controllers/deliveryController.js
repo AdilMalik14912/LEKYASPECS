@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { sendDeliveryOtpEmail } = require('../utils/mailer');
 
 // 1. Get orders assigned to this delivery agent
 const getMyDeliveries = async (req, res) => {
@@ -6,7 +7,7 @@ const getMyDeliveries = async (req, res) => {
   try {
     const result = await db.query(
       `SELECT o.id, o.total_amount, o.status, o.created_at, o.shipping_address,
-              o.tracking_comments, o.delivery_notes,
+              o.tracking_comments, o.delivery_notes, o.delivery_otp,
               u.name as customer_name, u.email as customer_email, u.phone as customer_phone
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
@@ -92,6 +93,13 @@ const claimOrder = async (req, res) => {
   }
 };
 
+// Delivery status ordering for forward-only enforcement
+const STATUS_ORDER = {
+  'Shipped': 1,
+  'Out for Delivery': 2,
+  'Delivered': 3
+};
+
 // 4. Update delivery status of an assigned order
 const updateDeliveryStatus = async (req, res) => {
   const agentId = req.user.id;
@@ -106,7 +114,11 @@ const updateDeliveryStatus = async (req, res) => {
   try {
     // Verify the agent owns this order
     const orderRes = await db.query(
-      'SELECT id, assigned_delivery_agent_id, delivery_otp FROM orders WHERE id = ?',
+      `SELECT o.id, o.assigned_delivery_agent_id, o.delivery_otp, o.status,
+              u.name as customer_name, u.email as customer_email
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.id = ?`,
       [id]
     );
     if (orderRes.rows.length === 0) {
@@ -121,20 +133,42 @@ const updateDeliveryStatus = async (req, res) => {
       return res.status(403).json({ message: 'You are not assigned to this order' });
     }
 
+    // ── FORWARD-ONLY STATUS CHECK ──────────────────────────────────────────
+    const currentRank = STATUS_ORDER[order.status] || 0;
+    const requestedRank = STATUS_ORDER[status] || 0;
+    if (requestedRank <= currentRank) {
+      return res.status(400).json({
+        message: `Cannot revert status. Order is already at "${order.status}" — you can only move it forward.`
+      });
+    }
+
+    // ── OTP VERIFICATION (required for Delivered) ──────────────────────────
     if (status === 'Delivered') {
       const storedOtp = order.delivery_otp;
       if (storedOtp) {
         if (!delivery_otp || delivery_otp.trim() !== storedOtp.trim()) {
           return res.status(400).json({
-            message: 'Verification failed: Correct 6-digit customer Delivery OTP is required to complete delivery.'
+            message: 'Verification failed: Correct 6-digit Customer Delivery OTP is required to complete delivery.'
           });
         }
       }
     }
 
+    // ── GENERATE & EMAIL OTP (when going Out for Delivery) ─────────────────
     let finalOtp = order.delivery_otp;
-    if (status === 'Out for Delivery' && !finalOtp) {
+    if (status === 'Out for Delivery') {
+      // Always generate a fresh OTP when marking OFD
       finalOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Send OTP email to customer (non-blocking so it doesn't fail the status update)
+      if (order.customer_email) {
+        sendDeliveryOtpEmail({
+          to: order.customer_email,
+          customerName: order.customer_name,
+          orderId: id,
+          otp: finalOtp
+        }).catch(err => console.warn('[DeliveryOTP] Email send failed:', err.message));
+      }
     }
 
     await db.query(
@@ -142,10 +176,69 @@ const updateDeliveryStatus = async (req, res) => {
       [status, delivery_notes || null, finalOtp, id]
     );
 
-    res.json({ message: `Order #${id} marked as "${status}"` });
+    const responseMsg = status === 'Out for Delivery'
+      ? `Order #${id} marked as "Out for Delivery". Customer has been sent the delivery OTP via email.`
+      : `Order #${id} marked as "${status}"`;
+
+    res.json({ message: responseMsg });
   } catch (err) {
     console.error('Update delivery status error:', err);
     res.status(500).json({ message: 'Server error updating delivery status' });
+  }
+};
+
+// 4b. Resend delivery OTP to customer email
+const resendDeliveryOtp = async (req, res) => {
+  const agentId = req.user.id;
+  const { id } = req.params;
+
+  try {
+    const orderRes = await db.query(
+      `SELECT o.id, o.assigned_delivery_agent_id, o.delivery_otp, o.status,
+              u.name as customer_name, u.email as customer_email
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.id = ?`,
+      [id]
+    );
+
+    if (orderRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    const order = orderRes.rows[0];
+
+    // Only assigned agent or admin can resend OTP
+    if (
+      order.assigned_delivery_agent_id !== agentId &&
+      req.user.role !== 'admin' &&
+      req.user.email !== 'dev.parceluncle@gmail.com'
+    ) {
+      return res.status(403).json({ message: 'You are not assigned to this order' });
+    }
+
+    if (order.status !== 'Out for Delivery') {
+      return res.status(400).json({ message: 'OTP can only be resent for orders that are "Out for Delivery".' });
+    }
+
+    if (!order.delivery_otp) {
+      return res.status(400).json({ message: 'No OTP found for this order. Mark the order Out for Delivery first.' });
+    }
+
+    if (!order.customer_email) {
+      return res.status(400).json({ message: 'Customer email not found. Cannot resend OTP.' });
+    }
+
+    await sendDeliveryOtpEmail({
+      to: order.customer_email,
+      customerName: order.customer_name,
+      orderId: id,
+      otp: order.delivery_otp
+    });
+
+    res.json({ message: `OTP resent to customer's email (${order.customer_email}) successfully!` });
+  } catch (err) {
+    console.error('Resend OTP error:', err);
+    res.status(500).json({ message: 'Server error resending OTP' });
   }
 };
 
@@ -185,16 +278,6 @@ const getMyStats = async (req, res) => {
     console.error('Get delivery stats error:', err);
     res.status(500).json({ message: 'Server error fetching stats' });
   }
-};
-
-module.exports = {
-  getMyDeliveries,
-  getAvailableOrders,
-  claimOrder,
-  updateDeliveryStatus,
-  getMyStats,
-  updateRiderLocation,
-  getMyMapOrders
 };
 
 // 6. 📍 Update rider's GPS location (called every 30s from delivery map)
@@ -240,6 +323,7 @@ module.exports = {
   getAvailableOrders,
   claimOrder,
   updateDeliveryStatus,
+  resendDeliveryOtp,
   getMyStats,
   updateRiderLocation,
   getMyMapOrders

@@ -254,6 +254,41 @@ const sendOtpEmail = async ({ to, otp }) => {
   return sendMail({ to, subject: `${otp} is your Lekya Specs verification code`, html });
 };
 
+// ── 7. Delivery OTP Email (sent to customer when order goes Out for Delivery) ─
+const sendDeliveryOtpEmail = async ({ to, customerName, orderId, otp }) => {
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0A0A0A;border:1px solid #f59e0b;border-radius:10px;overflow:hidden;">
+      <div style="background:#111;padding:32px;text-align:center;border-bottom:1px solid rgba(245,158,11,0.25);">
+        <h1 style="color:#C5A028;margin:0;font-size:24px;letter-spacing:4px;">LEKYA SPECS</h1>
+        <p style="color:#f59e0b;margin:6px 0 0;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Delivery Verification Code</p>
+      </div>
+      <div style="padding:40px 32px;text-align:center;background:#111;">
+        <div style="font-size:32px;margin-bottom:16px;">🚚</div>
+        <h2 style="color:#fff;margin:0 0 12px;font-size:20px;font-weight:700;">Your Order is Out for Delivery!</h2>
+        <p style="color:#b3b3b3;font-size:13px;line-height:1.7;margin:0 0 28px;">
+          Hi <strong style="color:#fff">${customerName || 'there'}</strong>,<br>
+          Your <strong style="color:#f59e0b">Order #${orderId}</strong> is on its way!
+          Please share this <strong>One-Time Password (OTP)</strong> with the delivery agent to confirm receipt.
+        </p>
+        <div style="background:#1a1a1a;border:2px dashed #f59e0b;border-radius:8px;padding:24px;display:inline-block;margin-bottom:28px;min-width:200px;">
+          <p style="color:#6b7280;font-size:10px;margin:0 0 8px;text-transform:uppercase;letter-spacing:2px;">Delivery OTP</p>
+          <span style="font-family:monospace;font-size:40px;font-weight:900;color:#f59e0b;letter-spacing:8px;">${otp}</span>
+        </div>
+        <p style="color:#ef4444;font-size:12px;font-weight:700;margin:0 0 8px;">⚠️ Do NOT share this OTP with anyone other than the delivery agent at your door.</p>
+        <p style="color:#555;font-size:11px;margin:0;">If you did not place this order, please contact support immediately.</p>
+      </div>
+      <div style="background:#0d0d0d;padding:16px;text-align:center;border-top:1px solid rgba(255,255,255,0.03);">
+        <p style="color:#555;font-size:11px;margin:0;">© 2026 Lekya Specs. Premium Eyewear & AI Studio.</p>
+      </div>
+    </div>
+  `;
+  return sendMail({
+    to,
+    subject: `${otp} — Your Lekya Specs Delivery OTP for Order #${orderId}`,
+    html
+  });
+};
+
 module.exports = {
   sendMail,
   sendContactEmail,
@@ -262,4 +297,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendBroadcastEmail,
   sendOtpEmail,
+  sendDeliveryOtpEmail,
 };

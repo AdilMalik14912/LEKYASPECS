@@ -295,11 +295,32 @@ app.get('/api/delivery/my-orders', authenticateToken, isDelivery, deliveryContro
 app.get('/api/delivery/available', authenticateToken, isDelivery, deliveryController.getAvailableOrders);
 app.post('/api/delivery/claim/:id', authenticateToken, isDelivery, deliveryController.claimOrder);
 app.put('/api/delivery/orders/:id/status', authenticateToken, isDelivery, deliveryController.updateDeliveryStatus);
+app.post('/api/delivery/orders/:id/resend-otp', authenticateToken, isDelivery, deliveryController.resendDeliveryOtp);
 
 // Map & Location Tracking
 app.put('/api/delivery/location', authenticateToken, isDelivery, deliveryController.updateRiderLocation);
 app.get('/api/delivery/map-orders', authenticateToken, isDelivery, deliveryController.getMyMapOrders);
 app.get('/api/admin/riders/live-map', authenticateToken, isAdmin, adminController.getRidersLiveMap);
+
+// Admin: View all OTPs for active Out for Delivery orders
+app.get('/api/admin/delivery-otps', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT o.id, o.delivery_otp, o.status, o.created_at,
+              u.name as customer_name, u.email as customer_email, u.phone as customer_phone,
+              a.name as agent_name, a.email as agent_email
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       LEFT JOIN users a ON o.assigned_delivery_agent_id = a.id
+       WHERE o.delivery_otp IS NOT NULL AND o.status = 'Out for Delivery'
+       ORDER BY o.created_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get delivery OTPs error:', err);
+    res.status(500).json({ message: 'Server error fetching OTPs' });
+  }
+});
 
 // 10. Admin: Change user role
 app.put('/api/admin/users/:id/role', authenticateToken, isAdmin, async (req, res) => {

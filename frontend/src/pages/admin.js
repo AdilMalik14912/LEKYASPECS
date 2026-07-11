@@ -682,6 +682,9 @@ export default function Admin() {
   const [activeSessionsData, setActiveSessionsData] = useState(null);
   const [activeSessionsLoading, setActiveSessionsLoading] = useState(true);
 
+  // Delivery OTP Monitor state
+  const [deliveryOtps, setDeliveryOtps] = useState([]);
+  const [deliveryOtpsLoading, setDeliveryOtpsLoading] = useState(true);
 
   // 10 new features: Inspect customer profile state
   const [inspectedCustomer, setInspectedCustomer] = useState(null);
@@ -825,6 +828,14 @@ export default function Admin() {
         .then(res => res.json())
         .then(data => { setTeamUsers(data || []); setTeamLoading(false); })
         .catch(err => { console.error(err); setTeamLoading(false); });
+    } else if (activeTab === 'delivery-otps') {
+      setDeliveryOtpsLoading(true);
+      fetch(`${API_BASE}/api/admin/delivery-otps`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setDeliveryOtps(data || []); setDeliveryOtpsLoading(false); })
+        .catch(err => { console.error(err); setDeliveryOtpsLoading(false); });
     }
   }, [activeTab, token, user]);
 
@@ -1506,6 +1517,15 @@ export default function Admin() {
             }`}
           >
             <Users className="w-4 h-4" /> Team Management
+          </button>
+
+          <button
+            onClick={() => setActiveTab('delivery-otps')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'delivery-otps' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4" /> Delivery OTP Monitor
           </button>
 
           <Link
@@ -2974,6 +2994,103 @@ export default function Admin() {
                 }).length === 0 && (
                   <div className="text-center py-12 text-premium-gray text-sm">No users found.</div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- DELIVERY OTP MONITOR TAB --- */}
+        {activeTab === 'delivery-otps' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
+              🔐 Delivery OTP Monitor
+            </h2>
+            <p className="text-sm text-premium-gray mb-6">
+              Real-time view of all active delivery OTPs for orders currently "Out for Delivery". 
+              These OTPs are sent to customers via email when a rider marks an order as Out for Delivery.
+            </p>
+
+            <button
+              onClick={() => {
+                setDeliveryOtpsLoading(true);
+                fetch(`${API_BASE}/api/admin/delivery-otps`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                })
+                  .then(res => res.json())
+                  .then(data => { setDeliveryOtps(data || []); setDeliveryOtpsLoading(false); })
+                  .catch(() => setDeliveryOtpsLoading(false));
+              }}
+              className="mb-6 flex items-center gap-2 text-xs border border-premium-border px-4 py-2.5 rounded hover:bg-premium-light font-semibold tracking-wide uppercase transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Refresh OTP List
+            </button>
+
+            {deliveryOtpsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : deliveryOtps.length === 0 ? (
+              <div className="text-center py-20 text-premium-gray">
+                <ShieldCheck className="w-14 h-14 mx-auto mb-3 opacity-30" />
+                <p className="text-sm font-semibold">No active delivery OTPs</p>
+                <p className="text-xs mt-1 opacity-60">OTPs appear here when riders mark orders as "Out for Delivery".</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Summary */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-3 flex items-center gap-3">
+                  <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
+                  <p className="text-xs font-semibold text-amber-800">{deliveryOtps.length} active OTP{deliveryOtps.length !== 1 ? 's' : ''} waiting for delivery confirmation</p>
+                </div>
+
+                <div className="bg-white border border-premium-border rounded-lg overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-premium-black text-white">
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Order</th>
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Customer</th>
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Customer Email</th>
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Delivery OTP</th>
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Assigned Rider</th>
+                          <th className="text-left px-5 py-3 font-bold tracking-wider uppercase text-[10px]">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {deliveryOtps.map((row, i) => (
+                          <tr key={row.id} className={`border-t border-premium-border hover:bg-amber-50/30 transition-colors ${i % 2 === 0 ? '' : 'bg-premium-light/40'}`}>
+                            <td className="px-5 py-4">
+                              <span className="font-black text-premium-accent text-sm">#{row.id}</span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <p className="font-bold text-premium-dark">{row.customer_name || 'Guest'}</p>
+                              {row.customer_phone && <p className="text-[10px] text-premium-gray font-mono mt-0.5">{row.customer_phone}</p>}
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="font-mono text-[11px] text-premium-dark">{row.customer_email || '—'}</span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <div className="flex items-center gap-2">
+                                <code className="bg-amber-100 border border-amber-300 text-amber-900 font-black text-base px-3 py-1.5 rounded tracking-[0.2em] font-mono">
+                                  {row.delivery_otp}
+                                </code>
+                              </div>
+                            </td>
+                            <td className="px-5 py-4">
+                              <p className="font-semibold text-premium-dark">{row.agent_name || 'Unassigned'}</p>
+                              {row.agent_email && <p className="text-[10px] text-premium-gray font-mono mt-0.5">{row.agent_email}</p>}
+                            </td>
+                            <td className="px-5 py-4 text-premium-gray font-mono">
+                              {new Date(row.created_at).toLocaleDateString('en-IN')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-premium-gray text-center mt-2">
+                  ⚠️ These OTPs are sensitive. Do not share them externally. They expire once the order is marked Delivered.
+                </p>
               </div>
             )}
           </div>
