@@ -343,7 +343,7 @@ export default function App({ Component, pageProps }) {
                   <div className="flex items-center justify-between h-16 sm:h-20">
                     
                     {/* Menu Button for Mobile */}
-                    <div className="flex items-center sm:hidden">
+                    <div className="flex items-center lg:hidden">
                       <button 
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         className="text-premium-dark hover:text-premium-accent p-2"
@@ -353,7 +353,7 @@ export default function App({ Component, pageProps }) {
                     </div>
 
                     {/* Logo — Inline SVG for perfect sizing and alignment */}
-                    <div className="flex-1 flex justify-center sm:justify-start items-center">
+                    <div className="flex-shrink-0 flex justify-center sm:justify-start items-center mr-6 md:mr-10 lg:mr-16">
                       <Link href="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity group">
                         {/* Glasses Icon SVG */}
                         <svg width="44" height="22" viewBox="0 0 88 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
@@ -385,7 +385,7 @@ export default function App({ Component, pageProps }) {
 
                     {/* Desktop Navigation Links */}
                     {!isStaff ? (
-                      <nav className="hidden sm:flex items-center space-x-6 text-sm font-medium uppercase tracking-wider text-premium-dark mr-4">
+                      <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-sm font-medium uppercase tracking-wider text-premium-dark mr-4">
                         <Link href="/shop?category=Eyeglasses" className="hover:text-premium-accent transition-colors py-2">Eyeglasses</Link>
                         <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
                         <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
@@ -555,7 +555,7 @@ export default function App({ Component, pageProps }) {
 
                 {/* Mobile Dropdown Menu */}
                 {mobileMenuOpen && (
-                  <div className="sm:hidden bg-white border-b border-premium-border transition-all duration-300">
+                  <div className="lg:hidden bg-white border-b border-premium-border transition-all duration-300">
                     <div className="px-2 pt-2 pb-4 space-y-1">
                       {!isStaff ? (
                         <>
