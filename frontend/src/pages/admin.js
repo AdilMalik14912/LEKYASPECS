@@ -598,6 +598,7 @@ export default function Admin() {
   // Orders State
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [deliveryAgents, setDeliveryAgents] = useState([]);
 
   // Customers State
   const [customers, setCustomers] = useState([]);
@@ -734,6 +735,13 @@ export default function Admin() {
       })
         .then(res => res.json())
         .then(data => { setOrders(data); setOrdersLoading(false); })
+        .catch(err => console.error(err));
+
+      fetch(`${API_BASE}/api/seller/delivery-agents`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => { setDeliveryAgents(data || []); })
         .catch(err => console.error(err));
     } else if (activeTab === 'customers' || activeTab === 'broadcast') {
       setCustomersLoading(true);
@@ -956,6 +964,29 @@ export default function Admin() {
         setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       })
       .catch(err => console.error(err));
+  };
+
+  // Assign delivery agent (rider) to order trigger
+  const handleRiderAssign = (orderId, agentId) => {
+    if (!agentId) return; // Ignore empty values
+    fetch(`${API_BASE}/api/seller/orders/${orderId}/assign`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ delivery_agent_id: parseInt(agentId) })
+    })
+      .then(res => res.json())
+      .then(data => {
+        // Refresh orders list to get fresh assignments and status updates
+        fetch(`${API_BASE}/api/admin/orders`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(list => setOrders(list));
+      })
+      .catch(err => console.error('Assign delivery agent error:', err));
   };
 
   // Handle Admin creation form submit
@@ -1831,6 +1862,7 @@ export default function Admin() {
                           <th className="px-6 py-4">Date</th>
                           <th className="px-6 py-4">Total Amount</th>
                           <th className="px-6 py-4">Fulfillment Status</th>
+                          <th className="px-6 py-4">Delivery Rider</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
@@ -1934,6 +1966,20 @@ export default function Admin() {
                                 <option value="Shipped">Shipped</option>
                                 <option value="Delivered">Delivered</option>
                                 <option value="Cancelled">Cancelled</option>
+                              </select>
+                            </td>
+                            <td className="px-6 py-4">
+                              <select
+                                value={order.assigned_delivery_agent_id || ''}
+                                onChange={(e) => handleRiderAssign(order.id, e.target.value)}
+                                className="bg-premium-light text-xs font-semibold border border-premium-border rounded px-2 py-1 focus:outline-none focus:border-premium-accent tracking-wide cursor-pointer text-premium-dark max-w-[150px]"
+                              >
+                                <option value="">Select Rider</option>
+                                {deliveryAgents.map(agent => (
+                                  <option key={agent.id} value={agent.id}>
+                                    {agent.name}
+                                  </option>
+                                ))}
                               </select>
                             </td>
                           </tr>
