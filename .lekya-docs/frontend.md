@@ -88,7 +88,7 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | Tab | Feature |
 |-----|---------|
 | Dashboard | Sales analytics, revenue chart, low stock alerts, recent activity log |
-| Customer Orders | List orders, update status, add dispatch/tracking notes per order |
+| Customer Orders | List orders, update status, add dispatch/tracking notes, and directly assign/re-assign delivery riders (agents) |
 | Product Catalog | Add / Edit / Delete eyewear products with images |
 | View Customers | List all customers; click to Inspect Profile (order history overlay & Edit Credentials form) |
 | Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
