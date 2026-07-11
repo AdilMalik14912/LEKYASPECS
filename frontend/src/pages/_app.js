@@ -390,6 +390,7 @@ export default function App({ Component, pageProps }) {
                         <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
                         <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
                         <Link href="/contact" className="hover:text-premium-accent transition-colors py-2">Contact</Link>
+                        <Link href="/track" className="hover:text-premium-accent transition-colors py-2 text-premium-accent font-bold">Track Order</Link>
 
                         {/* Discover Dropdown */}
                         <div className="relative group py-2">
@@ -614,6 +615,13 @@ export default function App({ Component, pageProps }) {
                             All Frames
                           </Link>
                           <Link 
+                            href="/track" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-bold text-premium-accent hover:bg-premium-light"
+                          >
+                            🔍 Track Order
+                          </Link>
+                          <Link 
                             href="/customizer" 
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
@@ -676,6 +684,7 @@ export default function App({ Component, pageProps }) {
                         <li><Link href="/face-shape" className="hover:text-white transition-colors">Face Shape Tool</Link></li>
                         <li><Link href="/cart" className="hover:text-white transition-colors">Shopping Bag</Link></li>
                         <li><Link href="/account" className="hover:text-white transition-colors">My Profile</Link></li>
+                        <li><Link href="/track" className="hover:text-white transition-colors text-premium-accent font-bold">Track Order 🔍</Link></li>
                       </ul>
                     </div>
 
