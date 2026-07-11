@@ -1901,7 +1901,14 @@ export default function Admin() {
                           return matchesSearch && matchesStatus;
                         }).map(order => (
                           <tr key={order.id} className="hover:bg-premium-light/50">
-                            <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{order.id}</td>
+                            <td className="px-6 py-4 text-xs">
+                              <span className="font-bold text-premium-accent block">#{order.id}</span>
+                              {order.tracking_id && (
+                                <span className="font-mono text-gray-500 block text-[9px] mt-0.5 tracking-wider font-bold">
+                                  {order.tracking_id}
+                                </span>
+                              )}
+                            </td>
                             <td className="px-6 py-4">
                               <div>
                                 <span className="font-semibold block">{order.user_name}</span>

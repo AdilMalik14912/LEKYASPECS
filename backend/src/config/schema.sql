@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS orders (
     lens_price REAL DEFAULT 0.0,
     prescription_details TEXT DEFAULT NULL,
     tracking_comments TEXT DEFAULT NULL,
+    tracking_id TEXT UNIQUE DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );
 

@@ -312,6 +312,31 @@ const initDb = async () => {
       console.log('Migration: Added rider_last_seen to users table.');
     } catch (_) {}
 
+    try {
+      await client.execute("ALTER TABLE orders ADD COLUMN tracking_id TEXT UNIQUE DEFAULT NULL");
+      console.log('Migration: Added tracking_id column to orders table.');
+    } catch (_) {}
+
+    try {
+      const ordersRes = await client.execute("SELECT id FROM orders WHERE tracking_id IS NULL");
+      for (const row of ordersRes.rows) {
+        // row is an array-like Row or object depending on libsql version, row[0] or row.id
+        const orderId = row.id !== undefined ? row.id : row[0];
+        const tid = 'LS' + Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        await client.execute({
+          sql: "UPDATE orders SET tracking_id = ? WHERE id = ?",
+          args: [tid, orderId]
+        });
+      }
+      if (ordersRes.rows.length > 0) {
+        console.log(`Migration: Backfilled tracking_id for ${ordersRes.rows.length} orders.`);
+      }
+    } catch (err) {
+      console.warn('Migration warning (backfill tracking_id):', err.message);
+    }
+
+
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

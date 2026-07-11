@@ -201,6 +201,7 @@ app.get('/api/settings', adminController.getSettings);
 app.post('/api/orders/create', authenticateToken, orderController.createOrder);
 app.post('/api/orders/verify', authenticateToken, orderController.verifyPayment);
 app.get('/api/orders/history', authenticateToken, orderController.getOrders);
+app.get('/api/orders/track/:trackingId', orderController.trackOrderByTrackingId);
 
 // 5. Reviews API
 app.post('/api/orders/review', authenticateToken, orderController.addReview);

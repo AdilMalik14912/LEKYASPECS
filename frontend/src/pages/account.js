@@ -792,9 +792,19 @@ export default function Account() {
                     
                     {/* Header info */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-premium-border/60 pb-3 mb-4 gap-2 text-xs">
-                      <div>
-                        <span className="text-premium-gray font-medium">Order ID:</span>{' '}
-                        <strong className="text-premium-dark font-bold">#{order.id}</strong>
+                      <div className="flex flex-wrap gap-x-4">
+                        <div>
+                          <span className="text-premium-gray font-medium">Order ID:</span>{' '}
+                          <strong className="text-premium-dark font-bold">#{order.id}</strong>
+                        </div>
+                        {order.tracking_id && (
+                          <div>
+                            <span className="text-premium-gray font-medium">Tracking ID:</span>{' '}
+                            <Link href={`/track?id=${order.tracking_id}`} className="text-premium-accent hover:underline font-bold font-mono tracking-widest">
+                              {order.tracking_id}
+                            </Link>
+                          </div>
+                        )}
                       </div>
                       <div className="text-premium-gray flex items-center gap-4">
                         <span>

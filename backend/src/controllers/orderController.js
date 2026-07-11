@@ -226,11 +226,14 @@ const verifyPayment = async (req, res) => {
       }
       const prescriptionDetails = shipping_address?.prescription ? JSON.stringify(shipping_address.prescription) : null;
 
+      // Generate a unique 10-digit tracking ID starting with LS
+      const trackingId = 'LS' + Math.floor(1000000000 + Math.random() * 9000000000).toString();
+
       // Insert Order with new columns
       await tx.query(
-        `INSERT INTO orders (user_id, total_amount, status, payment_id, shipping_address, lens_type, lens_price, prescription_details)
-         VALUES (?, ?, 'Paid', ?, ?, ?, ?, ?)`,
-        [userId, totalAmount, razorpay_payment_id, JSON.stringify(shipping_address), lensType, lensPrice, prescriptionDetails]
+        `INSERT INTO orders (user_id, total_amount, status, payment_id, shipping_address, lens_type, lens_price, prescription_details, tracking_id)
+         VALUES (?, ?, 'Paid', ?, ?, ?, ?, ?, ?)`,
+        [userId, totalAmount, razorpay_payment_id, JSON.stringify(shipping_address), lensType, lensPrice, prescriptionDetails, trackingId]
       );
 
       // Get newly created order ID
@@ -415,10 +418,83 @@ const validateCouponCode = async (req, res) => {
   }
 };
 
+// 6. Track order publicly by tracking ID
+const trackOrderByTrackingId = async (req, res) => {
+  const { trackingId } = req.params;
+  if (!trackingId) {
+    return res.status(400).json({ message: 'Tracking ID is required' });
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT o.id, o.status, o.created_at, o.tracking_comments, o.shipping_address, o.lens_type,
+              u.name as customer_name
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.tracking_id = ?`,
+      [trackingId.toUpperCase().trim()]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Order not found with the provided tracking ID' });
+    }
+
+    const order = result.rows[0];
+
+    // Fetch order items details
+    const itemsRes = await db.query(
+      `SELECT oi.quantity, p.name, p.image_urls
+       FROM order_items oi
+       LEFT JOIN products p ON oi.product_id = p.id
+       WHERE oi.order_id = ?`,
+      [order.id]
+    );
+
+    const items = itemsRes.rows.map(item => {
+      let img = item.image_urls;
+      if (Array.isArray(img)) img = img[0];
+      else if (typeof img === 'string') {
+        try { img = JSON.parse(img)[0]; } catch (_) {}
+      }
+      return { ...item, image: img };
+    });
+
+    // Mask sensitive customer info for public view
+    let maskedName = 'Valued Customer';
+    if (order.customer_name) {
+      const parts = order.customer_name.split(' ');
+      maskedName = parts.map(p => p.charAt(0) + '*'.repeat(Math.max(1, p.length - 1))).join(' ');
+    }
+
+    let shippingCity = '—';
+    if (order.shipping_address) {
+      try {
+        const addr = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+        shippingCity = addr.city || addr.City || '—';
+      } catch (_) {}
+    }
+
+    res.json({
+      tracking_id: trackingId,
+      status: order.status,
+      created_at: order.created_at,
+      tracking_comments: order.tracking_comments,
+      lens_type: order.lens_type,
+      customer_name: maskedName,
+      city: shippingCity,
+      items
+    });
+  } catch (err) {
+    console.error('Track order error:', err);
+    res.status(500).json({ message: 'Server error tracking order' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   getOrders,
   addReview,
-  validateCouponCode
+  validateCouponCode,
+  trackOrderByTrackingId
 };
