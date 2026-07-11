@@ -185,6 +185,13 @@ Store guidelines, authentication requirements, prescription eyewear specs, retur
 ### 19. 🗺️ Sitemap Directory ([sitemap.js](file:///C:/Users/Admin/Specs/frontend/src/pages/sitemap.js))
 Visual sitemap index page categorizing all routes.
 
+### 20. 🔍 Public Order Tracker ([track.js](file:///C:/Users/Admin/Specs/frontend/src/pages/track.js)) ← NEW (2026-07-11)
+Access: `/track` — Public. Accessible without sign-in/registration.
+- **Search bar:** Enter any LS-prefixed 10-digit order tracking code (e.g. `LS1029384756`).
+- **Real-time timeline:** High-fidelity vertical progression steps (Confirmed → Processing → Packed → Shipped → Out for Delivery → Delivered).
+- **Masked details:** For privacy protection, guest/public queries show only masked customer names (`R***l S***a`) and shipping destination city.
+- **Order summary:** Displays package items, lens configuration description, and direct courier dispatch/tracking logs.
+
 ---
 
 ## 🎨 Design System

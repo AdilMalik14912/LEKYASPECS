@@ -26,7 +26,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, rider_lat, rider_lng, rider_last_seen, created_at
 2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls, style_tags
-3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, delivery_otp, shipping_address, created_at
+3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, delivery_otp, shipping_address, tracking_id, created_at
 4. **order_items** — order_id, product_id, quantity, price
 5. **reviews** — user_id, product_id, rating, comment, spotlight, created_at
 6. **store_settings** — key, value (CMS key-value store)
@@ -56,6 +56,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 - `urgent_note` column on `orders` ← Added 2026-07-10
 - `delivery_otp` column on `orders` ← Added 2026-07-11 (for customer verification)
 - `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
+- `tracking_id` column on `orders` ← Added 2026-07-11 (for unique public order lookup code)
 
 ---
 
@@ -83,6 +84,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `POST /verify` → Verifies Razorpay signature, marks order PAID.
 - `GET /history` → Returns user's order history.
 - `POST /review` → Submit a product review.
+- `GET /track/:trackingId` → Public tracking lookup (no authentication needed). Returns masked customer metadata and items details list.
 
 ### 4. Coupons (`/api/coupons`)
 - `POST /validate` → Validates coupon code, returns discount info.
@@ -166,6 +168,8 @@ Uses `nodemailer` connecting to Google SMTP with App Passwords (`SMTP_EMAIL` and
 - `sendContactEmail({ name, email, phone, subject, message })` → Forwards contact form to admin inbox.
 - `sendBroadcastEmail({ to, subject, bodyHtml })` → Sends personalized bulk emails.
 - `sendMail({ to, subject, html })` → Raw generic mailer for helpdesk replies.
+- `sendDeliveryOtpEmail({ to, customerName, orderId, otp })` → Dispatches a secure delivery verification OTP code to customers via email.
+- `sendStatusUpdateEmail({ to, customerName, orderId, status, note, totalAmount })` → Sends a premium, style-curated status timeline email to customer on every order status modification.
 
 ---
 
@@ -173,6 +177,7 @@ Uses `nodemailer` connecting to Google SMTP with App Passwords (`SMTP_EMAIL` and
 Uses `fetch` connecting to **Fast2SMS API gateway** using `FAST2SMS_API_KEY` environment variable.
 
 - `sendOtpSms({ to, otp })` → Dispatches a 6-digit OTP code via Fast2SMS.
+- `sendStatusUpdateSms({ to, customerName, orderId, status, note })` → Dispatches real-time text message alerts to the customer's phone during order status transitions.
 
 ---
 
