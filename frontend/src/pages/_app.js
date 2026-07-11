@@ -139,6 +139,25 @@ export default function App({ Component, pageProps }) {
     };
   }, [router]);
 
+  // Auto-redirect staff/rider accounts away from storefront pages
+  useEffect(() => {
+    if (!user) return;
+    const isStaffUser = user.role === 'admin' || user.role === 'seller' || user.role === 'delivery' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com';
+    if (!isStaffUser) return;
+
+    // Direct staff to their respective dashboards if they try to access storefront flow pages or customer account dashboard
+    const storefrontPaths = ['/shop', '/cart', '/checkout', '/wishlist', '/compare', '/customizer', '/lens-guide', '/ar-tryon', '/tryon', '/skin-analysis', '/style-quiz', '/account'];
+    if (storefrontPaths.includes(router.pathname) || router.pathname.startsWith('/product/')) {
+      if (user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') {
+        router.push('/admin');
+      } else if (user.role === 'seller') {
+        router.push('/seller');
+      } else if (user.role === 'delivery') {
+        router.push('/delivery');
+      }
+    }
+  }, [user, router.pathname]);
+
   // Sync Cart to localStorage
   const saveCart = (newCart) => {
     setCart(newCart);
@@ -193,6 +212,10 @@ export default function App({ Component, pageProps }) {
 
   // Cart Functions
   const addToCart = (product, quantity = 1) => {
+    if (user && (user.role === 'admin' || user.role === 'seller' || user.role === 'delivery' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com')) {
+      showToast('Staff/Rider accounts cannot purchase items.', 'error');
+      return;
+    }
     const existingIndex = cart.findIndex(item => item.product.id === product.id);
     let newCart = [...cart];
     
@@ -247,8 +270,19 @@ export default function App({ Component, pageProps }) {
     saveWishlist(newWishlist);
   };
 
-  // Hide header/footer on specific clean paths (e.g. embed modes or full admin if desired)
-  const isAdminRoute = router.pathname.startsWith('/admin');
+  const isStaffRoute = router.pathname.startsWith('/admin') ||
+                       router.pathname.startsWith('/seller') ||
+                       router.pathname.startsWith('/delivery') ||
+                       router.pathname === '/admin-map' ||
+                       router.pathname === '/delivery-map';
+
+  const isStaff = user && (
+    user.role === 'admin' ||
+    user.role === 'seller' ||
+    user.role === 'delivery' ||
+    user.email === 'dev.parceluncle@gmail.com' ||
+    user.email === 'admin@specs.com'
+  );
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -303,7 +337,7 @@ export default function App({ Component, pageProps }) {
             )}
             
             {/* --- Premium Navigation Header --- */}
-            {!isAdminRoute && (
+            {!isStaffRoute && (
               <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-premium-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex items-center justify-between h-16 sm:h-20">
@@ -350,127 +384,139 @@ export default function App({ Component, pageProps }) {
                     </div>
 
                     {/* Desktop Navigation Links */}
-                    <nav className="hidden sm:flex items-center space-x-6 text-sm font-medium uppercase tracking-wider text-premium-dark mr-4">
-                      <Link href="/shop?category=Eyeglasses" className="hover:text-premium-accent transition-colors py-2">Eyeglasses</Link>
-                      <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
-                      <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
-                      <Link href="/contact" className="hover:text-premium-accent transition-colors py-2">Contact</Link>
+                    {!isStaff ? (
+                      <nav className="hidden sm:flex items-center space-x-6 text-sm font-medium uppercase tracking-wider text-premium-dark mr-4">
+                        <Link href="/shop?category=Eyeglasses" className="hover:text-premium-accent transition-colors py-2">Eyeglasses</Link>
+                        <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
+                        <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
+                        <Link href="/contact" className="hover:text-premium-accent transition-colors py-2">Contact</Link>
 
-                      {/* Discover Dropdown */}
-                      <div className="relative group py-2">
-                        <button className="flex items-center gap-1 hover:text-premium-accent transition-colors">
-                          Discover
-                          <svg className="w-3 h-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-72 bg-white border border-premium-border rounded-lg shadow-xl p-4 hidden group-hover:block z-50">
-                          <div className="space-y-1">
-                            <Link href="/face-shape" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">🤳</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Face Shape Analyzer</p>
-                                <p className="text-[10px] text-premium-gray">AI-powered frame recommendations</p>
-                              </div>
-                            </Link>
-                            <Link href="/ar-tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">🥽</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Live AR Try-On</p>
-                                <p className="text-[10px] text-premium-gray">Real-time glasses on your webcam</p>
-                              </div>
-                            </Link>
-                            <Link href="/tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">🕶️</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">2D Try-On Studio</p>
-                                <p className="text-[10px] text-premium-gray">Upload portrait & size frames</p>
-                              </div>
-                            </Link>
-                            <Link href="/skin-analysis" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">🎨</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Skin Tone AI Lab</p>
-                                <p className="text-[10px] text-premium-gray">Pixel-perfect color DNA analysis</p>
-                              </div>
-                            </Link>
-                            <Link href="/style-quiz" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">✨</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Style Quiz</p>
-                                <p className="text-[10px] text-premium-gray">Find your frame personality</p>
-                              </div>
-                            </Link>
-                            <Link href="/lens-guide" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">👓</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Prescription Lens Studio</p>
-                                <p className="text-[10px] text-premium-gray">AI Lens refraction & coatings lab</p>
-                              </div>
-                            </Link>
-                            <Link href="/compare" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">⚖️</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Compare Frames</p>
-                                <p className="text-[10px] text-premium-gray">Side-by-side frame comparison</p>
-                              </div>
-                            </Link>
-                            <Link href="/customizer" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
-                              <span className="text-xl">🛠️</span>
-                              <div>
-                                <p className="text-xs font-bold text-premium-black">Bespoke Customizer</p>
-                                <p className="text-[10px] text-premium-gray">Design & preview custom frames</p>
-                              </div>
-                            </Link>
+                        {/* Discover Dropdown */}
+                        <div className="relative group py-2">
+                          <button className="flex items-center gap-1 hover:text-premium-accent transition-colors">
+                            Discover
+                            <svg className="w-3 h-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </button>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 w-72 bg-white border border-premium-border rounded-lg shadow-xl p-4 hidden group-hover:block z-50">
+                            <div className="space-y-1">
+                              <Link href="/face-shape" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">🤳</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Face Shape Analyzer</p>
+                                  <p className="text-[10px] text-premium-gray">AI-powered frame recommendations</p>
+                                </div>
+                              </Link>
+                              <Link href="/ar-tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">🥽</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Live AR Try-On</p>
+                                  <p className="text-[10px] text-premium-gray">Real-time glasses on your webcam</p>
+                                </div>
+                              </Link>
+                              <Link href="/tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">🕶️</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">2D Try-On Studio</p>
+                                  <p className="text-[10px] text-premium-gray">Upload portrait & size frames</p>
+                                </div>
+                              </Link>
+                              <Link href="/skin-analysis" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">🎨</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Skin Tone AI Lab</p>
+                                  <p className="text-[10px] text-premium-gray">Pixel-perfect color DNA analysis</p>
+                                </div>
+                              </Link>
+                              <Link href="/style-quiz" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">✨</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Style Quiz</p>
+                                  <p className="text-[10px] text-premium-gray">Find your frame personality</p>
+                                </div>
+                              </Link>
+                              <Link href="/lens-guide" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">👓</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Prescription Lens Studio</p>
+                                  <p className="text-[10px] text-premium-gray">AI Lens refraction & coatings lab</p>
+                                </div>
+                              </Link>
+                              <Link href="/compare" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">⚖️</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Compare Frames</p>
+                                  <p className="text-[10px] text-premium-gray">Side-by-side frame comparison</p>
+                                </div>
+                              </Link>
+                              <Link href="/customizer" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
+                                <span className="text-xl">🛠️</span>
+                                <div>
+                                  <p className="text-xs font-bold text-premium-black">Bespoke Customizer</p>
+                                  <p className="text-[10px] text-premium-gray">Design & preview custom frames</p>
+                                </div>
+                              </Link>
+                            </div>
                           </div>
                         </div>
+                      </nav>
+                    ) : (
+                      <div className="hidden sm:flex items-center gap-2.5 bg-premium-accent/15 border border-premium-accent/30 rounded-full px-5 py-2.5 text-[10px] font-bold text-premium-golddark tracking-[0.2em] uppercase select-none animate-pulse">
+                        🛡️ Staff Console Active
                       </div>
-                    </nav>
+                    )}
 
 
                     {/* Desktop Search Bar */}
-                    <div className="hidden lg:flex items-center relative max-w-xs w-full mr-6">
-                      <input
-                        type="text"
-                        placeholder="Search frames..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && searchQuery.trim()) {
-                            router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-                            setSearchQuery('');
-                          }
-                        }}
-                        className="w-full bg-premium-light border border-premium-border rounded-full py-1.5 pl-4 pr-10 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium transition-all"
-                      />
-                      <Search 
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-premium-gray cursor-pointer hover:text-premium-accent" 
-                        onClick={() => {
-                          if (searchQuery.trim()) {
-                            router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-                            setSearchQuery('');
-                          }
-                        }} 
-                      />
-                    </div>
+                    {!isStaff && (
+                      <div className="hidden lg:flex items-center relative max-w-xs w-full mr-6">
+                        <input
+                          type="text"
+                          placeholder="Search frames..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && searchQuery.trim()) {
+                              router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                              setSearchQuery('');
+                            }
+                          }}
+                          className="w-full bg-premium-light border border-premium-border rounded-full py-1.5 pl-4 pr-10 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium transition-all"
+                        />
+                        <Search 
+                          className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-premium-gray cursor-pointer hover:text-premium-accent" 
+                          onClick={() => {
+                            if (searchQuery.trim()) {
+                              router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                              setSearchQuery('');
+                            }
+                          }} 
+                        />
+                      </div>
+                    )}
 
                     {/* Action Icons */}
                     <div className="flex items-center space-x-3 sm:space-x-6">
-                      <Link href="/wishlist" className="relative p-2 text-premium-dark hover:text-premium-accent transition-colors">
-                        <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
-                        {wishlist.length > 0 && (
-                          <span className="absolute top-1 right-1 bg-premium-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                            {wishlist.length}
-                          </span>
-                        )}
-                      </Link>
+                      {!isStaff && (
+                        <>
+                          <Link href="/wishlist" className="relative p-2 text-premium-dark hover:text-premium-accent transition-colors">
+                            <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
+                            {wishlist.length > 0 && (
+                              <span className="absolute top-1 right-1 bg-premium-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                                {wishlist.length}
+                              </span>
+                            )}
+                          </Link>
 
-                      <Link href="/cart" className="relative p-2 text-premium-dark hover:text-premium-accent transition-colors">
-                        <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6" />
-                        {cart.length > 0 && (
-                          <span className="absolute top-1 right-1 bg-premium-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                            {cart.reduce((total, item) => total + item.quantity, 0)}
-                          </span>
-                        )}
-                      </Link>
+                          <Link href="/cart" className="relative p-2 text-premium-dark hover:text-premium-accent transition-colors">
+                            <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6" />
+                            {cart.length > 0 && (
+                              <span className="absolute top-1 right-1 bg-premium-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                                {cart.reduce((total, item) => total + item.quantity, 0)}
+                              </span>
+                            )}
+                          </Link>
+                        </>
+                      )}
 
                       {user ? (
                         <div className="flex items-center gap-1">
@@ -503,83 +549,90 @@ export default function App({ Component, pageProps }) {
                         </Link>
                       )}
                     </div>
-                  </div>
-                </div>
-
-                {/* Mobile Dropdown Menu */}
+                         {/* Mobile Dropdown Menu */}
                 {mobileMenuOpen && (
                   <div className="sm:hidden bg-white border-b border-premium-border transition-all duration-300">
                     <div className="px-2 pt-2 pb-4 space-y-1">
-                      {/* Mobile Search Bar */}
-                      <div className="px-3 py-2 relative">
-                        <input
-                          type="text"
-                          placeholder="Search frames..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && searchQuery.trim()) {
-                              router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-                              setSearchQuery('');
-                              setMobileMenuOpen(false);
-                            }
-                          }}
-                          className="w-full bg-premium-light border border-premium-border rounded-full py-1.5 pl-4 pr-10 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
-                        />
-                        <Search 
-                          className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-premium-gray cursor-pointer hover:text-premium-accent" 
-                          onClick={() => {
-                            if (searchQuery.trim()) {
-                              router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-                              setSearchQuery('');
-                              setMobileMenuOpen(false);
-                            }
-                          }} 
-                        />
-                      </div>
-                      <Link 
-                        href="/shop?category=Eyeglasses" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
-                      >
-                        Eyeglasses
-                      </Link>
-                      <Link 
-                        href="/shop?category=Sunglasses" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
-                      >
-                        Sunglasses
-                      </Link>
-                      <Link 
-                        href="/face-shape" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-semibold text-premium-accent hover:bg-premium-light"
-                      >
-                        Find Your Face Shape
-                      </Link>
-                      <Link 
-                        href="/shop" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
-                      >
-                        All Frames
-                      </Link>
-                      <Link 
-                        href="/customizer" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
-                      >
-                        Bespoke Customizer
-                      </Link>
-                      <Link 
-                        href="/lens-guide" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
-                      >
-                        Prescription Lens Studio
-                      </Link>
-
+                      {!isStaff ? (
+                        <>
+                          {/* Mobile Search Bar */}
+                          <div className="px-3 py-2 relative">
+                            <input
+                              type="text"
+                              placeholder="Search frames..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && searchQuery.trim()) {
+                                  router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                                  setSearchQuery('');
+                                  setMobileMenuOpen(false);
+                                }
+                              }}
+                              className="w-full bg-premium-light border border-premium-border rounded-full py-1.5 pl-4 pr-10 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                            />
+                            <Search 
+                              className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-premium-gray cursor-pointer hover:text-premium-accent" 
+                              onClick={() => {
+                                if (searchQuery.trim()) {
+                                  router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                                  setSearchQuery('');
+                                  setMobileMenuOpen(false);
+                                }
+                              }} 
+                            />
+                          </div>
+                          <Link 
+                            href="/shop?category=Eyeglasses" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                          >
+                            Eyeglasses
+                          </Link>
+                          <Link 
+                            href="/shop?category=Sunglasses" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                          >
+                            Sunglasses
+                          </Link>
+                          <Link 
+                            href="/face-shape" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-semibold text-premium-accent hover:bg-premium-light"
+                          >
+                            Find Your Face Shape
+                          </Link>
+                          <Link 
+                            href="/shop" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                          >
+                            All Frames
+                          </Link>
+                          <Link 
+                            href="/customizer" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                          >
+                            Bespoke Customizer
+                          </Link>
+                          <Link 
+                            href="/lens-guide" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-premium-dark hover:bg-premium-light hover:text-premium-accent"
+                          >
+                            Prescription Lens Studio
+                          </Link>
+                        </>
+                      ) : (
+                        <div className="px-3 py-4 text-center">
+                          <span className="block text-xs font-bold text-premium-accent tracking-widest uppercase select-none">🛡️ STAFF CONSOLE ACTIVE</span>
+                          {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block mt-3 bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center">Go to Admin Dashboard</Link>}
+                          {user.role === 'seller' && <Link href="/seller" onClick={() => setMobileMenuOpen(false)} className="block mt-3 bg-amber-900 text-amber-300 hover:bg-amber-500 hover:text-white font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center">Go to Seller Dashboard</Link>}
+                          {user.role === 'delivery' && <Link href="/delivery" onClick={() => setMobileMenuOpen(false)} className="block mt-3 bg-indigo-900 text-indigo-300 hover:bg-indigo-500 hover:text-white font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center">Go to Rider Dashboard</Link>}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -592,7 +645,7 @@ export default function App({ Component, pageProps }) {
             </main>
 
             {/* --- Premium Footer --- */}
-            {!isAdminRoute && (
+            {!isStaffRoute && (
               <footer className="bg-premium-black text-white py-12 sm:py-16 border-t border-premium-accent/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12">
