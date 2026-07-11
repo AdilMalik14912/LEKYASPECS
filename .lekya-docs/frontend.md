@@ -167,6 +167,7 @@ Access: `/delivery-map` — Delivery agents only. Linked from Delivery Panel hea
 - **Order card strip** — horizontal scroll; click card → jumps map to that order
 - **Geocoding progress bar** — shows progress while converting addresses to coordinates
 - **"Open in Google Maps"** → generates Google Maps URL with all waypoints for turn-by-turn navigation
+- **"⚡ Simulate GPS"** → animates location marker step-by-step along the route path, sending coordinate updates to the backend so the Admin Panel receives real-time tracking updates
 - **"📍" button** → centers map back to rider's current location
 - Uses Nominatim (free OSM geocoder) with 1.1s delay between requests to respect rate limits
 
