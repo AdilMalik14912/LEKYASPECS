@@ -17,6 +17,12 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 > ⚠️ `seller.js` and `delivery.js` do NOT use `useToast` from `_app.js` — they have their own local toast state to avoid SSR crashes. This is by design.
 
+### 🛡️ Staff Gateway Protection & Redirection Logic
+- **Storefront Actions Lock:** If any staff/rider account tries to call `addToCart`, it is blocked with a validation toast: *"Staff/Rider accounts cannot purchase items."*
+- **Clean Staff Header Layout:** If a user with role `admin`, `seller`, or `delivery` logs in and browses storefront pages (e.g. `/`), all client storefront components (Eyeglasses, Sunglasses, Lookbook, contact links, search bar, wishlist, and cart bag icons) are hidden from the header. Instead, a gorgeous, premium gold-bordered badge reading `🛡️ Staff Console Active` is displayed. On mobile view, a special redirect overlay panel is shown.
+- **Storefront Auto-Redirect Guard:** A system-wide `useEffect` hook in `_app.js` detects if a staff/rider user lands on storefront routes (such as `/shop`, `/cart`, `/checkout`, `/wishlist`, `/compare`, `/customizer`, `/lens-guide`, `/ar-tryon`, `/tryon`, `/skin-analysis`, `/style-quiz`, and `/account`). It automatically intercepts their navigation and redirects them directly to their respective workspace dashboard (e.g. `/delivery` for riders, `/seller` for sellers, and `/admin` for administrators).
+- **Independent Layout Isolation:** For all dedicated dashboard paths starting with `/admin`, `/seller`, or `/delivery` (including maps), the standard storefront header and footer are completely suppressed in `_app.js`, giving the dashboard UI 100% fullscreen real estate.
+
 ---
 
 ## 🖥️ All Application Pages
