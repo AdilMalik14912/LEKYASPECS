@@ -549,7 +549,10 @@ export default function App({ Component, pageProps }) {
                         </Link>
                       )}
                     </div>
-                         {/* Mobile Dropdown Menu */}
+                  </div>
+                </div>
+
+                {/* Mobile Dropdown Menu */}
                 {mobileMenuOpen && (
                   <div className="sm:hidden bg-white border-b border-premium-border transition-all duration-300">
                     <div className="px-2 pt-2 pb-4 space-y-1">
