@@ -97,6 +97,12 @@ export default function DeliveryMap() {
   const locationIntervalRef = useRef(null);
   const initialBoundsSetRef = useRef(false);
 
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simStopName, setSimStopName] = useState('');
+  const simulationIntervalRef = useRef(null);
+  const simulatedRoutePointsRef = useRef([]);
+  const currentSimulationIndexRef = useRef(0);
+
   const [locationStatus, setLocationStatus] = useState('requesting');
   const [riderLocation, setRiderLocation] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -248,6 +254,86 @@ export default function DeliveryMap() {
     }
   }, [riderLocation, geocodedOrders, mapInitialized]);
 
+  const handleToggleSimulation = () => {
+    if (isSimulating) {
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current);
+        simulationIntervalRef.current = null;
+      }
+      setIsSimulating(false);
+      setSimStopName('');
+      return;
+    }
+
+    const startPoint = riderLocation || { lat: 28.6139, lng: 77.2090 };
+    const stops = geocodedOrders.filter(o => o.coords).map(o => ({
+      id: o.id,
+      lat: o.coords.lat,
+      lng: o.coords.lng,
+      name: typeof o.shipping_address === 'object' ? o.shipping_address.city : 'Stop'
+    }));
+
+    if (stops.length === 0) {
+      alert('No active delivery order coordinates found to simulate route.');
+      return;
+    }
+
+    const fullPath = [];
+    let prev = startPoint;
+    
+    const interpolate = (p1, p2, steps = 12) => {
+      const pts = [];
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        pts.push({
+          lat: p1.lat + (p2.lat - p1.lat) * t,
+          lng: p1.lng + (p2.lng - p1.lng) * t,
+          name: p2.name || 'En Route'
+        });
+      }
+      return pts;
+    };
+
+    stops.forEach(stop => {
+      fullPath.push(...interpolate(prev, stop, 15));
+      prev = stop;
+    });
+
+    simulatedRoutePointsRef.current = fullPath;
+    currentSimulationIndexRef.current = 0;
+    setIsSimulating(true);
+
+    if (simulationIntervalRef.current) clearInterval(simulationIntervalRef.current);
+
+    simulationIntervalRef.current = setInterval(() => {
+      const idx = currentSimulationIndexRef.current;
+      const pts = simulatedRoutePointsRef.current;
+      if (idx >= pts.length) {
+        clearInterval(simulationIntervalRef.current);
+        simulationIntervalRef.current = null;
+        setIsSimulating(false);
+        setSimStopName('Finished!');
+        return;
+      }
+
+      const nextPt = pts[idx];
+      setRiderLocation({ lat: nextPt.lat, lng: nextPt.lng });
+      setSimStopName(nextPt.name || 'En Route');
+      
+      if (leafletMapRef.current) {
+        leafletMapRef.current.setView([nextPt.lat, nextPt.lng], leafletMapRef.current.getZoom());
+      }
+
+      currentSimulationIndexRef.current = idx + 1;
+    }, 1500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (simulationIntervalRef.current) clearInterval(simulationIntervalRef.current);
+    };
+  }, []);
+
   const openGoogleMaps = () => {
     if (!riderLocation) return;
     const wp = geocodedOrders.filter(o => o.coords).map(o => `${o.coords.lat},${o.coords.lng}`).join('/');
@@ -328,11 +414,27 @@ export default function DeliveryMap() {
           })}
         </div>
 
+        {isSimulating && (
+          <div style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
+              <span style={{ color: '#f59e0b', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>🚗 Simulating GPS Run</span>
+            </div>
+            <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>Stop: <span style={{ color: '#fbbf24' }}>{simStopName}</span></span>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={openGoogleMaps} disabled={!riderLocation}
-            style={{ flex: 1, background: riderLocation ? 'linear-gradient(135deg, #1d4ed8, #3b82f6)' : 'rgba(255,255,255,0.05)', color: riderLocation ? 'white' : '#6b7280', border: 'none', borderRadius: 12, padding: '13px', fontSize: 12, fontWeight: 700, cursor: riderLocation ? 'pointer' : 'not-allowed' }}>
+          <button onClick={openGoogleMaps} disabled={!riderLocation || isSimulating}
+            style={{ flex: 1, background: (riderLocation && !isSimulating) ? 'linear-gradient(135deg, #1d4ed8, #3b82f6)' : 'rgba(255,255,255,0.05)', color: (riderLocation && !isSimulating) ? 'white' : '#6b7280', border: 'none', borderRadius: 12, padding: '13px', fontSize: 12, fontWeight: 700, cursor: (riderLocation && !isSimulating) ? 'pointer' : 'not-allowed' }}>
             🗺 Open in Google Maps
           </button>
+
+          <button onClick={handleToggleSimulation}
+            style={{ background: isSimulating ? 'linear-gradient(135deg, #ef4444, #b91c1c)' : 'rgba(16,185,129,0.12)', border: isSimulating ? 'none' : '1px solid rgba(16,185,129,0.4)', color: isSimulating ? 'white' : '#10b981', borderRadius: 12, padding: '13px 18px', fontSize: 12, fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' }}>
+            {isSimulating ? '⏹ Stop Sim' : '⚡ Simulate GPS'}
+          </button>
+
           <button onClick={() => leafletMapRef.current && riderLocation && leafletMapRef.current.setView([riderLocation.lat, riderLocation.lng], 15)}
             style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b', borderRadius: 12, padding: '13px 16px', fontSize: 18, cursor: 'pointer' }}>
             📍
