@@ -1850,10 +1850,14 @@ export default function Admin() {
                     >
                       <option value="ALL">All Statuses</option>
                       <option value="Paid">Paid</option>
+                      <option value="Payment Confirmed">Payment Confirmed</option>
                       <option value="Processing">Processing</option>
+                      <option value="Packed">Packed</option>
                       <option value="Shipped">Shipped</option>
+                      <option value="Out for Delivery">Out for Delivery</option>
                       <option value="Delivered">Delivered</option>
                       <option value="Cancelled">Cancelled</option>
+                      <option value="Refunded">Refunded</option>
                     </select>
                   </div>
                 </div>
@@ -1976,16 +1980,20 @@ export default function Admin() {
                                 value={order.status}
                                 onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
                                 className={`bg-premium-light text-xs font-bold border border-premium-border rounded px-2.5 py-1 focus:outline-none focus:border-premium-accent uppercase tracking-wide cursor-pointer ${
-                                  order.status === 'Paid' ? 'text-green-700' :
-                                  order.status === 'Processing' ? 'text-amber-700' :
-                                  order.status === 'Shipped' ? 'text-blue-700' : 'text-gray-700'
+                                  order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'text-green-700' :
+                                  order.status === 'Processing' || order.status === 'Packed' ? 'text-amber-700' :
+                                  order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'text-blue-700' : 'text-gray-700'
                                 }`}
                               >
                                 <option value="Paid">Paid</option>
+                                <option value="Payment Confirmed">Payment Confirmed</option>
                                 <option value="Processing">Processing</option>
+                                <option value="Packed">Packed</option>
                                 <option value="Shipped">Shipped</option>
+                                <option value="Out for Delivery">Out for Delivery</option>
                                 <option value="Delivered">Delivered</option>
                                 <option value="Cancelled">Cancelled</option>
+                                <option value="Refunded">Refunded</option>
                               </select>
                             </td>
                             <td className="px-6 py-4">

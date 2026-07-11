@@ -3,7 +3,7 @@ const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key, Navigation } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -803,10 +803,13 @@ export default function Account() {
                           })}
                         </span>
                         <span className={`font-bold px-2 py-0.5 rounded uppercase text-[10px] ${
-                          order.status === 'Paid' ? 'bg-green-100 text-green-700' :
-                          order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
-                          order.status === 'Delivered' ? 'bg-gray-200 text-gray-700' :
-                          'bg-amber-100 text-amber-700'
+                          order.status === 'Paid' || order.status === 'Payment Confirmed' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
+                          order.status === 'Packed' ? 'bg-violet-100 text-violet-700' :
+                          order.status === 'Shipped' ? 'bg-indigo-100 text-indigo-700' :
+                          order.status === 'Out for Delivery' ? 'bg-orange-100 text-orange-700' :
+                          order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
+                          'bg-gray-100 text-gray-700'
                         }`}>
                           {order.status}
                         </span>
@@ -815,13 +818,15 @@ export default function Account() {
 
                     {/* Order Progress Tracker Stepper */}
                     {order.status !== 'Cancelled' ? (
-                      <div className="mb-5">
+                      <div className="mb-5 overflow-x-auto pb-2">
                         <p className="text-[10px] uppercase tracking-wider text-premium-gray font-bold mb-3">Order Progress</p>
-                        <div className="flex items-center">
+                        <div className="flex items-center min-w-[500px]">
                           {[
-                            { label: 'Ordered', icon: Package, statuses: ['Paid', 'Processing', 'Shipped', 'Delivered'] },
-                            { label: 'Processing', icon: RefreshCw, statuses: ['Processing', 'Shipped', 'Delivered'] },
-                            { label: 'Shipped', icon: Truck, statuses: ['Shipped', 'Delivered'] },
+                            { label: 'Confirmed', icon: Package, statuses: ['Paid', 'Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'] },
+                            { label: 'Processing', icon: RefreshCw, statuses: ['Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'] },
+                            { label: 'Packed', icon: Gift, statuses: ['Packed', 'Shipped', 'Out for Delivery', 'Delivered'] },
+                            { label: 'Shipped', icon: Truck, statuses: ['Shipped', 'Out for Delivery', 'Delivered'] },
+                            { label: 'Out for Delivery', icon: Navigation, statuses: ['Out for Delivery', 'Delivered'] },
                             { label: 'Delivered', icon: CheckCircle2, statuses: ['Delivered'] },
                           ].map((step, idx, arr) => {
                             const isActive = step.statuses.includes(order.status);

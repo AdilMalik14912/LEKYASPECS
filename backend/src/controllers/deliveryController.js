@@ -1,5 +1,6 @@
 const db = require('../config/db');
-const { sendDeliveryOtpEmail } = require('../utils/mailer');
+const { sendDeliveryOtpEmail, sendStatusUpdateEmail } = require('../utils/mailer');
+const { sendStatusUpdateSms } = require('../utils/sms');
 
 // 1. Get orders assigned to this delivery agent
 const getMyDeliveries = async (req, res) => {
@@ -95,9 +96,12 @@ const claimOrder = async (req, res) => {
 
 // Delivery status ordering for forward-only enforcement
 const STATUS_ORDER = {
-  'Shipped': 1,
-  'Out for Delivery': 2,
-  'Delivered': 3
+  'Payment Confirmed': 1,
+  'Processing':        2,
+  'Packed':            3,
+  'Shipped':           4,
+  'Out for Delivery':  5,
+  'Delivered':         6
 };
 
 // 4. Update delivery status of an assigned order
@@ -106,7 +110,7 @@ const updateDeliveryStatus = async (req, res) => {
   const { id } = req.params;
   const { status, delivery_notes, delivery_otp } = req.body;
 
-  const allowedStatuses = ['Shipped', 'Out for Delivery', 'Delivered'];
+  const allowedStatuses = ['Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: 'Invalid delivery status' });
   }
@@ -114,8 +118,8 @@ const updateDeliveryStatus = async (req, res) => {
   try {
     // Verify the agent owns this order
     const orderRes = await db.query(
-      `SELECT o.id, o.assigned_delivery_agent_id, o.delivery_otp, o.status,
-              u.name as customer_name, u.email as customer_email
+      `SELECT o.id, o.assigned_delivery_agent_id, o.delivery_otp, o.status, o.total_amount,
+              u.name as customer_name, u.email as customer_email, u.phone as customer_phone
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
        WHERE o.id = ?`,
@@ -157,10 +161,7 @@ const updateDeliveryStatus = async (req, res) => {
     // ── GENERATE & EMAIL OTP (when going Out for Delivery) ─────────────────
     let finalOtp = order.delivery_otp;
     if (status === 'Out for Delivery') {
-      // Always generate a fresh OTP when marking OFD
       finalOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-      // Send OTP email to customer (non-blocking so it doesn't fail the status update)
       if (order.customer_email) {
         sendDeliveryOtpEmail({
           to: order.customer_email,
@@ -176,9 +177,41 @@ const updateDeliveryStatus = async (req, res) => {
       [status, delivery_notes || null, finalOtp, id]
     );
 
+    // ── STATUS EMAIL + SMS TO CUSTOMER (non-blocking) ──────────────────────
+    // Skip the OFD one since we already sent the dedicated OTP email above
+    if (status !== 'Out for Delivery') {
+      if (order.customer_email) {
+        sendStatusUpdateEmail({
+          to:           order.customer_email,
+          customerName: order.customer_name,
+          orderId:      id,
+          status,
+          totalAmount:  order.total_amount
+        }).catch(err => console.warn('[Status Email]', err.message));
+      }
+      if (order.customer_phone) {
+        sendStatusUpdateSms({
+          to:           order.customer_phone,
+          customerName: order.customer_name,
+          orderId:      id,
+          status
+        }).catch(err => console.warn('[Status SMS]', err.message));
+      }
+    } else {
+      // For OFD, still send SMS (OTP email is already sent above)
+      if (order.customer_phone) {
+        sendStatusUpdateSms({
+          to:           order.customer_phone,
+          customerName: order.customer_name,
+          orderId:      id,
+          status
+        }).catch(err => console.warn('[Status SMS]', err.message));
+      }
+    }
+
     const responseMsg = status === 'Out for Delivery'
       ? `Order #${id} marked as "Out for Delivery". Customer has been sent the delivery OTP via email.`
-      : `Order #${id} marked as "${status}"`;
+      : `Order #${id} marked as "${status}". Customer has been notified via email & SMS.`;
 
     res.json({ message: responseMsg });
   } catch (err) {
@@ -186,6 +219,7 @@ const updateDeliveryStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error updating delivery status' });
   }
 };
+
 
 // 4b. Resend delivery OTP to customer email
 const resendDeliveryOtp = async (req, res) => {

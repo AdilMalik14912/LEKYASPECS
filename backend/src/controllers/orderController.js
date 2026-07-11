@@ -1,6 +1,8 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const db = require('../config/db');
+const { sendStatusUpdateEmail } = require('../utils/mailer');
+const { sendStatusUpdateSms } = require('../utils/sms');
 require('dotenv').config();
 
 // Initialize Razorpay Client
@@ -251,7 +253,38 @@ const verifyPayment = async (req, res) => {
       await tx.query('UPDATE users SET loyalty_points = loyalty_points + ? WHERE id = ?', [earnedPoints, userId]);
     });
 
-    console.log(`[EMAIL] Order confirmation sent to User ${userId} for Order ${orderId}`);
+    // ── Notify customer: Payment Confirmed (email + SMS) ────────────────────
+    const userRes = await db.query(
+      `SELECT u.name, u.email, u.phone, oi.quantity, p.name as pname, oi.price
+       FROM orders o
+       JOIN users u ON o.user_id = u.id
+       LEFT JOIN order_items oi ON oi.order_id = o.id
+       LEFT JOIN products p ON oi.product_id = p.id
+       WHERE o.id = ? LIMIT 10`,
+      [orderId]
+    );
+    if (userRes.rows.length > 0) {
+      const row = userRes.rows[0];
+      // Send 'Payment Confirmed' status email
+      sendStatusUpdateEmail({
+        to:           row.email,
+        customerName: row.name,
+        orderId,
+        status:       'Payment Confirmed',
+        totalAmount:  req.body.items?.reduce((s, i) => s, 0) // will be recalculated in the email
+      }).catch(err => console.warn('[Payment Confirmed Email]', err.message));
+      // Send status SMS
+      if (row.phone) {
+        sendStatusUpdateSms({
+          to:           row.phone,
+          customerName: row.name,
+          orderId,
+          status:       'Payment Confirmed'
+        }).catch(err => console.warn('[Payment Confirmed SMS]', err.message));
+      }
+    }
+
+    console.log(`[ORDER] Confirmation notifications sent for Order ${orderId}`);
 
     res.status(201).json({
       success: true,

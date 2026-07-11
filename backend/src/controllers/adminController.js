@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const { sendStatusUpdateEmail } = require('../utils/mailer');
+const { sendStatusUpdateSms }   = require('../utils/sms');
 
 // Helper to log admin actions
 const logAdminActivity = async (adminEmail, actionType, description) => {
@@ -134,7 +136,7 @@ const getAdminOrders = async (req, res) => {
 // 3. Update Order Status
 const updateOrderStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, note } = req.body;
 
   if (!status) {
     return res.status(400).json({ message: 'Status is required' });
@@ -142,14 +144,41 @@ const updateOrderStatus = async (req, res) => {
 
   try {
     await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
-    const result = await db.query('SELECT * FROM orders WHERE id = ?', [id]);
+    const result = await db.query(
+      `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+       FROM orders o JOIN users u ON o.user_id = u.id
+       WHERE o.id = ?`,
+      [id]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
+    const order = result.rows[0];
+
+    // ── Notify customer via Email + SMS (non-blocking) ─────────────────────
+    if (order.user_email) {
+      sendStatusUpdateEmail({
+        to:           order.user_email,
+        customerName: order.user_name,
+        orderId:      id,
+        status,
+        note:         note || null,
+        totalAmount:  order.total_amount
+      }).catch(err => console.warn('[Status Email]', err.message));
+    }
+    if (order.user_phone) {
+      sendStatusUpdateSms({
+        to:           order.user_phone,
+        customerName: order.user_name,
+        orderId:      id,
+        status,
+        note:         note || null
+      }).catch(err => console.warn('[Status SMS]', err.message));
+    }
 
     await logAdminActivity(req.user.email, 'UPDATE_ORDER_STATUS', `Updated order #${id} status to ${status}`);
-    res.json({ message: 'Order status updated successfully', order: result.rows[0] });
+    res.json({ message: 'Order status updated successfully', order });
   } catch (err) {
     console.error('Update order status error:', err);
     res.status(500).json({ message: 'Server error updating status' });

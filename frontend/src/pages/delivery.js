@@ -15,16 +15,25 @@ const API_BASE = typeof window !== 'undefined'
   : '';
 
 // Status order for forward-only enforcement on frontend
-const STATUS_ORDER = { 'Shipped': 1, 'Out for Delivery': 2, 'Delivered': 3 };
-const DELIVERY_STATUS_STEPS = ['Shipped', 'Out for Delivery', 'Delivered'];
+const STATUS_ORDER = {
+  'Payment Confirmed': 1,
+  'Processing':        2,
+  'Packed':            3,
+  'Shipped':           4,
+  'Out for Delivery':  5,
+  'Delivered':         6
+};
+const DELIVERY_STATUS_STEPS = ['Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
 
 const STATUS_COLORS = {
-  'Pending':          { bg: 'bg-yellow-500/15', text: 'text-yellow-400',  border: 'border-yellow-500/30' },
-  'Paid':             { bg: 'bg-green-500/15',  text: 'text-green-400',   border: 'border-green-500/30' },
-  'Processing':       { bg: 'bg-blue-500/15',   text: 'text-blue-400',    border: 'border-blue-500/30' },
-  'Shipped':          { bg: 'bg-indigo-500/15', text: 'text-indigo-400',  border: 'border-indigo-500/30' },
-  'Out for Delivery': { bg: 'bg-orange-500/15', text: 'text-orange-400',  border: 'border-orange-500/30' },
-  'Delivered':        { bg: 'bg-emerald-500/15',text: 'text-emerald-400', border: 'border-emerald-500/30' },
+  'Pending':           { bg: 'bg-yellow-500/15', text: 'text-yellow-400',  border: 'border-yellow-500/30' },
+  'Paid':              { bg: 'bg-green-500/15',  text: 'text-green-400',   border: 'border-green-500/30' },
+  'Payment Confirmed': { bg: 'bg-green-500/15',  text: 'text-green-400',   border: 'border-green-500/30' },
+  'Processing':        { bg: 'bg-blue-500/15',   text: 'text-blue-400',    border: 'border-blue-500/30' },
+  'Packed':            { bg: 'bg-violet-500/15', text: 'text-violet-400',  border: 'border-violet-500/30' },
+  'Shipped':           { bg: 'bg-indigo-500/15', text: 'text-indigo-400',  border: 'border-indigo-500/30' },
+  'Out for Delivery':  { bg: 'bg-orange-500/15', text: 'text-orange-400',  border: 'border-orange-500/30' },
+  'Delivered':         { bg: 'bg-emerald-500/15',text: 'text-emerald-400', border: 'border-emerald-500/30' },
 };
 
 function StatCard({ icon: Icon, label, value, sub, color = 'gold' }) {

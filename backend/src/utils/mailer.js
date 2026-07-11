@@ -289,6 +289,108 @@ const sendDeliveryOtpEmail = async ({ to, customerName, orderId, otp }) => {
   });
 };
 
+// ── 8. Order Status Update Email (every status change) ──────────────────────
+const sendStatusUpdateEmail = async ({ to, customerName, orderId, status, note, totalAmount }) => {
+
+  // Status-specific config
+  const STATUS_CONFIG = {
+    'Payment Confirmed': { emoji: '✅', color: '#22c55e', title: 'Payment Confirmed!',        subtitle: 'Your payment was received. We\'re on it!' },
+    'Processing':        { emoji: '⚙️', color: '#3b82f6', title: 'Order Being Processed',    subtitle: 'Our team is preparing your eyewear with care.' },
+    'Packed':            { emoji: '📦', color: '#8b5cf6', title: 'Order Packed & Ready',      subtitle: 'Your order is packed and ready to ship!' },
+    'Shipped':           { emoji: '🚚', color: '#f59e0b', title: 'Order Shipped!',            subtitle: 'Your order is on its way to you.' },
+    'Out for Delivery':  { emoji: '🛵', color: '#f97316', title: 'Out for Delivery!',         subtitle: 'Your order is arriving today. Keep your OTP ready!' },
+    'Delivered':         { emoji: '🎉', color: '#C5A028', title: 'Order Delivered!',          subtitle: 'Enjoy your new Lekya Specs eyewear!' },
+    'Cancelled':         { emoji: '❌', color: '#ef4444', title: 'Order Cancelled',           subtitle: 'Your order has been cancelled.' },
+    'Refunded':          { emoji: '💰', color: '#06b6d4', title: 'Refund Initiated',          subtitle: 'Your refund is being processed.' },
+  };
+
+  const ALL_STATUSES = ['Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
+  const config = STATUS_CONFIG[status] || { emoji: '📋', color: '#C5A028', title: `Status: ${status}`, subtitle: 'Your order status has been updated.' };
+  const currentIdx = ALL_STATUSES.indexOf(status);
+
+  // Build the timeline steps
+  const timelineRows = ALL_STATUSES.map((step, idx) => {
+    const isDone   = idx < currentIdx;
+    const isCurrent = idx === currentIdx;
+    const stepCfg  = STATUS_CONFIG[step] || {};
+    const dotColor = isDone ? '#22c55e' : isCurrent ? config.color : '#333';
+    const textColor = isDone ? '#22c55e' : isCurrent ? config.color : '#555';
+    const weight   = isCurrent ? '800' : isDone ? '600' : '400';
+    return `
+      <tr>
+        <td style="width:28px;text-align:center;vertical-align:top;padding:4px 0;">
+          <div style="width:18px;height:18px;border-radius:50%;background:${dotColor};display:inline-block;line-height:18px;font-size:10px;color:#000;text-align:center;font-weight:900;margin-top:2px;">
+            ${isDone ? '✓' : isCurrent ? '●' : '○'}
+          </div>
+        </td>
+        <td style="padding:6px 0 6px 12px;border-left:2px solid ${isDone || isCurrent ? dotColor : '#2a2a2a'};">
+          <span style="font-size:12px;font-weight:${weight};color:${textColor};">${stepCfg.emoji || ''} ${step}</span>
+          ${isCurrent ? `<div style="font-size:10px;color:#888;margin-top:2px;">${config.subtitle}</div>` : ''}
+        </td>
+      </tr>
+      <tr><td style="height:4px;"></td><td></td></tr>`;
+  }).join('');
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0A0A0A;border:1px solid ${config.color}44;border-radius:10px;overflow:hidden;">
+      <div style="background:#111;padding:28px 32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <h1 style="color:#C5A028;margin:0;font-size:22px;letter-spacing:4px;">LEKYA SPECS</h1>
+        <p style="color:#777;margin:4px 0 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;">Order Status Update</p>
+      </div>
+
+      <div style="padding:32px;background:#111;">
+        <!-- Status Badge -->
+        <div style="text-align:center;margin-bottom:28px;">
+          <span style="font-size:36px;">${config.emoji}</span>
+          <h2 style="color:#fff;margin:8px 0 4px;font-size:22px;font-weight:800;">${config.title}</h2>
+          <p style="color:#aaa;font-size:13px;margin:0;">Hi <strong style="color:#fff">${customerName || 'there'}</strong>, here's an update on your order.</p>
+          <div style="display:inline-block;background:${config.color}22;border:1px solid ${config.color}44;border-radius:999px;padding:4px 16px;margin-top:10px;">
+            <span style="color:${config.color};font-size:11px;font-weight:700;letter-spacing:1px;">Order #${orderId}</span>
+          </div>
+        </div>
+
+        <!-- Status Timeline -->
+        <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;padding:20px 24px;margin-bottom:24px;">
+          <p style="color:#666;font-size:9px;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;">Delivery Progress</p>
+          <table style="border-collapse:collapse;width:100%;">
+            <tbody>${timelineRows}</tbody>
+          </table>
+        </div>
+
+        ${note ? `
+        <div style="background:#1a1a1a;border-left:3px solid ${config.color};border-radius:4px;padding:12px 16px;margin-bottom:24px;">
+          <p style="color:#999;font-size:10px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px;">Note from Team</p>
+          <p style="color:#ddd;font-size:13px;margin:0;">${note}</p>
+        </div>` : ''}
+
+        ${totalAmount ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#111;border:1px solid #2a2a2a;border-radius:6px;padding:12px 16px;margin-bottom:24px;">
+          <span style="color:#666;font-size:12px;">Order Total</span>
+          <span style="color:#C5A028;font-size:16px;font-weight:900;">₹${parseFloat(totalAmount).toLocaleString('en-IN')}</span>
+        </div>` : ''}
+
+        <!-- CTA -->
+        <div style="text-align:center;">
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/account" 
+             style="display:inline-block;background:${config.color};color:${status === 'Delivered' ? '#111' : '#111'};padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:800;font-size:11px;letter-spacing:2px;text-transform:uppercase;">
+            Track My Order →
+          </a>
+        </div>
+      </div>
+
+      <div style="background:#0d0d0d;padding:16px;text-align:center;border-top:1px solid #1a1a1a;">
+        <p style="color:#444;font-size:11px;margin:0;">© 2026 Lekya Specs. Premium Eyewear & AI Studio.</p>
+      </div>
+    </div>
+  `;
+
+  return sendMail({
+    to,
+    subject: `${config.emoji} Order #${orderId} — ${status} | Lekya Specs`,
+    html
+  });
+};
+
 module.exports = {
   sendMail,
   sendContactEmail,
@@ -298,4 +400,6 @@ module.exports = {
   sendBroadcastEmail,
   sendOtpEmail,
   sendDeliveryOtpEmail,
+  sendStatusUpdateEmail,
 };
+
