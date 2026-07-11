@@ -313,7 +313,7 @@ const initDb = async () => {
     } catch (_) {}
 
     try {
-      await client.execute("ALTER TABLE orders ADD COLUMN tracking_id TEXT UNIQUE DEFAULT NULL");
+      await client.execute("ALTER TABLE orders ADD COLUMN tracking_id TEXT DEFAULT NULL");
       console.log('Migration: Added tracking_id column to orders table.');
     } catch (_) {}
 
