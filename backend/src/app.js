@@ -233,6 +233,8 @@ app.get('/api/admin/stats', authenticateToken, isAdmin, adminController.getDashb
 app.get('/api/admin/orders', authenticateToken, isAdmin, adminController.getAdminOrders);
 app.put('/api/admin/orders/:id', authenticateToken, isAdmin, adminController.updateOrderStatus);
 app.get('/api/admin/customers', authenticateToken, isAdmin, adminController.getAdminCustomers);
+app.put('/api/admin/customers/:id/credentials', authenticateToken, isAdmin, adminController.updateCustomerCredentials);
+app.put('/api/admin/users/:id/password',        authenticateToken, isAdmin, adminController.updateUserPassword);
 app.post('/api/admin/products', authenticateToken, isAdmin, adminController.addProduct);
 app.put('/api/admin/products/:id', authenticateToken, isAdmin, adminController.updateProduct);
 app.delete('/api/admin/products/:id', authenticateToken, isAdmin, adminController.deleteProduct);

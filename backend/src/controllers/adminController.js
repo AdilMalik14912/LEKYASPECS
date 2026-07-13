@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
 const { sendStatusUpdateEmail } = require('../utils/mailer');
 const { sendStatusUpdateSms }   = require('../utils/sms');
 
@@ -937,6 +938,38 @@ const getRidersLiveMap = async (req, res) => {
   }
 };
 
+// Dedicated Admin User Password Reset
+const updateUserPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.trim().length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long' });
+    }
+
+    const userRes = await db.query('SELECT id, name, email FROM users WHERE id = ?', [id]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const targetUser = userRes.rows[0];
+
+    const hashedPassword = await bcrypt.hash(newPassword.trim(), 10);
+    await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hashedPassword, id]);
+
+    await logAdminActivity(
+      req.user.email,
+      'USER_PASSWORD_CHANGE',
+      `Admin changed password for ${targetUser.name} (${targetUser.email}, ID: ${id})`
+    );
+
+    res.json({ message: `Password changed successfully for ${targetUser.name} (${targetUser.email})` });
+  } catch (err) {
+    console.error('updateUserPassword error:', err);
+    res.status(500).json({ message: 'Server error changing user password' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminOrders,
@@ -964,6 +997,7 @@ module.exports = {
   replyContactMessage,
   getCustomerDetail,
   updateCustomerCredentials,
+  updateUserPassword,
   updateOrderTracking,
   getActiveSessions,
   getRidersLiveMap

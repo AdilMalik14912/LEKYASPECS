@@ -3011,6 +3011,28 @@ export default function Admin() {
                                   <option value="admin">Admin</option>
                                 </select>
                               )}
+                              <button
+                                onClick={() => {
+                                  const newPass = prompt(`Enter new password for ${u.name} (${u.email}):`);
+                                  if (!newPass) return;
+                                  if (newPass.trim().length < 6) {
+                                    alert('Password must be at least 6 characters long');
+                                    return;
+                                  }
+                                  fetch(`${API_BASE}/api/admin/users/${u.id}/password`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                    body: JSON.stringify({ newPassword: newPass.trim() })
+                                  })
+                                    .then(res => res.json())
+                                    .then(data => alert(`✅ ${data.message || 'Password updated successfully!'}`))
+                                    .catch(err => alert(`❌ Error: ${err.message}`));
+                                }}
+                                className="px-2.5 py-1 text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-600 hover:bg-amber-500 hover:text-white rounded transition-all ml-2"
+                                title="Change user password"
+                              >
+                                🔑 Reset Password
+                              </button>
                             </td>
                           </tr>
                         );

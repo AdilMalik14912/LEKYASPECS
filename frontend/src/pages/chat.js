@@ -260,27 +260,25 @@ export default function ChatPage() {
   // ── Load conversation data when switching ─────────────────────────────────
   const openConversation = async (conv) => {
     setActiveConv(conv);
-    setMessages([]);
     setReplyTo(null);
     setEditingMsg(null);
     setInputText('');
     setMobileSidebar(false);
-    try {
-      const [msgs, mems, pinned, files] = await Promise.all([
-        api('GET', `/api/chat/conversations/${conv.id}/messages?limit=50`),
-        api('GET', `/api/chat/conversations/${conv.id}/members`),
-        api('GET', `/api/chat/conversations/${conv.id}/pinned`),
-        api('GET', `/api/chat/conversations/${conv.id}/files`),
-      ]);
-      setMessages(msgs);
-      setMembers(mems);
-      setPinnedMessages(pinned);
-      setSharedFiles(files);
-      setHasMore(msgs.length === 50);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'instant' }), 100);
-      // Mark read
-      api('POST', `/api/chat/conversations/${conv.id}/read`).catch(() => {});
-    } catch (e) { console.error(e); }
+
+    // Fetch messages independently first so chat loads INSTANTLY!
+    api('GET', `/api/chat/conversations/${conv.id}/messages?limit=50`)
+      .then(msgs => {
+        setMessages(msgs || []);
+        setHasMore(msgs?.length === 50);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'instant' }), 50);
+      })
+      .catch(console.error);
+
+    // Fetch background panel metadata independently (failures never block messages)
+    api('GET', `/api/chat/conversations/${conv.id}/members`).then(setMembers).catch(() => {});
+    api('GET', `/api/chat/conversations/${conv.id}/pinned`).then(setPinnedMessages).catch(() => {});
+    api('GET', `/api/chat/conversations/${conv.id}/files`).then(setSharedFiles).catch(() => {});
+    api('POST', `/api/chat/conversations/${conv.id}/read`).catch(() => {});
   };
 
   // ── Load older messages ────────────────────────────────────────────────────
@@ -306,7 +304,7 @@ export default function ChatPage() {
 
   // ── Send message ──────────────────────────────────────────────────────────
   const sendMessage = async () => {
-    if (isSending) return;
+    if (isSending || !activeConv) return;
     if (!inputText.trim() && !filePreview) return;
     setIsSending(true);
 
@@ -320,7 +318,7 @@ export default function ChatPage() {
 
     try {
       if (editingMsg) {
-        const updated = await api('PUT', `/api/chat/messages/${editingMsg.id}/edit`, { content: inputText.trim() });
+        await api('PUT', `/api/chat/messages/${editingMsg.id}/edit`, { content: inputText.trim() });
         setMessages(prev => prev.map(m => m.id === editingMsg.id ? { ...m, content: inputText.trim(), edited_at: new Date().toISOString() } : m));
         setEditingMsg(null);
       } else {
@@ -340,13 +338,13 @@ export default function ChatPage() {
       setInputText('');
       setReplyTo(null);
       setFilePreview(null);
-      setIsUploading(false);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
-      console.error(e);
+      console.error('sendMessage error:', e);
+    } finally {
       setIsUploading(false);
+      setIsSending(false);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
-    setIsSending(false);
   };
 
   // ── Typing indicator ──────────────────────────────────────────────────────
