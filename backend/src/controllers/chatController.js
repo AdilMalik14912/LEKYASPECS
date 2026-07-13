@@ -486,6 +486,36 @@ const deleteMessage = async (req, res) => {
 };
 
 // =============================================================================
+//  8b. PUT /api/chat/messages/:id — Edit message (sender or admin only)
+// =============================================================================
+const updateMessage = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id }  = req.params;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) return res.status(400).json({ message: 'Content required' });
+
+    const msg = await db.query(`SELECT sender_id FROM chat_messages WHERE id = ?`, [id]);
+    if (msg.rows.length === 0) return res.status(404).json({ message: 'Message not found' });
+
+    if (parseInt(msg.rows[0].sender_id) !== parseInt(userId) && !isAdminUser(req.user)) {
+      return res.status(403).json({ message: 'You can only edit your own messages' });
+    }
+
+    await db.query(
+      `UPDATE chat_messages SET content = ?, edited_at = datetime('now') WHERE id = ?`,
+      [content.trim(), id]
+    );
+
+    res.json({ ok: true, id: parseInt(id), content: content.trim(), edited_at: new Date().toISOString() });
+  } catch (err) {
+    console.error('updateMessage error:', err);
+    res.status(500).json({ message: 'Server error updating message' });
+  }
+};
+
+// =============================================================================
 //  9. POST /api/chat/messages/:id/react — Toggle emoji reaction
 // =============================================================================
 const toggleReaction = async (req, res) => {
@@ -504,14 +534,29 @@ const toggleReaction = async (req, res) => {
     if (existing.rows.length > 0) {
       await db.query(`DELETE FROM chat_reactions WHERE message_id = ? AND user_id = ? AND emoji = ?`,
         [id, userId, emoji]);
-      return res.json({ added: false, emoji, messageId: parseInt(id) });
     } else {
       await db.query(
         `INSERT INTO chat_reactions (message_id, user_id, emoji) VALUES (?, ?, ?)`,
         [id, userId, emoji]
       );
-      return res.json({ added: true, emoji, messageId: parseInt(id), userName: req.user.name });
     }
+
+    // Fetch updated reactions map to return enriched object
+    const updatedReactions = await db.query(
+      `SELECT r.emoji, r.user_id, u.name as user_name
+       FROM chat_reactions r
+       JOIN users u ON r.user_id = u.id
+       WHERE r.message_id = ?`,
+      [id]
+    );
+
+    const map = {};
+    for (const r of updatedReactions.rows) {
+      if (!map[r.emoji]) map[r.emoji] = [];
+      map[r.emoji].push({ user_id: r.user_id, user_name: r.user_name });
+    }
+
+    res.json({ messageId: parseInt(id), reactions: map });
   } catch (err) {
     console.error('toggleReaction error:', err);
     res.status(500).json({ message: 'Server error toggling reaction' });
@@ -829,5 +874,6 @@ module.exports = {
   getTyping,
   getSharedFiles,
   editMessage,
+  updateMessage,
   leaveConversation,
 };

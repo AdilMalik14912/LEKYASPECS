@@ -86,27 +86,105 @@ function FileCard({ url, name, type, small = false }) {
   const isImage = type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name || '');
   const isPdf   = /\.pdf$/i.test(name || '');
 
+  const downloadFile = (e) => {
+    e.preventDefault();
+    if (!url) return;
+    const downloadName = name || 'attachment';
+
+    if (url.startsWith('data:')) {
+      try {
+        const parts = url.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      } catch (err) {
+        window.open(url, '_blank');
+      }
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
   if (isImage && url) {
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer"
-        style={{ display: 'block', borderRadius: 8, overflow: 'hidden', maxWidth: small ? 160 : 280, cursor: 'pointer' }}>
-        <img src={url} alt={name} style={{ width: '100%', display: 'block', borderRadius: 8 }} />
-      </a>
+      <div style={{ position: 'relative', maxWidth: small ? 160 : 280 }}>
+        <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', borderRadius: 8, overflow: 'hidden' }}>
+          <img src={url} alt={name || 'image'} style={{ width: '100%', display: 'block', borderRadius: 8 }} />
+        </a>
+        <button onClick={downloadFile} title={`Download ${name || 'image'}`} style={{
+          position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: '#fff',
+          border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)'
+        }}>
+          <Download size={12} /> Save
+        </button>
+      </div>
     );
   }
+
+  const isAudio = /\.(webm|ogg|mp3|wav|m4a|aac)$/i.test(name || '') || (type || '').startsWith('audio');
+
+  if (isAudio && url) {
+    return (
+      <div style={{
+        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 10, padding: '10px 12px', maxWidth: small ? 200 : 280
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 16 }}>🎙️</span>
+          <span style={{ fontSize: 12, color: '#a0aec0', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+            {name || 'Voice Note'}
+          </span>
+          <button onClick={downloadFile} title="Download" style={{
+            background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 2
+          }}>
+            <Download size={13} />
+          </button>
+        </div>
+        <audio controls src={url} style={{ width: '100%', height: 32, outline: 'none' }} preload="metadata">
+          Your browser does not support audio playback.
+        </audio>
+      </div>
+    );
+  }
+
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" style={{
+    <div style={{
       display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-      background: 'rgba(255,255,255,0.06)', borderRadius: 8, textDecoration: 'none',
+      background: 'rgba(255,255,255,0.06)', borderRadius: 8,
       border: '1px solid rgba(255,255,255,0.08)', maxWidth: small ? 180 : 260,
-      color: '#ccc', transition: 'background 0.2s'
+      color: '#ccc'
     }}>
       {isPdf ? <FileText size={18} color="#f87171" /> : <FileText size={18} color="#93c5fd" />}
-      <span style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
         {name || 'File'}
       </span>
-      <Download size={14} style={{ flexShrink: 0, marginLeft: 'auto' }} />
-    </a>
+      <button onClick={downloadFile} title={`Download ${name || 'file'}`} style={{
+        background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 4, padding: 4, cursor: 'pointer', color: '#c5a028'
+      }}>
+        <Download size={14} />
+      </button>
+    </div>
   );
 }
 
@@ -174,6 +252,8 @@ export default function ChatPage() {
   const [hasMore,            setHasMore]            = useState(false);
   const [isSending,          setIsSending]          = useState(false);
   const [mobileSidebar,      setMobileSidebar]      = useState(false);
+  const [isRecording,        setIsRecording]        = useState(false);
+  const [recordingTime,      setRecordingTime]      = useState(0);
 
   const messagesEndRef  = useRef(null);
   const messagesAreaRef = useRef(null);
@@ -183,6 +263,9 @@ export default function ChatPage() {
   const typingTimerRef  = useRef(null);
   const lastMsgId       = useRef(null);
   const isAtBottom      = useRef(true);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef   = useRef([]);
+  const recordingTimerRef = useRef(null);
 
   // ── Auth Guard ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -402,12 +485,61 @@ export default function ChatPage() {
   // ── Reactions ─────────────────────────────────────────────────────────────
   const toggleReaction = async (msgId, emoji) => {
     try {
-      await api('POST', `/api/chat/messages/${msgId}/react`, { emoji });
-      // Refresh messages
-      const msgs = await api('GET', `/api/chat/conversations/${activeConv.id}/messages?limit=50`);
-      setMessages(msgs);
+      const res = await api('POST', `/api/chat/messages/${msgId}/react`, { emoji });
+      if (res && res.reactions) {
+        setMessages(prev => prev.map(m => m.id === msgId ? { ...m, reactions: res.reactions } : m));
+      }
     } catch (_) {}
     setShowEmojiPicker(null);
+  };
+
+  // ── Voice Recording ────────────────────────────────────────────────────────
+  const startVoiceRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) { alert('Microphone not supported in this browser.'); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+      const recorder = new MediaRecorder(stream, { mimeType });
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.start(200);
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch {
+      alert('Microphone access denied. Please allow microphone permission.');
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder) return;
+    recorder.stop();
+    recorder.stream.getTracks().forEach(t => t.stop());
+    clearInterval(recordingTimerRef.current);
+    setIsRecording(false);
+    setRecordingTime(0);
+    recorder.onstop = async () => {
+      const mimeType = recorder.mimeType || 'audio/webm';
+      const ext = mimeType.includes('ogg') ? 'ogg' : 'webm';
+      const blob = new Blob(audioChunksRef.current, { type: mimeType });
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).replace(':', '').replace(' ', '');
+        setFilePreview({ data: ev.target.result, name: `voice_note_${ts}.${ext}`, mimeType, size: blob.size });
+      };
+      reader.readAsDataURL(blob);
+    };
+  };
+
+  const cancelVoiceRecording = () => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder) { recorder.stop(); recorder.stream.getTracks().forEach(t => t.stop()); }
+    clearInterval(recordingTimerRef.current);
+    setIsRecording(false);
+    setRecordingTime(0);
+    audioChunksRef.current = [];
   };
 
   // ── Pin ───────────────────────────────────────────────────────────────────
@@ -992,52 +1124,86 @@ export default function ChatPage() {
                     )}
 
                     {/* Main input row */}
-                    <div style={{
-                      display: 'flex', alignItems: 'flex-end', gap: 8,
-                      background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 12, padding: '8px 12px', transition: 'border-color 0.2s',
-                    }}>
-                      <button onClick={() => fileInputRef.current?.click()} style={{
-                        background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280',
-                        padding: 4, display: 'flex', flexShrink: 0, transition: 'color 0.2s'
-                      }} title="Attach file" className="action-btn">
-                        <Paperclip size={18} />
-                      </button>
-                      <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelect}
-                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip" />
+                    {isRecording ? (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)',
+                        borderRadius: 12, padding: '10px 14px', animation: 'pulse 1.5s ease-in-out infinite'
+                      }}>
+                        <div style={{
+                          width: 10, height: 10, borderRadius: '50%', background: '#ef4444',
+                          boxShadow: '0 0 0 3px rgba(239,68,68,0.3)', animation: 'pulse 1s ease-in-out infinite',
+                          flexShrink: 0
+                        }} />
+                        <span style={{ color: '#f87171', fontSize: 13, fontWeight: 600, flex: 1 }}>
+                          🎙️ Recording… {Math.floor(recordingTime / 60).toString().padStart(2,'0')}:{(recordingTime % 60).toString().padStart(2,'0')}
+                        </span>
+                        <button onClick={cancelVoiceRecording} style={{
+                          background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+                          borderRadius: 6, padding: '4px 10px', cursor: 'pointer', color: '#f87171', fontSize: 12, fontWeight: 600
+                        }}>✕ Cancel</button>
+                        <button onClick={stopVoiceRecording} style={{
+                          background: 'rgba(239,68,68,0.8)', border: 'none',
+                          borderRadius: 6, padding: '6px 14px', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 700
+                        }}>⏹ Stop & Send</button>
+                      </div>
+                    ) : (
+                      <div style={{
+                        display: 'flex', alignItems: 'flex-end', gap: 8,
+                        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 12, padding: '8px 12px', transition: 'border-color 0.2s',
+                      }}>
+                        <button onClick={() => fileInputRef.current?.click()} style={{
+                          background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280',
+                          padding: 4, display: 'flex', flexShrink: 0, transition: 'color 0.2s'
+                        }} title="Attach file" className="action-btn">
+                          <Paperclip size={18} />
+                        </button>
+                        <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelect}
+                          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip" />
 
-                      <textarea
-                        ref={inputRef}
-                        value={inputText}
-                        onChange={handleInput}
-                        onKeyDown={handleKeyDown}
-                        placeholder={editingMsg ? 'Edit message…' : `Message ${convName}…`}
-                        rows={1}
-                        className="chat-input"
-                        style={{
-                          flex: 1, background: 'none', border: 'none', color: '#e2e8f0',
-                          fontSize: 14, resize: 'none', lineHeight: 1.5, maxHeight: 120, outline: 'none',
-                          fontFamily: "'Inter', sans-serif", scrollbarWidth: 'none'
-                        }}
-                        onInput={e => {
-                          e.target.style.height = 'auto';
-                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-                        }}
-                      />
+                        <textarea
+                          ref={inputRef}
+                          value={inputText}
+                          onChange={handleInput}
+                          onKeyDown={handleKeyDown}
+                          placeholder={editingMsg ? 'Edit message…' : `Message ${convName}…`}
+                          rows={1}
+                          className="chat-input"
+                          style={{
+                            flex: 1, background: 'none', border: 'none', color: '#e2e8f0',
+                            fontSize: 14, resize: 'none', lineHeight: 1.5, maxHeight: 120, outline: 'none',
+                            fontFamily: "'Inter', sans-serif", scrollbarWidth: 'none'
+                          }}
+                          onInput={e => {
+                            e.target.style.height = 'auto';
+                            e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                          }}
+                        />
 
-                      <button onClick={sendMessage} disabled={(!inputText.trim() && !filePreview) || isSending}
-                        style={{
-                          background: (!inputText.trim() && !filePreview) || isSending
-                            ? 'rgba(197,160,40,0.3)' : 'linear-gradient(135deg, #c5a028, #f0c040)',
-                          border: 'none', borderRadius: 8, padding: '7px 10px', cursor: 'pointer',
-                          color: '#000', display: 'flex', alignItems: 'center', flexShrink: 0,
-                          transition: 'all 0.2s'
-                        }}>
-                        {isSending ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={16} />}
-                      </button>
-                    </div>
+                        {!inputText.trim() && !filePreview && (
+                          <button onClick={startVoiceRecording} style={{
+                            background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280',
+                            padding: 4, display: 'flex', flexShrink: 0, transition: 'color 0.2s'
+                          }} title="Record voice note" className="action-btn">
+                            🎙️
+                          </button>
+                        )}
+
+                        <button onClick={sendMessage} disabled={(!inputText.trim() && !filePreview) || isSending}
+                          style={{
+                            background: (!inputText.trim() && !filePreview) || isSending
+                              ? 'rgba(197,160,40,0.3)' : 'linear-gradient(135deg, #c5a028, #f0c040)',
+                            border: 'none', borderRadius: 8, padding: '7px 10px', cursor: 'pointer',
+                            color: '#000', display: 'flex', alignItems: 'center', flexShrink: 0,
+                            transition: 'all 0.2s'
+                          }}>
+                          {isSending ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={16} />}
+                        </button>
+                      </div>
+                    )}
                     <div style={{ fontSize: 11, color: '#374151', marginTop: 4, paddingLeft: 4 }}>
-                      Enter to send • Shift+Enter for newline • Esc to cancel
+                      Enter to send • Shift+Enter for newline • Esc to cancel {isRecording ? '• Stop recording to send voice note' : '• 🎙️ for voice note'}
                     </div>
                   </div>
                 </div>

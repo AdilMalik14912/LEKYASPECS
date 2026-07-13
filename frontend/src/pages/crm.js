@@ -642,13 +642,30 @@ export default function CrmPage() {
                                 {l.source}
                               </td>
                               <td style={{ padding: '14px 16px' }}>
-                                <button onClick={() => inspectLead(l.id)} style={{
-                                  padding: '5px 12px', background: 'rgba(197,160,40,0.15)',
-                                  border: '1px solid rgba(197,160,40,0.3)', borderRadius: 6,
-                                  color: '#c5a028', cursor: 'pointer', fontSize: 12, fontWeight: 600
-                                }}>
-                                  Inspect
-                                </button>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                  <button onClick={() => inspectLead(l.id)} style={{
+                                    padding: '5px 10px', background: 'rgba(197,160,40,0.15)',
+                                    border: '1px solid rgba(197,160,40,0.3)', borderRadius: 6,
+                                    color: '#c5a028', cursor: 'pointer', fontSize: 12, fontWeight: 600
+                                  }}>
+                                    Inspect
+                                  </button>
+                                  {l.phone && (
+                                    <button onClick={() => {
+                                      const clean = l.phone.replace(/[^0-9]/g, '');
+                                      const num = clean.length === 10 ? `91${clean}` : clean;
+                                      const msg = `Hello ${l.name.split(' ')[0]}, greetings from Lekya Specs Eyewear Concierge! Explore your personalized offers: https://lekyaspecs.vercel.app`;
+                                      window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+                                    }} title="Chat on WhatsApp" style={{
+                                      padding: '5px 10px', background: 'rgba(34,197,94,0.15)',
+                                      border: '1px solid rgba(34,197,94,0.3)', borderRadius: 6,
+                                      color: '#4ade80', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                                      display: 'inline-flex', alignItems: 'center', gap: 4
+                                    }}>
+                                      💬 WA
+                                    </button>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           );

@@ -225,6 +225,51 @@ export default function PublicTracker() {
                 Fulfillment Timeline
               </h3>
 
+              {/* ── HORIZONTAL STEP PROGRESS BAR ── */}
+              <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', minWidth: 480, marginBottom: 32 }}>
+                  {ALL_STATUSES.map((step, idx) => {
+                    const StepIcon = STATUS_ICONS[step] || Package;
+                    const isCompleted = idx < currentStatusIdx;
+                    const isActive    = idx === currentStatusIdx;
+                    return (
+                      <React.Fragment key={step}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '0 0 auto', zIndex: 2 }}>
+                          <div style={{
+                            width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'all 0.4s',
+                            background: isCompleted ? 'rgba(52,211,153,0.15)' : isActive ? 'rgba(197,160,40,0.15)' : 'rgba(255,255,255,0.03)',
+                            border: isCompleted ? '2px solid #34d399' : isActive ? '2px solid #C5A028' : '2px solid rgba(255,255,255,0.08)',
+                            boxShadow: isActive ? '0 0 20px rgba(197,160,40,0.3), 0 0 40px rgba(197,160,40,0.1)' : 'none',
+                          }}>
+                            {isCompleted
+                              ? <CheckCircle2 style={{ width: 18, height: 18, color: '#34d399' }} />
+                              : <StepIcon style={{ width: 16, height: 16, color: isActive ? '#C5A028' : '#4b5563' }} />
+                            }
+                          </div>
+                          <div style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginTop: 8, textAlign: 'center', maxWidth: 64,
+                            color: isActive ? '#C5A028' : isCompleted ? '#34d399' : '#4b5563', lineHeight: 1.3
+                          }}>{step}</div>
+                        </div>
+                        {idx < ALL_STATUSES.length - 1 && (
+                          <div style={{ flex: 1, height: 2, minWidth: 20, position: 'relative', margin: '0 4px', marginBottom: 28 }}>
+                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.05)', borderRadius: 2 }} />
+                            <div style={{
+                              position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 2,
+                              background: 'linear-gradient(90deg, #C5A028, #f0c040)',
+                              width: idx < currentStatusIdx ? '100%' : idx === currentStatusIdx - 1 ? '100%' : '0%',
+                              transition: 'width 0.8s ease'
+                            }} />
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── VERTICAL DETAIL NODES ── */}
               <div className="space-y-8 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-white/5">
                 
                 {ALL_STATUSES.map((step, idx) => {
@@ -242,7 +287,7 @@ export default function PublicTracker() {
                           ? 'bg-amber-500/20 border-[#C5A028] text-[#C5A028] shadow-md shadow-amber-500/10 scale-105'
                           : 'bg-[#121212] border-white/10 text-gray-600'
                       }`}>
-                        <StepIcon className="w-4 h-4" />
+                        {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                       </div>
 
                       {/* Content */}
@@ -254,12 +299,12 @@ export default function PublicTracker() {
                             {step}
                           </h4>
                           {isActive && (
-                            <span className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[8px] font-black uppercase px-2 py-0.5 rounded tracking-widest">
+                            <span className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[8px] font-black uppercase px-2 py-0.5 rounded tracking-widest animate-pulse">
                               ACTIVE STEP
                             </span>
                           )}
                           {isCompleted && (
-                            <span className="text-emerald-500/50 text-[10px] font-bold">Completed</span>
+                            <span className="text-emerald-500/50 text-[10px] font-bold">✓ Completed</span>
                           )}
                         </div>
                         <p className={`mt-1.5 leading-relaxed ${isActive ? 'text-gray-300 font-medium' : 'text-gray-500'}`}>

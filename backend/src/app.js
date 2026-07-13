@@ -416,6 +416,7 @@ app.delete('/api/chat/conversations/:id/members/:uid',    authenticateToken, isT
 // Per-message actions
 app.put('/api/chat/messages/:id/pin',                     authenticateToken, isTeamMember, chatController.togglePin);
 app.put('/api/chat/messages/:id/edit',                    authenticateToken, isTeamMember, chatController.editMessage);
+app.put('/api/chat/messages/:id',                         authenticateToken, isTeamMember, chatController.updateMessage);
 app.delete('/api/chat/messages/:id',                      authenticateToken, isTeamMember, chatController.deleteMessage);
 app.post('/api/chat/messages/:id/react',                  authenticateToken, isTeamMember, chatController.toggleReaction);
 

@@ -703,6 +703,7 @@ export default function Admin() {
   const [selectedTrackingOrder, setSelectedTrackingOrder] = useState(null);
   const [trackingCommentsText, setTrackingCommentsText] = useState('');
   const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
   // Security gate: redirect if not admin
   useEffect(() => {
@@ -2022,18 +2023,27 @@ export default function Admin() {
                               </select>
                             </td>
                             <td className="px-6 py-4">
-                              <select
-                                value={order.assigned_delivery_agent_id || ''}
-                                onChange={(e) => handleRiderAssign(order.id, e.target.value)}
-                                className="bg-premium-light text-xs font-semibold border border-premium-border rounded px-2 py-1 focus:outline-none focus:border-premium-accent tracking-wide cursor-pointer text-premium-dark max-w-[150px]"
-                              >
-                                <option value="">Select Rider</option>
-                                {deliveryAgents.map(agent => (
-                                  <option key={agent.id} value={agent.id}>
-                                    {agent.name}
-                                  </option>
-                                ))}
-                              </select>
+                              <div className="flex items-center gap-2">
+                                <select
+                                  value={order.assigned_delivery_agent_id || ''}
+                                  onChange={(e) => handleRiderAssign(order.id, e.target.value)}
+                                  className="bg-premium-light text-xs font-semibold border border-premium-border rounded px-2 py-1 focus:outline-none focus:border-premium-accent tracking-wide cursor-pointer text-premium-dark max-w-[130px]"
+                                >
+                                  <option value="">Select Rider</option>
+                                  {deliveryAgents.map(agent => (
+                                    <option key={agent.id} value={agent.id}>
+                                      {agent.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <button
+                                  onClick={() => setSelectedInvoiceOrder(order)}
+                                  className="text-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-700 font-bold hover:bg-amber-500 hover:text-white px-2 py-1 rounded transition-all whitespace-nowrap"
+                                  title="Print Tax Invoice"
+                                >
+                                  📄 Invoice
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -3707,6 +3717,132 @@ export default function Admin() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAX INVOICE MODAL ── */}
+      {selectedInvoiceOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto" onClick={() => setSelectedInvoiceOrder(null)}>
+          <div className="bg-white rounded-xl max-w-2xl w-full shadow-2xl relative my-8" onClick={e => e.stopPropagation()}>
+            {/* Invoice print area */}
+            <div id="invoice-print-area" style={{ fontFamily: 'Georgia, serif', padding: '40px', color: '#1a1a1a', background: '#fff' }}>
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #b8912a', paddingBottom: 20, marginBottom: 24 }}>
+                <div>
+                  <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.03em', color: '#1a1a1a' }}>LEKYA SPECS</div>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Premium Optical & Eyewear Concierge</div>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>GSTIN: 27AAAPL1234F1ZL</div>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>support@lekyaspecs.in | lekyaspecs.vercel.app</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: '#b8912a', letterSpacing: 2 }}>TAX INVOICE</div>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>Invoice No: INV-{String(selectedInvoiceOrder.id).padStart(6, '0')}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>Date: {new Date(selectedInvoiceOrder.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                  <div style={{ marginTop: 8, padding: '3px 10px', borderRadius: 20, background: '#fef3c7', display: 'inline-block', fontSize: 11, fontWeight: 700, color: '#92400e', border: '1px solid #fbbf24' }}>
+                    {selectedInvoiceOrder.status}
+                  </div>
+                </div>
+              </div>
+
+              {/* Billing Address */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Bill To</div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{selectedInvoiceOrder.customer_name || 'Customer'}</div>
+                  <div style={{ fontSize: 12, color: '#4b5563', marginTop: 4, lineHeight: 1.6 }}>{selectedInvoiceOrder.shipping_address || 'Address on file'}</div>
+                  {selectedInvoiceOrder.customer_phone && <div style={{ fontSize: 12, color: '#4b5563' }}>📞 {selectedInvoiceOrder.customer_phone}</div>}
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Order Details</div>
+                  <div style={{ fontSize: 12, color: '#4b5563', lineHeight: 2 }}>
+                    <div>Order ID: <strong>#{selectedInvoiceOrder.id}</strong></div>
+                    <div>Payment: <strong>{selectedInvoiceOrder.payment_method || 'Online'}</strong></div>
+                    {selectedInvoiceOrder.tracking_number && <div>Tracking: <strong>{selectedInvoiceOrder.tracking_number}</strong></div>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Items */}
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: '#f9f5ec', borderBottom: '2px solid #b8912a' }}>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: '#92400e' }}>#</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: '#92400e' }}>Item Description</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: '#92400e' }}>Qty</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: '#92400e' }}>Unit Price</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: '#92400e' }}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(selectedInvoiceOrder.items || []).map((item, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '12px 14px', color: '#6b7280' }}>{i + 1}</td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 600 }}>{item.product_name || item.name || 'Eyewear Frame'}</div>
+                        {item.prescription && <div style={{ fontSize: 11, color: '#9ca3af' }}>Prescription: {item.prescription}</div>}
+                        {item.lens_type && <div style={{ fontSize: 11, color: '#9ca3af' }}>Lens: {item.lens_type}</div>}
+                      </td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right' }}>{item.quantity || 1}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right' }}>₹{parseFloat(item.price || item.unit_price || 0).toLocaleString('en-IN')}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 600 }}>₹{((item.quantity || 1) * parseFloat(item.price || item.unit_price || 0)).toLocaleString('en-IN')}</td>
+                    </tr>
+                  ))}
+                  {(!selectedInvoiceOrder.items || selectedInvoiceOrder.items.length === 0) && (
+                    <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '12px 14px', color: '#6b7280' }}>1</td>
+                      <td style={{ padding: '12px 14px' }}><div style={{ fontWeight: 600 }}>Eyewear Order #{selectedInvoiceOrder.id}</div></td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right' }}>1</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right' }}>₹{parseFloat(selectedInvoiceOrder.total_amount || 0).toLocaleString('en-IN')}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 600 }}>₹{parseFloat(selectedInvoiceOrder.total_amount || 0).toLocaleString('en-IN')}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Totals */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ width: 260 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13, color: '#6b7280' }}>
+                    <span>Subtotal</span><span>₹{(parseFloat(selectedInvoiceOrder.total_amount || 0) * 0.82).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13, color: '#6b7280' }}>
+                    <span>GST (18%)</span><span>₹{(parseFloat(selectedInvoiceOrder.total_amount || 0) * 0.18).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', fontSize: 15, fontWeight: 800, background: '#f9f5ec', borderRadius: 8, border: '1px solid #b8912a', marginTop: 8 }}>
+                    <span>TOTAL</span><span style={{ color: '#b8912a' }}>₹{parseFloat(selectedInvoiceOrder.total_amount || 0).toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid #f3f4f6', fontSize: 11, color: '#9ca3af', textAlign: 'center' }}>
+                Thank you for choosing Lekya Specs. This is a computer-generated invoice. For queries: support@lekyaspecs.in
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 p-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  const content = document.getElementById('invoice-print-area').innerHTML;
+                  const w = window.open('', '_blank');
+                  w.document.write(`<html><head><title>Invoice #${selectedInvoiceOrder.id}</title><style>body{margin:0;font-family:Georgia,serif;}</style></head><body>${content}</body></html>`);
+                  w.document.close();
+                  w.focus();
+                  setTimeout(() => { w.print(); w.close(); }, 500);
+                }}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+              >
+                🖨️ Print / Save as PDF
+              </button>
+              <button
+                onClick={() => setSelectedInvoiceOrder(null)}
+                className="px-6 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-sm py-3 rounded-lg transition-all"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
