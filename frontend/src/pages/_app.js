@@ -275,6 +275,9 @@ export default function App({ Component, pageProps }) {
   const isStaffRoute = router.pathname.startsWith('/admin') ||
                        router.pathname.startsWith('/seller') ||
                        router.pathname.startsWith('/delivery') ||
+                       router.pathname === '/chat' ||
+                       router.pathname === '/crm' ||
+                       router.pathname === '/stylist' ||
                        router.pathname === '/admin-map' ||
                        router.pathname === '/delivery-map';
 
