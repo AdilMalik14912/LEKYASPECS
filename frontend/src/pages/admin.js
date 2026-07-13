@@ -2974,6 +2974,8 @@ export default function Admin() {
                           admin:    'bg-red-100 text-red-800 border border-red-200',
                           seller:   'bg-amber-100 text-amber-800 border border-amber-200',
                           delivery: 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                          stylist:  'bg-purple-100 text-purple-800 border border-purple-200',
+                          ho_staff:  'bg-emerald-100 text-emerald-800 border border-emerald-200',
                           user:     'bg-gray-100 text-gray-700 border border-gray-200',
                         };
                         const rc = roleColors[u.role] || roleColors['user'];
@@ -3020,6 +3022,8 @@ export default function Admin() {
                                   <option value="user">Customer</option>
                                   <option value="seller">Seller</option>
                                   <option value="delivery">Delivery Agent</option>
+                                  <option value="stylist">Stylist</option>
+                                  <option value="ho_staff">HO Staff</option>
                                   <option value="admin">Admin</option>
                                 </select>
                               )}
@@ -3549,6 +3553,10 @@ export default function Admin() {
                           className="w-full bg-white text-xs border border-premium-border rounded p-2 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
                         >
                           <option value="user">User</option>
+                          <option value="seller">Seller</option>
+                          <option value="delivery">Delivery</option>
+                          <option value="stylist">Stylist</option>
+                          <option value="ho_staff">HO Staff</option>
                           <option value="admin">Admin</option>
                         </select>
                       </div>

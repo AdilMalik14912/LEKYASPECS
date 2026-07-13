@@ -276,6 +276,8 @@ export default function App({ Component, pageProps }) {
     user.role === 'admin' ||
     user.role === 'seller' ||
     user.role === 'delivery' ||
+    user.role === 'stylist' ||
+    user.role === 'ho_staff' ||
     user.email === 'dev.parceluncle@gmail.com' ||
     user.email === 'admin@specs.com'
   );
@@ -287,6 +289,7 @@ export default function App({ Component, pageProps }) {
                        router.pathname.startsWith('/chat') ||
                        router.pathname.startsWith('/crm') ||
                        router.pathname.startsWith('/stylist') ||
+                       router.pathname.startsWith('/ho-staff') ||
                        router.pathname.startsWith('/admin-map') ||
                        router.pathname.startsWith('/delivery-map');
 

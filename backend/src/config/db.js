@@ -304,6 +304,10 @@ const initDb = async () => {
       console.log('Migration: Added rider_lat to users table.');
     } catch (_) {}
     try {
+      await client.execute("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT NULL");
+      console.log('Migration: Added avatar to users table.');
+    } catch (_) {}
+    try {
       await client.execute("ALTER TABLE users ADD COLUMN rider_lng REAL DEFAULT NULL");
       console.log('Migration: Added rider_lng to users table.');
     } catch (_) {}

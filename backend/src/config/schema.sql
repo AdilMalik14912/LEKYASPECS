@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'user',
     loyalty_points INTEGER DEFAULT 0,
     referral_code TEXT DEFAULT NULL,
+    avatar TEXT DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -110,5 +111,16 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     message TEXT NOT NULL,
     reply_message TEXT DEFAULT NULL,
     replied_at TEXT DEFAULT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 11. HO Reports Table
+CREATE TABLE IF NOT EXISTS ho_reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    report_date TEXT DEFAULT (date('now')),
+    tasks_completed TEXT NOT NULL,
+    tasks_pending TEXT,
+    issues_faced TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );

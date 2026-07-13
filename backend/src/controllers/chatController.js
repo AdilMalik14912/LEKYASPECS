@@ -30,7 +30,7 @@ async function getInsertedId(result) {
 // ─── Helper: check if user is team member (any non-customer role) ─────────────
 function isTeamRole(role, email) {
   const adminEmails = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
-  return ['admin', 'seller', 'delivery', 'stylist'].includes(role) || adminEmails.includes(email);
+  return ['admin', 'seller', 'delivery', 'stylist', 'ho_staff'].includes(role) || adminEmails.includes(email);
 }
 
 // ─── Helper: check if user is admin ──────────────────────────────────────────
@@ -53,7 +53,7 @@ const getTeamMembers = async (req, res) => {
        LEFT JOIN active_sessions s
          ON s.user_id = u.id
          AND s.last_active_at > datetime('now', '-5 minutes')
-       WHERE u.role IN ('admin','seller','delivery','stylist')
+       WHERE u.role IN ('admin','seller','delivery','stylist','ho_staff')
           OR u.email IN ('dev.parceluncle@gmail.com','admin@specs.com')
        GROUP BY u.id
        ORDER BY is_online DESC, u.name ASC`

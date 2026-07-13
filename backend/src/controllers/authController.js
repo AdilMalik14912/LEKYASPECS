@@ -253,6 +253,7 @@ const login = async (req, res) => {
         role: user.role || 'user',
         loyalty_points: user.loyalty_points || 0,
         referral_code: user.referral_code,
+        avatar: user.avatar,
         createdAt: user.created_at
       }
     });
@@ -265,7 +266,7 @@ const login = async (req, res) => {
 // Get User Profile
 const getProfile = async (req, res) => {
   try {
-    const result = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [req.user.id]);
+    const result = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?', [req.user.id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -278,7 +279,7 @@ const getProfile = async (req, res) => {
 
 // Update Face Shape or User Details
 const updateProfile = async (req, res) => {
-  const { name, phone, face_shape } = req.body;
+  const { name, phone, face_shape, password, avatar } = req.body;
   const userId = req.user.id;
 
   const updates = [];
@@ -296,6 +297,20 @@ const updateProfile = async (req, res) => {
     updates.push('face_shape = ?');
     params.push(face_shape.toLowerCase().trim());
   }
+  if (avatar !== undefined) {
+    updates.push('avatar = ?');
+    params.push(avatar);
+  }
+  if (password && password.trim() !== '') {
+    if (password.trim().length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+    updates.push('password_hash = ?');
+    params.push(passwordHash);
+  }
 
   if (updates.length === 0) {
     return res.status(400).json({ message: 'Nothing to update' });
@@ -305,7 +320,7 @@ const updateProfile = async (req, res) => {
 
   try {
     await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
-    const updated = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE id = ?', [userId]);
+    const updated = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?', [userId]);
     res.json(updated.rows[0]);
   } catch (err) {
     console.error('Update profile error:', err);

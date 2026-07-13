@@ -15,10 +15,11 @@ const sellerController = require('./controllers/sellerController');
 const deliveryController = require('./controllers/deliveryController');
 const chatController = require('./controllers/chatController');
 const crmController = require('./controllers/crmController');
+const hoStaffController = require('./controllers/hoStaffController');
 
 
 // Middlewares
-const { authenticateToken, isAdmin, isSeller, isDelivery } = require('./middleware/auth');
+const { authenticateToken, isAdmin, isSeller, isDelivery, isHoStaff } = require('./middleware/auth');
 const { 
   strictLimiter, 
   generalLimiter, 
@@ -332,7 +333,7 @@ app.get('/api/admin/delivery-otps', authenticateToken, isAdmin, async (req, res)
 app.put('/api/admin/users/:id/role', authenticateToken, isAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
-  const allowedRoles = ['user', 'seller', 'delivery', 'admin'];
+  const allowedRoles = ['user', 'seller', 'delivery', 'admin', 'stylist', 'ho_staff'];
   if (!allowedRoles.includes(role)) {
     return res.status(400).json({ message: 'Invalid role' });
   }
@@ -382,7 +383,7 @@ app.post('/api/stylist/tone-profile', authenticateToken, stylistController.updat
 // Middleware: only allow admin, seller, delivery, or stylist roles
 const isTeamMember = (req, res, next) => {
   if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-  const allowedRoles = ['admin', 'seller', 'delivery', 'stylist'];
+  const allowedRoles = ['admin', 'seller', 'delivery', 'stylist', 'ho_staff'];
   const adminEmails  = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
   if (allowedRoles.includes(req.user.role) || adminEmails.includes(req.user.email)) {
     return next();
@@ -437,6 +438,11 @@ app.put('/api/crm/tasks/:id',              authenticateToken, isTeamMember, crmC
 app.post('/api/crm/auto-sync',             authenticateToken, isTeamMember, crmController.autoSyncLeads);
 app.post('/api/crm/ai-automate',             authenticateToken, isTeamMember, crmController.autoRunAiEngine);
 app.post('/api/crm/ai-generate-email',        authenticateToken, isTeamMember, crmController.generateAiOfferTemplate);
+
+// 13. HO Staff API
+app.post('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffController.submitReport);
+app.get('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffController.getMyReports);
+app.get('/api/ho-staff/all-reports', authenticateToken, isAdmin, hoStaffController.getAllReports);
 
 // Global Error Handler
 

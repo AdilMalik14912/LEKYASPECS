@@ -84,9 +84,30 @@ const isDelivery = (req, res, next) => {
   }
 };
 
+const isHoStaff = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  if (
+    req.user.role === 'ho_staff' ||
+    req.user.role === 'admin' ||
+    req.user.email === 'dev.parceluncle@gmail.com' ||
+    userEmailMatches(req.user.email)
+  ) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Head Office Staff access only' });
+  }
+};
+
+function userEmailMatches(email) {
+  return email === 'admin@specs.com';
+}
+
 module.exports = {
   authenticateToken,
   isAdmin,
   isSeller,
-  isDelivery
+  isDelivery,
+  isHoStaff
 };

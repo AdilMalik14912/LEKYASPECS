@@ -270,7 +270,7 @@ export default function ChatPage() {
   // ── Auth Guard ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (user === null) { router.push('/account'); return; }
-    if (user && !['admin','seller','delivery','stylist'].includes(user.role) &&
+    if (user && !['admin','seller','delivery','stylist','ho_staff'].includes(user.role) &&
         !['dev.parceluncle@gmail.com','admin@specs.com'].includes(user.email)) {
       router.push('/');
     }

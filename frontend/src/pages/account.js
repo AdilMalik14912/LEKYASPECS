@@ -71,6 +71,18 @@ export default function Account() {
   useEffect(() => {
     if (user) {
       setEditedName(user.name);
+      // Auto-redirect staff members to their respective panels
+      if (user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') {
+        router.push('/admin');
+      } else if (user.role === 'seller') {
+        router.push('/seller');
+      } else if (user.role === 'delivery') {
+        router.push('/delivery');
+      } else if (user.role === 'stylist') {
+        router.push('/stylist');
+      } else if (user.role === 'ho_staff') {
+        router.push('/ho-staff');
+      }
     }
   }, [user]);
 
@@ -643,6 +655,26 @@ export default function Account() {
             {(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com') && (
               <Link href="/admin" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
                 Admin Panel
+              </Link>
+            )}
+            {user.role === 'seller' && (
+              <Link href="/seller" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
+                Seller Hub
+              </Link>
+            )}
+            {user.role === 'delivery' && (
+              <Link href="/delivery" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
+                Rider Console
+              </Link>
+            )}
+            {user.role === 'stylist' && (
+              <Link href="/stylist" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
+                Stylist Hub
+              </Link>
+            )}
+            {user.role === 'ho_staff' && (
+              <Link href="/ho-staff" className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3 rounded transition-all">
+                HO Staff Hub
               </Link>
             )}
             <button
