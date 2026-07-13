@@ -468,6 +468,18 @@ const initDb = async () => {
 
     // ── End CRM Migrations ────────────────────────────────────────────────────
 
+    // Auto-join all Admins to all Group channels
+    try {
+      await client.execute(`
+        INSERT OR IGNORE INTO chat_members (conversation_id, user_id)
+        SELECT c.id, u.id
+        FROM chat_conversations c
+        CROSS JOIN users u
+        WHERE c.type = 'group' AND (u.role = 'admin' OR u.email IN ('dev.parceluncle@gmail.com', 'admin@specs.com'))
+      `);
+      console.log('Migration: Auto-joined all Admins to all Group channels.');
+    } catch (_) {}
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {

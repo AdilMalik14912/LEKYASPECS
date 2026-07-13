@@ -72,6 +72,15 @@ const getConversations = async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Auto-join Admins to all Group channels if not joined yet
+    if (isAdminUser(req.user)) {
+      await db.query(
+        `INSERT OR IGNORE INTO chat_members (conversation_id, user_id)
+         SELECT id, ? FROM chat_conversations WHERE type = 'group'`,
+        [userId]
+      );
+    }
+
     // 1. Fetch all conversations user is in, with last message & unread count
     const result = await db.query(
       `SELECT c.id, c.type, c.name, c.avatar, c.created_by, c.created_at,
@@ -219,6 +228,13 @@ const createGroup = async (req, res) => {
     // Add creator as first member
     await db.query(`INSERT OR IGNORE INTO chat_members (conversation_id, user_id) VALUES (?, ?)`, [convId, userId]);
 
+    // Automatically add all Admins to newly created Group channels
+    await db.query(
+      `INSERT OR IGNORE INTO chat_members (conversation_id, user_id)
+       SELECT ?, id FROM users WHERE role = 'admin' OR email IN ('dev.parceluncle@gmail.com', 'admin@specs.com')`,
+      [convId]
+    );
+
     // Add selected members
     if (Array.isArray(memberIds)) {
       for (const mid of memberIds) {
@@ -251,11 +267,17 @@ const getMessages = async (req, res) => {
     const { id }  = req.params;
     const { before, limit = 50 } = req.query;
 
-    // Verify membership
+    // Verify membership or auto-join if Admin
     const memberCheck = await db.query(
       `SELECT id FROM chat_members WHERE conversation_id = ? AND user_id = ?`, [id, userId]
     );
-    if (memberCheck.rows.length === 0) return res.status(403).json({ message: 'Not a member of this conversation' });
+    if (memberCheck.rows.length === 0) {
+      if (isAdminUser(req.user)) {
+        await db.query(`INSERT OR IGNORE INTO chat_members (conversation_id, user_id) VALUES (?, ?)`, [id, userId]);
+      } else {
+        return res.status(403).json({ message: 'Not a member of this conversation' });
+      }
+    }
 
     let sql = `
       SELECT m.id, m.conversation_id, m.sender_id, m.content, m.file_url,
@@ -346,11 +368,17 @@ const sendMessage = async (req, res) => {
     const { id }  = req.params;
     const { content, replyToId, fileData, fileName, fileType } = req.body;
 
-    // Verify membership
+    // Verify membership or auto-join if Admin
     const memberCheck = await db.query(
       `SELECT id FROM chat_members WHERE conversation_id = ? AND user_id = ?`, [id, userId]
     );
-    if (memberCheck.rows.length === 0) return res.status(403).json({ message: 'Not a member' });
+    if (memberCheck.rows.length === 0) {
+      if (isAdminUser(req.user)) {
+        await db.query(`INSERT OR IGNORE INTO chat_members (conversation_id, user_id) VALUES (?, ?)`, [id, userId]);
+      } else {
+        return res.status(403).json({ message: 'Not a member of this conversation' });
+      }
+    }
 
     if (!content && !fileData) return res.status(400).json({ message: 'Content or file required' });
 
@@ -547,6 +575,18 @@ const getPinnedMessages = async (req, res) => {
 const getMembers = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Verify membership or auto-join if Admin
+    const memberCheck = await db.query(
+      `SELECT id FROM chat_members WHERE conversation_id = ? AND user_id = ?`, [id, req.user.id]
+    );
+    if (memberCheck.rows.length === 0) {
+      if (isAdminUser(req.user)) {
+        await db.query(`INSERT OR IGNORE INTO chat_members (conversation_id, user_id) VALUES (?, ?)`, [id, req.user.id]);
+      } else {
+        return res.status(403).json({ message: 'Not a member of this conversation' });
+      }
+    }
     const result = await db.query(
       `SELECT u.id, u.name, u.email, u.role, cm.joined_at,
               MAX(CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END) as is_online,
@@ -688,7 +728,13 @@ const getSharedFiles = async (req, res) => {
     const memberCheck = await db.query(
       `SELECT id FROM chat_members WHERE conversation_id = ? AND user_id = ?`, [id, userId]
     );
-    if (memberCheck.rows.length === 0) return res.status(403).json({ message: 'Not a member' });
+    if (memberCheck.rows.length === 0) {
+      if (isAdminUser(req.user)) {
+        await db.query(`INSERT OR IGNORE INTO chat_members (conversation_id, user_id) VALUES (?, ?)`, [id, userId]);
+      } else {
+        return res.status(403).json({ message: 'Not a member' });
+      }
+    }
 
     const result = await db.query(
       `SELECT m.id, m.file_url, m.file_name, m.file_type, m.created_at,
