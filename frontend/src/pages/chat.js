@@ -153,12 +153,15 @@ export default function ChatPage() {
   const [inputText,          setInputText]          = useState('');
   const [searchQuery,        setSearchQuery]        = useState('');
   const [memberSearch,       setMemberSearch]       = useState('');
+  const [groupMemberSearch,  setGroupMemberSearch]  = useState('');
+  const [addMemberSearch,    setAddMemberSearch]    = useState('');
 
   const [showEmojiPicker,    setShowEmojiPicker]    = useState(null); // message id
   const [replyTo,            setReplyTo]            = useState(null);
   const [editingMsg,         setEditingMsg]         = useState(null);
   const [showNewDm,          setShowNewDm]          = useState(false);
   const [showNewGroup,       setShowNewGroup]       = useState(false);
+  const [showAddMember,      setShowAddMember]      = useState(false);
   const [groupName,          setGroupName]          = useState('');
   const [groupDesc,          setGroupDesc]          = useState('');
   const [selectedMembers,    setSelectedMembers]    = useState([]);
@@ -1103,11 +1106,7 @@ export default function ChatPage() {
                           ))}
                           {activeConv.type === 'group' && (
                             <div style={{ padding: '8px 12px' }}>
-                              <button onClick={() => {
-                                const uid = prompt('Enter user ID to add:');
-                                if (uid) api('POST', `/api/chat/conversations/${activeConv.id}/members`, { userId: uid })
-                                  .then(() => api('GET', `/api/chat/conversations/${activeConv.id}/members`).then(setMembers));
-                              }} style={{
+                              <button onClick={() => { setAddMemberSearch(''); setShowAddMember(true); }} style={{
                                 width: '100%', padding: '7px', background: 'rgba(197,160,40,0.1)',
                                 border: '1px dashed rgba(197,160,40,0.3)', borderRadius: 8,
                                 color: '#c5a028', cursor: 'pointer', fontSize: 12, fontWeight: 500
@@ -1277,11 +1276,26 @@ export default function ChatPage() {
                   }} />
               </div>
             </div>
-            <div style={{ padding: '12px 16px 4px', fontSize: 12, color: '#6b7280', fontWeight: 600 }}>
-              Select members ({selectedMembers.length} selected)
+            <div style={{ padding: '12px 16px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 600 }}>Select members ({selectedMembers.length} selected)</span>
+            </div>
+            <div style={{ padding: '0 16px 10px', position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: 26, top: '50%', transform: 'translateY(-50%)', color: '#4b5563' }} />
+              <input value={groupMemberSearch} onChange={e => setGroupMemberSearch(e.target.value)}
+                placeholder="Search team members by name, email, or role…"
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '8px 10px 8px 30px',
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 8, color: '#e2e8f0', fontSize: 13, outline: 'none'
+                }} />
             </div>
             <div style={{ flex: 1, overflowY: 'auto' }}>
-              {teamMembers.filter(m => m.id !== user?.id).map(m => {
+              {teamMembers.filter(m =>
+                m.id !== user?.id &&
+                (m.name?.toLowerCase().includes(groupMemberSearch.toLowerCase()) ||
+                 m.email?.toLowerCase().includes(groupMemberSearch.toLowerCase()) ||
+                 m.role?.toLowerCase().includes(groupMemberSearch.toLowerCase()))
+              ).map(m => {
                 const selected = selectedMembers.includes(m.id);
                 return (
                   <div key={m.id} className="team-member-row" onClick={() =>
@@ -1301,6 +1315,7 @@ export default function ChatPage() {
                     <Avatar name={m.name} size={32} online={m.is_online} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 500, fontSize: 13, color: '#e2e8f0' }}>{m.name}</div>
+                      <div style={{ fontSize: 11, color: '#6b7280' }}>{m.email}</div>
                     </div>
                     <RoleBadge role={m.role} />
                   </div>
@@ -1316,6 +1331,78 @@ export default function ChatPage() {
                 Create Group
                 {selectedMembers.length > 0 ? ` with ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : ''}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════ ADD MEMBER MODAL (SEARCH & ADD) ══════════════════ */}
+      {showAddMember && activeConv && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          backdropFilter: 'blur(8px)'
+        }} onClick={e => e.target === e.currentTarget && setShowAddMember(false)}>
+          <div style={{
+            background: '#1e2230', borderRadius: 16, width: 440, maxHeight: '75vh',
+            border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+            display: 'flex', flexDirection: 'column', overflow: 'hidden'
+          }}>
+            <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <h2 style={{ margin: 0, fontSize: 17, color: '#f0e8c8', fontWeight: 700 }}>Add Member to {convName}</h2>
+                <button onClick={() => setShowAddMember(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
+                  <X size={18} />
+                </button>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#4b5563' }} />
+                <input value={addMemberSearch} onChange={e => setAddMemberSearch(e.target.value)}
+                  placeholder="Search team members by name, email, or role…" autoFocus
+                  style={{
+                    width: '100%', boxSizing: 'border-box', padding: '8px 10px 8px 30px',
+                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 8, color: '#e2e8f0', fontSize: 13, outline: 'none'
+                  }} />
+              </div>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+              {teamMembers.filter(m =>
+                !members.some(existing => existing.id === m.id) &&
+                (m.name?.toLowerCase().includes(addMemberSearch.toLowerCase()) ||
+                 m.email?.toLowerCase().includes(addMemberSearch.toLowerCase()) ||
+                 m.role?.toLowerCase().includes(addMemberSearch.toLowerCase()))
+              ).map(m => (
+                <div key={m.id} className="team-member-row" style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px',
+                  transition: 'background 0.15s'
+                }}>
+                  <Avatar name={m.name} size={36} online={m.is_online} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
+                    <div style={{ fontSize: 11, color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.email}</div>
+                  </div>
+                  <RoleBadge role={m.role} />
+                  <button onClick={async () => {
+                    try {
+                      await api('POST', `/api/chat/conversations/${activeConv.id}/members`, { userId: m.id });
+                      const updatedMembers = await api('GET', `/api/chat/conversations/${activeConv.id}/members`);
+                      setMembers(updatedMembers);
+                    } catch (e) { console.error(e); }
+                  }} style={{
+                    background: 'linear-gradient(135deg, #c5a028, #f0c040)', border: 'none',
+                    borderRadius: 6, padding: '6px 14px', color: '#000', fontWeight: 700,
+                    fontSize: 12, cursor: 'pointer', flexShrink: 0
+                  }}>
+                    Add
+                  </button>
+                </div>
+              ))}
+              {teamMembers.filter(m => !members.some(existing => existing.id === m.id)).length === 0 && (
+                <div style={{ padding: '30px 20px', textAlign: 'center', color: '#6b7280', fontSize: 13 }}>
+                  All team members are already in this group.
+                </div>
+              )}
             </div>
           </div>
         </div>
