@@ -211,31 +211,58 @@ export default function ChatPage() {
 
   // ── Polling for new messages + unread counts ──────────────────────────────
   useEffect(() => {
-    if (!token || !activeConv) return;
+    if (!token) return;
+    let isMounted = true;
+
     const poll = async () => {
+      if (typeof document !== 'undefined' && document.hidden) return; // Pause polling when tab is hidden
       try {
-        const [convs, msgs, typing] = await Promise.all([
-          api('GET', '/api/chat/conversations'),
-          api('GET', `/api/chat/conversations/${activeConv.id}/messages?limit=50`),
-          api('GET', `/api/chat/typing/${activeConv.id}`),
-        ]);
-        setConversations(convs);
-        // Only update if new messages arrived
-        setMessages(prev => {
-          if (msgs.length !== prev.length || (msgs.length > 0 && msgs[msgs.length-1]?.id !== prev[prev.length-1]?.id)) {
-            if (isAtBottom.current) {
-              setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-            }
-            return msgs;
-          }
-          return prev;
+        const promises = [api('GET', '/api/chat/conversations')];
+        if (activeConv) {
+          promises.push(api('GET', `/api/chat/conversations/${activeConv.id}/messages?limit=50`));
+          promises.push(api('GET', `/api/chat/typing/${activeConv.id}`));
+        }
+
+        const [convs, msgs, typing] = await Promise.all(promises);
+        if (!isMounted) return;
+
+        // Smart diffing for conversations to prevent UI re-render lag
+        setConversations(prev => {
+          if (prev.length !== convs.length) return convs;
+          const changed = convs.some((c, i) => {
+            const p = prev[i];
+            return !p || p.id !== c.id || p.unread_count !== c.unread_count || p.last_message_at !== c.last_message_at;
+          });
+          return changed ? convs : prev;
         });
-        setTypingUsers(typing.map(t => t.name));
+
+        if (activeConv && msgs) {
+          setMessages(prev => {
+            if (msgs.length !== prev.length || (msgs.length > 0 && msgs[msgs.length-1]?.id !== prev[prev.length-1]?.id)) {
+              if (isAtBottom.current) {
+                setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+              }
+              return msgs;
+            }
+            // Deep check for reaction/edit updates on active messages
+            const updated = msgs.some((m, i) => {
+              const p = prev[i];
+              return !p || p.edited_at !== m.edited_at || p.is_pinned !== m.is_pinned || JSON.stringify(p.reactions) !== JSON.stringify(m.reactions);
+            });
+            return updated ? msgs : prev;
+          });
+        }
+
+        if (activeConv && typing) {
+          const names = typing.map(t => t.name);
+          setTypingUsers(prev => (prev.join(',') === names.join(',') ? prev : names));
+        }
       } catch (_) {}
     };
+
     poll();
-    pollRef.current = setInterval(poll, 2500);
-    return () => clearInterval(pollRef.current);
+    pollRef.current = setInterval(poll, 3000);
+    return () => { isMounted = false; clearInterval(pollRef.current); };
   }, [token, activeConv]);
 
   // ── Load conversation data when switching ─────────────────────────────────

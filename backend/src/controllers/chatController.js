@@ -72,7 +72,7 @@ const getConversations = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Fetch all conversations the user is in, with last message and unread count
+    // Single optimized query for conversations, last message, unread count & other_user info
     const result = await db.query(
       `SELECT c.id, c.type, c.name, c.avatar, c.created_by, c.created_at,
               lm.content        as last_message,
@@ -81,12 +81,16 @@ const getConversations = async (req, res) => {
               lm.sender_id      as last_sender_id,
               lm.created_at     as last_message_at,
               lu.name           as last_sender_name,
+              ou.id             as other_user_id,
+              ou.name           as other_user_name,
+              ou.email          as other_user_email,
+              ou.role           as other_user_role,
+              MAX(CASE WHEN os.user_id IS NOT NULL THEN 1 ELSE 0 END) as other_user_online,
               (SELECT COUNT(*) FROM chat_messages m2
+               LEFT JOIN chat_reads r ON r.message_id = m2.id AND r.user_id = ?
                WHERE m2.conversation_id = c.id
                  AND m2.sender_id != ?
-                 AND m2.id NOT IN (
-                   SELECT r.message_id FROM chat_reads r WHERE r.user_id = ?
-                 )
+                 AND r.message_id IS NULL
               ) as unread_count
        FROM chat_conversations c
        JOIN chat_members cm ON cm.conversation_id = c.id AND cm.user_id = ?
@@ -95,34 +99,42 @@ const getConversations = async (req, res) => {
        ) latest ON latest.conversation_id = c.id
        LEFT JOIN chat_messages lm ON lm.id = latest.max_id
        LEFT JOIN users lu ON lu.id = lm.sender_id
-       ORDER BY last_message_at DESC`,
-      [userId, userId, userId]
+       LEFT JOIN chat_members ocm ON c.type = 'dm' AND ocm.conversation_id = c.id AND ocm.user_id != ?
+       LEFT JOIN users ou ON ou.id = ocm.user_id
+       LEFT JOIN active_sessions os ON os.user_id = ou.id AND os.last_active_at > datetime('now', '-5 minutes')
+       GROUP BY c.id
+       ORDER BY COALESCE(last_message_at, c.created_at) DESC`,
+      [userId, userId, userId, userId]
     );
 
-    const conversations = result.rows;
-
-    // For DMs: attach the other user's info
-    for (const conv of conversations) {
-      if (conv.type === 'dm') {
-        const otherRes = await db.query(
-          `SELECT u.id, u.name, u.email, u.role,
-                  MAX(CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END) as is_online
-           FROM chat_members cm
-           JOIN users u ON cm.user_id = u.id
-           LEFT JOIN active_sessions s
-             ON s.user_id = u.id
-             AND s.last_active_at > datetime('now', '-5 minutes')
-           WHERE cm.conversation_id = ? AND cm.user_id != ?
-           GROUP BY u.id
-           LIMIT 1`,
-          [conv.id, userId]
-        );
-        if (otherRes.rows.length > 0) {
-          conv.other_user = otherRes.rows[0];
-          if (!conv.name) conv.name = otherRes.rows[0].name;
-        }
+    const conversations = result.rows.map(row => {
+      const conv = {
+        id: row.id,
+        type: row.type,
+        name: row.name,
+        avatar: row.avatar,
+        created_by: row.created_by,
+        created_at: row.created_at,
+        last_message: row.last_message,
+        last_file_name: row.last_file_name,
+        last_file_type: row.last_file_type,
+        last_sender_id: row.last_sender_id,
+        last_message_at: row.last_message_at,
+        last_sender_name: row.last_sender_name,
+        unread_count: parseInt(row.unread_count) || 0
+      };
+      if (row.type === 'dm' && row.other_user_id) {
+        conv.other_user = {
+          id: row.other_user_id,
+          name: row.other_user_name,
+          email: row.other_user_email,
+          role: row.other_user_role,
+          is_online: row.other_user_online === 1
+        };
+        if (!conv.name) conv.name = row.other_user_name;
       }
-    }
+      return conv;
+    });
 
     res.json(conversations);
   } catch (err) {
@@ -257,7 +269,7 @@ const getMessages = async (req, res) => {
     const result = await db.query(sql, params);
     const messages = result.rows.reverse(); // Oldest first
 
-    // Attach reactions
+    // Attach reactions & read receipts
     if (messages.length > 0) {
       const msgIds = messages.map(m => m.id);
       const placeholders = msgIds.map(() => '?').join(',');
@@ -269,7 +281,6 @@ const getMessages = async (req, res) => {
         msgIds
       );
 
-      // Group reactions by message_id → emoji → [users]
       const reactionMap = {};
       for (const r of reactionsRes.rows) {
         if (!reactionMap[r.message_id]) reactionMap[r.message_id] = {};
@@ -277,7 +288,6 @@ const getMessages = async (req, res) => {
         reactionMap[r.message_id][r.emoji].push({ user_id: r.user_id, user_name: r.user_name });
       }
 
-      // Attach read receipts (list of user ids who read each message)
       const readsRes = await db.query(
         `SELECT cr.message_id, cr.user_id, u.name as user_name
          FROM chat_reads cr
@@ -295,16 +305,14 @@ const getMessages = async (req, res) => {
         m.reactions = reactionMap[m.id] || {};
         m.read_by   = readMap[m.id]     || [];
       });
-    }
 
-    // Batch mark all as read
-    for (const msg of messages) {
-      if (msg.sender_id !== userId) {
-        db.query(
-          `INSERT OR IGNORE INTO chat_reads (message_id, user_id) VALUES (?, ?)`,
-          [msg.id, userId]
-        ).catch(() => {});
-      }
+      // Single fast batch query to mark messages as read
+      db.query(
+        `INSERT OR IGNORE INTO chat_reads (message_id, user_id)
+         SELECT id, ? FROM chat_messages
+         WHERE conversation_id = ? AND sender_id != ?`,
+        [userId, id, userId]
+      ).catch(() => {});
     }
 
     res.json(messages);
@@ -335,19 +343,23 @@ const sendMessage = async (req, res) => {
     let finalFileName = fileName || null;
     let finalFileType = fileType || null;
 
-    // Upload file via Cloudinary (base64)
+    // Upload file via Cloudinary with robust fallback to base64
     if (fileData) {
       try {
-        const uploadResult = await cloudinary.uploader.upload(fileData, {
-          folder:        'specs_chat_files',
-          resource_type: 'auto',
-          public_id:     `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        });
-        fileUrl       = uploadResult.secure_url;
-        finalFileType = uploadResult.resource_type === 'image' ? 'image' : finalFileType;
+        if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+          const uploadResult = await cloudinary.uploader.upload(fileData, {
+            folder:        'specs_chat_files',
+            resource_type: 'auto',
+            public_id:     `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          });
+          fileUrl       = uploadResult.secure_url;
+          finalFileType = uploadResult.resource_type === 'image' ? 'image' : finalFileType;
+        } else {
+          fileUrl = fileData;
+        }
       } catch (uploadErr) {
-        console.error('Cloudinary upload error:', uploadErr);
-        return res.status(500).json({ message: 'File upload failed. Please try again.' });
+        console.warn('Cloudinary upload warning, using direct fileData fallback:', uploadErr.message);
+        fileUrl = fileData;
       }
     }
 
@@ -471,19 +483,14 @@ const markRead = async (req, res) => {
     const userId = req.user.id;
     const { id }  = req.params;
 
-    const messages = await db.query(
-      `SELECT id FROM chat_messages WHERE conversation_id = ? AND sender_id != ?`,
-      [id, userId]
+    const result = await db.query(
+      `INSERT OR IGNORE INTO chat_reads (message_id, user_id)
+       SELECT id, ? FROM chat_messages
+       WHERE conversation_id = ? AND sender_id != ?`,
+      [userId, id, userId]
     );
 
-    for (const msg of messages.rows) {
-      await db.query(
-        `INSERT OR IGNORE INTO chat_reads (message_id, user_id) VALUES (?, ?)`,
-        [msg.id, userId]
-      ).catch(() => {});
-    }
-
-    res.json({ ok: true, markedCount: messages.rows.length });
+    res.json({ ok: true, markedCount: result.rowCount || 0 });
   } catch (err) {
     console.error('markRead error:', err);
     res.status(500).json({ message: 'Server error marking read' });
