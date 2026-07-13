@@ -72,7 +72,7 @@ const getConversations = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Single optimized query for conversations, last message, unread count & other_user info
+    // 1. Fetch all conversations user is in, with last message & unread count
     const result = await db.query(
       `SELECT c.id, c.type, c.name, c.avatar, c.created_by, c.created_at,
               lm.content        as last_message,
@@ -81,11 +81,6 @@ const getConversations = async (req, res) => {
               lm.sender_id      as last_sender_id,
               lm.created_at     as last_message_at,
               lu.name           as last_sender_name,
-              ou.id             as other_user_id,
-              ou.name           as other_user_name,
-              ou.email          as other_user_email,
-              ou.role           as other_user_role,
-              MAX(CASE WHEN os.user_id IS NOT NULL THEN 1 ELSE 0 END) as other_user_online,
               (SELECT COUNT(*) FROM chat_messages m2
                LEFT JOIN chat_reads r ON r.message_id = m2.id AND r.user_id = ?
                WHERE m2.conversation_id = c.id
@@ -99,42 +94,62 @@ const getConversations = async (req, res) => {
        ) latest ON latest.conversation_id = c.id
        LEFT JOIN chat_messages lm ON lm.id = latest.max_id
        LEFT JOIN users lu ON lu.id = lm.sender_id
-       LEFT JOIN chat_members ocm ON c.type = 'dm' AND ocm.conversation_id = c.id AND ocm.user_id != ?
-       LEFT JOIN users ou ON ou.id = ocm.user_id
-       LEFT JOIN active_sessions os ON os.user_id = ou.id AND os.last_active_at > datetime('now', '-5 minutes')
-       GROUP BY c.id
        ORDER BY COALESCE(last_message_at, c.created_at) DESC`,
-      [userId, userId, userId, userId]
+      [userId, userId, userId]
     );
 
-    const conversations = result.rows.map(row => {
-      const conv = {
-        id: row.id,
-        type: row.type,
-        name: row.name,
-        avatar: row.avatar,
-        created_by: row.created_by,
-        created_at: row.created_at,
-        last_message: row.last_message,
-        last_file_name: row.last_file_name,
-        last_file_type: row.last_file_type,
-        last_sender_id: row.last_sender_id,
-        last_message_at: row.last_message_at,
-        last_sender_name: row.last_sender_name,
-        unread_count: parseInt(row.unread_count) || 0
-      };
-      if (row.type === 'dm' && row.other_user_id) {
-        conv.other_user = {
-          id: row.other_user_id,
-          name: row.other_user_name,
-          email: row.other_user_email,
-          role: row.other_user_role,
-          is_online: row.other_user_online === 1
+    const conversations = result.rows.map(row => ({
+      id: row.id,
+      type: row.type,
+      name: row.name,
+      avatar: row.avatar,
+      created_by: row.created_by,
+      created_at: row.created_at,
+      last_message: row.last_message,
+      last_file_name: row.last_file_name,
+      last_file_type: row.last_file_type,
+      last_sender_id: row.last_sender_id,
+      last_message_at: row.last_message_at,
+      last_sender_name: row.last_sender_name,
+      unread_count: parseInt(row.unread_count) || 0
+    }));
+
+    // 2. Batch fetch DM opponent user details
+    const dmIds = conversations.filter(c => c.type === 'dm').map(c => c.id);
+    if (dmIds.length > 0) {
+      const placeholders = dmIds.map(() => '?').join(',');
+      const otherUsersRes = await db.query(
+        `SELECT cm.conversation_id, u.id, u.name, u.email, u.role,
+                MAX(CASE WHEN s.user_id IS NOT NULL THEN 1 ELSE 0 END) as is_online
+         FROM chat_members cm
+         JOIN users u ON cm.user_id = u.id
+         LEFT JOIN active_sessions s
+           ON s.user_id = u.id
+           AND s.last_active_at > datetime('now', '-5 minutes')
+         WHERE cm.conversation_id IN (${placeholders}) AND cm.user_id != ?
+         GROUP BY cm.conversation_id, u.id`,
+        [...dmIds, userId]
+      );
+
+      const otherUserMap = {};
+      for (const row of otherUsersRes.rows) {
+        otherUserMap[row.conversation_id] = {
+          id: row.id,
+          name: row.name,
+          email: row.email,
+          role: row.role,
+          is_online: row.is_online === 1
         };
-        if (!conv.name) conv.name = row.other_user_name;
       }
-      return conv;
-    });
+
+      conversations.forEach(c => {
+        if (c.type === 'dm') {
+          c.other_user = otherUserMap[c.id] || null;
+          if (!c.name && c.other_user) c.name = c.other_user.name;
+          if (!c.name) c.name = 'Direct Message';
+        }
+      });
+    }
 
     res.json(conversations);
   } catch (err) {

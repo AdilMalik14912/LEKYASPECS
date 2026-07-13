@@ -229,36 +229,25 @@ export default function ChatPage() {
         const [convs, msgs, typing] = await Promise.all(promises);
         if (!isMounted) return;
 
-        // Smart diffing for conversations to prevent UI re-render lag
-        setConversations(prev => {
-          if (prev.length !== convs.length) return convs;
-          const changed = convs.some((c, i) => {
-            const p = prev[i];
-            return !p || p.id !== c.id || p.unread_count !== c.unread_count || p.last_message_at !== c.last_message_at;
-          });
-          return changed ? convs : prev;
-        });
+        // Bulletproof deep diffing to ensure groups & messages never vanish and update in real-time
+        setConversations(prev => (JSON.stringify(prev) === JSON.stringify(convs) ? prev : convs));
 
         if (activeConv && msgs) {
           setMessages(prev => {
-            if (msgs.length !== prev.length || (msgs.length > 0 && msgs[msgs.length-1]?.id !== prev[prev.length-1]?.id)) {
-              if (isAtBottom.current) {
+            const hasChanged = JSON.stringify(prev) !== JSON.stringify(msgs);
+            if (hasChanged) {
+              if (isAtBottom.current && msgs.length > prev.length) {
                 setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
               }
               return msgs;
             }
-            // Deep check for reaction/edit updates on active messages
-            const updated = msgs.some((m, i) => {
-              const p = prev[i];
-              return !p || p.edited_at !== m.edited_at || p.is_pinned !== m.is_pinned || JSON.stringify(p.reactions) !== JSON.stringify(m.reactions);
-            });
-            return updated ? msgs : prev;
+            return prev;
           });
         }
 
         if (activeConv && typing) {
           const names = typing.map(t => t.name);
-          setTypingUsers(prev => (prev.join(',') === names.join(',') ? prev : names));
+          setTypingUsers(prev => (JSON.stringify(prev) === JSON.stringify(names) ? prev : names));
         }
       } catch (_) {}
     };
