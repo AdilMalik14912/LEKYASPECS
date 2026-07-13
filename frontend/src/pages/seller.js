@@ -258,6 +258,9 @@ export default function SellerPanel() {
             <button onClick={() => router.push('/chat')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all text-[11px] font-bold tracking-wider" title="Team Chat">
               💬 Chat
             </button>
+            <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all text-[11px] font-bold tracking-wider" title="Specs CRM Platform">
+              📈 CRM
+            </button>
             <button onClick={fetchAll} className="p-2 text-gray-400 hover:text-amber-400 transition-colors" title="Refresh">
               <RefreshCw className="w-4 h-4" />
             </button>

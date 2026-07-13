@@ -108,6 +108,7 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | Team Management | Change user roles (user/seller/delivery/admin) |
 | 🛰 Live Rider Map | Opens `/admin-map` — real-time GPS tracking of all delivery agents |
 | 💬 Team Chat | Opens `/chat` — full-screen team messaging system ← NEW (2026-07-13) |
+| 📈 CRM Platform | Opens `/crm` — full-screen sales pipeline & customer retention studio ← NEW (2026-07-13) |
 
 ### 12. 🛰 Admin Live Rider Map ([admin-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin-map.js)) ← NEW (2026-07-10)
 Access: `/admin-map` — Admin only. Linked from Admin sidebar "🛰 Live Rider Map".
@@ -213,7 +214,16 @@ Access: `/chat` — staff roles only (admin, seller, delivery, stylist). Regular
 - Admin sidebar: `💬 Team Chat`
 - Seller panel header: `💬 Chat` button
 - Delivery panel header: `💬 Team Chat` button
-- Direct URL: `/chat`
+### 22. 📈 Specs CRM Platform ([crm.js](file:///C:/Users/Admin/Specs/frontend/src/pages/crm.js)) ← NEW (2026-07-13)
+Access: `/crm` — staff roles only (admin, seller, delivery, stylist). Regular customers are auto-redirected.
+
+**Features:**
+- **📊 Executive Dashboard Tab**: KPI cards (Pipeline Value, Conversion Rate %, Total Leads, Overdue Tasks), Visual Sales Funnel (New → Contacted → Qualified → Prescription Consult → Offer Sent → Converted), Lead Sources breakdown, Hot Leads leaderboard.
+- **🎯 Kanban Pipeline Board**: Stage-column view with lead cards, lead score badges (🔥 Hot, ✨ Warm, ❄️ Cold), estimated deal value, and instant stage dropdown updater.
+- **👥 Customer Directory**: Searchable, sortable table with filters for stage/source/query, spent amount, order count, and Inspect action.
+- **⏰ Follow-up Task Manager**: Schedule tasks with due dates, priorities (High/Med/Low), assigned agent, and completion checkbox.
+- **📇 Customer Inspection Drawer**: Slide-out panel showing contact info, past orders history, timeline of calls/emails/notes/whatsapp, and log interaction modal.
+- **🔄 Auto-Sync Engine**: One-click sync that scans storefront users and contact messages to auto-generate CRM leads with calculated lead scores!
 Access: `/track` — Public. Accessible without sign-in/registration.
 - **Search bar:** Enter any LS-prefixed 10-digit order tracking code (e.g. `LS1029384756`).
 - **Real-time timeline:** High-fidelity vertical progression steps (Confirmed → Processing → Packed → Shipped → Out for Delivery → Delivered).

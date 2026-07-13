@@ -40,6 +40,9 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 14. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at ← NEW (2026-07-13)
 15. **chat_reads** — message_id, user_id, read_at (unique per message+user) ← NEW (2026-07-13)
 16. **chat_reactions** — message_id, user_id, emoji (unique per message+user+emoji) ← NEW (2026-07-13)
+17. **crm_leads** — user_id, name, email, phone, stage, source, lead_score, estimated_value, assigned_to, tags, notes, created_at, updated_at ← NEW (2026-07-13)
+18. **crm_interactions** — lead_id, user_id, created_by, type, subject, notes, outcome, created_at ← NEW (2026-07-13)
+19. **crm_tasks** — lead_id, assigned_to, created_by, title, description, due_date, priority, status, created_at ← NEW (2026-07-13)
 
 ### DB Migrations (auto-applied on startup in `db.js`)
 - `role` column on `users`
@@ -63,6 +66,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 - `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
 - `tracking_id` column on `orders` ← Added 2026-07-11 (for unique public order lookup code)
 - `chat_conversations`, `chat_members`, `chat_messages`, `chat_reads`, `chat_reactions` tables ← Added 2026-07-13 (Team Chat system)
+- `crm_leads`, `crm_interactions`, `crm_tasks` tables ← Added 2026-07-13 (Enterprise CRM System)
 
 ---
 
@@ -180,7 +184,20 @@ Controlled by [chatController.js](file:///C:/Users/Admin/Specs/backend/src/contr
 - `POST /typing` → Set typing status (in-memory store, expires after 4s)
 - `GET /typing/:id` → Get list of who is currently typing in a conversation
 
-**Middleware:** `isTeamMember` — allows `admin`, `seller`, `delivery`, `stylist` roles only. Regular customers blocked with 403.
+### 11. Customer Relationship Management (`/api/crm`) — require `authenticateToken + isTeamMember` ← NEW (2026-07-13)
+
+Controlled by [crmController.js](file:///C:/Users/Admin/Specs/backend/src/controllers/crmController.js):
+
+- `GET /stats` → Executive CRM Analytics (total leads, pipeline value, conversion rate %, funnel stages breakdown, overdue tasks, hot leads)
+- `GET /leads` → List leads/customers with filters (stage, source, assignedTo, search query, sorting by score/value)
+- `GET /leads/:id` → Detailed lead profile (contact info, order history, timeline of interactions, follow-up tasks)
+- `POST /leads` → Manually add a sales lead
+- `PUT /leads/:id` → Update lead stage, score, deal value, tags, notes, or assigned staff member
+- `POST /leads/:id/interactions` → Log a customer call, email, meeting, WhatsApp, or internal note
+- `GET /tasks` → List follow-up tasks filtered by status, priority, or assigned staff
+- `POST /tasks` → Schedule a follow-up task with due date and priority
+- `PUT /tasks/:id` → Update task status (Pending / Completed) or priority
+- `POST /auto-sync` → Auto-populates CRM leads from existing storefront registered users and contact form inquiries
 
 ---
 

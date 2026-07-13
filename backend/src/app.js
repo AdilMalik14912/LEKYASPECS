@@ -14,6 +14,7 @@ const stylistController = require('./controllers/stylistController');
 const sellerController = require('./controllers/sellerController');
 const deliveryController = require('./controllers/deliveryController');
 const chatController = require('./controllers/chatController');
+const crmController = require('./controllers/crmController');
 
 
 // Middlewares
@@ -419,6 +420,18 @@ app.post('/api/chat/messages/:id/react',                  authenticateToken, isT
 // Typing indicators
 app.post('/api/chat/typing',                              authenticateToken, isTeamMember, chatController.setTyping);
 app.get('/api/chat/typing/:id',                           authenticateToken, isTeamMember, chatController.getTyping);
+
+// ── CRM System Routes ────────────────────────────────────────────────────────
+app.get('/api/crm/stats',                  authenticateToken, isTeamMember, crmController.getDashboardStats);
+app.get('/api/crm/leads',                  authenticateToken, isTeamMember, crmController.getLeads);
+app.get('/api/crm/leads/:id',              authenticateToken, isTeamMember, crmController.getLeadById);
+app.post('/api/crm/leads',                 authenticateToken, isTeamMember, crmController.createLead);
+app.put('/api/crm/leads/:id',              authenticateToken, isTeamMember, crmController.updateLead);
+app.post('/api/crm/leads/:id/interactions',authenticateToken, isTeamMember, crmController.logInteraction);
+app.get('/api/crm/tasks',                  authenticateToken, isTeamMember, crmController.getTasks);
+app.post('/api/crm/tasks',                 authenticateToken, isTeamMember, crmController.createTask);
+app.put('/api/crm/tasks/:id',              authenticateToken, isTeamMember, crmController.updateTask);
+app.post('/api/crm/auto-sync',             authenticateToken, isTeamMember, crmController.autoSyncLeads);
 
 // Global Error Handler
 

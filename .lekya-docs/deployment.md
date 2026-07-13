@@ -80,7 +80,8 @@ Whenever commits are pushed to the `main` branch:
 | **Seller Panel** | `https://lekyaspecs.vercel.app/seller` |
 | **Delivery Panel** | `https://lekyaspecs.vercel.app/delivery` |
 | **Delivery Route Map** | `https://lekyaspecs.vercel.app/delivery-map` |
-| **Team Chat** | `https://lekyaspecs.vercel.app/chat` ← NEW (2026-07-13) |
+| **Team Chat** | `https://lekyaspecs.vercel.app/chat` |
+| **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` ← NEW (2026-07-13) |
 
 > **Note:** Obsolete preview URLs like `lekyaspecs-800x4yrhk-lekya.vercel.app` are old preview deployments — always use the main production URL above.
 
@@ -94,7 +95,8 @@ Whenever commits are pushed to the `main` branch:
 | 2026-07-05 | Feature batch | Try-On, Face AI, Skin AI, Prescription, Stylist Hub |
 | 2026-07-10 | `870d619` | Seller panel, delivery panel, RBAC, 6 smart rider features (auto-assign, urgent, workload, leaderboard, stale alerts, city grouping) |
 | 2026-07-10 | `b1ba736` | Real-time map system: delivery-map.js + admin-map.js + GPS backend endpoints |
-| 2026-07-13 | Pending push | **Team Chat System**: chatController.js, 5 new DB tables, 19 API routes, chat.js full-screen premium UI, chat buttons in admin/seller/delivery panels |
+| 2026-07-13 | `f136c7d` | Team Chat System: DMs, groups, file upload, reactions, pins, member search |
+| 2026-07-13 | Pending push | **Enterprise CRM Platform**: crmController.js, 3 new DB tables (crm_leads, crm_interactions, crm_tasks), 10 API endpoints, auto-sync engine, crm.js dashboard |
 
 ---
 

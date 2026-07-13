@@ -410,6 +410,64 @@ const initDb = async () => {
 
     // ── End Chat Migrations ───────────────────────────────────────────────────
 
+    // ── CRM System Migrations ─────────────────────────────────────────────────
+
+    // CRM Leads & Customer Sales Funnel Pipeline
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS crm_leads (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id         INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        name            TEXT NOT NULL,
+        email           TEXT DEFAULT NULL,
+        phone           TEXT DEFAULT NULL,
+        stage           TEXT DEFAULT 'New Lead',
+        source          TEXT DEFAULT 'Direct Signup',
+        lead_score      INTEGER DEFAULT 50,
+        estimated_value REAL DEFAULT 0.0,
+        assigned_to     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        tags            TEXT DEFAULT '[]',
+        notes           TEXT DEFAULT NULL,
+        created_at      TEXT DEFAULT (datetime('now')),
+        updated_at      TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: crm_leads table ready.');
+    } catch (_) {}
+
+    // CRM Interactions & Activity Log Timeline
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS crm_interactions (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        lead_id     INTEGER REFERENCES crm_leads(id) ON DELETE CASCADE,
+        user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        type        TEXT NOT NULL DEFAULT 'note',
+        subject     TEXT NOT NULL,
+        notes       TEXT DEFAULT NULL,
+        outcome     TEXT DEFAULT 'Completed',
+        created_at  TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: crm_interactions table ready.');
+    } catch (_) {}
+
+    // CRM Tasks & Actionable Follow-up Reminders
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS crm_tasks (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        lead_id     INTEGER REFERENCES crm_leads(id) ON DELETE CASCADE,
+        assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        title       TEXT NOT NULL,
+        description TEXT DEFAULT NULL,
+        due_date    TEXT NOT NULL,
+        priority    TEXT DEFAULT 'Medium',
+        status      TEXT DEFAULT 'Pending',
+        created_at  TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: crm_tasks table ready.');
+    } catch (_) {}
+
+    // ── End CRM Migrations ────────────────────────────────────────────────────
+
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');
     if (fs.existsSync(seedPath)) {
