@@ -272,15 +272,6 @@ export default function App({ Component, pageProps }) {
     saveWishlist(newWishlist);
   };
 
-  const isStaffRoute = router.pathname.startsWith('/admin') ||
-                       router.pathname.startsWith('/seller') ||
-                       router.pathname.startsWith('/delivery') ||
-                       router.pathname === '/chat' ||
-                       router.pathname === '/crm' ||
-                       router.pathname === '/stylist' ||
-                       router.pathname === '/admin-map' ||
-                       router.pathname === '/delivery-map';
-
   const isStaff = user && (
     user.role === 'admin' ||
     user.role === 'seller' ||
@@ -288,6 +279,16 @@ export default function App({ Component, pageProps }) {
     user.email === 'dev.parceluncle@gmail.com' ||
     user.email === 'admin@specs.com'
   );
+
+  const isStaffRoute = isStaff ||
+                       router.pathname.startsWith('/admin') ||
+                       router.pathname.startsWith('/seller') ||
+                       router.pathname.startsWith('/delivery') ||
+                       router.pathname.startsWith('/chat') ||
+                       router.pathname.startsWith('/crm') ||
+                       router.pathname.startsWith('/stylist') ||
+                       router.pathname.startsWith('/admin-map') ||
+                       router.pathname.startsWith('/delivery-map');
 
   return (
     <ToastContext.Provider value={{ showToast }}>
