@@ -13,6 +13,7 @@ const adminController = require('./controllers/adminController');
 const stylistController = require('./controllers/stylistController');
 const sellerController = require('./controllers/sellerController');
 const deliveryController = require('./controllers/deliveryController');
+const chatController = require('./controllers/chatController');
 
 
 // Middlewares
@@ -372,6 +373,51 @@ app.get('/api/stylist/reviews', authenticateToken, stylistController.getReviews)
 app.put('/api/stylist/reviews/:id/spotlight', authenticateToken, stylistController.toggleReviewSpotlight);
 app.get('/api/stylist/tone-profile', stylistController.getToneProfile);
 app.post('/api/stylist/tone-profile', authenticateToken, stylistController.updateToneProfile);
+
+// ─── 12. Team Chat API ─────────────────────────────────────────────────────────
+// Middleware: only allow admin, seller, delivery, or stylist roles
+const isTeamMember = (req, res, next) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  const allowedRoles = ['admin', 'seller', 'delivery', 'stylist'];
+  const adminEmails  = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
+  if (allowedRoles.includes(req.user.role) || adminEmails.includes(req.user.email)) {
+    return next();
+  }
+  res.status(403).json({ message: 'Chat is only available to team members' });
+};
+
+// Team members list + online presence
+app.get('/api/chat/team',                                 authenticateToken, isTeamMember, chatController.getTeamMembers);
+
+// Conversations
+app.get('/api/chat/conversations',                        authenticateToken, isTeamMember, chatController.getConversations);
+app.post('/api/chat/conversations/dm',                    authenticateToken, isTeamMember, chatController.getDmConversation);
+app.post('/api/chat/conversations/group',                 authenticateToken, isTeamMember, chatController.createGroup);
+app.delete('/api/chat/conversations/:id',                 authenticateToken, isTeamMember, chatController.leaveConversation);
+
+// Messages
+app.get('/api/chat/conversations/:id/messages',           authenticateToken, isTeamMember, chatController.getMessages);
+app.post('/api/chat/conversations/:id/messages',          authenticateToken, isTeamMember, chatController.sendMessage);
+app.post('/api/chat/conversations/:id/read',              authenticateToken, isTeamMember, chatController.markRead);
+
+// Pinned messages & shared files
+app.get('/api/chat/conversations/:id/pinned',             authenticateToken, isTeamMember, chatController.getPinnedMessages);
+app.get('/api/chat/conversations/:id/files',              authenticateToken, isTeamMember, chatController.getSharedFiles);
+
+// Group members
+app.get('/api/chat/conversations/:id/members',            authenticateToken, isTeamMember, chatController.getMembers);
+app.post('/api/chat/conversations/:id/members',           authenticateToken, isTeamMember, chatController.addMember);
+app.delete('/api/chat/conversations/:id/members/:uid',    authenticateToken, isTeamMember, chatController.removeMember);
+
+// Per-message actions
+app.put('/api/chat/messages/:id/pin',                     authenticateToken, isTeamMember, chatController.togglePin);
+app.put('/api/chat/messages/:id/edit',                    authenticateToken, isTeamMember, chatController.editMessage);
+app.delete('/api/chat/messages/:id',                      authenticateToken, isTeamMember, chatController.deleteMessage);
+app.post('/api/chat/messages/:id/react',                  authenticateToken, isTeamMember, chatController.toggleReaction);
+
+// Typing indicators
+app.post('/api/chat/typing',                              authenticateToken, isTeamMember, chatController.setTyping);
+app.get('/api/chat/typing/:id',                           authenticateToken, isTeamMember, chatController.getTyping);
 
 // Global Error Handler
 

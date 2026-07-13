@@ -1535,6 +1535,14 @@ export default function Admin() {
           >
             🛰 Live Rider Map
           </Link>
+
+          <Link
+            href="/chat"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-yellow-400 hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
+            style={{ textDecoration: 'none' }}
+          >
+            💬 Team Chat
+          </Link>
         </nav>
 
         <div className="border-t border-gray-800 pt-6 mt-10 flex items-center gap-2 text-[10px] text-premium-accent">

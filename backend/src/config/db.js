@@ -336,6 +336,79 @@ const initDb = async () => {
     }
 
 
+    // ── Team Chat System Migrations ───────────────────────────────────────────
+
+    // Chat Conversations (DM or Group)
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS chat_conversations (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        type        TEXT NOT NULL DEFAULT 'dm',
+        name        TEXT DEFAULT NULL,
+        description TEXT DEFAULT NULL,
+        avatar      TEXT DEFAULT NULL,
+        created_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at  TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: chat_conversations table ready.');
+    } catch (_) {}
+
+    // Chat Members (who is in which conversation)
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS chat_members (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id INTEGER REFERENCES chat_conversations(id) ON DELETE CASCADE,
+        user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        joined_at       TEXT DEFAULT (datetime('now')),
+        UNIQUE(conversation_id, user_id)
+      )`);
+      console.log('Migration: chat_members table ready.');
+    } catch (_) {}
+
+    // Chat Messages
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS chat_messages (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id INTEGER REFERENCES chat_conversations(id) ON DELETE CASCADE,
+        sender_id       INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        content         TEXT DEFAULT NULL,
+        file_url        TEXT DEFAULT NULL,
+        file_name       TEXT DEFAULT NULL,
+        file_type       TEXT DEFAULT NULL,
+        is_pinned       INTEGER DEFAULT 0,
+        reply_to_id     INTEGER DEFAULT NULL,
+        message_type    TEXT DEFAULT 'text',
+        created_at      TEXT DEFAULT (datetime('now')),
+        edited_at       TEXT DEFAULT NULL
+      )`);
+      console.log('Migration: chat_messages table ready.');
+    } catch (_) {}
+
+    // Chat Read Receipts
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS chat_reads (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        message_id INTEGER REFERENCES chat_messages(id) ON DELETE CASCADE,
+        user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        read_at    TEXT DEFAULT (datetime('now')),
+        UNIQUE(message_id, user_id)
+      )`);
+      console.log('Migration: chat_reads table ready.');
+    } catch (_) {}
+
+    // Chat Emoji Reactions
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS chat_reactions (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        message_id INTEGER REFERENCES chat_messages(id) ON DELETE CASCADE,
+        user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        emoji      TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(message_id, user_id, emoji)
+      )`);
+      console.log('Migration: chat_reactions table ready.');
+    } catch (_) {}
+
+    // ── End Chat Migrations ───────────────────────────────────────────────────
 
     // Run seed AFTER schema is fully applied
     const seedPath = path.join(__dirname, 'seed.js');

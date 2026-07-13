@@ -2,7 +2,7 @@
 
 The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
 
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-13
 
 ---
 
@@ -107,6 +107,7 @@ Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gma
 | Live User Monitor | Real-time active sessions across devices |
 | Team Management | Change user roles (user/seller/delivery/admin) |
 | 🛰 Live Rider Map | Opens `/admin-map` — real-time GPS tracking of all delivery agents |
+| 💬 Team Chat | Opens `/chat` — full-screen team messaging system ← NEW (2026-07-13) |
 
 ### 12. 🛰 Admin Live Rider Map ([admin-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin-map.js)) ← NEW (2026-07-10)
 Access: `/admin-map` — Admin only. Linked from Admin sidebar "🛰 Live Rider Map".
@@ -150,7 +151,7 @@ Access: `/delivery` — users with `role: delivery` or `role: admin`. Protected 
 | My Deliveries | All assigned orders; status progress stepper (Processing → Shipped → Out for Delivery → Delivered); call customer button; full address display |
 | Available Orders | Unassigned paid orders **grouped by city** 📍; urgent orders shown with red glow + animated badge; "Claim Order" or "Claim URGENT" button |
 
-**Header Button:** "🗺 Route Map" → opens `/delivery-map`
+**Header Buttons:** "💬 Chat" → opens `/chat` (Team Chat), "🗺 Route Map" → opens `/delivery-map`. ← Chat button NEW (2026-07-13)
 
 ### 15. 🗺 Delivery Route Map ([delivery-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/delivery-map.js)) ← NEW (2026-07-10)
 Access: `/delivery-map` — Delivery agents only. Linked from Delivery Panel header.
@@ -185,7 +186,34 @@ Store guidelines, authentication requirements, prescription eyewear specs, retur
 ### 19. 🗺️ Sitemap Directory ([sitemap.js](file:///C:/Users/Admin/Specs/frontend/src/pages/sitemap.js))
 Visual sitemap index page categorizing all routes.
 
-### 20. 🔍 Public Order Tracker ([track.js](file:///C:/Users/Admin/Specs/frontend/src/pages/track.js)) ← NEW (2026-07-11)
+### 21. 💬 Team Chat ([chat.js](file:///C:/Users/Admin/Specs/frontend/src/pages/chat.js)) ← NEW (2026-07-13)
+Access: `/chat` — staff roles only (admin, seller, delivery, stylist). Regular customers are auto-redirected.
+
+**Features:**
+- **3-column layout**: Left sidebar (conversations), Center (messages), Right (members/pinned/files panel)
+- **Direct Messages (DMs)**: Start 1-on-1 chats with any team member
+- **Group Channels**: Create named groups with description + multiple members
+- **File Uploads**: Images (thumbnail preview), PDFs, docs, ZIP (max 10MB) — stored on Cloudinary
+- **Emoji Reactions**: 20 quick-react emojis per message
+- **Message Pinning**: Pin/unpin messages — listed in Pinned panel
+- **Reply Threading**: Reply to any specific message with inline preview
+- **Message Editing**: Edit own messages (shows "edited" label)
+- **Message Deletion**: Delete own messages; admin can delete any
+- **Read Receipts**: Green double-tick on own sent messages when read
+- **Typing Indicators**: Animated 3-dot bounce when someone is typing
+- **Online Presence**: Green dot badge on avatars (from `active_sessions`, 5-min window)
+- **Unread Count Badges**: Gold badge on conversation list for unread messages
+- **Role Badges**: 👑 Admin, 🏪 Seller, 🚴 Delivery, ✨ Stylist shown on every message
+- **Member Panel**: List members; click non-self member to start DM directly
+- **Shared Files Panel**: Chronological list of all files shared in the conversation
+- **Polling**: Auto-refreshes every 2.5 seconds for near-real-time feel (Vercel-compatible)
+- **Dark Glassmorphism UI**: Specs golden accent palette on deep dark `#0d1117` background
+
+**Navigation Entry Points:**
+- Admin sidebar: `💬 Team Chat`
+- Seller panel header: `💬 Chat` button
+- Delivery panel header: `💬 Team Chat` button
+- Direct URL: `/chat`
 Access: `/track` — Public. Accessible without sign-in/registration.
 - **Search bar:** Enter any LS-prefixed 10-digit order tracking code (e.g. `LS1029384756`).
 - **Real-time timeline:** High-fidelity vertical progression steps (Confirmed → Processing → Packed → Shipped → Out for Delivery → Delivered).
@@ -249,3 +277,4 @@ Access: `/track` — Public. Accessible without sign-in/registration.
 | Virtual Try-On | `https://lekyaspecs.vercel.app/tryon` |
 | Face Shape AI | `https://lekyaspecs.vercel.app/face-shape` |
 | Brand Stylist Hub | `https://lekyaspecs.vercel.app/stylist` |
+| **Team Chat** | `https://lekyaspecs.vercel.app/chat` ← NEW (2026-07-13) |

@@ -1,8 +1,8 @@
 # Backend Core Documentation — Express Server & Turso DB
 
-The backend service is located in the [/backend](file:///C:/Users/Admin/Specs/backend) folder and handles user authentication, CRUD operations, Razorpay order verification, settings management, and automated mailing.
+The backend service is located in the [/backend](file:///C:/Users/Admin/Specs/backend) folder and handles user authentication, CRUD operations, Razorpay order verification, settings management, automated mailing, and team chat messaging.
 
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-13
 
 ---
 
@@ -35,6 +35,11 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
 10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at
 11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at
+12. **chat_conversations** — type (dm/group), name, description, avatar, created_by, created_at ← NEW (2026-07-13)
+13. **chat_members** — conversation_id, user_id, joined_at ← NEW (2026-07-13)
+14. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at ← NEW (2026-07-13)
+15. **chat_reads** — message_id, user_id, read_at (unique per message+user) ← NEW (2026-07-13)
+16. **chat_reactions** — message_id, user_id, emoji (unique per message+user+emoji) ← NEW (2026-07-13)
 
 ### DB Migrations (auto-applied on startup in `db.js`)
 - `role` column on `users`
@@ -57,6 +62,7 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 - `delivery_otp` column on `orders` ← Added 2026-07-11 (for customer verification)
 - `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
 - `tracking_id` column on `orders` ← Added 2026-07-11 (for unique public order lookup code)
+- `chat_conversations`, `chat_members`, `chat_messages`, `chat_reads`, `chat_reactions` tables ← Added 2026-07-13 (Team Chat system)
 
 ---
 
@@ -150,6 +156,32 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 ### 9. Contact Form (`/api/contact`)
 - `POST /` → Saves message to DB + sends email notification via SMTP.
 
+### 10. Team Chat (`/api/chat`) — require `authenticateToken + isTeamMember` (admin/seller/delivery/stylist) ← NEW (2026-07-13)
+
+Controlled by [chatController.js](file:///C:/Users/Admin/Specs/backend/src/controllers/chatController.js):
+
+- `GET /team` → All team members with real-time online status (from active_sessions)
+- `GET /conversations` → My conversations (DMs + groups) with unread counts + last message preview
+- `POST /conversations/dm` → Start or get existing DM with a team member
+- `POST /conversations/group` → Create a named group channel with selected members + description
+- `DELETE /conversations/:id` → Leave a group (or delete a DM)
+- `GET /conversations/:id/messages` → Paginated message history (50 per page) with reactions + read receipts
+- `POST /conversations/:id/messages` → Send text or file message (Cloudinary base64 upload, max 10MB)
+- `POST /conversations/:id/read` → Mark all messages as read
+- `GET /conversations/:id/pinned` → Fetch pinned messages in conversation
+- `GET /conversations/:id/files` → Fetch all shared files/attachments in conversation
+- `GET /conversations/:id/members` → List group members with online status
+- `POST /conversations/:id/members` → Add a user to a group channel
+- `DELETE /conversations/:id/members/:uid` → Remove a member (self or admin only)
+- `PUT /messages/:id/pin` → Toggle pin/unpin a message
+- `PUT /messages/:id/edit` → Edit own message text
+- `DELETE /messages/:id` → Delete own message (or any message if admin)
+- `POST /messages/:id/react` → Toggle an emoji reaction (adds or removes)
+- `POST /typing` → Set typing status (in-memory store, expires after 4s)
+- `GET /typing/:id` → Get list of who is currently typing in a conversation
+
+**Middleware:** `isTeamMember` — allows `admin`, `seller`, `delivery`, `stylist` roles only. Regular customers blocked with 403.
+
 ---
 
 ## 🔑 Auth Middleware ([auth.js](file:///C:/Users/Admin/Specs/backend/src/middleware/auth.js))
@@ -158,6 +190,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `isAdmin` — Checks `req.user.role === 'admin'` OR email matches `dev.parceluncle@gmail.com`.
 - `isSeller` — Checks `req.user.role === 'seller'` OR `isAdmin`.
 - `isDelivery` — Checks `req.user.role === 'delivery'` OR `isAdmin`.
+- `isTeamMember` _(inline in app.js)_ — Checks `req.user.role` is one of `['admin','seller','delivery','stylist']`. Used exclusively for all `/api/chat/*` routes. ← NEW (2026-07-13)
 
 ---
 

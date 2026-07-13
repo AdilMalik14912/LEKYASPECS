@@ -430,6 +430,12 @@ export default function DeliveryPanel() {
             >
               <Navigation className="w-3.5 h-3.5" /> Route Map
             </Link>
+            <Link
+              href="/chat"
+              className="flex items-center gap-1.5 text-[10px] bg-amber-900/50 hover:bg-amber-800/60 text-amber-300 border border-amber-700/50 font-bold px-3 py-2 rounded-lg transition-colors uppercase tracking-wider"
+            >
+              💬 Team Chat
+            </Link>
             <button onClick={fetchAll} className="p-2 text-gray-400 hover:text-orange-400 transition-colors" title="Refresh">
               <RefreshCw className="w-4 h-4" />
             </button>
