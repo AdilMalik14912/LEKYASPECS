@@ -706,12 +706,14 @@ export default function Admin() {
 
   // Security gate: redirect if not admin
   useEffect(() => {
-    if (!authLoading) {
-      if (!user || !(user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com')) {
+    if (typeof window === 'undefined') return;
+    if (!authLoading && user) {
+      const isAdmin = user.role === 'admin' || user.email === 'dev.parceluncle@gmail.com' || user.email === 'admin@specs.com';
+      if (!isAdmin) {
         router.push('/account');
       }
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, router]);
 
   // Fetch data depending on active tab
   useEffect(() => {

@@ -84,6 +84,8 @@ export default function App({ Component, pageProps }) {
           .then(freshUser => {
             const updatedUser = {
               ...parsedUser,
+              name: freshUser.name || parsedUser.name,
+              email: freshUser.email || parsedUser.email,
               face_shape: freshUser.face_shape,
               role: freshUser.role || 'user',
               loyalty_points: freshUser.loyalty_points || 0,
