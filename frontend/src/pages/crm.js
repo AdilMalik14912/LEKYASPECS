@@ -7,7 +7,8 @@ const {
   Users, TrendingUp, DollarSign, CheckCircle2, AlertTriangle,
   Clock, Plus, Search, Filter, RefreshCw, Phone, Mail, MessageSquare,
   Calendar, ArrowRight, ChevronRight, UserCheck, Flame, Tag, X,
-  FileText, ArrowLeft, Loader2, Award, Briefcase, ChevronDown, Check
+  FileText, ArrowLeft, Loader2, Award, Briefcase, ChevronDown, Check,
+  Sparkles, Wand2, Copy, Send
 } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
@@ -75,6 +76,13 @@ export default function CrmPage() {
   const [showCreateTask,   setShowCreateTask]   = useState(false);
   const [showLogModal,     setShowLogModal]     = useState(false);
 
+  // AI Automation States
+  const [runningAi,         setRunningAi]         = useState(false);
+  const [aiInsights,        setAiInsights]        = useState(null);
+  const [showAiEmailModal,  setShowAiEmailModal]  = useState(false);
+  const [aiEmailDraft,      setAiEmailDraft]      = useState(null);
+  const [generatingAiEmail, setGeneratingAiEmail] = useState(false);
+
   // Create Lead Form
   const [newLead, setNewLead] = useState({ name: '', email: '', phone: '', stage: 'New Lead', source: 'Manual Entry', estimated_value: '', notes: '' });
   // Create Task Form
@@ -133,6 +141,37 @@ export default function CrmPage() {
       fetchAll();
     } catch (e) { alert('Sync error: ' + e.message); }
     setSyncing(false);
+  };
+
+  // ── Auto-Run AI CRM Engine Pass ─────────────────────────────────────────────
+  const runAiEngine = async () => {
+    setRunningAi(true);
+    try {
+      const res = await api('POST', '/api/crm/ai-automate');
+      alert(`🤖 ${res.message}\n\n• Leads Ingested & Scored: ${res.updatedLeadsCount}\n• AI Follow-up Tasks Scheduled: ${res.autoTasksCreated}\n• Recommended Action: ${res.aiInsights?.recommendedAction}`);
+      setAiInsights(res.aiInsights);
+      fetchAll();
+    } catch (e) {
+      alert(`❌ AI Engine Error: ${e.message}`);
+    } finally {
+      setRunningAi(false);
+    }
+  };
+
+  // ── Generate AI Sales Email Draft ───────────────────────────────────────────
+  const handleGenerateAiEmail = async (leadId) => {
+    setGeneratingAiEmail(true);
+    setShowAiEmailModal(true);
+    setAiEmailDraft(null);
+    try {
+      const res = await api('POST', '/api/crm/ai-generate-email', { leadId });
+      setAiEmailDraft(res);
+    } catch (e) {
+      alert(`❌ Failed to generate AI email: ${e.message}`);
+      setShowAiEmailModal(false);
+    } finally {
+      setGeneratingAiEmail(false);
+    }
   };
 
   // ── Load Lead Detail ───────────────────────────────────────────────────────
@@ -265,6 +304,15 @@ export default function CrmPage() {
 
           {/* Action buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={runAiEngine} disabled={runningAi} style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
+              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff',
+              border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)'
+            }}>
+              {runningAi ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={15} />}
+              Auto-Run AI Engine
+            </button>
             <button onClick={handleAutoSync} disabled={syncing} style={{
               display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
               background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
@@ -350,6 +398,36 @@ export default function CrmPage() {
               {/* ────────────────── 1. EXECUTIVE DASHBOARD ────────────────── */}
               {activeTab === 'analytics' && stats && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  {/* AI Strategic Insights Card */}
+                  <div className="crm-card" style={{
+                    padding: '20px 24px', borderRadius: 14,
+                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(236, 72, 153, 0.12))',
+                    border: '1px solid rgba(139, 92, 246, 0.3)', display: 'flex', alignItems: 'center', gap: 16
+                  }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                    }}>
+                      <Sparkles size={22} color="#fff" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#f3e8ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>AI Autonomous CRM Intelligence</span>
+                        <span style={{ background: 'rgba(236, 72, 153, 0.2)', color: '#f472b6', padding: '2px 8px', borderRadius: 10, fontSize: 10, uppercase: true, fontWeight: 700 }}>AUTOPILOT ACTIVE</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: '#d8b4fe', marginTop: 4, lineHeight: 1.5 }}>
+                        {aiInsights?.recommendedAction || 'AI engine calculates high-intent deal scores, dynamically moves sales pipeline stages, and schedules follow-up tasks for 80+ score prospects.'}
+                      </div>
+                    </div>
+                    <button onClick={runAiEngine} disabled={runningAi} style={{
+                      padding: '8px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap'
+                    }}>
+                      Run AI Pass
+                    </button>
+                  </div>
+
                   {/* Metric Cards Row */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                     <div className="crm-card" style={{ padding: '20px', borderRadius: 14 }}>
@@ -654,7 +732,7 @@ export default function CrmPage() {
                 <div style={{ fontSize: 13, color: '#8899aa' }}>📍 Source: {leadDetail.source}</div>
               </div>
 
-              {/* Quick Log Action */}
+              {/* Quick Actions */}
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => setShowLogModal(true)} style={{
                   flex: 1, padding: '10px', background: 'rgba(197,160,40,0.15)',
@@ -662,6 +740,13 @@ export default function CrmPage() {
                   color: '#c5a028', cursor: 'pointer', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
                 }}>
                   <Phone size={14} /> Log Call / Note
+                </button>
+                <button onClick={() => handleGenerateAiEmail(leadDetail.id)} style={{
+                  flex: 1, padding: '10px', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2))',
+                  border: '1px solid rgba(139, 92, 246, 0.4)', borderRadius: 8,
+                  color: '#e9d5ff', cursor: 'pointer', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                }}>
+                  <Wand2 size={14} color="#c084fc" /> Generate AI Sales Email
                 </button>
               </div>
 
@@ -769,6 +854,66 @@ export default function CrmPage() {
           </form>
         </div>
       )}
+
+      {/* ══════════════════ AI EMAIL DRAFT MODAL ══════════════════ */}
+      {showAiEmailModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, backdropFilter: 'blur(8px)'
+        }} onClick={e => e.target === e.currentTarget && setShowAiEmailModal(false)}>
+          <div style={{
+            background: '#181c26', borderRadius: 16, width: 560, maxWidth: '92%', padding: 24,
+            border: '1px solid rgba(139, 92, 246, 0.3)', display: 'flex', flexDirection: 'column', gap: 16,
+            boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Sparkles size={20} color="#c084fc" />
+                <h3 style={{ margin: 0, fontSize: 18, color: '#f0e8c8', fontWeight: 800 }}>AI Sales Pitch Generator</h3>
+              </div>
+              <button onClick={() => setShowAiEmailModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {generatingAiEmail ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#c084fc' }}>
+                <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: 12 }} /><br />
+                Drafting personalized AI sales email tailored to face shape & purchase history…
+              </div>
+            ) : aiEmailDraft ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: '#8899aa', textTransform: 'uppercase', fontWeight: 700 }}>Recipient</label>
+                  <div style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 600, marginTop: 2 }}>{aiEmailDraft.customerName} ({aiEmailDraft.customerEmail})</div>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#8899aa', textTransform: 'uppercase', fontWeight: 700 }}>Subject</label>
+                  <input value={aiEmailDraft.subject} readOnly style={{ width: '100%', boxSizing: 'border-box', padding: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', fontSize: 13, marginTop: 4, outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#8899aa', textTransform: 'uppercase', fontWeight: 700 }}>AI Generated Pitch Body</label>
+                  <textarea value={aiEmailDraft.body} readOnly rows={10} style={{ width: '100%', boxSizing: 'border-box', padding: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#e2e8f0', fontSize: 12, marginTop: 4, fontFamily: 'monospace', lineHeight: 1.5, outline: 'none' }} />
+                </div>
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button onClick={() => {
+                    navigator.clipboard.writeText(`Subject: ${aiEmailDraft.subject}\n\n${aiEmailDraft.body}`);
+                    alert('📋 AI Email copied to clipboard!');
+                  }} style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                    <Copy size={15} /> Copy to Clipboard
+                  </button>
+                  <button onClick={() => {
+                    window.location.href = `mailto:${aiEmailDraft.customerEmail}?subject=${encodeURIComponent(aiEmailDraft.subject)}&body=${encodeURIComponent(aiEmailDraft.body)}`;
+                  }} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: 8, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                    <Send size={15} /> Open in Email App
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
     </>
   );
 }
+

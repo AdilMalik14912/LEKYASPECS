@@ -434,6 +434,8 @@ app.get('/api/crm/tasks',                  authenticateToken, isTeamMember, crmC
 app.post('/api/crm/tasks',                 authenticateToken, isTeamMember, crmController.createTask);
 app.put('/api/crm/tasks/:id',              authenticateToken, isTeamMember, crmController.updateTask);
 app.post('/api/crm/auto-sync',             authenticateToken, isTeamMember, crmController.autoSyncLeads);
+app.post('/api/crm/ai-automate',             authenticateToken, isTeamMember, crmController.autoRunAiEngine);
+app.post('/api/crm/ai-generate-email',        authenticateToken, isTeamMember, crmController.generateAiOfferTemplate);
 
 // Global Error Handler
 

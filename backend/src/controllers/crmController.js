@@ -512,6 +512,167 @@ const autoSyncLeads = async (req, res) => {
   }
 };
 
+// =============================================================================
+//  11. POST /api/crm/ai-automate — Run Autonomous AI CRM Engine Pass
+// =============================================================================
+const autoRunAiEngine = async (req, res) => {
+  try {
+    const adminEmail = req.user?.email || 'system';
+
+    // 1. Auto-sync registered users & contacts into leads
+    const usersRes = await db.query(
+      `SELECT u.id, u.name, u.email, u.phone, u.created_at, u.face_shape,
+              COUNT(o.id) as paid_orders,
+              COALESCE(SUM(o.total_amount), 0) as total_spend
+       FROM users u
+       LEFT JOIN orders o ON o.user_id = u.id AND o.status = 'Paid'
+       WHERE u.role != 'admin' AND u.email != 'admin@specs.com'
+       GROUP BY u.id`
+    );
+
+    let updatedLeadsCount = 0;
+    let autoTasksCreated = 0;
+
+    for (const u of usersRes.rows) {
+      const spend = parseFloat(u.total_spend) || 0;
+      const orders = parseInt(u.paid_orders) || 0;
+
+      // AI Scoring Engine (0-100)
+      let score = 20; // Base score
+      if (orders > 0) score += 30 + Math.min(orders * 10, 20);
+      if (spend > 5000) score += 20;
+      else if (spend > 2000) score += 10;
+      if (u.face_shape) score += 10;
+
+      const estVal = spend > 0 ? Math.round(spend * 1.5) : 2499;
+
+      let stage = 'New Lead';
+      if (orders >= 2) stage = 'Converted Customer';
+      else if (orders === 1) stage = 'Offer Sent';
+      else if (score >= 60) stage = 'Qualified';
+      else if (score >= 40) stage = 'Contacted';
+
+      const tagsJson = JSON.stringify([
+        orders > 0 ? 'Customer' : 'Prospect',
+        score >= 80 ? '🔥 Hot Lead' : score >= 50 ? '✨ Warm' : '⚡ Standard',
+        u.face_shape ? `Face: ${u.face_shape}` : 'No Face Scan'
+      ]);
+
+      // Upsert into crm_leads
+      const existing = await db.query(`SELECT id, stage FROM crm_leads WHERE email = ?`, [u.email]);
+      let leadId;
+
+      if (existing.rows.length === 0) {
+        const ins = await db.query(
+          `INSERT INTO crm_leads (user_id, name, email, phone, stage, source, lead_score, estimated_value, tags)
+           VALUES (?, ?, ?, ?, ?, 'AI Direct Sync', ?, ?, ?) RETURNING id`,
+          [u.id, u.name, u.email, u.phone, stage, score, estVal, tagsJson]
+        );
+        leadId = ins.rows[0]?.id;
+      } else {
+        leadId = existing.rows[0].id;
+        await db.query(
+          `UPDATE crm_leads 
+           SET lead_score = ?, estimated_value = ?, tags = ?, updated_at = datetime('now')
+           WHERE id = ?`,
+          [score, estVal, tagsJson, leadId]
+        );
+      }
+      updatedLeadsCount++;
+
+      // Auto-generate AI Tasks if high value or needs prescription follow-up
+      if (score >= 70) {
+        const taskCheck = await db.query(
+          `SELECT id FROM crm_tasks WHERE lead_id = ? AND title LIKE '🤖 AI Task:%' AND status = 'Pending'`,
+          [leadId]
+        );
+        if (taskCheck.rows.length === 0) {
+          const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+          await db.query(
+            `INSERT INTO crm_tasks (lead_id, created_by, title, description, due_date, priority, status)
+             VALUES (?, ?, ?, ?, ?, ?, 'Pending')`,
+            [
+              leadId,
+              req.user?.id || 1,
+              `🤖 AI Task: VIP Follow-up for ${u.name} (Score: ${score})`,
+              `Automated AI trigger: High-intent prospect with ${orders} past orders & ₹${spend} spent. Call to present new Anti-Blue Ray arrival frames.`,
+              tomorrow,
+              score >= 85 ? 'High' : 'Medium'
+            ]
+          );
+          autoTasksCreated++;
+        }
+      }
+    }
+
+    res.json({
+      message: 'AI Autonomous CRM Engine pass completed successfully!',
+      updatedLeadsCount,
+      autoTasksCreated,
+      aiInsights: {
+        totalAnalyzed: usersRes.rows.length,
+        highIntentProspects: usersRes.rows.filter(r => (parseFloat(r.total_spend)||0) > 2000 || parseInt(r.paid_orders) > 0).length,
+        recommendedAction: 'Focus optometrist outreach on 80+ AI score leads with uploaded prescription details for maximum revenue conversion.'
+      }
+    });
+  } catch (err) {
+    console.error('autoRunAiEngine error:', err);
+    res.status(500).json({ message: 'Server error running AI CRM automation' });
+  }
+};
+
+// =============================================================================
+//  12. POST /api/crm/ai-generate-email — AI Personalised Sales Pitch Generator
+// =============================================================================
+const generateAiOfferTemplate = async (req, res) => {
+  try {
+    const { leadId } = req.body;
+    if (!leadId) return res.status(400).json({ message: 'leadId is required' });
+
+    const leadRes = await db.query(
+      `SELECT l.*, u.face_shape 
+       FROM crm_leads l
+       LEFT JOIN users u ON l.user_id = u.id
+       WHERE l.id = ?`,
+      [leadId]
+    );
+
+    if (leadRes.rows.length === 0) return res.status(404).json({ message: 'Lead not found' });
+    const lead = leadRes.rows[0];
+
+    const faceShape = lead.face_shape || 'Oval / Classic';
+    const name = lead.name.split(' ')[0] || 'valued client';
+
+    const subject = `👓 Exquisite Eyewear Selected for ${lead.name} — Exclusive Specs Offer Inside`;
+    const body = `Dear ${name},
+
+We noticed your preference for high-clarity premium eyewear. Based on your profile and facial geometry scanning (${faceShape}), our master optometrists have curated a bespoke collection of ultra-lightweight titanium and hand-crafted acetate frames.
+
+✨ Exclusive VIP Privilege for You:
+- 15% Instant Privilege Discount with Code: SPECSAI15
+- Complimentary Anti-Reflective & Blue-Shield UV400 Coating Upgrade
+- Free Zero-Risk Home Try-On & Personal Stylist Consultation
+
+Explore your personalized recommendations online at Specs or schedule a prescription verification call with our team.
+
+Warmest regards,
+Specs Executive Stylist & Concierge Team
+https://lekyaspecs.vercel.app`;
+
+    res.json({
+      leadId,
+      customerName: lead.name,
+      customerEmail: lead.email,
+      subject,
+      body,
+      couponCode: 'SPECSAI15'
+    });
+  } catch (err) {
+    console.error('generateAiOfferTemplate error:', err);
+    res.status(500).json({ message: 'Server error generating AI offer template' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getLeads,
@@ -523,4 +684,6 @@ module.exports = {
   createTask,
   updateTask,
   autoSyncLeads,
+  autoRunAiEngine,
+  generateAiOfferTemplate,
 };

@@ -198,6 +198,8 @@ Controlled by [crmController.js](file:///C:/Users/Admin/Specs/backend/src/contro
 - `POST /tasks` → Schedule a follow-up task with due date and priority
 - `PUT /tasks/:id` → Update task status (Pending / Completed) or priority
 - `POST /auto-sync` → Auto-populates CRM leads from existing storefront registered users and contact form inquiries
+- `POST /ai-automate` → Runs the AI Autonomous Lead Auto-Scoring & Auto-Task Scheduler engine
+- `POST /ai-generate-email` → Generates personalized AI sales outreach pitch tailored to face shape & purchase history
 
 ---
 
