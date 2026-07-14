@@ -473,8 +473,8 @@ const deleteMessage = async (req, res) => {
     const msg = await db.query(`SELECT sender_id FROM chat_messages WHERE id = ?`, [id]);
     if (msg.rows.length === 0) return res.status(404).json({ message: 'Message not found' });
 
-    if (msg.rows[0].sender_id !== userId && !isAdminUser(req.user)) {
-      return res.status(403).json({ message: 'Cannot delete this message' });
+    if (parseInt(msg.rows[0].sender_id) !== parseInt(userId)) {
+      return res.status(403).json({ message: 'You can only delete your own messages' });
     }
 
     await db.query(`DELETE FROM chat_messages WHERE id = ?`, [id]);

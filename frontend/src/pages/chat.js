@@ -83,19 +83,28 @@ function Avatar({ name, size = 36, online, role }) {
 
 // ─── File Preview Card ───────────────────────────────────────────────────────
 function FileCard({ url, name, type, small = false }) {
-  const isImage = type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name || '');
-  const isPdf   = /\.pdf$/i.test(name || '');
+  const isImage = type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name || '') || (url && url.startsWith('data:image/'));
+  const isPdf   = /\.pdf$/i.test(name || '') || (url && url.startsWith('data:application/pdf'));
 
-  const downloadFile = (e) => {
-    e.preventDefault();
+  const downloadFile = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!url) return;
-    const downloadName = name || 'attachment';
+    let downloadName = name || 'file_attachment';
 
-    if (url.startsWith('data:')) {
-      try {
+    try {
+      if (url.startsWith('data:')) {
         const parts = url.split(',');
         const mimeMatch = parts[0].match(/:(.*?);/);
         const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+        
+        if (!downloadName.includes('.') && mime && mime.includes('/')) {
+          const ext = mime.split('/')[1].replace('x-', '').replace('vnd.openxmlformats-officedocument.', '');
+          if (ext) downloadName += `.${ext}`;
+        }
+
         const bstr = atob(parts[1]);
         let n = bstr.length;
         const u8arr = new Uint8Array(n);
@@ -110,11 +119,21 @@ function FileCard({ url, name, type, small = false }) {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-      } catch (err) {
-        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+      } else {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
       }
-    } else {
+    } catch (err) {
+      console.error('Download fallback:', err);
       const a = document.createElement('a');
       a.href = url;
       a.download = downloadName;
@@ -132,7 +151,7 @@ function FileCard({ url, name, type, small = false }) {
           <img src={url} alt={name || 'image'} style={{ width: '100%', display: 'block', borderRadius: 8 }} />
         </a>
         <button onClick={downloadFile} title={`Download ${name || 'image'}`} style={{
-          position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: '#fff',
+          position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.65)', color: '#fff',
           border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)'
         }}>
@@ -169,24 +188,32 @@ function FileCard({ url, name, type, small = false }) {
   }
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-      background: 'rgba(255,255,255,0.06)', borderRadius: 8,
-      border: '1px solid rgba(255,255,255,0.08)', maxWidth: small ? 180 : 260,
-      color: '#ccc'
-    }}>
-      {isPdf ? <FileText size={18} color="#f87171" /> : <FileText size={18} color="#93c5fd" />}
-      <span style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-        {name || 'File'}
-      </span>
+    <div
+      onClick={downloadFile}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+        background: 'rgba(0,0,0,0.25)', borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.12)', maxWidth: small ? 200 : 280,
+        color: '#e2e8f0', cursor: 'pointer'
+      }}
+      title={`Click to download ${name || 'file'}`}
+    >
+      {isPdf ? <FileText size={20} color="#f87171" /> : <FileText size={20} color="#93c5fd" />}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+          {name || 'File Attachment'}
+        </span>
+        <span style={{ fontSize: 10, color: '#94a3b8' }}>Click to download</span>
+      </div>
       <button onClick={downloadFile} title={`Download ${name || 'file'}`} style={{
-        background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 4, padding: 4, cursor: 'pointer', color: '#c5a028'
+        background: 'rgba(197,160,40,0.2)', border: '1px solid rgba(197,160,40,0.4)', borderRadius: 6, padding: 6, cursor: 'pointer', color: '#f0c040', display: 'flex', alignItems: 'center'
       }}>
         <Download size={14} />
       </button>
     </div>
   );
 }
+
 
 // ─── Typing Indicator ───────────────────────────────────────────────────────
 function TypingIndicator({ names }) {
@@ -1031,11 +1058,11 @@ export default function ChatPage() {
                               opacity: 0, display: 'flex', alignItems: 'center', gap: 2, transition: 'opacity 0.2s'
                             }}>
                               {[
-                                { icon: Smile, title: 'React', action: () => setShowEmojiPicker(msg.id) },
+                                { icon: Smile, title: 'React', action: () => setShowEmojiPicker(prev => prev === msg.id ? null : msg.id) },
                                 { icon: Reply, title: 'Reply', action: () => { setReplyTo(msg); inputRef.current?.focus(); } },
                                 isOwn && { icon: Edit3, title: 'Edit', action: () => { setEditingMsg(msg); setInputText(msg.content || ''); inputRef.current?.focus(); } },
                                 { icon: Pin, title: msg.is_pinned ? 'Unpin' : 'Pin', action: () => togglePin(msg.id) },
-                                (isOwn || user?.role === 'admin') && { icon: Trash2, title: 'Delete', action: () => deleteMessage(msg.id) },
+                                isOwn && { icon: Trash2, title: 'Delete', action: () => deleteMessage(msg.id) },
                               ].filter(Boolean).map((btn, i) => (
                                 <button key={i} onClick={btn.action} title={btn.title} style={{
                                   background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
@@ -1045,24 +1072,25 @@ export default function ChatPage() {
                                   <btn.icon size={12} />
                                 </button>
                               ))}
-
-                              {/* Emoji picker */}
-                              {showEmojiPicker === msg.id && (
-                                <div style={{
-                                  position: 'absolute', [isOwn ? 'right' : 'left']: 0, bottom: '100%',
-                                  background: '#1e2230', border: '1px solid rgba(255,255,255,0.1)',
-                                  borderRadius: 12, padding: '10px', zIndex: 100,
-                                  display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 240, boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
-                                }}>
-                                  {EMOJI_LIST.map(em => (
-                                    <button key={em} onClick={() => toggleReaction(msg.id, em)} style={{
-                                      background: 'none', border: 'none', cursor: 'pointer',
-                                      fontSize: 20, padding: 4, borderRadius: 6, transition: 'transform 0.1s'
-                                    }} className="emoji-btn">{em}</button>
-                                  ))}
-                                </div>
-                              )}
                             </div>
+
+                            {/* Emoji picker popup - placed outside msg-actions to ensure 100% visibility & clickability */}
+                            {showEmojiPicker === msg.id && (
+                              <div style={{
+                                position: 'absolute', [isOwn ? 'right' : 'left']: 40, bottom: '100%', mb: 4,
+                                background: '#1e2230', border: '1px solid rgba(197,160,40,0.3)',
+                                borderRadius: 12, padding: '8px', zIndex: 100,
+                                display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 240, boxShadow: '0 8px 32px rgba(0,0,0,0.6)'
+                              }}>
+                                {EMOJI_LIST.map(em => (
+                                  <button key={em} onClick={() => toggleReaction(msg.id, em)} style={{
+                                    background: 'none', border: 'none', cursor: 'pointer',
+                                    fontSize: 20, padding: 4, borderRadius: 6, transition: 'transform 0.1s'
+                                  }} className="emoji-btn">{em}</button>
+                                ))}
+                              </div>
+                            )}
+
                           </div>
                         </div>
                       );
