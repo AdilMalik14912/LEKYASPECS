@@ -9,7 +9,7 @@
  */
 
 // ── Internal helper: send any SMS ────────────────────────────────────────────
-async function sendSms({ to, message }) {
+async function sendSms({ to, message, route = 'q', variablesValues = null }) {
   const apiKey = process.env.FAST2SMS_API_KEY;
   if (!apiKey) {
     console.warn(`[SMS] FAST2SMS_API_KEY not set — skipped. Message: ${message}`);
@@ -22,24 +22,34 @@ async function sendSms({ to, message }) {
   }
   const formattedPhone = cleanPhone.slice(-10);
   try {
+    const payload = {
+      route,
+      numbers: formattedPhone
+    };
+    if (route === 'otp' && variablesValues) {
+      payload.variables_values = variablesValues;
+    } else {
+      payload.message = message;
+    }
+
     const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
       method: 'POST',
       headers: {
         'authorization': apiKey,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        route: 'q',
-        message,
-        numbers: formattedPhone
-      })
+      body: JSON.stringify(payload)
     });
     const data = await response.json();
     if (data.return) {
-      console.log(`[SMS] Sent to ${formattedPhone}: "${message.slice(0, 40)}..."`);
+      console.log(`[SMS] Sent to ${formattedPhone} via route '${route}': "${message.slice(0, 40)}..."`);
       return data;
     } else {
       console.error(`[SMS] Fast2SMS error:`, data);
+      // If OTP route failed, try fallback to transactional route 'q'
+      if (route === 'otp') {
+        return sendSms({ to, message, route: 'q' });
+      }
       return null;
     }
   } catch (err) {
@@ -50,7 +60,12 @@ async function sendSms({ to, message }) {
 
 // ── 1. OTP SMS ────────────────────────────────────────────────────────────────
 async function sendOtpSms({ to, otp }) {
-  return sendSms({ to, message: `Your Lekya Specs verification code is: ${otp}. Do not share this with anyone.` });
+  return sendSms({
+    to,
+    message: `Your Lekya Specs verification code is: ${otp}. Do not share this with anyone.`,
+    route: 'otp',
+    variablesValues: otp
+  });
 }
 
 // ── 2. Order Status Update SMS ────────────────────────────────────────────────

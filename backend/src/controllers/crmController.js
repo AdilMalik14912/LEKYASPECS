@@ -673,6 +673,67 @@ https://lekyaspecs.vercel.app`;
   }
 };
 
+// Helper: Automatically sync/upsert a single user into crm_leads instantly
+const upsertCrmLeadFromUser = async (userId) => {
+  try {
+    if (!userId) return;
+    const userRes = await db.query(
+      `SELECT u.id, u.name, u.email, u.phone, u.created_at, u.face_shape,
+              COUNT(o.id) as paid_orders,
+              COALESCE(SUM(o.total_amount), 0) as total_spend
+       FROM users u
+       LEFT JOIN orders o ON o.user_id = u.id AND (o.status = 'Paid' OR o.status = 'Delivered')
+       WHERE u.id = ?
+       GROUP BY u.id`,
+      [userId]
+    );
+
+    if (userRes.rows.length === 0) return;
+    const u = userRes.rows[0];
+
+    const spend = parseFloat(u.total_spend) || 0;
+    const orders = parseInt(u.paid_orders) || 0;
+
+    let score = 20;
+    if (orders > 0) score += 30 + Math.min(orders * 10, 20);
+    if (spend > 5000) score += 20;
+    else if (spend > 2000) score += 10;
+    if (u.face_shape) score += 10;
+
+    const estVal = spend > 0 ? Math.round(spend * 1.5) : 2499;
+
+    let stage = 'New Lead';
+    if (orders >= 2) stage = 'Converted Customer';
+    else if (orders === 1) stage = 'Offer Sent';
+    else if (score >= 60) stage = 'Qualified';
+    else if (score >= 40) stage = 'Contacted';
+
+    const tagsJson = JSON.stringify([
+      orders > 0 ? 'Customer' : 'Prospect',
+      score >= 80 ? '🔥 Hot Lead' : score >= 50 ? '✨ Warm' : '⚡ Standard',
+      u.face_shape ? `Face: ${u.face_shape}` : 'No Face Scan'
+    ]);
+
+    const existing = await db.query(`SELECT id FROM crm_leads WHERE user_id = ? OR email = ?`, [u.id, u.email]);
+    if (existing.rows.length === 0) {
+      await db.query(
+        `INSERT INTO crm_leads (user_id, name, email, phone, stage, source, lead_score, estimated_value, tags)
+         VALUES (?, ?, ?, ?, ?, 'Direct Sign-up', ?, ?, ?)`,
+        [u.id, u.name, u.email, u.phone, stage, score, estVal, tagsJson]
+      );
+    } else {
+      await db.query(
+        `UPDATE crm_leads 
+         SET name = ?, phone = ?, stage = ?, lead_score = ?, estimated_value = ?, tags = ?, updated_at = datetime('now')
+         WHERE id = ?`,
+        [u.name, u.phone, stage, score, estVal, tagsJson, existing.rows[0].id]
+      );
+    }
+  } catch (err) {
+    console.warn('[CRM Auto-Sync Warning]:', err.message);
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getLeads,
@@ -686,4 +747,5 @@ module.exports = {
   autoSyncLeads,
   autoRunAiEngine,
   generateAiOfferTemplate,
+  upsertCrmLeadFromUser
 };

@@ -2,6 +2,7 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const { sendStatusUpdateEmail } = require('../utils/mailer');
 const { sendStatusUpdateSms }   = require('../utils/sms');
+const { processRazorpayRefund } = require('./orderController');
 
 // Helper to log admin actions
 const logAdminActivity = async (adminEmail, actionType, description) => {
@@ -156,6 +157,13 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
     const order = result.rows[0];
+
+    // Auto-initiate Razorpay Refund if status set to Refunded or Cancelled
+    if ((status === 'Refunded' || status === 'Cancelled') && order.payment_id) {
+      processRazorpayRefund(order.payment_id, order.total_amount).catch(err =>
+        console.warn('[ADMIN REFUND] Auto-refund trigger warning:', err.message)
+      );
+    }
 
     // ── Notify customer via Email + SMS (non-blocking) ─────────────────────
     if (order.user_email) {

@@ -289,6 +289,12 @@ const verifyPayment = async (req, res) => {
 
     console.log(`[ORDER] Confirmation notifications sent for Order ${orderId}`);
 
+    // Auto-update customer metrics in CRM
+    try {
+      const { upsertCrmLeadFromUser } = require('./crmController');
+      upsertCrmLeadFromUser(userId);
+    } catch (_) {}
+
     res.status(201).json({
       success: true,
       message: 'Order placed successfully',
@@ -490,11 +496,106 @@ const trackOrderByTrackingId = async (req, res) => {
   }
 };
 
+// 7. Helper to initiate automatic Razorpay Refund
+const processRazorpayRefund = async (paymentId, amountInRupees) => {
+  if (!paymentId || paymentId.startsWith('pay_mock_') || isDummyKey || !razorpay) {
+    console.log(`[REFUND] Mock/Sandbox refund for payment ${paymentId} of amount ₹${amountInRupees}`);
+    return { success: true, isMock: true };
+  }
+
+  try {
+    const amountInPaise = Math.round(amountInRupees * 100);
+    const refund = await razorpay.payments.refund(paymentId, { amount: amountInPaise });
+    console.log(`[REFUND] Razorpay refund successful for ${paymentId}:`, refund.id);
+    return { success: true, refundId: refund.id };
+  } catch (err) {
+    console.error(`[REFUND] Razorpay refund error for ${paymentId}:`, err.message);
+    return { success: false, error: err.message };
+  }
+};
+
+// 8. Razorpay Asynchronous Webhook Handler
+const handleRazorpayWebhook = async (req, res) => {
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || 'specs_webhook_secret_default';
+  const signature = req.headers['x-razorpay-signature'];
+
+  try {
+    if (signature && process.env.RAZORPAY_WEBHOOK_SECRET) {
+      const hmac = crypto.createHmac('sha256', webhookSecret);
+      hmac.update(JSON.stringify(req.body));
+      const expectedSignature = hmac.digest('hex');
+
+      if (signature !== expectedSignature) {
+        console.warn('[WEBHOOK] Invalid Razorpay webhook signature');
+        return res.status(400).json({ message: 'Invalid webhook signature' });
+      }
+    }
+
+    const event = req.body?.event;
+    const payload = req.body?.payload;
+
+    console.log(`[WEBHOOK] Received Razorpay event: ${event}`);
+
+    if (event === 'payment.captured' || event === 'order.paid') {
+      const paymentEntity = payload?.payment?.entity;
+      const paymentId = paymentEntity?.id;
+      const orderIdRef = paymentEntity?.order_id;
+
+      if (paymentId) {
+        const orderRes = await db.query('SELECT * FROM orders WHERE payment_id = ? OR payment_id = ?', [paymentId, orderIdRef]);
+        if (orderRes.rows.length > 0) {
+          const order = orderRes.rows[0];
+          if (order.status !== 'Paid' && order.status !== 'Delivered') {
+            await db.query("UPDATE orders SET status = 'Paid' WHERE id = ?", [order.id]);
+            console.log(`[WEBHOOK] Order #${order.id} status updated to Paid via Webhook`);
+
+            const userRes = await db.query('SELECT name, email, phone FROM users WHERE id = ?', [order.user_id]);
+            if (userRes.rows.length > 0) {
+              const u = userRes.rows[0];
+              sendStatusUpdateEmail({
+                to: u.email,
+                customerName: u.name,
+                orderId: order.id,
+                status: 'Payment Confirmed',
+                totalAmount: order.total_amount
+              }).catch(e => console.warn('[Webhook Email]', e.message));
+
+              if (u.phone) {
+                sendStatusUpdateSms({
+                  to: u.phone,
+                  customerName: u.name,
+                  orderId: order.id,
+                  status: 'Payment Confirmed'
+                }).catch(e => console.warn('[Webhook SMS]', e.message));
+              }
+            }
+          }
+        }
+      }
+    } else if (event === 'refund.processed') {
+      const refundEntity = payload?.refund?.entity;
+      const paymentId = refundEntity?.payment_id;
+
+      if (paymentId) {
+        await db.query("UPDATE orders SET status = 'Refunded' WHERE payment_id = ?", [paymentId]);
+        console.log(`[WEBHOOK] Order for payment ${paymentId} marked as Refunded via Webhook`);
+      }
+    }
+
+    res.json({ status: 'ok', received: true });
+  } catch (err) {
+    console.error('[WEBHOOK] Error processing webhook:', err);
+    res.status(500).json({ message: 'Webhook processing error' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   getOrders,
   addReview,
   validateCouponCode,
-  trackOrderByTrackingId
+  trackOrderByTrackingId,
+  processRazorpayRefund,
+  handleRazorpayWebhook
 };

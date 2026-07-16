@@ -58,11 +58,15 @@ const registerInitiate = async (req, res) => {
       [name, targetEmail, targetPhone, passwordHash, otpCode, expiresAt]
     );
 
+    let sentViaEmail = false;
+    let sentViaSms = false;
+
     // Send OTP via email if email provided
     if (email) {
       try {
         const { sendOtpEmail } = require('../utils/mailer');
         await sendOtpEmail({ to: targetEmail, otp: otpCode });
+        sentViaEmail = true;
       } catch (mailErr) {
         console.warn('SMTP OTP send failed, falling back to console:', mailErr.message);
       }
@@ -73,17 +77,29 @@ const registerInitiate = async (req, res) => {
     if (phone) {
       try {
         const { sendOtpSms } = require('../utils/sms');
-        await sendOtpSms({ to: targetPhone, otp: otpCode });
+        const smsRes = await sendOtpSms({ to: targetPhone, otp: otpCode });
+        if (smsRes) sentViaSms = true;
       } catch (smsErr) {
         console.warn('SMS OTP send failed, falling back to console:', smsErr.message);
       }
       console.log(`[SMS OTP Sent to ${targetPhone}]: ${otpCode}`);
+
+      // Auto-fallback: If SMS failed but targetEmail exists and wasn't sent yet, send email OTP
+      if (!sentViaSms && !sentViaEmail && targetEmail && !targetEmail.startsWith('phone_')) {
+        try {
+          const { sendOtpEmail } = require('../utils/mailer');
+          await sendOtpEmail({ to: targetEmail, otp: otpCode });
+          sentViaEmail = true;
+        } catch (_) {}
+      }
     }
 
     res.status(200).json({ 
       message: 'Verification OTP sent successfully.', 
       email: email ? targetEmail : null, 
-      phone: targetPhone
+      phone: targetPhone,
+      sentViaEmail,
+      sentViaSms
     });
   } catch (err) {
     console.error('Register initiate error:', err);
@@ -140,6 +156,12 @@ const registerVerify = async (req, res) => {
     );
     const user = userRes.rows[0];
     const token = generateToken(user);
+
+    // Auto-sync user into CRM leads instantly
+    try {
+      const { upsertCrmLeadFromUser } = require('./crmController');
+      upsertCrmLeadFromUser(user.id);
+    } catch (_) {}
 
     res.status(201).json({
       token,

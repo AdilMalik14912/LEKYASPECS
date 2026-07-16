@@ -204,6 +204,7 @@ app.get('/api/settings', adminController.getSettings);
 // 4. Orders & Checkout API
 app.post('/api/orders/create', authenticateToken, orderController.createOrder);
 app.post('/api/orders/verify', authenticateToken, orderController.verifyPayment);
+app.post('/api/orders/webhook', orderController.handleRazorpayWebhook);
 app.get('/api/orders/history', authenticateToken, orderController.getOrders);
 app.get('/api/orders/track/:trackingId', orderController.trackOrderByTrackingId);
 
@@ -451,11 +452,23 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error occurred' });
 });
 
+// Database maintenance: Garbage collection of expired sessions & stale OTPs
+const cleanExpiredDatabaseRecords = async () => {
+  try {
+    await db.query("DELETE FROM otps WHERE expires_at < datetime('now') OR verified = 1");
+    await db.query("DELETE FROM active_sessions WHERE last_active_at < datetime('now', '-7 days')");
+    console.log('[DB Maintenance] Expired OTPs and inactive sessions cleaned up successfully.');
+  } catch (err) {
+    console.warn('[DB Maintenance Warning]:', err.message);
+  }
+};
+
 // Initialize Database
 const initDb = async () => {
   try {
     await db.initDb();
     console.log('[Specs Express API] Database initialized.');
+    cleanExpiredDatabaseRecords();
   } catch (err) {
     console.error('DB init error:', err.message);
     process.exit(1);
@@ -468,6 +481,7 @@ if (require.main === module) {
   // Running locally with `node src/app.js`
   (async () => {
     await initDb();
+    setInterval(cleanExpiredDatabaseRecords, 60 * 60 * 1000);
     app.listen(PORT, () => {
       console.log(`[Specs Express API] Server is running on port ${PORT}`);
     });
