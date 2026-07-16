@@ -4,7 +4,7 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap } = require('lucide-react');
 
 // Contexts
 const AuthContext = createContext(null);
@@ -410,13 +410,13 @@ export default function App({ Component, pageProps }) {
                               About & Ecosystem
                             </div>
                             
-                            <Link href="/lookbook" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-premium-light transition-colors group/item">
-                              <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold text-sm">
-                                📖
+                            <Link href="/about" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-premium-light transition-colors group/item">
+                              <div className="w-8 h-8 rounded-lg bg-amber-100/80 border border-amber-300 flex items-center justify-center text-amber-800 font-bold">
+                                <Building2 className="w-4 h-4 text-amber-700" />
                               </div>
                               <div>
-                                <p className="text-xs font-bold text-premium-black group-hover/item:text-premium-accent transition-colors">About Lekya Specs</p>
-                                <p className="text-[10px] text-premium-gray">Heritage, Craftsmanship & Vision</p>
+                                <p className="text-xs font-bold text-premium-black group-hover/item:text-premium-accent transition-colors">About Us & Group Vision</p>
+                                <p className="text-[10px] text-premium-gray">Heritage, Innovation & Ecosystem</p>
                               </div>
                             </Link>
 
@@ -428,49 +428,49 @@ export default function App({ Component, pageProps }) {
                             </div>
 
                             <div className="space-y-1">
-                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
-                                <div className="w-7 h-7 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                  🚚
+                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50/70 transition-colors group/item cursor-pointer">
+                                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
+                                  <Truck className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-blue-600 transition-colors truncate">Lekya Logistics</p>
-                                  <p className="text-[10px] text-premium-gray truncate">Pan-India Express Logistics</p>
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-blue-700 transition-colors truncate">Lekya Logistics</p>
+                                  <p className="text-[10px] text-premium-gray truncate">Pan-India Freight Logistics</p>
                                 </div>
-                              </div>
+                              </Link>
 
-                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
-                                <div className="w-7 h-7 rounded bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 font-bold text-xs">
-                                  📦
+                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50/70 transition-colors group/item cursor-pointer">
+                                <div className="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
+                                  <span className="text-xs font-black">PU</span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-orange-600 transition-colors truncate">Parcel Uncle</p>
-                                  <p className="text-[10px] text-premium-gray truncate">Hyperlocal Delivery Network</p>
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-orange-700 transition-colors truncate">Parcel Uncle</p>
+                                  <p className="text-[10px] text-premium-gray truncate">Hyperlocal Dispatch Network</p>
                                 </div>
-                              </div>
+                              </Link>
 
-                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
-                                <div className="w-7 h-7 rounded bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 font-bold text-xs">
-                                  📊
+                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-purple-50/70 transition-colors group/item cursor-pointer">
+                                <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
+                                  <Layers className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-purple-600 transition-colors truncate">Infinior Advisors</p>
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-purple-700 transition-colors truncate">Infinior Advisors</p>
                                   <p className="text-[10px] text-premium-gray truncate">Corporate Growth & Advisory</p>
                                 </div>
-                              </div>
+                              </Link>
 
                               <a 
                                 href="https://lekyaenergy.com" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-2 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 border border-emerald-200/80 transition-all group/item shadow-sm"
+                                className="flex items-center gap-3 p-2 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 border border-emerald-300/80 transition-all group/item shadow-sm"
                               >
-                                <div className="w-7 h-7 rounded bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                                  ⚡
+                                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
+                                  <Zap className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1">
                                     <p className="text-xs font-bold text-emerald-950 group-hover/item:text-emerald-700 transition-colors truncate">Lekya Energy</p>
-                                    <span className="text-[8px] bg-emerald-600 text-white px-1 py-0.2 rounded font-bold uppercase">Solar ☀️</span>
+                                    <span className="text-[8px] bg-emerald-600 text-white px-1.5 py-0.2 rounded font-bold uppercase">Solar ☀️</span>
                                   </div>
                                   <p className="text-[10px] text-emerald-700 truncate">Clean Renewable Energy</p>
                                 </div>
@@ -677,6 +677,13 @@ export default function App({ Component, pageProps }) {
                               }} 
                             />
                           </div>
+                          <Link 
+                            href="/about" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 rounded-md text-base font-bold text-amber-600 hover:bg-amber-50"
+                          >
+                            📖 About & Group Companies
+                          </Link>
                           <Link 
                             href="/shop?category=Eyeglasses" 
                             onClick={() => setMobileMenuOpen(false)}

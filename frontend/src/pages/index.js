@@ -1,7 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
-const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass, ExternalLink, Zap } = require('lucide-react');
+const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass, ExternalLink, Zap, Package, Building2 } = require('lucide-react');
 const { useAuth } = require('./_app');
 
 const API_BASE = typeof window !== 'undefined'
@@ -947,11 +947,11 @@ export default function Home() {
             {/* 2. Parcel Uncle */}
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="bg-white/5 border border-white/10 hover:border-orange-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                <Link href="/about" className="bg-white/5 border border-white/10 hover:border-orange-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden block text-left">
                   <div className="absolute -top-12 -right-12 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
                   <div>
                     <div className="w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                      <span className="text-2xl">📦</span>
+                      <Package className="w-7 h-7 text-orange-400" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">Parcel Uncle</h3>
                     <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
@@ -962,7 +962,7 @@ export default function Home() {
                     <span>Hyperlocal Dispatch</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
-                </div>
+                </Link>
               </ThreeDTiltCard>
             </ScrollReveal3D>
 
