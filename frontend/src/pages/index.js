@@ -925,66 +925,90 @@ export default function Home() {
             {/* 1. Lekya Logistics */}
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="bg-white/5 border border-white/10 hover:border-blue-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                <a 
+                  href="https://lekyalogistics.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white/5 border border-white/10 hover:border-blue-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden block text-left"
+                >
                   <div className="absolute -top-12 -right-12 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
                   <div>
                     <div className="w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <Truck className="w-7 h-7 text-blue-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Lekya Logistics</h3>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors flex items-center gap-2">
+                      Lekya Logistics
+                      <ExternalLink className="w-4 h-4 text-blue-400 opacity-80" />
+                    </h3>
                     <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
                       Nationwide supply chain infrastructure, automated fulfillment centers, and express B2B freight transportation.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-blue-400 font-semibold tracking-wider uppercase">
-                    <span>Express Logistics</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <span>Visit lekyalogistics.com</span>
+                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </div>
+                </a>
               </ThreeDTiltCard>
             </ScrollReveal3D>
 
             {/* 2. Parcel Uncle */}
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <Link href="/about" className="bg-white/5 border border-white/10 hover:border-orange-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden block text-left">
+                <a 
+                  href="https://parceluncle.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white/5 border border-white/10 hover:border-orange-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden block text-left"
+                >
                   <div className="absolute -top-12 -right-12 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
                   <div>
                     <div className="w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <Package className="w-7 h-7 text-orange-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">Parcel Uncle</h3>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors flex items-center gap-2">
+                      Parcel Uncle
+                      <ExternalLink className="w-4 h-4 text-orange-400 opacity-80" />
+                    </h3>
                     <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
                       Next-generation hyperlocal delivery ecosystem, same-day urban shipping, and end-to-end seller dispatch solutions.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-orange-400 font-semibold tracking-wider uppercase">
-                    <span>Hyperlocal Dispatch</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <span>Visit parceluncle.com</span>
+                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </Link>
+                </a>
               </ThreeDTiltCard>
             </ScrollReveal3D>
 
             {/* 3. Infinior Advisors */}
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="bg-white/5 border border-white/10 hover:border-purple-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                <a 
+                  href="https://infinioradvisors.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white/5 border border-white/10 hover:border-purple-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden block text-left"
+                >
                   <div className="absolute -top-12 -right-12 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
                   <div>
                     <div className="w-14 h-14 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                       <Layers className="w-7 h-7 text-purple-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Infinior Advisors</h3>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors flex items-center gap-2">
+                      Infinior Advisors
+                      <ExternalLink className="w-4 h-4 text-purple-400 opacity-80" />
+                    </h3>
                     <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
                       Strategic corporate management, growth consulting, tax strategy, and financial restructuring advisory services.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-purple-400 font-semibold tracking-wider uppercase">
-                    <span>Corporate Advisory</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <span>Visit infinioradvisors.com</span>
+                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </div>
+                </a>
               </ThreeDTiltCard>
             </ScrollReveal3D>
 

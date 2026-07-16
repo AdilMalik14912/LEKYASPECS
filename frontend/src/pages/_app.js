@@ -428,7 +428,12 @@ export default function App({ Component, pageProps }) {
                             </div>
 
                             <div className="space-y-1">
-                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50/70 transition-colors group/item cursor-pointer">
+                              <a 
+                                href="https://lekyalogistics.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50/80 transition-colors group/item cursor-pointer"
+                              >
                                 <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
                                   <Truck className="w-4 h-4" />
                                 </div>
@@ -436,9 +441,15 @@ export default function App({ Component, pageProps }) {
                                   <p className="text-xs font-bold text-premium-black group-hover/item:text-blue-700 transition-colors truncate">Lekya Logistics</p>
                                   <p className="text-[10px] text-premium-gray truncate">Pan-India Freight Logistics</p>
                                 </div>
-                              </Link>
+                                <ExternalLink className="w-3.5 h-3.5 text-blue-500 opacity-70 group-hover/item:opacity-100" />
+                              </a>
 
-                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50/70 transition-colors group/item cursor-pointer">
+                              <a 
+                                href="https://parceluncle.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50/80 transition-colors group/item cursor-pointer"
+                              >
                                 <div className="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
                                   <span className="text-xs font-black">PU</span>
                                 </div>
@@ -446,9 +457,15 @@ export default function App({ Component, pageProps }) {
                                   <p className="text-xs font-bold text-premium-black group-hover/item:text-orange-700 transition-colors truncate">Parcel Uncle</p>
                                   <p className="text-[10px] text-premium-gray truncate">Hyperlocal Dispatch Network</p>
                                 </div>
-                              </Link>
+                                <ExternalLink className="w-3.5 h-3.5 text-orange-500 opacity-70 group-hover/item:opacity-100" />
+                              </a>
 
-                              <Link href="/about" className="flex items-center gap-3 p-2 rounded-lg hover:bg-purple-50/70 transition-colors group/item cursor-pointer">
+                              <a 
+                                href="https://infinioradvisors.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-2 rounded-lg hover:bg-purple-50/80 transition-colors group/item cursor-pointer"
+                              >
                                 <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform">
                                   <Layers className="w-4 h-4" />
                                 </div>
@@ -456,7 +473,8 @@ export default function App({ Component, pageProps }) {
                                   <p className="text-xs font-bold text-premium-black group-hover/item:text-purple-700 transition-colors truncate">Infinior Advisors</p>
                                   <p className="text-[10px] text-premium-gray truncate">Corporate Growth & Advisory</p>
                                 </div>
-                              </Link>
+                                <ExternalLink className="w-3.5 h-3.5 text-purple-500 opacity-70 group-hover/item:opacity-100" />
+                              </a>
 
                               <a 
                                 href="https://lekyaenergy.com" 

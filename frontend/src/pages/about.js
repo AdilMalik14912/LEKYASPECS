@@ -129,7 +129,9 @@ export default function About() {
       tagColor: 'bg-amber-100 text-amber-900 border-amber-300',
       logo: LekyaSpecsLogo,
       stats: '50K+ Customers · 99.4% CSAT',
-      link: '/',
+      link: '/shop',
+      domain: 'lekyaspecs.com',
+      btnColor: 'bg-amber-500 hover:bg-amber-400 text-black',
       isInternal: true
     },
     {
@@ -141,7 +143,9 @@ export default function About() {
       tagColor: 'bg-blue-100 text-blue-900 border-blue-300',
       logo: LekyaLogisticsLogo,
       stats: '1.2M+ Shipments Dispatched',
-      link: '#',
+      link: 'https://lekyalogistics.com',
+      domain: 'lekyalogistics.com',
+      btnColor: 'bg-blue-600 hover:bg-blue-500 text-white',
       isInternal: false
     },
     {
@@ -153,7 +157,9 @@ export default function About() {
       tagColor: 'bg-orange-100 text-orange-900 border-orange-300',
       logo: ParcelUncleLogo,
       stats: '500K+ Orders Handled',
-      link: '#',
+      link: 'https://parceluncle.com',
+      domain: 'parceluncle.com',
+      btnColor: 'bg-orange-600 hover:bg-orange-500 text-white',
       isInternal: false
     },
     {
@@ -165,7 +171,9 @@ export default function About() {
       tagColor: 'bg-purple-100 text-purple-900 border-purple-300',
       logo: InfiniorAdvisorsLogo,
       stats: '₹500Cr+ Deals Advised',
-      link: '#',
+      link: 'https://infinioradvisors.com',
+      domain: 'infinioradvisors.com',
+      btnColor: 'bg-purple-600 hover:bg-purple-500 text-white',
       isInternal: false
     },
     {
@@ -178,6 +186,8 @@ export default function About() {
       logo: LekyaEnergyLogo,
       stats: '150MW+ Solar Commissioned',
       link: 'https://lekyaenergy.com',
+      domain: 'lekyaenergy.com',
+      btnColor: 'bg-emerald-500 hover:bg-emerald-400 text-black',
       isInternal: false,
       isHighlight: true
     }
@@ -284,7 +294,7 @@ export default function About() {
               Explore Our Group Companies
             </h2>
             <p className="text-gray-400 text-sm font-light leading-relaxed">
-              Hover over any entity to explore its corporate profile, capabilities, and key operating metrics across the Lekya Group ecosystem.
+              Hover over any entity to explore its corporate profile, capabilities, and key operating metrics across the Lekya Group ecosystem. Click any company to visit its direct web platform!
             </p>
           </div>
 
@@ -340,27 +350,22 @@ export default function About() {
                     </div>
 
                     {/* Action Link Button */}
-                    {comp.link === 'https://lekyaenergy.com' ? (
+                    {comp.isInternal ? (
+                      <Link
+                        href={comp.link}
+                        className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${comp.btnColor}`}
+                      >
+                        Visit {comp.domain} <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    ) : (
                       <a
                         href={comp.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg group-hover:shadow-emerald-500/40"
+                        className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${comp.btnColor}`}
                       >
-                        Visit lekyaenergy.com <ExternalLink className="w-4 h-4" />
+                        Visit {comp.domain} <ExternalLink className="w-4 h-4" />
                       </a>
-                    ) : comp.isInternal ? (
-                      <Link
-                        href={comp.link}
-                        className="w-full py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg"
-                      >
-                        Explore Eyewear <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    ) : (
-                      <div className="w-full py-3 px-4 rounded-xl bg-white/10 text-gray-300 text-xs font-semibold flex items-center justify-between group-hover:bg-white/15 transition-colors">
-                        <span>Lekya Group Entity</span>
-                        <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-                      </div>
                     )}
                   </div>
                 </div>
