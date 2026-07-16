@@ -95,8 +95,9 @@ Whenever commits are pushed to the `main` branch:
 | 2026-07-05 | Feature batch | Try-On, Face AI, Skin AI, Prescription, Stylist Hub |
 | 2026-07-10 | `870d619` | Seller panel, delivery panel, RBAC, 6 smart rider features (auto-assign, urgent, workload, leaderboard, stale alerts, city grouping) |
 | 2026-07-10 | `b1ba736` | Real-time map system: delivery-map.js + admin-map.js + GPS backend endpoints |
-| 2026-07-13 | `f136c7d` | Team Chat System: DMs, groups, file upload, reactions, pins, member search |
-| 2026-07-13 | Pending push | **Enterprise CRM Platform**: crmController.js, 3 new DB tables (crm_leads, crm_interactions, crm_tasks), 10 API endpoints, auto-sync engine, crm.js dashboard |
+| 2026-07-13 | `eea7a57` | HO Staff Panel, Enterprise CRM Platform, Order Tracking timeline, Voice Recording in Team Chat |
+| 2026-07-14 | `44bb855` | Chat Fixes: file download MIME extension fixes, sender deletion constraints, emoji picker UI fixes |
+| 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block and resolve broken rendering/corrupt downloads |
 
 ---
 
