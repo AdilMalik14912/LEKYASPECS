@@ -390,9 +390,30 @@ const sendMessage = async (req, res) => {
     if (fileData) {
       try {
         if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+          let resourceType = 'auto';
+          const lowerFileName = (finalFileName || '').toLowerCase();
+          const lowerFileType = (finalFileType || '').toLowerCase();
+
+          if (lowerFileType.includes('pdf') || lowerFileName.endsWith('.pdf')) {
+            resourceType = 'raw';
+          } else if (
+            lowerFileType.startsWith('image/') ||
+            /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(lowerFileName)
+          ) {
+            resourceType = 'image';
+          } else if (
+            lowerFileType.startsWith('video/') ||
+            lowerFileType.startsWith('audio/') ||
+            /\.(mp4|webm|ogg|mp3|wav|m4a|aac|avi|mov|flac)$/i.test(lowerFileName)
+          ) {
+            resourceType = 'video';
+          } else {
+            resourceType = 'raw';
+          }
+
           const uploadResult = await cloudinary.uploader.upload(fileData, {
             folder:        'specs_chat_files',
-            resource_type: 'auto',
+            resource_type: resourceType,
             public_id:     `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
           });
           fileUrl       = uploadResult.secure_url;

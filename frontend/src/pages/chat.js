@@ -83,8 +83,8 @@ function Avatar({ name, size = 36, online, role }) {
 
 // ─── File Preview Card ───────────────────────────────────────────────────────
 function FileCard({ url, name, type, small = false }) {
-  const isImage = type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name || '') || (url && url.startsWith('data:image/'));
   const isPdf   = /\.pdf$/i.test(name || '') || (url && url.startsWith('data:application/pdf'));
+  const isImage = (type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name || '') || (url && url.startsWith('data:image/'))) && !isPdf;
 
   const downloadFile = async (e) => {
     if (e) {
@@ -122,6 +122,9 @@ function FileCard({ url, name, type, small = false }) {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
       } else {
         const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch file: ${res.status} ${res.statusText}`);
+        }
         const blob = await res.blob();
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
