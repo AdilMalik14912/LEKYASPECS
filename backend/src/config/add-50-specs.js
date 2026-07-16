@@ -437,7 +437,7 @@ const products = [
     category: 'Sunglasses',
     gender: 'Kids',
     frame_shape: 'Oval',
-    image_urls: ['https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80'],
+    image_urls: ['https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=600&q=80'],
     stock: 60
   },
   {

@@ -1,7 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
-const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones } = require('lucide-react');
+const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass } = require('lucide-react');
 const { useAuth } = require('./_app');
 
 const API_BASE = typeof window !== 'undefined'
@@ -551,12 +551,12 @@ export default function Home() {
           </ScrollReveal3D>
         </div>
 
-        {/* Men / Women / Kids */}
+        {/* Men / Women / Polarized Lux */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-5">
           {[
-            { href: '/shop?gender=Men',   img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?auto=format&fit=crop&w=700&q=80', label: 'Men',   sub: 'Premium Collection' },
-            { href: '/shop?gender=Women', img: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=700&q=80', label: 'Women', sub: 'Elegant Frames' },
-            { href: '/shop?gender=Kids',  img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80', label: 'Kids',  sub: 'Fun & Safe Eyewear' },
+            { href: '/shop?gender=Men',   img: 'https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=900&q=80', label: 'Men\'s Optics',   sub: 'Precision Metal & Acetate' },
+            { href: '/shop?gender=Women', img: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=900&q=80', label: 'Women\'s Couture', sub: 'Elegant Silhouette Frames' },
+            { href: '/shop?category=Sunglasses',  img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80', label: 'Polarized Lux',  sub: 'UV400 Designer Sunwear' },
           ].map(({ href, img, label, sub }) => (
             <ScrollReveal3D key={href}>
               <Link href={href} style={{ textDecoration: 'none' }}>
@@ -599,15 +599,15 @@ export default function Home() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { href: '/face-shape',    emoji: '🤳', title: 'Face Shape AI', desc: '68-point neural mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
-              { href: '/ar-tryon',      emoji: '🥽', title: 'Live AR Try-On', desc: 'Real-time glasses overlay on your live webcam using AI face landmarks', label: 'Try Now', badge: 'NEW' },
-              { href: '/skin-analysis', emoji: '🎨', title: 'Skin Tone Lab', desc: 'Canvas pixel sampling analyzes your skin DNA and recommends perfect frame colors', label: 'Analyze', badge: 'NEW' },
-              { href: '/customizer',    emoji: '🛠️', title: 'Bespoke Customizer', desc: 'Design custom frames — shapes, metals, polarized lenses, monogram engraving', label: 'Design Now', badge: 'NEW' },
-              { href: '/style-quiz',    emoji: '✨', title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz', badge: null },
-              { href: '/compare',       emoji: '⚖️', title: 'Compare Frames', desc: 'Side-by-side spec comparison of up to 3 frames', label: 'Compare', badge: null },
-              { href: '/lens-guide',    emoji: '👁️', title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses', badge: null },
-              { href: '/lookbook',      emoji: '📸', title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore', badge: null },
-            ].map(({ href, emoji, title, desc, label, badge }) => (
+              { href: '/face-shape',    icon: Camera, title: 'Face Shape AI', desc: '68-point neural mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
+              { href: '/ar-tryon',      icon: Sparkles, title: 'Live AR Try-On', desc: 'Real-time glasses overlay on your live webcam using AI face landmarks', label: 'Try Now', badge: 'NEW' },
+              { href: '/skin-analysis', icon: Palette, title: 'Skin Tone Lab', desc: 'Canvas pixel sampling analyzes your skin DNA and recommends perfect frame colors', label: 'Analyze', badge: 'NEW' },
+              { href: '/customizer',    icon: Sliders, title: 'Bespoke Customizer', desc: 'Design custom frames — shapes, metals, polarized lenses, monogram engraving', label: 'Design Now', badge: 'NEW' },
+              { href: '/style-quiz',    icon: Search, title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz', badge: null },
+              { href: '/compare',       icon: Layers, title: 'Compare Frames', desc: 'Side-by-side spec comparison of up to 3 frames', label: 'Compare', badge: null },
+              { href: '/lens-guide',    icon: Eye, title: 'Lens Guide', desc: 'Enter your prescription and find the ideal lens type', label: 'Check Lenses', badge: null },
+              { href: '/lookbook',      icon: BookOpen, title: 'Lookbook', desc: 'Editorial collections and expert styling advice', label: 'Explore', badge: null },
+            ].map(({ href, icon: Icon, title, desc, label, badge }) => (
               <ScrollReveal3D key={href}>
                 <ThreeDTiltCard className="h-full">
                   <GlowSpotlightCard className="group relative border border-premium-border rounded-lg p-5 text-center transition-all bg-premium-light hover:bg-white hover:border-premium-black hover:shadow-md h-full flex flex-col justify-between">
@@ -617,7 +617,9 @@ export default function Home() {
                           {badge}
                         </span>
                       )}
-                      <div className="text-4xl mb-3 animate-float-fast float-delay-1">{emoji}</div>
+                      <div className="w-12 h-12 rounded-full bg-premium-accent/15 text-premium-black flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:bg-premium-accent transition-all duration-300">
+                        <Icon className="w-5 h-5 text-premium-golddark group-hover:text-premium-black transition-colors" />
+                      </div>
                       <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
                       <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-premium-accent group-hover:text-premium-black transition-colors">
