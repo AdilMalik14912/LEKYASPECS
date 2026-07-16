@@ -4,7 +4,7 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink } = require('lucide-react');
 
 // Contexts
 const AuthContext = createContext(null);
@@ -398,6 +398,88 @@ export default function App({ Component, pageProps }) {
                         <Link href="/shop?category=Eyeglasses" className="hover:text-premium-accent transition-colors py-2">Eyeglasses</Link>
                         <Link href="/shop?category=Sunglasses" className="hover:text-premium-accent transition-colors py-2">Sunglasses</Link>
                         <Link href="/lookbook" className="hover:text-premium-accent transition-colors py-2">Lookbook</Link>
+                        
+                        {/* About & Group Companies Dropdown */}
+                        <div className="relative group py-2">
+                          <button className="flex items-center gap-1 hover:text-premium-accent transition-colors font-medium">
+                            About
+                            <ChevronDown className="w-3 h-3 mt-0.5 group-hover:rotate-180 transition-transform duration-200" />
+                          </button>
+                          <div className="absolute top-full left-0 w-80 bg-white/95 backdrop-blur-xl border border-premium-border rounded-xl shadow-2xl p-3.5 hidden group-hover:block z-50 animate-fade-in">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-premium-gray px-2 py-1 mb-1">
+                              About & Ecosystem
+                            </div>
+                            
+                            <Link href="/lookbook" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-premium-light transition-colors group/item">
+                              <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold text-sm">
+                                📖
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-premium-black group-hover/item:text-premium-accent transition-colors">About Lekya Specs</p>
+                                <p className="text-[10px] text-premium-gray">Heritage, Craftsmanship & Vision</p>
+                              </div>
+                            </Link>
+
+                            <div className="my-2 border-t border-premium-border/60" />
+
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-premium-gray px-2 py-1 mb-1 flex items-center justify-between">
+                              <span>Group Companies</span>
+                              <span className="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded font-bold">Lekya Group</span>
+                            </div>
+
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
+                                <div className="w-7 h-7 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                  🚚
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-blue-600 transition-colors truncate">Lekya Logistics</p>
+                                  <p className="text-[10px] text-premium-gray truncate">Pan-India Express Logistics</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
+                                <div className="w-7 h-7 rounded bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 font-bold text-xs">
+                                  📦
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-orange-600 transition-colors truncate">Parcel Uncle</p>
+                                  <p className="text-[10px] text-premium-gray truncate">Hyperlocal Delivery Network</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-premium-light transition-colors group/item cursor-pointer">
+                                <div className="w-7 h-7 rounded bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 font-bold text-xs">
+                                  📊
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-bold text-premium-black group-hover/item:text-purple-600 transition-colors truncate">Infinior Advisors</p>
+                                  <p className="text-[10px] text-premium-gray truncate">Corporate Growth & Advisory</p>
+                                </div>
+                              </div>
+
+                              <a 
+                                href="https://lekyaenergy.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-2 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 border border-emerald-200/80 transition-all group/item shadow-sm"
+                              >
+                                <div className="w-7 h-7 rounded bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                  ⚡
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1">
+                                    <p className="text-xs font-bold text-emerald-950 group-hover/item:text-emerald-700 transition-colors truncate">Lekya Energy</p>
+                                    <span className="text-[8px] bg-emerald-600 text-white px-1 py-0.2 rounded font-bold uppercase">Solar ☀️</span>
+                                  </div>
+                                  <p className="text-[10px] text-emerald-700 truncate">Clean Renewable Energy</p>
+                                </div>
+                                <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+
                         <Link href="/contact" className="hover:text-premium-accent transition-colors py-2">Contact</Link>
                         <Link href="/track" className="hover:text-premium-accent transition-colors py-2 text-premium-accent font-bold">Track Order</Link>
 

@@ -1,7 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
-const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass } = require('lucide-react');
+const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass, ExternalLink, Zap } = require('lucide-react');
 const { useAuth } = require('./_app');
 
 const API_BASE = typeof window !== 'undefined'
@@ -899,6 +899,128 @@ export default function Home() {
                 </div>
               </ThreeDTiltCard>
             </ScrollReveal3D>
+          </div>
+        </div>
+      </section>
+
+      {/* 5.8 Lekya Group Companies Section */}
+      <section className="bg-gradient-to-b from-slate-950 via-[#0a0f1d] to-black py-20 sm:py-24 relative overflow-hidden text-white border-t border-premium-border/40">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <ScrollReveal3D className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+              <Sparkles className="w-3.5 h-3.5" /> Corporate Ecosystem
+            </span>
+            <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4">
+              Lekya Group Companies
+            </h2>
+            <p className="text-gray-400 text-sm font-light max-w-2xl mx-auto leading-relaxed">
+              Powering innovation across logistics, supply chain, financial advisory, luxury fashion optics, and clean renewable energy solutions.
+            </p>
+          </ScrollReveal3D>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 1. Lekya Logistics */}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="bg-white/5 border border-white/10 hover:border-blue-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
+                  <div>
+                    <div className="w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                      <Truck className="w-7 h-7 text-blue-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Lekya Logistics</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
+                      Nationwide supply chain infrastructure, automated fulfillment centers, and express B2B freight transportation.
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-blue-400 font-semibold tracking-wider uppercase">
+                    <span>Express Logistics</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
+
+            {/* 2. Parcel Uncle */}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="bg-white/5 border border-white/10 hover:border-orange-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-orange-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
+                  <div>
+                    <div className="w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                      <span className="text-2xl">📦</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">Parcel Uncle</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
+                      Next-generation hyperlocal delivery ecosystem, same-day urban shipping, and end-to-end seller dispatch solutions.
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-orange-400 font-semibold tracking-wider uppercase">
+                    <span>Hyperlocal Dispatch</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
+
+            {/* 3. Infinior Advisors */}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <div className="bg-white/5 border border-white/10 hover:border-purple-500/60 rounded-2xl p-6 transition-all hover:bg-white/10 hover:shadow-2xl h-full flex flex-col justify-between group relative overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
+                  <div>
+                    <div className="w-14 h-14 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                      <Layers className="w-7 h-7 text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Infinior Advisors</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed font-light mb-4">
+                      Strategic corporate management, growth consulting, tax strategy, and financial restructuring advisory services.
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-purple-400 font-semibold tracking-wider uppercase">
+                    <span>Corporate Advisory</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
+
+            {/* 4. Lekya Energy */}
+            <ScrollReveal3D>
+              <ThreeDTiltCard className="h-full">
+                <a 
+                  href="https://lekyaenergy.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="bg-gradient-to-b from-emerald-950/80 to-black/90 border border-emerald-500/50 hover:border-emerald-400 rounded-2xl p-6 transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] h-full flex flex-col justify-between group relative overflow-hidden block text-left"
+                >
+                  <div className="absolute top-3 right-3 bg-emerald-500 text-black text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                    <span>Solar ☀️</span>
+                  </div>
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-emerald-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform" />
+                  <div>
+                    <div className="w-14 h-14 rounded-xl bg-emerald-500/30 border border-emerald-400/50 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg">
+                      <Zap className="w-7 h-7 text-emerald-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                      Lekya Energy
+                      <ExternalLink className="w-4 h-4 text-emerald-400 opacity-80" />
+                    </h3>
+                    <p className="text-emerald-100/70 text-xs leading-relaxed font-light mb-4">
+                      Clean solar energy installations, industrial solar parks, and long-term sustainable power infrastructure solutions.
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-emerald-500/30 flex items-center justify-between text-xs text-emerald-300 font-semibold tracking-wider uppercase">
+                    <span>Visit lekyaenergy.com</span>
+                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                </a>
+              </ThreeDTiltCard>
+            </ScrollReveal3D>
+
           </div>
         </div>
       </section>
