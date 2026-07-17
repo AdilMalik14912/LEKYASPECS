@@ -3830,19 +3830,72 @@ export default function Admin() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 p-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3 p-4 border-t border-gray-200">
               <button
                 onClick={() => {
-                  const content = document.getElementById('invoice-print-area').innerHTML;
-                  const w = window.open('', '_blank');
-                  w.document.write(`<html><head><title>Invoice #${selectedInvoiceOrder.id}</title><style>body{margin:0;font-family:Georgia,serif;}</style></head><body>${content}</body></html>`);
-                  w.document.close();
-                  w.focus();
-                  setTimeout(() => { w.print(); w.close(); }, 500);
+                  const elem = document.getElementById('invoice-print-area');
+                  if (!elem) return;
+                  let iframe = document.getElementById('invoice-print-iframe');
+                  if (!iframe) {
+                    iframe = document.createElement('iframe');
+                    iframe.id = 'invoice-print-iframe';
+                    iframe.style.position = 'fixed';
+                    iframe.style.right = '0';
+                    iframe.style.bottom = '0';
+                    iframe.style.width = '0';
+                    iframe.style.height = '0';
+                    iframe.style.border = '0';
+                    document.body.appendChild(iframe);
+                  }
+                  const doc = iframe.contentWindow.document;
+                  doc.open();
+                  doc.write(`<!DOCTYPE html><html><head><title>Invoice #${selectedInvoiceOrder.id}</title><style>body{margin:0;padding:20px;font-family:Georgia,serif;background:#fff;color:#1a1a1a;}@page{size:auto;margin:15mm;}</style></head><body>${elem.outerHTML}</body></html>`);
+                  doc.close();
+                  setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                  }, 300);
                 }}
-                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
               >
-                🖨️ Print / Save as PDF
+                🖨️ Print Invoice / PDF
+              </button>
+              <button
+                onClick={() => {
+                  const elem = document.getElementById('invoice-print-area');
+                  if (!elem) return;
+                  const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Invoice #${selectedInvoiceOrder.id} - Lekya Specs</title>
+  <style>
+    body { margin: 0; padding: 30px; font-family: Georgia, serif; background: #fff; color: #1a1a1a; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  ${elem.outerHTML}
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 400);
+    };
+  </script>
+</body>
+</html>`;
+                  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `LekyaSpecs_Invoice_INV-${String(selectedInvoiceOrder.id).padStart(6, '0')}.html`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                📥 Download Tax Invoice
               </button>
               <button
                 onClick={() => setSelectedInvoiceOrder(null)}

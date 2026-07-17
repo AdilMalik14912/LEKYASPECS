@@ -122,7 +122,7 @@ function OtpInput({ value, onChange, disabled }) {
 }
 
 export default function DeliveryPanel() {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, authLoading } = useAuth();
   const router = useRouter();
 
   // Local toast
@@ -154,13 +154,14 @@ export default function DeliveryPanel() {
 
   // Access guard
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { router.push('/account'); return; }
     const allowed = ['delivery', 'admin'];
     const isAllowed = allowed.includes(user.role) ||
       user.email === 'dev.parceluncle@gmail.com' ||
       user.email === 'admin@specs.com';
     if (!isAllowed) { router.push('/'); return; }
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchStats = async () => {
     try {

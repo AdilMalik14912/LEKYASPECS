@@ -924,10 +924,10 @@ export default function TryOnStudio() {
             <div style={{ flex: 1 }}>
               <h1 style={{ fontFamily: 'Outfit, Georgia, serif', fontSize: 34, fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '0.01em' }}>
                 Virtual Try-On Studio
-                <span style={{ marginLeft: 12, fontSize: 12, fontWeight: 700, background: 'linear-gradient(135deg, #C5A028, #e8c547)', color: '#0a0a0a', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.1em', textTransform: 'uppercase', verticalAlign: 'middle' }}>AI Powered</span>
+                <span style={{ marginLeft: 12, fontSize: 12, fontWeight: 700, background: 'linear-gradient(135deg, #C5A028, #e8c547)', color: '#0a0a0a', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.1em', textTransform: 'uppercase', verticalAlign: 'middle' }}>3D Studio</span>
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '5px 0 0', fontWeight: 500 }}>
-                Real-time frame overlay • Smart background removal • Live webcam try-on
+                Real-time frame overlay • Precision background removal • Live webcam try-on
               </p>
             </div>
           </div>
@@ -971,7 +971,7 @@ export default function TryOnStudio() {
 
                       <div className="ai-badge">
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff4444', display: 'inline-block', animation: 'pulse-gold 1s infinite' }} />
-                        Live · AI Tracking
+                        Live Tracking
                       </div>
 
                       <div className="webcam-overlay">
@@ -1080,7 +1080,7 @@ export default function TryOnStudio() {
                             <div style={{ fontSize: 10, fontWeight: 800, color: '#C5A028', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                               Removing Background
                             </div>
-                            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>AI Processing Image...</div>
+                            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Processing Image...</div>
                           </div>
                         </div>
                       )}
@@ -1104,7 +1104,7 @@ export default function TryOnStudio() {
                       {/* Status badge */}
                       <div className="ai-badge">
                         {autoFitting ? (
-                          <><RefreshCw style={{ width: 9, height: 9, animation: 'spin 0.8s linear infinite' }} /> AI Detecting...</>
+                          <><RefreshCw style={{ width: 9, height: 9, animation: 'spin 0.8s linear infinite' }} /> Scanning...</>
                         ) : autoFitDone ? (
                           <><Sparkles style={{ width: 9, height: 9 }} /> Auto-Aligned</>
                         ) : (
@@ -1144,7 +1144,7 @@ export default function TryOnStudio() {
                     style={{ flex: 1, justifyContent: 'center', minWidth: 140 }}
                   >
                     <Wand2 style={{ width: 14, height: 14 }} />
-                    {autoFitting ? 'Detecting Eyes...' : 'AI Auto-Fit ✨'}
+                    {autoFitting ? 'Detecting Eyes...' : 'Auto-Fit ✨'}
                   </button>
                   <button className="ghost-btn" onClick={resetAll}>
                     <RefreshCw style={{ width: 12, height: 12 }} /> Reset

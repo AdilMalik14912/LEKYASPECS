@@ -14,7 +14,7 @@ const API_BASE = typeof window !== 'undefined'
   : '';
 
 export default function HoStaffDashboard() {
-  const { user, token, logout, updateProfile } = useAuth();
+  const { user, token, logout, updateProfile, authLoading } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
 
@@ -43,7 +43,9 @@ export default function HoStaffDashboard() {
 
   // Auth gate check
   useEffect(() => {
-    if (user === null) {
+    if (authLoading) return;
+
+    if (!user) {
       router.push('/account');
       return;
     }
@@ -56,7 +58,7 @@ export default function HoStaffDashboard() {
       setProfilePhone(user.phone || '');
       setProfileAvatar(user.avatar || '');
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   // Load report history
   useEffect(() => {
@@ -178,7 +180,16 @@ export default function HoStaffDashboard() {
     }
   };
 
-  if (!user) return null;
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-white">
+        <div className="flex items-center gap-3 text-sm font-semibold text-emerald-400">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Opening Head Office Staff Panel...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

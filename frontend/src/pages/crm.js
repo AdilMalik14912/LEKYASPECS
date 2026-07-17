@@ -413,18 +413,18 @@ export default function CrmPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 800, color: '#f3e8ff', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span>AI Autonomous CRM Intelligence</span>
+                        <span>Autonomous CRM Intelligence</span>
                         <span style={{ background: 'rgba(236, 72, 153, 0.2)', color: '#f472b6', padding: '2px 8px', borderRadius: 10, fontSize: 10, uppercase: true, fontWeight: 700 }}>AUTOPILOT ACTIVE</span>
                       </div>
                       <div style={{ fontSize: 13, color: '#d8b4fe', marginTop: 4, lineHeight: 1.5 }}>
-                        {aiInsights?.recommendedAction || 'AI engine calculates high-intent deal scores, dynamically moves sales pipeline stages, and schedules follow-up tasks for 80+ score prospects.'}
+                        {aiInsights?.recommendedAction || 'Autonomous engine calculates high-intent deal scores, dynamically moves sales pipeline stages, and schedules follow-up tasks for 80+ score prospects.'}
                       </div>
                     </div>
                     <button onClick={runAiEngine} disabled={runningAi} style={{
                       padding: '8px 14px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap'
                     }}>
-                      Run AI Pass
+                      Run Automation Pass
                     </button>
                   </div>
 

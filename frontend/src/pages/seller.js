@@ -47,7 +47,7 @@ function StatCard({ icon: Icon, label, value, sub, color = 'gold', onClick }) {
 }
 
 export default function SellerPanel() {
-  const { user, token } = useAuth();
+  const { user, token, authLoading } = useAuth();
   const router = useRouter();
 
   // Simple local toast
@@ -63,15 +63,22 @@ export default function SellerPanel() {
   const [orders, setOrders] = useState([]);
   const [deliveryAgents, setDeliveryAgents] = useState([]);
   const [agentWorkloads, setAgentWorkloads] = useState([]);
-  const [staleOrders, setStaleOrders] = useState([]);
+  const [workloadLoading, setWorkloadLoading] = useState(false);
+
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [orderSearch, setOrderSearch] = useState('');
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+
+  // Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: '', category: 'Eyeglasses', price: '', stock: '',
+    frame_shape: 'rectangle', gender: 'Unisex', description: '',
+    material: 'Acetate', image_urls: ['']
+  });
+
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState(null);
-  const [assigningAgent, setAssigningAgent] = useState(null);
-  const [autoAssigning, setAutoAssigning] = useState(null);
   const [togglingUrgent, setTogglingUrgent] = useState(null);
   const [showWorkloadModal, setShowWorkloadModal] = useState(false);
 
@@ -79,13 +86,14 @@ export default function SellerPanel() {
 
   // Access guard
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { router.push('/account'); return; }
     const allowed = ['seller', 'admin'];
     const isAllowed = allowed.includes(user.role) ||
       user.email === 'dev.parceluncle@gmail.com' ||
       user.email === 'admin@specs.com';
     if (!isAllowed) { router.push('/'); return; }
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchAll = async () => {
     if (!token) return;

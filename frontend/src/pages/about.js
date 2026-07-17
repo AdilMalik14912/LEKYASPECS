@@ -245,7 +245,7 @@ export default function About() {
               Crafting Perfection in Every Detail — From Optics to Infrastructure
             </h2>
             <p className="text-premium-gray text-base leading-relaxed font-light">
-              At **Lekya Specs**, we revolutionized the eyewear industry by eliminating traditional luxury retail markups and introducing client-side AI computer vision algorithms to match customers with their mathematically ideal frame shapes.
+              At **Lekya Specs**, we revolutionized the eyewear industry by eliminating traditional luxury retail markups and introducing client-side smart computer vision algorithms to match customers with their mathematically ideal frame shapes.
             </p>
             <p className="text-premium-gray text-base leading-relaxed font-light">
               As part of the **Lekya Group**, our mission extends beyond optics. Through our subsidiary entities in freight supply chain (**Lekya Logistics** & **Parcel Uncle**), corporate advisory (**Infinior Advisors**), and clean solar infrastructure (**Lekya Energy**), we build end-to-end ecosystems designed for resilience, speed, and environmental sustainability.
@@ -258,7 +258,7 @@ export default function About() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 100% Carbon-Neutral Energy Focus
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-premium-black bg-premium-light px-3.5 py-2 rounded-lg border border-premium-border">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> AI-First Computer Vision
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Precision 3D Optical Fitting
               </div>
             </div>
           </div>

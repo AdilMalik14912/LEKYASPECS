@@ -194,8 +194,8 @@ export default function SkinToneAnalyzer() {
   return (
     <>
       <Head>
-        <title>AI Skin Tone Analyzer — Lekya Specs</title>
-        <meta name="description" content="Upload your photo for AI-powered skin tone and undertone analysis. Get personalized frame color recommendations based on your exact skin palette." />
+        <title>Skin Tone Color Studio — Lekya Specs</title>
+        <meta name="description" content="Upload your photo for precision skin tone and undertone analysis. Get personalized frame color recommendations based on your exact skin palette." />
       </Head>
 
       <div className="min-h-screen bg-[#08080D] text-white pb-20">
@@ -207,7 +207,7 @@ export default function SkinToneAnalyzer() {
             <Palette className="w-3 h-3" /> Chromatic Intelligence
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white">
-            Skin Tone <span className="text-premium-accent">AI Lab</span>
+            Skin Tone <span className="text-premium-accent">Color Studio</span>
           </h1>
           <p className="text-gray-400 text-sm font-light mt-2 max-w-lg mx-auto">
             Upload a selfie. Our canvas pixel analyzer samples 4 facial regions, extracts HSL values, classifies your undertone, and generates a bespoke color DNA for your perfect frames.

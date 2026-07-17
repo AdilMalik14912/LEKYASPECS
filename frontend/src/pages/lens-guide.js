@@ -244,7 +244,7 @@ export default function LensGuidePage() {
     <>
       <Head>
         <title>Prescription Lens Studio — Lekya Specs</title>
-        <meta name="description" content="AI lens customizer and 3D refraction simulator. Calculate lens thickness, test anti-reflective coatings, photochromic transitions, and screen filters." />
+        <meta name="description" content="Precision lens customizer and 3D refraction simulator. Calculate lens thickness, test anti-reflective coatings, photochromic transitions, and screen filters." />
       </Head>
 
       <div className="bg-premium-light min-h-screen py-16 sm:py-24">
@@ -253,7 +253,7 @@ export default function LensGuidePage() {
           {/* Header Banner */}
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-golddark text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded mb-4">
-              <Sparkles className="w-3 h-3" /> AI Eyecare Lab
+              <Sparkles className="w-3 h-3" /> Optical Refraction Lab
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl font-bold text-premium-black tracking-tight mb-3">
               Interactive Lens Studio & Simulator

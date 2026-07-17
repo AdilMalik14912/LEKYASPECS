@@ -47,7 +47,7 @@ export default function Sitemap() {
     <>
       <Head>
         <title>Sitemap &amp; Directory — Lekya Specs Eyewear</title>
-        <meta name="description" content="View the complete visual sitemap directory for Lekya Specs. Access shopping catalogs, AI visual modules, and support dashboards." />
+        <meta name="description" content="View the complete visual sitemap directory for Lekya Specs. Access shopping catalogs, interactive visual modules, and support dashboards." />
       </Head>
 
       <div className="bg-premium-light min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
@@ -99,19 +99,19 @@ export default function Sitemap() {
               </div>
             </ThreeDTiltCard>
 
-            {/* Column 2: AI Curation Lab */}
+            {/* Column 2: Smart Discovery Lab */}
             <ThreeDTiltCard className="h-full">
               <div className="border border-premium-accent/20 bg-white/40 backdrop-blur p-6 rounded-lg shadow-sm space-y-4 h-full hover:border-premium-accent/50 transition-colors">
                 <h3 className="font-serif text-lg font-bold text-premium-black border-b border-premium-accent/25 pb-2 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-premium-accent" />
-                  AI Discovery Lab
+                  Smart Discovery Lab
                 </h3>
                 <div className="flex flex-col gap-2">
                   <Link href="/tryon" className="hover:text-premium-accent transition-colors font-semibold">🥽 Virtual Try-On Studio</Link>
-                  <span className="text-xs text-premium-gray font-light">Overhauled 2D try-on with smart background removal, live webcam mode, and split preview divider.</span>
+                  <span className="text-xs text-premium-gray font-light">Overhauled 2D try-on with precision background removal, live webcam mode, and split preview divider.</span>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">
-                  <Link href="/face-shape" className="hover:text-premium-accent transition-colors font-semibold">🤖 AI Face Shape Scanner</Link>
+                  <Link href="/face-shape" className="hover:text-premium-accent transition-colors font-semibold">🔍 Face Shape Scanner</Link>
                   <span className="text-xs text-premium-gray font-light">Local browser scans classifying face geometry to recommend the ideal eyeglasses.</span>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">

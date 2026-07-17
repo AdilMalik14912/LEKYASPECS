@@ -261,7 +261,7 @@ export default function Home() {
               <div className="animate-slide-up">
                 <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">
                   <Sparkles className="w-3.5 h-3.5" />
-                  AI-Powered Fitting Included
+                  Precision Fitting Included
                 </div>
               </div>
 
@@ -599,8 +599,8 @@ export default function Home() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { href: '/face-shape',    icon: Camera, title: 'Face Shape AI', desc: '68-point neural mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
-              { href: '/ar-tryon',      icon: Sparkles, title: 'Live AR Try-On', desc: 'Real-time glasses overlay on your live webcam using AI face landmarks', label: 'Try Now', badge: 'NEW' },
+              { href: '/face-shape',    icon: Camera, title: 'Face Shape Analyzer', desc: 'Optical 3D mesh detects your face shape for personalized recommendations', label: 'Scan Now', badge: null },
+              { href: '/ar-tryon',      icon: Sparkles, title: 'Live AR Try-On', desc: 'Real-time glasses overlay on your live webcam with precision tracking', label: 'Try Now', badge: 'NEW' },
               { href: '/skin-analysis', icon: Palette, title: 'Skin Tone Lab', desc: 'Canvas pixel sampling analyzes your skin DNA and recommends perfect frame colors', label: 'Analyze', badge: 'NEW' },
               { href: '/customizer',    icon: Sliders, title: 'Bespoke Customizer', desc: 'Design custom frames — shapes, metals, polarized lenses, monogram engraving', label: 'Design Now', badge: 'NEW' },
               { href: '/style-quiz',    icon: Search, title: 'Style Quiz', desc: '5 quick questions to discover your perfect frame personality', label: 'Take Quiz', badge: null },
@@ -670,7 +670,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-center justify-between mb-12">
               <div>
                 <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-golddark text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-2">
-                  <Sparkles className="w-3 h-3 animate-pulse" /> AI Custom Curation
+                  <Sparkles className="w-3 h-3 animate-pulse" /> Precision Curation
                 </span>
                 <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black tracking-tight mb-2">
                   Recommended for Your <span className="capitalize text-premium-accent">{user.face_shape}</span> Face
@@ -726,7 +726,7 @@ export default function Home() {
           <div className="bg-premium-black border border-premium-accent/20 rounded-xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-xl">
             <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #C5A028 0%, transparent 60%)' }} />
             <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-accent text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
-              <Sparkles className="w-3 h-3 animate-pulse" /> AI Styling Assistant
+              <Sparkles className="w-3 h-3 animate-pulse" /> Smart Styling Studio
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
               Get Personalized Frame Recommendations
@@ -1063,7 +1063,7 @@ export default function Home() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: Gem, title: 'Premium Materials', desc: 'Handcrafted acetate & titanium frames tested for durability' },
-              { icon: Award, title: 'AI-Fit Technology', desc: 'Our face shape AI recommends frames matched to your profile' },
+              { icon: Award, title: 'Smart Optical Fitting', desc: 'Our face shape analyzer recommends frames matched to your profile' },
               { icon: Truck, title: 'Free Express Delivery', desc: 'Pan-India free shipping on all orders, no minimum required' },
               { icon: Headphones, title: '24/7 Support', desc: 'Dedicated eyewear experts available via chat, call, and email' },
             ].map(({ icon: Icon, title, desc }) => (

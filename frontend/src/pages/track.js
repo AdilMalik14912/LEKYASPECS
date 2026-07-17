@@ -110,7 +110,7 @@ export default function PublicTracker() {
         
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-4">
-            <Sparkles className="w-3.5 h-3.5" /> Premium AI Logistics
+            <Sparkles className="w-3.5 h-3.5" /> Precision Logistics Network
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold font-serif tracking-wide text-white">
             Track Your Shipment

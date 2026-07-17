@@ -948,9 +948,106 @@ export default function Account() {
                     )}
 
                     {/* Footer values */}
-                    <div className="border-t border-premium-border/60 pt-3 flex justify-between items-center text-sm font-bold">
-                      <span className="text-premium-gray font-medium text-xs uppercase tracking-wider">Total Paid</span>
-                      <span className="text-premium-accent text-base">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</span>
+                    <div className="border-t border-premium-border/60 pt-3 flex flex-wrap justify-between items-center text-sm font-bold gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-premium-gray font-medium text-xs uppercase tracking-wider">Total Paid</span>
+                        <span className="text-premium-accent text-base">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</span>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          const itemsList = (order.items || []).map(item => `
+                            <tr>
+                              <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${parseFloat(item.price).toLocaleString('en-IN')}</td>
+                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+                            </tr>
+                          `).join('');
+
+                          const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tax Invoice #${order.id} - Lekya Specs</title>
+  <style>
+    body { font-family: Georgia, serif; color: #1a1a1a; padding: 40px; margin: 0; background: #fff; }
+    .header { border-bottom: 2px solid #C5A028; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+    .brand { font-size: 26px; font-weight: bold; color: #000; }
+    .gold { color: #C5A028; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+    th { background: #f8f9fa; text-align: left; padding: 10px; border-bottom: 2px solid #ddd; }
+    .total { text-align: right; margin-top: 30px; font-size: 18px; font-weight: bold; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">LEKYA<span class="gold">SPECS</span></div>
+      <p style="font-size:12px; color:#666; margin:4px 0 0;">Official Tax Invoice & Warranty</p>
+    </div>
+    <div style="text-align:right;">
+      <h2 style="margin:0; font-size:20px;">INVOICE</h2>
+      <p style="margin:4px 0 0; font-size:12px; color:#555;">Invoice #: <strong>INV-${String(order.id).padStart(6, '0')}</strong></p>
+      <p style="margin:2px 0 0; font-size:12px; color:#555;">Date: ${new Date(order.created_at).toLocaleDateString('en-IN')}</p>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-between; margin-bottom: 30px; font-size: 13px;">
+    <div>
+      <strong>Customer:</strong> ${user?.name || 'Customer'}<br>
+      <strong>Email:</strong> ${user?.email || 'N/A'}<br>
+      <strong>Shipping Address:</strong> ${order.shipping_address || 'Provided at checkout'}
+    </div>
+    <div style="text-align:right;">
+      <strong>Payment Method:</strong> Prepaid (Razorpay / Online)<br>
+      <strong>Status:</strong> ${order.status}
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item Description</th>
+        <th style="text-align:center;">Qty</th>
+        <th style="text-align:right;">Unit Price</th>
+        <th style="text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsList}
+    </tbody>
+  </table>
+
+  <div class="total">
+    Total Amount Paid: <span class="gold">₹${parseFloat(order.total_amount).toLocaleString('en-IN')}</span>
+  </div>
+
+  <div style="margin-top: 50px; padding-top: 20px; border-t: 1px solid #eee; text-align: center; font-size: 11px; color: #888;">
+    Thank you for shopping with Lekya Specs • Included 1-Year Scratch Warranty • Lekya Group Official Invoice
+  </div>
+
+  <script>
+    window.onload = function() { setTimeout(function() { window.print(); }, 400); };
+  </script>
+</body>
+</html>`;
+
+                          const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `LekyaSpecs_Invoice_INV-${String(order.id).padStart(6, '0')}.html`;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="bg-amber-500 hover:bg-amber-600 text-black font-bold text-[11px] px-3.5 py-1.5 rounded flex items-center gap-1.5 transition-all shadow-sm"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Download Tax Invoice
+                      </button>
                     </div>
 
                   </div>

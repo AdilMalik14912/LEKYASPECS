@@ -355,7 +355,7 @@ export default function FaceShapeSuggestion() {
         {/* Header Title */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-1.5 bg-premium-accent/15 border border-premium-accent/40 text-premium-golddark px-3 py-1 rounded text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" /> AI Frame Recommender
+            <Sparkles className="w-3.5 h-3.5" /> Smart Frame Analyzer
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-premium-black mb-2">
             Find Your Perfect Fit

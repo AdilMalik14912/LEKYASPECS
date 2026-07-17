@@ -519,7 +519,7 @@ export default function App({ Component, pageProps }) {
                                 <span className="text-xl">🤳</span>
                                 <div>
                                   <p className="text-xs font-bold text-premium-black">Face Shape Analyzer</p>
-                                  <p className="text-[10px] text-premium-gray">AI-powered frame recommendations</p>
+                                  <p className="text-[10px] text-premium-gray">Smart frame recommendations</p>
                                 </div>
                               </Link>
                               <Link href="/ar-tryon" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
@@ -554,7 +554,7 @@ export default function App({ Component, pageProps }) {
                                 <span className="text-xl">👓</span>
                                 <div>
                                   <p className="text-xs font-bold text-premium-black">Prescription Lens Studio</p>
-                                  <p className="text-[10px] text-premium-gray">AI Lens refraction & coatings lab</p>
+                                  <p className="text-[10px] text-premium-gray">Refraction & coatings lab</p>
                                 </div>
                               </Link>
                               <Link href="/compare" className="flex items-center gap-3 p-2.5 rounded hover:bg-premium-light transition-colors">
@@ -794,7 +794,7 @@ export default function App({ Component, pageProps }) {
                         <span>•</span>
                         <span>Premium</span>
                         <span>•</span>
-                        <span>AI Personalized</span>
+                        <span>Smart Fitting</span>
                       </div>
                     </div>
 
