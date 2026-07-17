@@ -75,13 +75,15 @@ Whenever commits are pushed to the `main` branch:
 | Service | URL |
 |---------|-----|
 | **Main Store** | `https://lekyaspecs.vercel.app` |
+| **About Us & Ecosystem** | `https://lekyaspecs.vercel.app/about` ← NEW (2026-07-16) |
 | **Admin Panel** | `https://lekyaspecs.vercel.app/admin` |
 | **Admin Live Map** | `https://lekyaspecs.vercel.app/admin-map` |
 | **Seller Panel** | `https://lekyaspecs.vercel.app/seller` |
 | **Delivery Panel** | `https://lekyaspecs.vercel.app/delivery` |
 | **Delivery Route Map** | `https://lekyaspecs.vercel.app/delivery-map` |
+| **HO Staff Panel** | `https://lekyaspecs.vercel.app/ho-staff` ← NEW (2026-07-16) |
 | **Team Chat** | `https://lekyaspecs.vercel.app/chat` |
-| **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` ← NEW (2026-07-13) |
+| **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` |
 
 > **Note:** Obsolete preview URLs like `lekyaspecs-800x4yrhk-lekya.vercel.app` are old preview deployments — always use the main production URL above.
 
@@ -97,7 +99,9 @@ Whenever commits are pushed to the `main` branch:
 | 2026-07-10 | `b1ba736` | Real-time map system: delivery-map.js + admin-map.js + GPS backend endpoints |
 | 2026-07-13 | `eea7a57` | HO Staff Panel, Enterprise CRM Platform, Order Tracking timeline, Voice Recording in Team Chat |
 | 2026-07-14 | `44bb855` | Chat Fixes: file download MIME extension fixes, sender deletion constraints, emoji picker UI fixes |
-| 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block and resolve broken rendering/corrupt downloads |
+| 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block |
+| 2026-07-16 | `1259d7d` | About Us & Group Companies Ecosystem page (`/about`), Lekya Group Navbar Dropdown (`_app.js`), Razorpay HMAC Webhook, Fast2SMS OTP Gateway |
+| 2026-07-17 | `3766756` | Complete AI wording removal across 15+ pages, Tax Invoice HTML download & iframe print fix, HO staff & staff dashboard auth gate fixes |
 
 ---
 

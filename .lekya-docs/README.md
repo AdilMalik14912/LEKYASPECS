@@ -2,7 +2,11 @@
 
 Welcome to the comprehensive Lekya Specs repository context guide. This documentation serves as a complete reference for any developer or AI assistant working on this repository.
 
-**Last Updated:** 2026-07-11
+# Lekya Specs — Core System Context & Architecture
+
+Welcome to the comprehensive Lekya Specs repository context guide. This documentation serves as a complete reference for any developer or AI assistant working on this repository.
+
+**Last Updated:** 2026-07-17
 
 ---
 
@@ -18,43 +22,50 @@ LEKYASPECS/
 │   └── deployment.md         # Vercel + GitHub deployment guide
 ├── backend/                  # Node.js + Express + Turso Backend
 │   ├── src/
-│   │   ├── app.js            # Server entry point & all route registrations
+│   │   ├── app.js            # Server entry point, route registration & hourly DB cleaner
 │   │   ├── config/
 │   │   │   ├── db.js         # Turso client, schema init, migrations
 │   │   │   ├── seed.js       # Seed runner (called after migrations)
 │   │   │   ├── seed.sql      # SQL base schema
 │   │   │   └── schema.sql    # Additional schema definitions
 │   │   ├── controllers/
-│   │   │   ├── adminController.js      # All admin API handlers
-│   │   │   ├── authController.js       # Register, login, profile
-│   │   │   ├── orderController.js      # Orders, payment, reviews, coupons
+│   │   │   ├── adminController.js      # All admin API handlers & refunds
+│   │   │   ├── authController.js       # Register, login, profile, Fast2SMS OTP
+│   │   │   ├── orderController.js      # Orders, Razorpay HMAC webhooks, reviews, coupons
 │   │   │   ├── productController.js    # Product catalog queries
-│   │   │   ├── sellerController.js     # Seller panel API handlers ← NEW
-│   │   │   └── deliveryController.js   # Delivery agent API handlers ← NEW
+│   │   │   ├── sellerController.js     # Seller panel API handlers
+│   │   │   ├── deliveryController.js   # Delivery agent API handlers
+│   │   │   ├── chatController.js       # Team Chat API handlers
+│   │   │   └── crmController.js        # CRM sales pipeline & lead sync
 │   │   ├── middleware/
-│   │   │   └── auth.js       # JWT + isAdmin + isSeller + isDelivery gates
+│   │   │   └── auth.js       # JWT + isAdmin + isSeller + isDelivery + isTeamMember gates
 │   │   └── utils/
 │   │       ├── jwt.js        # Sign/verify JWT tokens
-│   │       └── mailer.js     # Nodemailer Gmail SMTP helpers
+│   │       ├── mailer.js     # Nodemailer Gmail SMTP helpers
+│   │       └── sms.js        # Fast2SMS OTP & SMS notification gateway
 │   ├── package.json
 │   └── .env                  # Local environment variables
 │
 └── frontend/                 # Next.js + React Frontend
     ├── src/
     │   ├── pages/
-    │   │   ├── _app.js          # Layout, Auth/Cart/Wishlist/Toast contexts
-    │   │   ├── index.js         # Homepage
+    │   │   ├── _app.js          # Layout, Auth/Cart/Wishlist/Toast contexts, Group Companies dropdown
+    │   │   ├── index.js         # Homepage & Group Ecosystem showcase
+    │   │   ├── about.js         # Corporate About Us & Group Companies Ecosystem ← NEW (2026-07-16)
     │   │   ├── shop.js          # Catalog with filters + comparison tray
-    │   │   ├── admin.js         # Full admin dashboard (12+ features)
-    │   │   ├── admin-map.js     # Admin live rider tracking map ← NEW
-    │   │   ├── seller.js        # Seller panel dashboard ← NEW
-    │   │   ├── delivery.js      # Delivery agent panel ← NEW
-    │   │   ├── delivery-map.js  # Rider route optimizer map ← NEW
-    │   │   ├── account.js       # User dashboard + loyalty + tracking
+    │   │   ├── admin.js         # Full admin dashboard & Tax Invoice HTML generator
+    │   │   ├── admin-map.js     # Admin live rider tracking map
+    │   │   ├── seller.js        # Seller panel dashboard
+    │   │   ├── delivery.js      # Delivery agent panel
+    │   │   ├── delivery-map.js  # Rider route optimizer map
+    │   │   ├── ho-staff.js      # HO Staff EOD reporting & task hub ← NEW (2026-07-16)
+    │   │   ├── crm.js           # Enterprise CRM & Sales Intelligence studio
+    │   │   ├── chat.js          # Fullscreen Team Messaging & Chat panel
+    │   │   ├── account.js       # User dashboard, orders, loyalty, tax invoice download
     │   │   ├── checkout.js      # Razorpay + prescription wizard + coupons
     │   │   ├── ar-tryon.js      # Live AR webcam try-on
-    │   │   ├── face-shape.js    # AI face shape detector
-    │   │   ├── skin-analysis.js # Skin tone AI lab
+    │   │   ├── face-shape.js    # Face Shape Analyzer
+    │   │   ├── skin-analysis.js # Skin Tone Studio
     │   │   ├── customizer.js    # SVG bespoke frame builder
     │   │   ├── lens-guide.js    # Interactive prescription lens studio
     │   │   ├── lookbook.js      # Editorial lookbook
@@ -66,6 +77,20 @@ LEKYASPECS/
     ├── package.json
     └── .env.local               # Frontend environment config
 ```
+
+---
+
+## 🏢 Lekya Group Corporate Ecosystem
+
+Lekya Specs operates as part of the broader **Lekya Group** corporate ecosystem:
+
+| Entity | Domain | Category | Core Mission |
+|--------|--------|----------|--------------|
+| **Lekya Specs** | `lekyaspecs.com` | Luxury Eyewear & Optics | Precision 3D virtual fitting & luxury hand-polished acetate frames |
+| **Lekya Logistics** | `lekyalogistics.com` | Pan-India Freight Logistics | Smart fulfillment hubs & B2B express line-haul transportation |
+| **Parcel Uncle** | `parceluncle.com` | Hyperlocal Courier Network | API-driven automated dispatch & same-day urban shipping |
+| **Infinior Advisors** | `infinioradvisors.com` | Corporate Growth Advisory | M&A advisory, capital structuring, and corporate governance |
+| **Lekya Energy** | `lekyaenergy.com` | Clean Solar Energy | Utility-scale solar parks & industrial green power transitions |
 
 ---
 
@@ -83,16 +108,17 @@ LEKYASPECS/
 
 ## 👤 Role System (RBAC)
 
-The platform has 4 user roles managed via the `role` column in `users` table:
+The platform has 5 user roles managed via the `role` column in `users` table:
 
 | Role | Access |
 |------|--------|
-| `user` | Customer — shopping, account, orders |
+| `user` | Customer — shopping, account, orders, invoice download |
 | `seller` | Seller Panel (`/seller`) — orders, inventory, rider assignment |
-| `delivery` | Delivery Panel (`/delivery`) — deliveries, route map |
-| `admin` | Full Admin Panel + all seller/delivery features |
+| `delivery` | Delivery Panel (`/delivery`) — deliveries, route map, delivery OTP verification |
+| `ho_staff` | Head Office Staff (`/ho-staff`) — EOD work reporting, task tracking, team chat |
+| `admin` | Full Admin Panel + all seller/delivery/HO staff features |
 
-Roles are assigned from Admin → Team Management tab. Middleware: `isSeller`, `isDelivery`, `isAdmin` in `auth.js`.
+Roles are assigned from Admin → Team Management tab. Middleware: `isSeller`, `isDelivery`, `isAdmin`, `isTeamMember` in `auth.js`.
 
 ---
 
@@ -103,6 +129,7 @@ Roles are assigned from Admin → Team Management tab. Middleware: `isSeller`, `
 - **Effects:** Glassmorphism, micro-animations, gold borders, premium dark panels
 - **CSS:** Pure Vanilla CSS in `globals.css` — no Tailwind
 - **Map Pages:** Use inline CSS (not Tailwind) + Leaflet.js CartoDB Dark tiles
+- **Branding Standard:** Human-crafted optical terminology (`Face Shape Analyzer`, `Precision 3D Fitting`, `Smart Discovery Lab`). All raw "AI" buzzwords have been removed from public UI.
 
 ---
 
@@ -120,15 +147,15 @@ The `API_BASE` auto-detects from `window.location.hostname` at runtime.
 ## 📚 Tech Stack
 
 | Layer | Technology |
-|-------||-----------|
+|-------|------------|
 | Frontend | Next.js (Pages Router) + React |
 | Styling | Vanilla CSS (map pages use inline styles) |
 | Backend | Node.js + Express |
 | Database | Turso (LibSQL/SQLite) — hosted cloud |
 | Maps | Leaflet.js + CartoDB Dark Matter tiles + Nominatim geocoding |
-| AI Engine | face-api.js (TinyFaceDetector + FaceLandmark68) via CDN |
-| Payment | Razorpay API + local sandbox simulator |
-| Email | Nodemailer + Google SMTP (Gmail App Passwords) |
+| Precision Vision | face-api.js (TinyFaceDetector + FaceLandmark68) via CDN |
+| Payment & Refunds | Razorpay API + HMAC-SHA256 Webhook handler + Auto-Refunds |
+| OTP & Messaging | Fast2SMS API Gateway + Nodemailer SMTP fallback |
 | Auth | JWT (jsonwebtoken) + bcryptjs |
 | OAuth | Passport.js (Google OAuth, auto-mocked if keys missing) |
 | Icons | lucide-react |
@@ -137,68 +164,22 @@ The `API_BASE` auto-detects from `window.location.hostname` at runtime.
 
 ---
 
-## 🚀 Features Added (2026-07-05)
+## 🚀 Features Added (2026-07-16 / 2026-07-17) — RECENT UPDATE
 
-### Customer-Facing
-1. **Virtual Try-On Studio** (`/tryon`) — Webcam + smart BG removal + 8 SVG frames + 10 colors + Before/After + Save PNG
-2. **AI Face Scanner** (`/account`) — Simulated scan saving face shape to profile
-3. **Product Comparison Tray** (`/shop`) — Compare up to 3 frames side by side
-4. **Prescription Lens Configurator** (`/product/[id]`) — Live dynamic pricing with lens index + coatings
-5. **Specs Rewards Club** (`/account`) — Loyalty points, tier (Bronze/Silver/Gold), referral link
+### Corporate Ecosystem & About Page
+1. **Corporate About Us Page** (`/about`) — Full interactive brand story, core values, key metrics, and Group Ecosystem showcase (`lekyalogistics.com`, `parceluncle.com`, `infinioradvisors.com`, `lekyaenergy.com`).
+2. **Navbar Group Companies Dropdown** (`_app.js`) — Visual navigation dropdown matching exact corporate branding with vector logo badges and direct website links.
 
-### Admin-Only
-6. **Support Helpdesk** — View & reply to contact form submissions via email
-7. **DB Optimizer** — Live DB health stats + one-click VACUUM
-8. **Inspect Customer** — Deep-dive overlay: profile + full order history per customer
-9. **Order Dispatch Notes** — Add tracking/shipping updates per order
-10. **Coupon Validation** — Real-time coupon validator at checkout
+### Backend Infrastructure & Security
+3. **Razorpay HMAC Webhook & Auto-Refund Engine** — `orderController.js` and `adminController.js` verifying `x-razorpay-signature` and executing instant Razorpay API refunds.
+4. **Dual Fast2SMS + Email OTP Gateway** — Fast2SMS text message OTP delivery with fallback to Gmail SMTP.
+5. **Instant CRM Lead Sync** — `upsertCrmLeadFromUser()` auto-syncs newly registered users into the sales CRM pipeline instantly.
+6. **Hourly DB Janitor Routine** — `app.js` runs cron cleaning expired OTP records and stale user sessions every 60 minutes.
 
-### Curation-Specific
-11. **Brand Stylist & Curation Hub** (`/stylist`) — Lookbook, Face Advisor, Spotlight, Style Tags, Color Stories, Calendar, Brand Voice Checker
-
----
-
-## 🚀 Features Added (2026-07-10) — MAJOR UPDATE
-
-### Seller Panel (`/seller`) — Full B2B Dashboard
-12. **Seller Panel** — Complete dark-themed seller dashboard with 4 tabs:
-    - **Dashboard** — Stats cards (total orders, revenue, products, agents), low stock alerts, recent orders
-    - **Orders** — Filter by status, search, assign delivery agent, update status
-    - **Inventory** — Product list with stock levels, add/edit products
-    - **Delivery Agents** — List all agents with their active order counts
-
-### Delivery Agent Panel (`/delivery`) — Rider Dashboard
-13. **Delivery Panel** — Complete dark-themed delivery agent dashboard:
-    - **My Deliveries** — View all assigned orders with status progress stepper
-    - **Available Orders** — Claim unassigned paid orders (city-grouped with urgent badges)
-    - **Dashboard** — Stats: delivered, active, shipped count
-
-### Smart Rider Assignment System (Seller Panel)
-14. **Auto-Assign** 🤖 — Button on each unassigned order → assigns to least-busy agent automatically
-15. **Urgent/Express Flag** ⚡ — Mark any order as urgent with a reason note; shows red badge everywhere
-16. **Agent Workload Modal** 📊 — Popup showing each agent's active orders, success rate, and performance bar
-17. **Agent Performance Leaderboard** 🏆 — Dashboard widget ranking agents by success rate (🥇🥈🥉)
-18. **Stale Orders Alert** 🔔 — Red alert panel on dashboard for unassigned paid orders older than 1 hour
-19. **City-Grouped Delivery** 📍 — Available orders grouped by city in delivery panel for route efficiency
-
-### Real-Time Map System
-20. **Delivery Route Map** (`/delivery-map`) — Full-screen gorgeous rider route optimizer:
-    - CartoDB Dark Matter map tiles (stunning dark theme)
-    - Browser GPS tracking → updates backend every 30s
-    - Animated pulsing blue truck marker for rider location
-    - Numbered order markers (color-coded by status)
-    - Dashed amber route polyline: rider → stop1 → stop2 → ...
-    - Stats panel: stops, km distance, estimated time, urgent count
-    - Order card scroll strip to jump to any stop on map
-    - "Open in Google Maps" → full turn-by-turn navigation
-
-21. **Admin Live Rider Tracker** (`/admin-map`) — Full-screen real-time admin tracking:
-    - All rider locations as animated truck markers (each rider a unique color)
-    - Online/Idle/Offline status detection (< 5min / < 30min / never)
-    - Dashed route lines connecting rider to their active order delivery points
-    - Left sidebar: stats (online/idle/offline count), click rider → see their orders
-    - Auto-refresh polling every 10 seconds
-    - "🛰 Live Rider Map" link in Admin sidebar
+### UI / UX Refinements & Bug Fixes
+7. **Complete "AI" Terminology Removal** — Replaced all public AI buzzwords with human-crafted, bespoke optical terminology across all 15+ frontend pages.
+8. **Direct Tax Invoice HTML Generator & Printer** — Upgraded Tax Invoice modal in `admin.js` to offer standalone `.html` blob file download (`LekyaSpecs_Invoice_INV-000XXX.html`) and direct iframe `@media print` printing without pop-up window blocks. Customer `/account` page also features instant Tax Invoice download.
+9. **Staff Panel Auth Gate Protection** — Resolved premature `/account` redirects on `/ho-staff`, `/seller`, `/delivery`, and `/crm` by checking `authLoading` before executing role checks.
 
 ---
 

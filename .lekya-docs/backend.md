@@ -2,7 +2,11 @@
 
 The backend service is located in the [/backend](file:///C:/Users/Admin/Specs/backend) folder and handles user authentication, CRUD operations, Razorpay order verification, settings management, automated mailing, and team chat messaging.
 
-**Last Updated:** 2026-07-13
+# Backend Core Documentation — Express Server & Turso DB
+
+The backend service is located in the [/backend](file:///C:/Users/Admin/Specs/backend) folder and handles user authentication, CRUD operations, Razorpay order verification, settings management, automated mailing, and team chat messaging.
+
+**Last Updated:** 2026-07-17
 
 ---
 
@@ -35,38 +39,14 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
 10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at
 11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at
-12. **chat_conversations** — type (dm/group), name, description, avatar, created_by, created_at ← NEW (2026-07-13)
-13. **chat_members** — conversation_id, user_id, joined_at ← NEW (2026-07-13)
-14. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at ← NEW (2026-07-13)
-15. **chat_reads** — message_id, user_id, read_at (unique per message+user) ← NEW (2026-07-13)
-16. **chat_reactions** — message_id, user_id, emoji (unique per message+user+emoji) ← NEW (2026-07-13)
-17. **crm_leads** — user_id, name, email, phone, stage, source, lead_score, estimated_value, assigned_to, tags, notes, created_at, updated_at ← NEW (2026-07-13)
-18. **crm_interactions** — lead_id, user_id, created_by, type, subject, notes, outcome, created_at ← NEW (2026-07-13)
-19. **crm_tasks** — lead_id, assigned_to, created_by, title, description, due_date, priority, status, created_at ← NEW (2026-07-13)
-
-### DB Migrations (auto-applied on startup in `db.js`)
-- `role` column on `users`
-- `loyalty_points` column on `users`
-- `referral_code` column on `users`
-- `phone` column on `users`
-- `style_tags` column on `products`
-- `spotlight` column on `reviews`
-- `otps` table creation
-- `active_sessions` table creation
-- `lens_type`, `lens_price`, `prescription_details`, `tracking_comments` columns on `orders`
-- `coupons` table
-- `admin_activity_log` table
-- `contact_messages` table
-- `assigned_delivery_agent_id` column on `orders` ← Added 2026-07-10
-- `delivery_notes` column on `orders` ← Added 2026-07-10
-- `shipping_address` column on `orders` ← Added 2026-07-10
-- `is_urgent` column on `orders` ← Added 2026-07-10
-- `urgent_note` column on `orders` ← Added 2026-07-10
-- `delivery_otp` column on `orders` ← Added 2026-07-11 (for customer verification)
-- `rider_lat`, `rider_lng`, `rider_last_seen` columns on `users` ← Added 2026-07-10 (for GPS tracking)
-- `tracking_id` column on `orders` ← Added 2026-07-11 (for unique public order lookup code)
-- `chat_conversations`, `chat_members`, `chat_messages`, `chat_reads`, `chat_reactions` tables ← Added 2026-07-13 (Team Chat system)
-- `crm_leads`, `crm_interactions`, `crm_tasks` tables ← Added 2026-07-13 (Enterprise CRM System)
+12. **chat_conversations** — type (dm/group), name, description, avatar, created_by, created_at
+13. **chat_members** — conversation_id, user_id, joined_at
+14. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at
+15. **chat_reads** — message_id, user_id, read_at (unique per message+user)
+16. **chat_reactions** — message_id, user_id, emoji (unique per message+user+emoji)
+17. **crm_leads** — user_id, name, email, phone, stage, source, lead_score, estimated_value, assigned_to, tags, notes, created_at, updated_at
+18. **crm_interactions** — lead_id, user_id, created_by, type, subject, notes, outcome, created_at
+19. **crm_tasks** — lead_id, assigned_to, created_by, title, description, due_date, priority, status, created_at
 
 ---
 
@@ -75,8 +55,8 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/src/app.js):
 
 ### 1. Authentication (`/api/auth`)
-- `POST /register/initiate` → Pre-registers details and sends 6-digit verification OTP.
-- `POST /register/verify` → Verifies OTP code and creates customer account (JWT token returned).
+- `POST /register/initiate` → Pre-registers details and sends 6-digit verification OTP (via Fast2SMS with email fallback).
+- `POST /register/verify` → Verifies OTP code, creates customer account (JWT token returned), and triggers `upsertCrmLeadFromUser()` to auto-sync sales leads into CRM.
 - `POST /register` → Legacy single-step registration fallback.
 - `POST /login` → Dual login method supporting either Email address OR Phone number.
 - `GET /profile` → Returns authenticated user profile.
@@ -92,6 +72,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 ### 3. Orders & Razorpay (`/api/orders`)
 - `POST /create` → Creates Razorpay order, stores prescription/lens details.
 - `POST /verify` → Verifies Razorpay signature, marks order PAID.
+- `POST /webhook` → HMAC-SHA256 Razorpay webhook handler for async payment updates & auto-fulfillment.
 - `GET /history` → Returns user's order history.
 - `POST /review` → Submit a product review.
 - `GET /track/:trackingId` → Public tracking lookup (no authentication needed). Returns masked customer metadata and items details list.
@@ -102,6 +83,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 ### 5. Admin Panel (`/api/admin`) — all require `authenticateToken + isAdmin`
 - `GET /stats` → Dashboard analytics (revenue, orders, customers, low stock alerts)
 - `GET /orders` & `PUT /orders/:id` → Manage + update order status
+- `POST /refund/:id` → Issues instant Razorpay API refund for cancelled/returned orders
 - `PUT /orders/:id/tracking` → Update dispatch/tracking notes per order
 - `GET /customers` → List all customers
 - `GET /customers/:id` → Deep inspect a specific customer (profile + order history)
@@ -121,7 +103,7 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 - `GET /helpdesk` → Fetch all contact form submissions
 - `POST /helpdesk/:id/reply` → Reply to a customer support message via email
 - `GET /active-sessions` → Real-time list of online users
-- `GET /riders/live-map` → All riders with GPS + active orders for admin map ← NEW (2026-07-10)
+- `GET /riders/live-map` → All riders with GPS + active orders for admin map
 
 ### 6. Seller Panel (`/api/seller`) — require `authenticateToken + isSeller` ← NEW (2026-07-10)
 - `GET /stats` → Seller dashboard stats (orders, revenue, products, agents)

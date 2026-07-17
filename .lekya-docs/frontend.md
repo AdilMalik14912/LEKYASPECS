@@ -2,7 +2,11 @@
 
 The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
 
-**Last Updated:** 2026-07-13
+# Frontend Core Documentation — Pages & Client Logic
+
+The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
+
+**Last Updated:** 2026-07-17
 
 ---
 
@@ -17,11 +21,19 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 > ⚠️ `seller.js` and `delivery.js` do NOT use `useToast` from `_app.js` — they have their own local toast state to avoid SSR crashes. This is by design.
 
+### 🏢 Header Navigation & Group Companies Dropdown
+- **Header Dropdown**: Visual Lekya Group dropdown featuring all 5 corporate entities:
+  - 👓 **Lekya Specs** (`/shop` - Luxury Retail)
+  - 🚚 **Lekya Logistics** (`lekyalogistics.com` - Pan-India Freight)
+  - 📦 **Parcel Uncle** (`parceluncle.com` - Hyperlocal Courier)
+  - ⚖️ **Infinior Advisors** (`infinioradvisors.com` - Corporate Advisory)
+  - ☀️ **Lekya Energy** (`lekyaenergy.com` - Clean Solar Energy highlight card)
+
 ### 🛡️ Staff Gateway Protection & Redirection Logic
 - **Storefront Actions Lock:** If any staff/rider account tries to call `addToCart`, it is blocked with a validation toast: *"Staff/Rider accounts cannot purchase items."*
-- **Clean Staff Header Layout:** If a user with role `admin`, `seller`, or `delivery` logs in and browses storefront pages (e.g. `/`), all client storefront components (Eyeglasses, Sunglasses, Lookbook, contact links, search bar, wishlist, and cart bag icons) are hidden from the header. Instead, a gorgeous, premium gold-bordered badge reading `🛡️ Staff Console Active` is displayed. On mobile view, a special redirect overlay panel is shown.
-- **Storefront Auto-Redirect Guard:** A system-wide `useEffect` hook in `_app.js` detects if a staff/rider user lands on storefront routes (such as `/shop`, `/cart`, `/checkout`, `/wishlist`, `/compare`, `/customizer`, `/lens-guide`, `/ar-tryon`, `/tryon`, `/skin-analysis`, `/style-quiz`, and `/account`). It automatically intercepts their navigation and redirects them directly to their respective workspace dashboard (e.g. `/delivery` for riders, `/seller` for sellers, and `/admin` for administrators).
-- **Independent Layout Isolation:** For all dedicated dashboard paths starting with `/admin`, `/seller`, or `/delivery` (including maps), the standard storefront header and footer are completely suppressed in `_app.js`, giving the dashboard UI 100% fullscreen real estate.
+- **Clean Staff Header Layout:** If a user with role `admin`, `seller`, `delivery`, or `ho_staff` logs in and browses storefront pages (e.g. `/`), all client storefront components (Eyeglasses, Sunglasses, Lookbook, contact links, search bar, wishlist, and cart bag icons) are hidden from the header. Instead, a gold-bordered badge reading `🛡️ Staff Console Active` is displayed.
+- **Storefront Auto-Redirect Guard:** A system-wide `useEffect` hook in `_app.js` detects if a staff/rider user lands on storefront routes. It automatically intercepts their navigation and redirects them directly to their respective workspace dashboard.
+- **Auth Loading Protection:** Dashboard pages (`ho-staff.js`, `seller.js`, `delivery.js`, `crm.js`, `admin.js`) wait for `authLoading` to finish before checking user role guards, preventing premature redirects to `/account` during page loads or refreshes.
 
 ---
 
@@ -29,86 +41,82 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 ### 1. 🏠 Homepage ([index.js](file:///C:/Users/Admin/Specs/frontend/src/pages/index.js))
 - Hero slider with CMS-configurable headlines.
-- Discovery grid: Face Shape Detector, Bespoke Customizer, Try-On Lab.
-- Smart Recommendations based on saved face shape profile.
-- Recently Viewed product strip.
+- Precision tools grid: Face Shape Analyzer, Bespoke Customizer, Virtual Try-On Studio.
+- Precision Curation recommendations based on saved face shape profile.
+- Group Companies Ecosystem showcase banner with active links (`lekyaenergy.com`, etc.).
 
-### 2. 🛍️ Shop Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
+### 2. 📖 About Us & Group Ecosystem ([about.js](file:///C:/Users/Admin/Specs/frontend/src/pages/about.js)) ← NEW (2026-07-16)
+- Corporate vision, heritage, and values grid.
+- Key metrics: 5 Group Entities, 2M+ Customers, 150MW Solar, 28+ States.
+- Detailed showcases for **Lekya Specs**, **Lekya Logistics**, **Parcel Uncle**, **Infinior Advisors**, and **Lekya Energy**.
+
+### 3. 🛍️ Shop Catalog ([shop.js](file:///C:/Users/Admin/Specs/frontend/src/pages/shop.js))
 - Filters: category, gender, frame_shape, search query.
 - Sorting: price low→high, high→low, alphabetic.
 - Quick View modal for fast product inspection.
 - **Product Comparison Tray** — floating sticky tray allowing comparison of up to 3 frames simultaneously.
 
-### 3. 🤖 AI Face Shape Detector ([face-shape.js](file:///C:/Users/Admin/Specs/frontend/src/pages/face-shape.js))
+### 4. 🤳 Face Shape Analyzer ([face-shape.js](file:///C:/Users/Admin/Specs/frontend/src/pages/face-shape.js))
 - `TinyFaceDetector` + `FaceLandmark68Net` loaded from jsDelivr CDN.
 - Detects 68 landmark points, calculates face ratios → oval/round/square/heart/diamond.
 - Saves shape to user profile via `/api/auth/profile`.
 
-### 4. 🥽 Virtual Try-On Studio ([tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/tryon.js))
-- **Smart BG Removal**: Canvas `getImageData()` pixel engine strips white/grey backgrounds from catalog product images.
-- **Live Webcam Mode**: `getUserMedia()` webcam stream with real-time glasses overlay.
+### 5. 🥽 Virtual Try-On Studio ([tryon.js](file:///C:/Users/Admin/Specs/frontend/src/pages/tryon.js))
+- **Precision BG Removal**: Canvas `getImageData()` pixel engine strips white/grey backgrounds from catalog product images.
+- **Live Webcam Mode**: `getUserMedia()` webcam stream with real-time glasses overlay and Live Tracking badge.
 - **Mirror Mode**: Toggle CSS `scaleX(-1)` on preview for a realistic mirror experience.
 - **Before/After Split View**: Drag-to-compare divider.
 - **8 SVG Frame Shapes**: Wayfarer, Round, Aviator, Cat-Eye, Rectangle, Hexagonal, Rimless, Browline.
 - **10 Frame Colors** with live color dot picker.
-- **AI Auto-Fit**: face-api.js aligns glasses to eye landmarks automatically.
+- **Precision Auto-Fit**: face-api.js aligns glasses to eye landmarks automatically.
 - **Save PNG**: Canvas compositing exports face + transparent glasses as downloadable PNG.
 
-### 5. 🎨 Skin Tone AI Lab ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
+### 6. 🎨 Skin Tone Studio ([skin-analysis.js](file:///C:/Users/Admin/Specs/frontend/src/pages/skin-analysis.js))
 - Canvas `getImageData()` pixel sampling from facial zones.
 - Fitzpatrick Scale (I-VI) + undertone (warm/cool/neutral) classification.
 - Frame color + lens color recommendations.
 
-### 6. 🛠️ Bespoke Customizer ([customizer.js](file:///C:/Users/Admin/Specs/frontend/src/pages/customizer.js))
+### 7. 🛠️ Bespoke Customizer ([customizer.js](file:///C:/Users/Admin/Specs/frontend/src/pages/customizer.js))
 - SVG-based frame rendering with sliders for size, opacity, color, monogram.
 
-### 7. 💳 Checkout & Razorpay ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
+### 8. 💳 Checkout & Razorpay ([checkout.js](file:///C:/Users/Admin/Specs/frontend/src/pages/checkout.js))
 - Razorpay Checkout window integration.
 - Mock sandbox fallback simulator for testing.
 - **Prescription Intake Wizard** — SPH, CYL, Axis, PD fields + lens index (1.56–1.74) + coatings.
 - **Coupon Code Input** — validates via `/api/coupons/validate` and applies discount live.
 
-### 8. 👓 AI Prescription Lens Studio ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
+### 9. 👓 Optical Refraction Lab ([lens-guide.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lens-guide.js))
 - Canvas-based vision distortion engine simulating lens refraction.
 - Multi-index (1.56–1.74) edge thickness silhouette visualizer.
 - Interactive coating toggles: Anti-Reflective, Blue Light, Photochromic.
 
-### 9. 🔍 Product Detail Page ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
+### 10. 🔍 Product Detail Page ([product/[id].js](file:///C:/Users/Admin/Specs/frontend/src/pages/product/[id].js))
 - Product specs, image gallery, reviews, face-shape match indicator.
 - Related products (same category).
 - Recently Viewed tracker in localStorage.
 - **Prescription Lens Configurator** — full lens selector with live dynamic price update.
 
-### 10. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
+### 11. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
 - Profile info, face shape, edit modal, and Dual Phone/Email login & registration with 6-digit OTP verification.
 - Order history with status badges.
+- **Download Tax Invoice** — direct one-click button generating standalone `.html` tax invoice files (`LekyaSpecs_Invoice_INV-000XXX.html`).
 - **Specs Rewards Club** — displays loyalty points balance, tier (Bronze/Silver/Gold), and referral link copy button.
 - **Order Tracking Notes** — shows admin-added dispatch notes per order.
-- **AI Face Scanner** — simulates face shape scan and saves result to profile.
 
-### 11. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
+### 12. 🏢 HO Staff Hub ([ho-staff.js](file:///C:/Users/Admin/Specs/frontend/src/pages/ho-staff.js)) ← NEW (2026-07-16)
+Access: `/ho-staff` — HO staff and Admin accounts.
+- **EOD Work Reporting**: Submit completed tasks, pending tasks, and operational issues.
+- **Report History**: View past submitted EOD reports with date timestamps.
+- **Team Chat Integration**: Direct launcher for `/chat`.
+- **Profile Management**: Update staff name, phone, password, and avatar.
+
+### 13. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
 Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gmail.com` can enter.
 
-**Sidebar Tabs & Features:**
-
-| Tab | Feature |
-|-----|---------|
-| Dashboard | Sales analytics, revenue chart, low stock alerts, recent activity log |
-| Customer Orders | List orders, update status, add dispatch/tracking notes, and directly assign/re-assign delivery riders (agents) |
-| Product Catalog | Add / Edit / Delete eyewear products with images |
-| View Customers | List all customers; click to Inspect Profile (order history overlay & Edit Credentials form) |
-| Promotions | Create, toggle, delete coupon codes (% or fixed amount) |
-| Broadcast Email | Send personalized bulk or targeted email using 7 pre-styled luxury HTML templates |
-| Settings CMS | Update hero banner, headline text, background images |
-| Admin Roles | Create new sub-admins, view admin list, demote admins |
-| Support Helpdesk | View contact form messages, reply via email directly |
-| DB Optimizer | See DB latency, table row counts, run VACUUM optimization |
-| Export Data | Download orders or customers as CSV |
-| Live User Monitor | Real-time active sessions across devices |
-| Team Management | Change user roles (user/seller/delivery/admin) |
-| 🛰 Live Rider Map | Opens `/admin-map` — real-time GPS tracking of all delivery agents |
-| 💬 Team Chat | Opens `/chat` — full-screen team messaging system ← NEW (2026-07-13) |
-| 📈 CRM Platform | Opens `/crm` — full-screen sales pipeline & customer retention studio ← NEW (2026-07-13) |
+**Key Features:**
+- **Standalone Tax Invoice HTML Generator & Printer**: Generates downloadable `.html` invoices and direct iframe `@media print` printing.
+- **Instant Razorpay Refunds**: Refund API integration for cancelled orders.
+- **All Core Operations**: Orders, inventory, customer inspection, email broadcasts, CMS settings, team management, DB optimizer.
 
 ### 12. 🛰 Admin Live Rider Map ([admin-map.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin-map.js)) ← NEW (2026-07-10)
 Access: `/admin-map` — Admin only. Linked from Admin sidebar "🛰 Live Rider Map".
