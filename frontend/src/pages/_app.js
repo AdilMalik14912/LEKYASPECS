@@ -606,7 +606,10 @@ export default function App({ Component, pageProps }) {
                               </span>
                             )}
                           </Link>
-                                  {user ? (
+                        </>
+                      )}
+
+                      {user ? (
                         <div className="flex items-center gap-1">
                           <Link href="/account" className="flex items-center gap-1.5 text-sm font-medium text-[#D4C8DC] hover:text-[#FAAE62] transition-colors p-1">
                             <User className="h-5 w-5 shrink-0 text-[#FAAE62]" />

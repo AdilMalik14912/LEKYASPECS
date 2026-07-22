@@ -864,7 +864,7 @@ export default function Home() {
             <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-4">
               Loved by Visionaries
             </h2>
-            <p className="text-center text-sm font-light max-w-md" style={{color:"#9B7EA8 mx-auto mb-16">
+            <p className="text-center text-sm font-light max-w-md mx-auto mb-16" style={{color:"#9B7EA8"}}>
               Hear from our community who have upgraded their eyewear experience.
             </p>
           </ScrollReveal3D>
