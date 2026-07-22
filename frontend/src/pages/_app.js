@@ -635,7 +635,6 @@ export default function App({ Component, pageProps }) {
                         <Link href="/account" className="p-2 text-[#D4C8DC] hover:text-[#FAAE62] transition-colors" title="Login / Register">
                           <User className="h-5 w-5 sm:h-6 sm:w-6" />
                         </Link>
-                      )}            </Link>
                       )}
                     </div>
                   </div>
