@@ -367,75 +367,87 @@ export default function Home() {
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{background: 'rgba(250,174,98,0.7)', boxShadow: '0 0 8px 2px rgba(250,174,98,0.5)'}} />
               </div>
 
-              {/* Central showcase card — Deep Purple Glassmorphism */}
+              {/* Central showcase card — Ultra Luxury 3D Glassmorphism */}
               <div
                 className="relative z-10 rounded-3xl shadow-premium-3d overflow-hidden"
                 style={{
-                  width: 300, height: 370,
-                  background: 'linear-gradient(145deg, rgba(62,8,86,0.25) 0%, rgba(250,174,98,0.04) 50%, rgba(13,0,22,0.6) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(250,174,98,0.12)',
+                  width: 320, height: 380,
+                  background: 'linear-gradient(145deg, rgba(62,8,86,0.45) 0%, rgba(30,0,48,0.75) 50%, rgba(13,0,22,0.95) 100%)',
+                  backdropFilter: 'blur(24px)',
+                  border: '1.5px solid rgba(250,174,98,0.3)',
+                  boxShadow: '0 30px 80px rgba(13,0,22,0.9), 0 0 45px rgba(250,174,98,0.2)'
                 }}
               >
-                {/* Inner ambient glows */}
-                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl animate-ambient-glow" style={{background: 'rgba(250,174,98,0.18)'}} />
-                <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full blur-2xl animate-ambient-glow-slow" style={{background: 'rgba(62,8,86,0.4)'}} />
+                {/* Inner ambient glow blobs */}
+                <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full blur-3xl animate-ambient-glow" style={{background: 'rgba(250,174,98,0.25)'}} />
+                <div className="absolute -bottom-16 -left-16 w-44 h-44 rounded-full blur-2xl animate-ambient-glow-slow" style={{background: 'rgba(123,34,168,0.5)'}} />
 
                 {/* Card header */}
-                <div className="flex justify-between items-center p-6" style={{borderBottom: '1px solid rgba(250,174,98,0.08)'}}>
+                <div className="flex justify-between items-center p-6" style={{borderBottom: '1px solid rgba(250,174,98,0.15)'}}>
                   <div>
-                    <p className="text-[9px] tracking-[0.2em] uppercase font-bold" style={{color: 'rgba(250,174,98,0.7)'}}>Collection 2025</p>
-                    <p className="text-sm font-bold font-serif mt-0.5" style={{color: '#FEF6EE'}}>Lekya Carbon-T</p>
+                    <p className="text-[9px] tracking-[0.25em] uppercase font-black" style={{color: '#FAAE62'}}>LEKYA ARCHITECTURE 2025</p>
+                    <p className="text-base font-serif font-bold mt-0.5" style={{color: '#FEF6EE'}}>Titanium Vanguard 3D</p>
                   </div>
-                  <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)'}}>
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">AR Ready</span>
+                  <div className="flex items-center gap-1.5 rounded-full px-3 py-1" style={{background: 'rgba(250,174,98,0.15)', border: '1px solid rgba(250,174,98,0.4)'}}>
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{background: '#FAAE62'}} />
+                    <span className="text-[9px] font-black uppercase tracking-wider" style={{color: '#FAAE62'}}>3D AR FIT</span>
                   </div>
                 </div>
 
                 {/* Glasses 3D SVG showcase */}
-                <div className="flex items-center justify-center flex-1 py-10 px-6">
-                  <div className="animate-glasses-showcase w-full">
-                    <svg width="100%" viewBox="0 0 300 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="flex items-center justify-center flex-1 py-6 px-4">
+                  <div className="animate-glasses-showcase w-full flex justify-center">
+                    <svg width="270" height="110" viewBox="0 0 270 110" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
-                        <radialGradient id="lensL" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#1a0024" />
-                          <stop offset="60%" stopColor="#0D0016" />
-                          <stop offset="100%" stopColor="#FAAE62" stopOpacity="0.25" />
+                        <linearGradient id="frameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#FCC48A" />
+                          <stop offset="50%" stopColor="#FAAE62" />
+                          <stop offset="100%" stopColor="#D4893F" />
+                        </linearGradient>
+                        <radialGradient id="lensLGrad" cx="40%" cy="30%" r="70%">
+                          <stop offset="0%" stopColor="#4A1268" stopOpacity="0.85" />
+                          <stop offset="50%" stopColor="#1A0024" stopOpacity="0.95" />
+                          <stop offset="100%" stopColor="#0D0016" />
                         </radialGradient>
-                        <radialGradient id="lensR" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#1a0024" />
-                          <stop offset="60%" stopColor="#0D0016" />
-                          <stop offset="100%" stopColor="#FAAE62" stopOpacity="0.25" />
+                        <radialGradient id="lensRGrad" cx="40%" cy="30%" r="70%">
+                          <stop offset="0%" stopColor="#4A1268" stopOpacity="0.85" />
+                          <stop offset="50%" stopColor="#1A0024" stopOpacity="0.95" />
+                          <stop offset="100%" stopColor="#0D0016" />
                         </radialGradient>
-                        <filter id="glow">
-                          <feGaussianBlur stdDeviation="3" result="blur" />
-                          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        <filter id="neonOrangeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="3.5" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
                         </filter>
                       </defs>
-                      {/* Left lens */}
-                      <ellipse cx="75" cy="55" rx="68" ry="44" fill="url(#lensL)" opacity="0.9" />
-                      <ellipse cx="75" cy="55" rx="68" ry="44" stroke="#FAAE62" strokeWidth="3.5" fill="none" filter="url(#glow)" />
-                      <ellipse cx="55" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.05)" />
-                      
-                      {/* Right lens */}
-                      <ellipse cx="225" cy="55" rx="68" ry="44" fill="url(#lensR)" opacity="0.9" />
-                      <ellipse cx="225" cy="55" rx="68" ry="44" stroke="#FAAE62" strokeWidth="3.5" fill="none" filter="url(#glow)" />
-                      <ellipse cx="205" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.05)" />
 
-                      {/* Bridge */}
-                      <path d="M143 47 C153 38, 163 38, 157 47" stroke="#FCC48A" strokeWidth="4" strokeLinecap="round" fill="none" filter="url(#glow)" />
-                      <path d="M143 52 C153 43, 163 43, 157 52" stroke="#FAAE62" strokeWidth="2" strokeLinecap="round" fill="none" />
+                      {/* Temples (Hinges extending outwards) */}
+                      <path d="M 12 52 Q 2 48 0 35" stroke="url(#frameGrad)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+                      <path d="M 258 52 Q 268 48 270 35" stroke="url(#frameGrad)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
 
-                      {/* Temples */}
-                      <path d="M7 54 L0 40" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M293 54 L300 40" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round" />
+                      {/* Left Lens Glass */}
+                      <path d="M 24 32 C 40 28, 95 28, 112 32 C 120 50, 115 78, 95 84 C 65 90, 32 86, 24 68 Z" fill="url(#lensLGrad)" />
+                      {/* Left Frame Rim Outer */}
+                      <path d="M 24 32 C 40 28, 95 28, 112 32 C 120 50, 115 78, 95 84 C 65 90, 32 86, 24 68 Z" stroke="url(#frameGrad)" strokeWidth="4" fill="none" filter="url(#neonOrangeGlow)" />
+                      {/* Left Lens Diagonal Reflection Highlight */}
+                      <path d="M 38 36 Q 60 33 80 44" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-                      {/* Orange accent dots on frame corners */}
-                      <circle cx="18" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
-                      <circle cx="132" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
-                      <circle cx="168" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
-                      <circle cx="282" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
+                      {/* Right Lens Glass */}
+                      <path d="M 158 32 C 175 28, 230 28, 246 32 C 246 68, 238 86, 205 90 C 185 78, 180 50, 158 32 Z" fill="url(#lensRGrad)" />
+                      {/* Right Frame Rim Outer */}
+                      <path d="M 158 32 C 175 28, 230 28, 246 32 C 246 68, 238 86, 205 90 C 185 78, 180 50, 158 32 Z" stroke="url(#frameGrad)" strokeWidth="4" fill="none" filter="url(#neonOrangeGlow)" />
+                      {/* Right Lens Reflection Highlight */}
+                      <path d="M 172 36 Q 194 33 214 44" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                      {/* Double Top Bridge (Luxury Aviator Double Bar) */}
+                      <path d="M 110 32 Q 135 25 160 32" stroke="url(#frameGrad)" strokeWidth="3.5" strokeLinecap="round" fill="none" filter="url(#neonOrangeGlow)" />
+                      <path d="M 112 40 Q 135 34 158 40" stroke="url(#frameGrad)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                      {/* Frame Hinge Gold Accent Pins */}
+                      <circle cx="20" cy="50" r="3" fill="#FAAE62" />
+                      <circle cx="250" cy="50" r="3" fill="#FAAE62" />
                     </svg>
                   </div>
                 </div>

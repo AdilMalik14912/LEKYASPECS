@@ -826,15 +826,73 @@ h1, h2, h3, h4, .font-serif {
 /* ============================================================
    PURPLE OUTLINE BUTTON
    ============================================================ */
-.btn-purple-outline {
-  background: transparent;
-  border: 1.5px solid rgba(250,174,98,0.5);
-  color: var(--color-orange);
-  font-weight: 600;
-  transition: all 0.3s ease;
+/* ============================================================
+   GLOBAL OVERRIDES — Eliminate White Boxes & Unify Dark Surface Theme
+   ============================================================ */
+
+/* Universal Dark Card Container Overrides */
+.bg-white:not(.keep-white),
+.bg-premium-light:not(.keep-white),
+.bg-[#F8F9FA]:not(.keep-white) {
+  background: rgba(26, 0, 36, 0.88) !important;
+  color: #FEF6EE !important;
+  border-color: rgba(74, 18, 104, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(13, 0, 22, 0.7) !important;
 }
-.btn-purple-outline:hover {
-  background: rgba(250,174,98,0.08);
-  border-color: rgba(250,174,98,0.8);
-  box-shadow: 0 0 15px rgba(250,174,98,0.2);
+
+/* Ensure headings inside dark cards are warm white or orange */
+.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4,
+.bg-premium-light h1, .bg-premium-light h2, .bg-premium-light h3, .bg-premium-light h4,
+.text-premium-black, .text-black, .text-gray-900, .text-gray-800 {
+  color: #FEF6EE !important;
 }
+
+/* Subtitles, labels, secondary text */
+.text-premium-dark, .text-gray-700, .text-gray-600 {
+  color: #D4C8DC !important;
+}
+.text-premium-gray, .text-gray-500, .text-gray-400 {
+  color: #9B7EA8 !important;
+}
+
+/* Input, Select, and Textarea Dark Skin */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not(.keep-white-input),
+select:not(.keep-white-input),
+textarea:not(.keep-white-input) {
+  background-color: rgba(13, 0, 22, 0.9) !important;
+  color: #FEF6EE !important;
+  border: 1px solid rgba(74, 18, 104, 0.8) !important;
+  border-radius: 0.75rem !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #FAAE62 !important;
+  box-shadow: 0 0 15px rgba(250, 174, 98, 0.35) !important;
+  outline: none !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #6B4A80 !important;
+}
+select option {
+  background-color: #1A0024 !important;
+  color: #FEF6EE !important;
+}
+
+/* Custom Checkbox & Radio Colors */
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background-color: #FAAE62 !important;
+  border-color: #FAAE62 !important;
+}
+
+/* Star rating color */
+.text-amber-500, .text-yellow-400, .text-premium-gold {
+  color: #FAAE62 !important;
+}
+
+/* Card hover glow */
+.hover\:border-premium-accent\/50:hover,
+.hover\:border-premium-black:hover,
+.hover\:border-gray-300:hover {
+  border-color: rgba(250, 174, 98, 0.5) !important;
+  box-shadow: 0 15px 40px rgba(13,0,22,0.85), 0 0 25px rgba(250, 174, 98, 0.2) !important;
+}
+
