@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -183,7 +183,7 @@ export default function Shop() {
   }, []);
 
   return (
-    <div className="bg-premium-light min-h-screen py-8 sm:py-12">
+    <div className="bg-premium-black min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Page Title & Breadcrumbs */}

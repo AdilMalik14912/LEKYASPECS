@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -28,7 +28,7 @@ export default function TermsOfService() {
         <meta name="description" content="Read Lekya Specs Terms of Service. Learn about order cancellations, shipping timelines, prescription configurations, and return policies." />
       </Head>
 
-      <div className="bg-premium-light min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
+      <div className="bg-premium-black min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
         <div className="max-w-3xl mx-auto">
           
           {/* Back button */}

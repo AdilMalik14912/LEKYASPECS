@@ -6,7 +6,43 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
 
-**Last Updated:** 2026-07-17
+**Last Updated:** 2026-07-22
+
+---
+
+## 🎨 Color System & Design Theme (Updated 2026-07-22)
+
+The entire storefront UI was redesigned from a **Gold/Cream** theme to a **Dark Purple + Light Orange** theme.
+
+### Brand Palette
+| Token | Hex | Usage |
+|---|---|---|
+| Dark Purple (Darkest) | `#0D0016` | Page background, deepest shadow |
+| Dark Purple | `#1A0024` | Section backgrounds, overlays |
+| Mid Purple | `#2A0440` | Card backgrounds, gradients |
+| Brand Purple | `#3E0856` | Borders, accents, glow color |
+| Purple Glow | `#7B22A8` | Interactive hover glows |
+| Light Orange (Brand Accent) | `#FAAE62` | CTAs, headings accent, icon color |
+| Orange Dark | `#D4893F` | Gradient start, button bg |
+| Orange Light | `#FCC48A` | Shimmer highlights, hover states |
+| Text Primary | `#FEF6EE` | White-warm text on dark bg |
+| Text Muted | `#9B7EA8` | Descriptive text, subtitles |
+| Text Subtle | `#6B4A80` | Footer text, captions |
+
+### Key CSS Classes (globals.css)
+- `.shimmer-orange-text` — animated orange shimmer gradient text (navbar brand, footer brand)
+- `.preloader-overlay` — full-screen dark purple preloader with ambient orbs
+- `.glass-morphic-3d` — dark glassmorphism surface with orange border glow
+- `.btn-orange` — orange gradient CTA button with dark text
+- `.animate-orbit / .animate-orbit-rev` — rotating ring animations for hero SVG
+- `.ambient-orb-*` — floating purple/orange blob animations (background ambiance)
+
+### Files Updated in Redesign (July 22, 2026)
+- `tailwind.config.js` — Replaced all gold Tailwind tokens with purple/orange palette
+- `src/styles/globals.css` — Full CSS rewrite: dark purple body, orange shimmer, preloader, 3D card effects
+- `src/pages/_app.js` — Navbar (glassmorphic dark purple), Preloader (orange SVG), Footer (dark purple), Toast (dark glassmorphic)
+- `src/pages/index.js` — Hero (dark purple gradient), all section backgrounds, tools cards, newsletter, testimonials
+- `src/pages/*.js` (20 storefront pages) — Bulk replacement of all gold hex values (`#C5A028`, `rgba(197,160,40,...)`) → orange equivalents
 
 ---
 

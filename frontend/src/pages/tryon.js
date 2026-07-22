@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect, useRef, useCallback } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -59,7 +59,7 @@ const SVG_FRAMES = [
     `,
   },
   {
-    id: 'aviator', name: 'Aviator', color: '#C5A028',
+    id: 'aviator', name: 'Aviator', color: '#FAAE62',
     svg: (color, opacity) => `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110" fill="none">
         <defs><filter id="shadow3"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.5)"/></filter></defs>
@@ -147,7 +147,7 @@ const SVG_FRAMES = [
 
 const FRAME_COLORS = [
   { name: 'Noir', value: '#111111' },
-  { name: 'Gold', value: '#C5A028' },
+  { name: 'Gold', value: '#FAAE62' },
   { name: 'Rose Gold', value: '#c97777' },
   { name: 'Silver', value: '#9e9e9e' },
   { name: 'Tortoise', value: '#8B4513' },
@@ -711,25 +711,25 @@ export default function TryOnStudio() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
         
-        .tryon-container { background: linear-gradient(135deg, #080808 0%, #140f0a 50%, #0a0a12 100%); min-height: 100vh; font-family: 'Inter', sans-serif; }
+        .tryon-container { background: linear-gradient(135deg, #0D0016 0%, #140f0a 50%, #0a0a12 100%); min-height: 100vh; font-family: 'Inter', sans-serif; }
         
         .glass-card { 
           background: rgba(255,255,255,0.032); 
           backdrop-filter: blur(24px); 
-          border: 1px solid rgba(197,160,40,0.12); 
+          border: 1px solid rgba(250,174,98,0.12); 
           border-radius: 22px;
           box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
         }
         
         .gold-btn { 
-          background: linear-gradient(135deg, #C5A028 0%, #e8c547 50%, #C5A028 100%); 
+          background: linear-gradient(135deg, #FAAE62 0%, #e8c547 50%, #FAAE62 100%); 
           color: #0a0a0a; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; 
           font-size: 10.5px; padding: 14px 22px; border-radius: 12px; transition: all 0.3s ease; 
           border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
-          box-shadow: 0 4px 16px rgba(197,160,40,0.3);
+          box-shadow: 0 4px 16px rgba(250,174,98,0.3);
           font-family: 'Inter', sans-serif;
         }
-        .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(197,160,40,0.5); }
+        .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(250,174,98,0.5); }
         .gold-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
         .ghost-btn { 
@@ -740,24 +740,24 @@ export default function TryOnStudio() {
           display: flex; align-items: center; gap: 7px;
           font-family: 'Inter', sans-serif;
         }
-        .ghost-btn:hover { background: rgba(197,160,40,0.12); border-color: rgba(197,160,40,0.35); color: #C5A028; }
-        .ghost-btn.active { background: rgba(197,160,40,0.15); border-color: rgba(197,160,40,0.5); color: #C5A028; }
+        .ghost-btn:hover { background: rgba(250,174,98,0.12); border-color: rgba(250,174,98,0.35); color: #FAAE62; }
+        .ghost-btn.active { background: rgba(250,174,98,0.15); border-color: rgba(250,174,98,0.5); color: #FAAE62; }
         
         .face-model-btn { 
           border-radius: 14px; overflow: hidden; border: 2.5px solid transparent; 
           transition: all 0.3s; cursor: pointer; background: none; padding: 0; 
           box-shadow: 0 2px 12px rgba(0,0,0,0.4);
         }
-        .face-model-btn.active { border-color: #C5A028; box-shadow: 0 0 0 3px rgba(197,160,40,0.3), 0 4px 16px rgba(197,160,40,0.2); }
-        .face-model-btn:hover { border-color: rgba(197,160,40,0.5); transform: scale(1.05); }
+        .face-model-btn.active { border-color: #FAAE62; box-shadow: 0 0 0 3px rgba(250,174,98,0.3), 0 4px 16px rgba(250,174,98,0.2); }
+        .face-model-btn:hover { border-color: rgba(250,174,98,0.5); transform: scale(1.05); }
         
         .frame-option { 
           border-radius: 14px; border: 2px solid rgba(255,255,255,0.06); padding: 12px 14px; 
           cursor: pointer; transition: all 0.25s; background: rgba(255,255,255,0.02); 
           display: flex; align-items: center; gap: 12px; 
         }
-        .frame-option:hover { border-color: rgba(197,160,40,0.35); background: rgba(197,160,40,0.05); transform: translateX(2px); }
-        .frame-option.active { border-color: #C5A028; background: rgba(197,160,40,0.1); box-shadow: 0 0 0 1px rgba(197,160,40,0.2); }
+        .frame-option:hover { border-color: rgba(250,174,98,0.35); background: rgba(250,174,98,0.05); transform: translateX(2px); }
+        .frame-option.active { border-color: #FAAE62; background: rgba(250,174,98,0.1); box-shadow: 0 0 0 1px rgba(250,174,98,0.2); }
         
         .color-dot { 
           width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid transparent; 
@@ -773,25 +773,25 @@ export default function TryOnStudio() {
         }
         .range-slider::-webkit-slider-thumb { 
           -webkit-appearance: none; appearance: none; width: 18px; height: 18px; 
-          border-radius: 50%; background: linear-gradient(135deg, #C5A028, #e8c547); 
-          cursor: pointer; box-shadow: 0 2px 10px rgba(197,160,40,0.6); 
+          border-radius: 50%; background: linear-gradient(135deg, #FAAE62, #e8c547); 
+          cursor: pointer; box-shadow: 0 2px 10px rgba(250,174,98,0.6); 
         }
         
         .preview-wrapper { 
           position: relative; width: 100%; border-radius: 22px; overflow: hidden; 
           background: linear-gradient(180deg, #1a1410 0%, #0d0d0d 100%); 
-          box-shadow: 0 24px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(197,160,40,0.1);
+          box-shadow: 0 24px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(250,174,98,0.1);
         }
         .preview-face { width: 100%; height: 100%; display: block; object-fit: cover; object-position: top center; }
         
         .ai-badge { 
           position: absolute; top: 14px; left: 14px; 
-          background: rgba(197,160,40,0.95); 
+          background: rgba(250,174,98,0.95); 
           backdrop-filter: blur(10px);
           color: #0a0a0a; font-size: 9px; font-weight: 900; letter-spacing: 0.14em; 
           text-transform: uppercase; padding: 6px 12px; border-radius: 100px; 
           display: flex; align-items: center; gap: 5px; z-index: 10;
-          box-shadow: 0 4px 16px rgba(197,160,40,0.4);
+          box-shadow: 0 4px 16px rgba(250,174,98,0.4);
         }
         
         .tool-badge {
@@ -807,16 +807,16 @@ export default function TryOnStudio() {
           display: flex; align-items: center; gap: 4px;
           cursor: pointer; transition: all 0.2s;
         }
-        .mini-badge:hover { background: rgba(197,160,40,0.2); border-color: rgba(197,160,40,0.4); color: #C5A028; }
-        .mini-badge.on { background: rgba(197,160,40,0.25); border-color: rgba(197,160,40,0.5); color: #C5A028; }
+        .mini-badge:hover { background: rgba(250,174,98,0.2); border-color: rgba(250,174,98,0.4); color: #FAAE62; }
+        .mini-badge.on { background: rgba(250,174,98,0.25); border-color: rgba(250,174,98,0.5); color: #FAAE62; }
         
         .autofit-pulse { animation: pulse-gold 1.4s ease-in-out infinite; }
-        @keyframes pulse-gold { 0%,100% { box-shadow: 0 4px 16px rgba(197,160,40,0.3); } 50% { box-shadow: 0 0 0 12px rgba(197,160,40,0); } }
+        @keyframes pulse-gold { 0%,100% { box-shadow: 0 4px 16px rgba(250,174,98,0.3); } 50% { box-shadow: 0 0 0 12px rgba(250,174,98,0); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         
         .bg-removing-shimmer {
-          background: linear-gradient(90deg, rgba(197,160,40,0.1) 25%, rgba(197,160,40,0.3) 50%, rgba(197,160,40,0.1) 75%);
+          background: linear-gradient(90deg, rgba(250,174,98,0.1) 25%, rgba(250,174,98,0.3) 50%, rgba(250,174,98,0.1) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
           border-radius: 8px; padding: 10px; text-align: center;
@@ -824,7 +824,7 @@ export default function TryOnStudio() {
         
         .section-label { 
           font-size: 10px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; 
-          color: rgba(197,160,40,0.75); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; 
+          color: rgba(250,174,98,0.75); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; 
         }
         
         .product-frame-row { 
@@ -832,8 +832,8 @@ export default function TryOnStudio() {
           border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); 
           cursor: pointer; transition: all 0.2s; width: 100%; background: none; text-align: left;
         }
-        .product-frame-row:hover { background: rgba(197,160,40,0.06); border-color: rgba(197,160,40,0.3); transform: translateX(2px); }
-        .product-frame-row.active { background: rgba(197,160,40,0.12); border-color: #C5A028; box-shadow: 0 0 0 1px rgba(197,160,40,0.2); }
+        .product-frame-row:hover { background: rgba(250,174,98,0.06); border-color: rgba(250,174,98,0.3); transform: translateX(2px); }
+        .product-frame-row.active { background: rgba(250,174,98,0.12); border-color: #FAAE62; box-shadow: 0 0 0 1px rgba(250,174,98,0.2); }
         
         .webcam-overlay {
           position: absolute; inset: 0; z-index: 5;
@@ -845,16 +845,16 @@ export default function TryOnStudio() {
         .split-container { position: relative; width: 100%; height: 100%; user-select: none; }
         .split-divider {
           position: absolute; top: 0; bottom: 0; width: 3px; z-index: 6;
-          background: linear-gradient(180deg, #C5A028, #e8c547, #C5A028);
+          background: linear-gradient(180deg, #FAAE62, #e8c547, #FAAE62);
           cursor: col-resize; transform: translateX(-50%);
-          box-shadow: 0 0 20px rgba(197,160,40,0.8);
+          box-shadow: 0 0 20px rgba(250,174,98,0.8);
         }
         .split-handle {
           position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
           width: 32px; height: 32px; border-radius: 50%;
-          background: linear-gradient(135deg, #C5A028, #e8c547);
+          background: linear-gradient(135deg, #FAAE62, #e8c547);
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 4px 20px rgba(197,160,40,0.6);
+          box-shadow: 0 4px 20px rgba(250,174,98,0.6);
           cursor: col-resize;
         }
         .split-label {
@@ -872,15 +872,15 @@ export default function TryOnStudio() {
           cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 5px;
           font-family: 'Inter', sans-serif;
         }
-        .mode-tab.active { background: rgba(197,160,40,0.15); border-color: rgba(197,160,40,0.5); color: #C5A028; }
-        .mode-tab:hover { background: rgba(197,160,40,0.08); border-color: rgba(197,160,40,0.3); color: rgba(255,255,255,0.8); }
+        .mode-tab.active { background: rgba(250,174,98,0.15); border-color: rgba(250,174,98,0.5); color: #FAAE62; }
+        .mode-tab:hover { background: rgba(250,174,98,0.08); border-color: rgba(250,174,98,0.3); color: rgba(255,255,255,0.8); }
         
         .upload-zone {
-          display: block; border: 2px dashed rgba(197,160,40,0.25); border-radius: 16px; 
+          display: block; border: 2px dashed rgba(250,174,98,0.25); border-radius: 16px; 
           padding: 20px 12px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 16px;
-          background: rgba(197,160,40,0.02);
+          background: rgba(250,174,98,0.02);
         }
-        .upload-zone:hover { border-color: rgba(197,160,40,0.6); background: rgba(197,160,40,0.05); transform: scale(1.01); }
+        .upload-zone:hover { border-color: rgba(250,174,98,0.6); background: rgba(250,174,98,0.05); transform: scale(1.01); }
         
         .webcam-start-btn {
           width: 100%; padding: 16px; border-radius: 14px; margin-bottom: 16px;
@@ -897,7 +897,7 @@ export default function TryOnStudio() {
           border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
           margin-bottom: 14px;
         }
-        .bg-remove-indicator.processing { background: rgba(197,160,40,0.1); border: 1px solid rgba(197,160,40,0.3); color: #C5A028; }
+        .bg-remove-indicator.processing { background: rgba(250,174,98,0.1); border: 1px solid rgba(250,174,98,0.3); color: #FAAE62; }
         .bg-remove-indicator.done { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
         .bg-remove-indicator.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
         
@@ -905,7 +905,7 @@ export default function TryOnStudio() {
         
         .scrollbar-thin::-webkit-scrollbar { width: 4px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 2px; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(197,160,40,0.3); border-radius: 2px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(250,174,98,0.3); border-radius: 2px; }
         
         @media (max-width: 900px) {
           .tryon-main-grid { grid-template-columns: 1fr !important; }
@@ -924,7 +924,7 @@ export default function TryOnStudio() {
             <div style={{ flex: 1 }}>
               <h1 style={{ fontFamily: 'Outfit, Georgia, serif', fontSize: 34, fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '0.01em' }}>
                 Virtual Try-On Studio
-                <span style={{ marginLeft: 12, fontSize: 12, fontWeight: 700, background: 'linear-gradient(135deg, #C5A028, #e8c547)', color: '#0a0a0a', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.1em', textTransform: 'uppercase', verticalAlign: 'middle' }}>3D Studio</span>
+                <span style={{ marginLeft: 12, fontSize: 12, fontWeight: 700, background: 'linear-gradient(135deg, #FAAE62, #e8c547)', color: '#0a0a0a', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.1em', textTransform: 'uppercase', verticalAlign: 'middle' }}>3D Studio</span>
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '5px 0 0', fontWeight: 500 }}>
                 Real-time frame overlay • Precision background removal • Live webcam try-on
@@ -982,10 +982,10 @@ export default function TryOnStudio() {
                           onClick={snapPhoto}
                           style={{
                             width: 68, height: 68, borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #C5A028, #e8c547)',
+                            background: 'linear-gradient(135deg, #FAAE62, #e8c547)',
                             border: '4px solid rgba(255,255,255,0.35)',
                             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 8px 30px rgba(197,160,40,0.7)',
+                            boxShadow: '0 8px 30px rgba(250,174,98,0.7)',
                             transition: 'transform 0.2s',
                           }}
                           title="Take Snapshot"
@@ -1051,7 +1051,7 @@ export default function TryOnStudio() {
 
                       {/* Labels */}
                       <span className="split-label" style={{ left: 12, color: 'rgba(255,255,255,0.7)' }}>BEFORE</span>
-                      <span className="split-label" style={{ right: 12, color: '#C5A028' }}>AFTER</span>
+                      <span className="split-label" style={{ right: 12, color: '#FAAE62' }}>AFTER</span>
                     </div>
                   ) : (
                     /* ── Standard Preview ── */
@@ -1076,8 +1076,8 @@ export default function TryOnStudio() {
                           background: 'rgba(0,0,0,0.15)', zIndex: 4, borderRadius: 22,
                         }}>
                           <div style={{ textAlign: 'center' }}>
-                            <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(197,160,40,0.3)', borderTopColor: '#C5A028', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }} />
-                            <div style={{ fontSize: 10, fontWeight: 800, color: '#C5A028', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                            <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(250,174,98,0.3)', borderTopColor: '#FAAE62', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }} />
+                            <div style={{ fontSize: 10, fontWeight: 800, color: '#FAAE62', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                               Removing Background
                             </div>
                             <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Processing Image...</div>
@@ -1162,7 +1162,7 @@ export default function TryOnStudio() {
 
                 {/* ── Fine-tune sliders ── */}
                 <div style={{ marginTop: 22, padding: '20px', background: 'rgba(255,255,255,0.025)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(197,160,40,0.7)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(250,174,98,0.7)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 7 }}>
                     <Move style={{ width: 12, height: 12 }} /> Manual Fine-Tune Position
                   </div>
 
@@ -1176,7 +1176,7 @@ export default function TryOnStudio() {
                       <div key={label}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: 700, marginBottom: 8 }}>
                           <span>{label}</span>
-                          <span style={{ color: '#C5A028', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{value}</span>
+                          <span style={{ color: '#FAAE62', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{value}</span>
                         </div>
                         {icons ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1194,7 +1194,7 @@ export default function TryOnStudio() {
                       <div style={{ gridColumn: '1 / -1' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: 700, marginBottom: 8 }}>
                           <span>Lens Tint Darkness</span>
-                          <span style={{ color: '#C5A028', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{Math.round(lensOpacity * 100)}%</span>
+                          <span style={{ color: '#FAAE62', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{Math.round(lensOpacity * 100)}%</span>
                         </div>
                         <input type="range" className="range-slider" min="0" max="0.9" step="0.01" value={lensOpacity} onChange={e => setLensOpacity(parseFloat(e.target.value))} />
                       </div>
@@ -1204,7 +1204,7 @@ export default function TryOnStudio() {
                       <div style={{ gridColumn: '1 / -1' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: 700, marginBottom: 8 }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Sliders style={{ width: 10, height: 10 }} /> BG Remove Tolerance</span>
-                          <span style={{ color: '#C5A028', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{bgTolerance}%</span>
+                          <span style={{ color: '#FAAE62', fontFamily: 'monospace', fontSize: 11, fontWeight: 800 }}>{bgTolerance}%</span>
                         </div>
                         <input
                           type="range" className="range-slider" min="10" max="90" step="1"
@@ -1235,7 +1235,7 @@ export default function TryOnStudio() {
 
                 {/* Upload zone */}
                 <label className="upload-zone">
-                  <Upload style={{ width: 22, height: 22, color: '#C5A028', margin: '0 auto 7px' }} />
+                  <Upload style={{ width: 22, height: 22, color: '#FAAE62', margin: '0 auto 7px' }} />
                   <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Upload My Photo</div>
                   <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>PNG, JPG — front-facing portrait</div>
                   {userUploadedImage && <div style={{ marginTop: 8, fontSize: 9, color: '#4ade80', fontWeight: 700 }}>✓ Photo loaded!</div>}
@@ -1314,10 +1314,10 @@ export default function TryOnStudio() {
                             alt={frame.name}
                             style={{ width: 72, height: 26, objectFit: 'contain', flexShrink: 0 }}
                           />
-                          <span style={{ fontSize: 12, fontWeight: 700, color: selectedFrame.id === frame.id ? '#C5A028' : 'rgba(255,255,255,0.6)', flex: 1, textAlign: 'left' }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: selectedFrame.id === frame.id ? '#FAAE62' : 'rgba(255,255,255,0.6)', flex: 1, textAlign: 'left' }}>
                             {frame.name}
                           </span>
-                          {selectedFrame.id === frame.id && <Check style={{ width: 13, height: 13, color: '#C5A028', flexShrink: 0 }} />}
+                          {selectedFrame.id === frame.id && <Check style={{ width: 13, height: 13, color: '#FAAE62', flexShrink: 0 }} />}
                         </button>
                       ))}
                     </div>
@@ -1341,7 +1341,7 @@ export default function TryOnStudio() {
                       ))}
                     </div>
                     <div style={{ marginTop: 12, fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-                      Selected: <span style={{ color: '#C5A028', fontWeight: 800 }}>{FRAME_COLORS.find(c => c.value === frameColor)?.name || 'Custom'}</span>
+                      Selected: <span style={{ color: '#FAAE62', fontWeight: 800 }}>{FRAME_COLORS.find(c => c.value === frameColor)?.name || 'Custom'}</span>
                     </div>
                   </div>
                 </>
@@ -1377,7 +1377,7 @@ export default function TryOnStudio() {
 
                   {loadingProducts ? (
                     <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                      <RefreshCw style={{ width: 22, height: 22, color: '#C5A028', animation: 'spin 1s linear infinite', margin: '0 auto 8px', display: 'block' }} />
+                      <RefreshCw style={{ width: 22, height: 22, color: '#FAAE62', animation: 'spin 1s linear infinite', margin: '0 auto 8px', display: 'block' }} />
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Loading catalog...</div>
                     </div>
                   ) : products.length === 0 ? (
@@ -1399,10 +1399,10 @@ export default function TryOnStudio() {
                               <img src={img} alt={p.name} style={{ width: 48, height: 36, objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.08)', padding: 4, display: 'block' }} />
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 11, fontWeight: 700, color: isSelected ? '#C5A028' : 'rgba(255,255,255,0.75)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: isSelected ? '#FAAE62' : 'rgba(255,255,255,0.75)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>{p.frame_shape} • {p.category}</div>
                             </div>
-                            <div style={{ fontSize: 12, fontWeight: 800, color: '#C5A028', flexShrink: 0 }}>₹{parseFloat(p.price).toLocaleString('en-IN')}</div>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: '#FAAE62', flexShrink: 0 }}>₹{parseFloat(p.price).toLocaleString('en-IN')}</div>
                           </button>
                         );
                       })}
@@ -1416,7 +1416,7 @@ export default function TryOnStudio() {
                 <div style={{ display: 'flex', gap: 10 }}>
                   <Link
                     href={`/product/${selectedProduct.id}`}
-                    style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #C5A028, #e8c547)', color: '#0a0a0a', fontSize: 10.5, fontWeight: 800, letterSpacing: '0.09em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
+                    style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #FAAE62, #e8c547)', color: '#0a0a0a', fontSize: 10.5, fontWeight: 800, letterSpacing: '0.09em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
                   >
                     <ShoppingBag style={{ width: 14, height: 14 }} />
                     View & Buy This Frame
@@ -1425,8 +1425,8 @@ export default function TryOnStudio() {
               )}
 
               {/* ── Tips card ── */}
-              <div style={{ padding: '16px 18px', background: 'rgba(197,160,40,0.04)', border: '1px solid rgba(197,160,40,0.12)', borderRadius: 16 }}>
-                <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(197,160,40,0.6)', marginBottom: 10 }}>
+              <div style={{ padding: '16px 18px', background: 'rgba(250,174,98,0.04)', border: '1px solid rgba(250,174,98,0.12)', borderRadius: 16 }}>
+                <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(250,174,98,0.6)', marginBottom: 10 }}>
                   💡 Pro Tips
                 </div>
                 {[
@@ -1437,7 +1437,7 @@ export default function TryOnStudio() {
                   useProductFrame ? 'Adjust tolerance if background bleeds through' : 'Lens tint slider controls transparency',
                 ].map((tip, i) => (
                   <div key={i} style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', padding: '5px 0', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none', fontWeight: 500, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                    <span style={{ color: '#C5A028', fontWeight: 800, flexShrink: 0 }}>→</span>
+                    <span style={{ color: '#FAAE62', fontWeight: 800, flexShrink: 0 }}>→</span>
                     {tip}
                   </div>
                 ))}

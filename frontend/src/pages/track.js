@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
@@ -93,13 +93,13 @@ export default function PublicTracker() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-20">
           <Link href="/" className="flex items-center gap-2 hover:opacity-85 transition-opacity">
             <svg width="34" height="17" viewBox="0 0 88 40" fill="none">
-              <rect x="2" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="4" fill="none"/>
-              <rect x="52" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="4" fill="none"/>
-              <path d="M36 20 Q44 14 52 20" stroke="#C5A028" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+              <rect x="2" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="4" fill="none"/>
+              <rect x="52" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="4" fill="none"/>
+              <path d="M36 20 Q44 14 52 20" stroke="#FAAE62" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
             </svg>
-            <span className="text-xs font-bold tracking-[0.4em] text-[#C5A028] uppercase font-serif">Lekya Specs</span>
+            <span className="text-xs font-bold tracking-[0.4em] text-[#FAAE62] uppercase font-serif">Lekya Specs</span>
           </Link>
-          <Link href="/shop" className="text-[10px] uppercase font-bold tracking-widest text-gray-400 hover:text-[#C5A028] transition-colors">
+          <Link href="/shop" className="text-[10px] uppercase font-bold tracking-widest text-gray-400 hover:text-[#FAAE62] transition-colors">
             Shop Storefront
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function PublicTracker() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-[#C5A028] text-black hover:opacity-90 font-bold text-xs uppercase tracking-widest py-3.5 px-6 rounded-xl transition-all shadow-lg shrink-0 flex items-center gap-1.5"
+                className="bg-[#FAAE62] text-black hover:opacity-90 font-bold text-xs uppercase tracking-widest py-3.5 px-6 rounded-xl transition-all shadow-lg shrink-0 flex items-center gap-1.5"
               >
                 {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'Track'}
               </button>
@@ -170,13 +170,13 @@ export default function PublicTracker() {
           <div className="space-y-6">
             
             {/* Top Order Overview Banner */}
-            <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-[#1A0024] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-5 mb-5 text-xs">
                 <div>
                   <span className="text-gray-400 block text-[10px] uppercase tracking-widest">Tracking Code</span>
-                  <span className="text-sm font-black font-mono tracking-widest text-[#C5A028] block mt-0.5">
+                  <span className="text-sm font-black font-mono tracking-widest text-[#FAAE62] block mt-0.5">
                     {order.tracking_id}
                   </span>
                 </div>
@@ -206,7 +206,7 @@ export default function PublicTracker() {
                 </div>
                 <div>
                   <span className="text-gray-400 block text-[10px] uppercase tracking-widest">Lens Package</span>
-                  <span className="font-bold text-[#C5A028] block mt-0.5">
+                  <span className="font-bold text-[#FAAE62] block mt-0.5">
                     {order.lens_type || 'Standard Fitted'}
                   </span>
                 </div>
@@ -220,8 +220,8 @@ export default function PublicTracker() {
             </div>
 
             {/* Visual Tracking Timelines */}
-            <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
-              <h3 className="text-xs font-black uppercase tracking-widest text-[#C5A028] mb-6">
+            <div className="bg-[#1A0024] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[#FAAE62] mb-6">
                 Fulfillment Timeline
               </h3>
 
@@ -238,18 +238,18 @@ export default function PublicTracker() {
                           <div style={{
                             width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                             transition: 'all 0.4s',
-                            background: isCompleted ? 'rgba(52,211,153,0.15)' : isActive ? 'rgba(197,160,40,0.15)' : 'rgba(255,255,255,0.03)',
-                            border: isCompleted ? '2px solid #34d399' : isActive ? '2px solid #C5A028' : '2px solid rgba(255,255,255,0.08)',
-                            boxShadow: isActive ? '0 0 20px rgba(197,160,40,0.3), 0 0 40px rgba(197,160,40,0.1)' : 'none',
+                            background: isCompleted ? 'rgba(52,211,153,0.15)' : isActive ? 'rgba(250,174,98,0.15)' : 'rgba(255,255,255,0.03)',
+                            border: isCompleted ? '2px solid #34d399' : isActive ? '2px solid #FAAE62' : '2px solid rgba(255,255,255,0.08)',
+                            boxShadow: isActive ? '0 0 20px rgba(250,174,98,0.3), 0 0 40px rgba(250,174,98,0.1)' : 'none',
                           }}>
                             {isCompleted
                               ? <CheckCircle2 style={{ width: 18, height: 18, color: '#34d399' }} />
-                              : <StepIcon style={{ width: 16, height: 16, color: isActive ? '#C5A028' : '#4b5563' }} />
+                              : <StepIcon style={{ width: 16, height: 16, color: isActive ? '#FAAE62' : '#4b5563' }} />
                             }
                           </div>
                           <div style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginTop: 8, textAlign: 'center', maxWidth: 64,
-                            color: isActive ? '#C5A028' : isCompleted ? '#34d399' : '#4b5563', lineHeight: 1.3
+                            color: isActive ? '#FAAE62' : isCompleted ? '#34d399' : '#4b5563', lineHeight: 1.3
                           }}>{step}</div>
                         </div>
                         {idx < ALL_STATUSES.length - 1 && (
@@ -257,7 +257,7 @@ export default function PublicTracker() {
                             <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.05)', borderRadius: 2 }} />
                             <div style={{
                               position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 2,
-                              background: 'linear-gradient(90deg, #C5A028, #f0c040)',
+                              background: 'linear-gradient(90deg, #FAAE62, #f0c040)',
                               width: idx < currentStatusIdx ? '100%' : idx === currentStatusIdx - 1 ? '100%' : '0%',
                               transition: 'width 0.8s ease'
                             }} />
@@ -284,7 +284,7 @@ export default function PublicTracker() {
                         isCompleted
                           ? 'bg-emerald-900/40 border-emerald-500 text-emerald-400 shadow-md shadow-emerald-500/10'
                           : isActive
-                          ? 'bg-amber-500/20 border-[#C5A028] text-[#C5A028] shadow-md shadow-amber-500/10 scale-105'
+                          ? 'bg-amber-500/20 border-[#FAAE62] text-[#FAAE62] shadow-md shadow-amber-500/10 scale-105'
                           : 'bg-[#121212] border-white/10 text-gray-600'
                       }`}>
                         {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
@@ -294,7 +294,7 @@ export default function PublicTracker() {
                       <div className="flex-grow pt-1 text-xs">
                         <div className="flex items-center justify-between">
                           <h4 className={`font-bold uppercase tracking-wider ${
-                            isActive ? 'text-[#C5A028] text-sm' : isCompleted ? 'text-emerald-400' : 'text-gray-500'
+                            isActive ? 'text-[#FAAE62] text-sm' : isCompleted ? 'text-emerald-400' : 'text-gray-500'
                           }`}>
                             {step}
                           </h4>
@@ -319,7 +319,7 @@ export default function PublicTracker() {
 
             {/* Shipping Dispatch Notes */}
             {order.tracking_comments && (
-              <div className="bg-[#0f0f0f] border border-amber-500/20 rounded-2xl p-6 shadow-2xl">
+              <div className="bg-[#1A0024] border border-amber-500/20 rounded-2xl p-6 shadow-2xl">
                 <h4 className="text-xs font-black uppercase tracking-widest text-amber-400 mb-2 flex items-center gap-1.5">
                   <Clock className="w-4 h-4 animate-pulse" /> Dispatch Log & Notes
                 </h4>
@@ -330,8 +330,8 @@ export default function PublicTracker() {
             )}
 
             {/* Shipment Items Preview */}
-            <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
-              <h3 className="text-xs font-black uppercase tracking-widest text-[#C5A028] mb-4">
+            <div className="bg-[#1A0024] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[#FAAE62] mb-4">
                 Package Contents
               </h3>
               <div className="divide-y divide-white/5">

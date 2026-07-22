@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -226,7 +226,7 @@ export default function Checkout() {
           contact: shippingAddress.phone
         },
         theme: {
-          color: '#c5a880'
+          color: '#FAAE62'
         }
       };
 
@@ -291,7 +291,7 @@ export default function Checkout() {
   // --- RENDERING: Order Success Screen ---
   if (orderSuccessId) {
     return (
-      <div className="bg-premium-light min-h-screen py-16 sm:py-24 flex items-center justify-center">
+      <div className="bg-premium-black min-h-screen py-16 sm:py-24 flex items-center justify-center">
         <div className="max-w-md w-full mx-4 bg-white border border-premium-border rounded p-8 sm:p-12 text-center shadow-sm">
           <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-6" />
           <h2 className="font-serif text-3xl font-bold text-premium-black mb-2">Order Confirmed</h2>
@@ -317,7 +317,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="bg-premium-light min-h-screen py-12">
+    <div className="bg-premium-black min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Back Link */}

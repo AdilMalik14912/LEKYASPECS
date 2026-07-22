@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const Link = require('next/link').default;
 const { useWishlist, useCart } = require('./_app');
 const { Heart, ShoppingBag, Star, X } = require('lucide-react');
@@ -9,7 +9,7 @@ export default function Wishlist() {
 
   if (wishlist.length === 0) {
     return (
-      <div className="bg-premium-light min-h-screen py-16 sm:py-24 text-center">
+      <div className="bg-premium-black min-h-screen py-16 sm:py-24 text-center">
         <div className="max-w-md mx-auto px-4">
           <Heart className="w-20 h-20 text-red-400 mx-auto mb-4 animate-heartbeat" fill="currentColor" />
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black mb-2">Your Wishlist is Empty</h2>
@@ -25,7 +25,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="bg-premium-light min-h-screen py-12">
+    <div className="bg-premium-black min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4">

@@ -181,13 +181,14 @@ export default function Home() {
   const handleHeroMouseLeave = () => setMousePos({ x: 0, y: 0 });
 
   return (
-    <div className="bg-premium-light min-h-screen">
+    <div className="bg-premium-black min-h-screen">
 
       {/* ═══════════════════════════════════════════════════
           1. HERO — Full Immersive Parallax 3D Showcase
       ═══════════════════════════════════════════════════ */}
       <section
-        className="relative min-h-[90vh] lg:h-screen flex items-center justify-center overflow-hidden bg-[#080808]"
+        className="relative min-h-[90vh] lg:h-screen flex items-center justify-center overflow-hidden"
+        style={{background: 'linear-gradient(135deg, #0D0016 0%, #1A0024 40%, #2A0440 70%, #1A0024 100%)'}}
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
       >
@@ -201,37 +202,51 @@ export default function Home() {
           className="absolute inset-0 bg-cover bg-center opacity-25"
         />
 
-        {/* Multi-layer dark overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#080808] via-[#0f0f0f]/95 to-[#111]/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 via-transparent to-transparent" />
+        {/* Multi-layer dark purple overlays */}
+        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(13,0,22,0.9) 0%, rgba(26,0,36,0.7) 50%, rgba(42,4,64,0.5) 100%)'}} />
+        <div className="absolute inset-0" style={{background: 'linear-gradient(to right, rgba(13,0,22,0.85), transparent)'}} />
 
-        {/* Ambient gold glow blobs — parallax reactive */}
+        {/* Ambient ORANGE glow blobs — parallax reactive */}
         <div
           className="absolute animate-ambient-glow"
           style={{
             top: '20%', left: '55%',
             width: 500, height: 500,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(197,160,40,0.18) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(250,174,98,0.2) 0%, transparent 70%)',
             filter: 'blur(60px)',
             transform: `translate(${mousePos.x * 40}px, ${mousePos.y * 25}px)`,
             transition: 'transform 0.15s ease-out',
           }}
         />
+        {/* Deep purple blob */}
         <div
           className="absolute animate-ambient-glow-slow"
           style={{
             bottom: '15%', right: '25%',
             width: 350, height: 350,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(197,160,40,0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(62,8,86,0.5) 0%, transparent 70%)',
             filter: 'blur(80px)',
             transform: `translate(${mousePos.x * -30}px, ${mousePos.y * 20}px)`,
             transition: 'transform 0.2s ease-out',
           }}
         />
+        {/* Secondary orange blob */}
+        <div
+          className="absolute animate-ambient-glow"
+          style={{
+            top: '60%', left: '20%',
+            width: 280, height: 280,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(212,137,63,0.12) 0%, transparent 70%)',
+            filter: 'blur(50px)',
+            transform: `translate(${mousePos.x * 20}px, ${mousePos.y * -15}px)`,
+            transition: 'transform 0.18s ease-out',
+          }}
+        />
 
-        {/* Floating gold particles */}
+        {/* Floating ORANGE particles */}
         {[
           { top: '15%', left: '12%', size: 4, cls: 'particle-1' },
           { top: '70%', left: '8%',  size: 3, cls: 'particle-2' },
@@ -246,8 +261,8 @@ export default function Home() {
             style={{
               top: p.top, left: p.left,
               width: p.size, height: p.size,
-              background: '#C5A028',
-              boxShadow: `0 0 ${p.size * 4}px ${p.size * 2}px rgba(197,160,40,0.6)`,
+              background: '#FAAE62',
+              boxShadow: `0 0 ${p.size * 4}px ${p.size * 2}px rgba(250,174,98,0.7)`,
             }}
           />
         ))}
@@ -258,15 +273,17 @@ export default function Home() {
 
             {/* ── Left Copy ── */}
             <div className="space-y-8">
+              {/* Hero badge pill - Orange */}
               <div className="animate-slide-up">
-                <div className="inline-flex items-center gap-2 bg-premium-accent/10 border border-premium-accent/30 text-premium-accent px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.35)', color: '#FAAE62'}}>
                   <Sparkles className="w-3.5 h-3.5" />
                   Precision Fitting Included
                 </div>
               </div>
 
               <h1
-                className="animate-slide-up-delay-1 text-5xl sm:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.05]"
+                className="animate-slide-up-delay-1 text-5xl sm:text-6xl lg:text-7xl font-serif font-bold tracking-tight leading-[1.05]"
+                style={{color: '#FEF6EE'}}
                 dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
               />
 
@@ -275,35 +292,38 @@ export default function Home() {
               </p>
 
               <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row gap-4">
+                {/* Primary CTA — Orange gradient */}
                 <Link
                   href="/shop"
-                  className="btn-3d group relative bg-premium-accent text-premium-black font-bold tracking-widest uppercase text-sm px-8 py-4 rounded overflow-hidden flex items-center justify-center gap-2"
+                  className="btn-3d group relative font-bold tracking-widest uppercase text-sm px-8 py-4 rounded-lg overflow-hidden flex items-center justify-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #FAAE62 0%, #D4893F 100%)', color: '#0D0016' }}
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     Explore All Frames
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-premium-accent via-yellow-300 to-premium-accent bg-[length:200%] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
+                {/* Secondary CTA — Purple outline */}
                 <Link
                   href="/face-shape"
-                  className="btn-3d border border-white/40 hover:border-premium-accent/60 hover:bg-white/5 text-white font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded transition-all flex items-center justify-center gap-2 group"
+                  className="btn-3d font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 group"
+                  style={{ border: '1px solid rgba(250,174,98,0.3)', color: '#FAAE62' }}
                 >
                   Try Face Shape Analyzer
-                  <Sparkles className="w-3.5 h-3.5 text-premium-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Sparkles className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
               </div>
 
-              {/* Micro stats bar */}
-              <div className="animate-slide-up-delay-3 flex items-center gap-8 pt-4 border-t border-white/10">
+              {/* Stats bar — orange accent numbers */}
+              <div className="animate-slide-up-delay-3 flex items-center gap-8 pt-4" style={{borderTop: '1px solid rgba(250,174,98,0.15)'}}>
                 {[
                   { val: '10K+', label: 'Happy Customers' },
                   { val: '500+', label: 'Frame Designs' },
                   { val: '4.9★', label: 'Avg Rating' },
                 ].map(({ val, label }) => (
                   <div key={label} className="text-left">
-                    <p className="text-xl font-bold text-premium-accent font-mono">{val}</p>
-                    <p className="text-[11px] text-gray-500 uppercase tracking-wider">{label}</p>
+                    <p className="text-xl font-bold font-mono" style={{color: '#FAAE62'}}>{val}</p>
+                    <p className="text-[11px] uppercase tracking-wider" style={{color: '#9B7EA8'}}>{label}</p>
                   </div>
                 ))}
               </div>
@@ -318,14 +338,14 @@ export default function Home() {
                 transition: 'transform 0.12s ease-out',
               }}
             >
-              {/* Outer orbit ring 1 */}
+              {/* Outer orbit ring 1 — Orange */}
               <div
                 className="absolute animate-orbit"
                 style={{
                   width: 360, height: 360,
-                  border: '1px solid rgba(197,160,40,0.08)',
+                  border: '1px solid rgba(250,174,98,0.08)',
                   borderRadius: '50%',
-                  borderTopColor: 'rgba(197,160,40,0.3)',
+                  borderTopColor: 'rgba(250,174,98,0.4)',
                 }}
               />
               {/* Outer orbit ring 2 */}
@@ -333,39 +353,41 @@ export default function Home() {
                 className="absolute animate-orbit-rev"
                 style={{
                   width: 280, height: 280,
-                  border: '1px dashed rgba(197,160,40,0.12)',
+                  border: '1px dashed rgba(250,174,98,0.12)',
                   borderRadius: '50%',
-                  borderBottomColor: 'rgba(197,160,40,0.25)',
+                  borderBottomColor: 'rgba(250,174,98,0.3)',
                 }}
               />
 
-              {/* Orbit dot markers */}
+              {/* Orbit dot markers — Orange */}
               <div className="absolute animate-orbit" style={{ width: 360, height: 360 }}>
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-premium-accent/80 shadow-[0_0_10px_3px_rgba(197,160,40,0.6)]" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full" style={{background: 'rgba(250,174,98,0.9)', boxShadow: '0 0 10px 3px rgba(250,174,98,0.6)'}} />
               </div>
               <div className="absolute animate-orbit-rev" style={{ width: 280, height: 280, animationDelay: '-6s' }}>
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-premium-accent/60 shadow-[0_0_8px_2px_rgba(197,160,40,0.5)]" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{background: 'rgba(250,174,98,0.7)', boxShadow: '0 0 8px 2px rgba(250,174,98,0.5)'}} />
               </div>
 
-              {/* Central showcase card */}
+              {/* Central showcase card — Deep Purple Glassmorphism */}
               <div
-                className="relative z-10 glass-morphic-3d rounded-3xl border border-white/8 shadow-premium-3d overflow-hidden"
+                className="relative z-10 rounded-3xl shadow-premium-3d overflow-hidden"
                 style={{
                   width: 300, height: 370,
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(197,160,40,0.03) 50%, rgba(0,0,0,0.3) 100%)',
+                  background: 'linear-gradient(145deg, rgba(62,8,86,0.25) 0%, rgba(250,174,98,0.04) 50%, rgba(13,0,22,0.6) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(250,174,98,0.12)',
                 }}
               >
                 {/* Inner ambient glows */}
-                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-premium-accent/15 blur-3xl animate-ambient-glow" />
-                <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-premium-accent/08 blur-2xl animate-ambient-glow-slow" />
+                <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl animate-ambient-glow" style={{background: 'rgba(250,174,98,0.18)'}} />
+                <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full blur-2xl animate-ambient-glow-slow" style={{background: 'rgba(62,8,86,0.4)'}} />
 
                 {/* Card header */}
-                <div className="flex justify-between items-center p-6 border-b border-white/5">
+                <div className="flex justify-between items-center p-6" style={{borderBottom: '1px solid rgba(250,174,98,0.08)'}}>
                   <div>
-                    <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-premium-accent/70">Collection 2025</p>
-                    <p className="text-sm font-bold text-white font-serif mt-0.5">Lekya Carbon-T</p>
+                    <p className="text-[9px] tracking-[0.2em] uppercase font-bold" style={{color: 'rgba(250,174,98,0.7)'}}>Collection 2025</p>
+                    <p className="text-sm font-bold font-serif mt-0.5" style={{color: '#FEF6EE'}}>Lekya Carbon-T</p>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2.5 py-1">
+                  <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)'}}>
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                     <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">AR Ready</span>
                   </div>
@@ -377,79 +399,75 @@ export default function Home() {
                     <svg width="100%" viewBox="0 0 300 110" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
                         <radialGradient id="lensL" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#1a1a2e" />
-                          <stop offset="60%" stopColor="#0d1117" />
-                          <stop offset="100%" stopColor="#C5A028" stopOpacity="0.3" />
+                          <stop offset="0%" stopColor="#1a0024" />
+                          <stop offset="60%" stopColor="#0D0016" />
+                          <stop offset="100%" stopColor="#FAAE62" stopOpacity="0.25" />
                         </radialGradient>
                         <radialGradient id="lensR" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#1a1a2e" />
-                          <stop offset="60%" stopColor="#0d1117" />
-                          <stop offset="100%" stopColor="#C5A028" stopOpacity="0.3" />
+                          <stop offset="0%" stopColor="#1a0024" />
+                          <stop offset="60%" stopColor="#0D0016" />
+                          <stop offset="100%" stopColor="#FAAE62" stopOpacity="0.25" />
                         </radialGradient>
                         <filter id="glow">
                           <feGaussianBlur stdDeviation="3" result="blur" />
                           <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                         </filter>
                       </defs>
-                      {/* Left lens fill */}
+                      {/* Left lens */}
                       <ellipse cx="75" cy="55" rx="68" ry="44" fill="url(#lensL)" opacity="0.9" />
-                      {/* Left frame rim */}
-                      <ellipse cx="75" cy="55" rx="68" ry="44" stroke="#C5A028" strokeWidth="3.5" fill="none" filter="url(#glow)" />
-                      {/* Left shine */}
-                      <ellipse cx="55" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.06)" />
+                      <ellipse cx="75" cy="55" rx="68" ry="44" stroke="#FAAE62" strokeWidth="3.5" fill="none" filter="url(#glow)" />
+                      <ellipse cx="55" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.05)" />
                       
-                      {/* Right lens fill */}
+                      {/* Right lens */}
                       <ellipse cx="225" cy="55" rx="68" ry="44" fill="url(#lensR)" opacity="0.9" />
-                      {/* Right frame rim */}
-                      <ellipse cx="225" cy="55" rx="68" ry="44" stroke="#C5A028" strokeWidth="3.5" fill="none" filter="url(#glow)" />
-                      {/* Right shine */}
-                      <ellipse cx="205" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.06)" />
+                      <ellipse cx="225" cy="55" rx="68" ry="44" stroke="#FAAE62" strokeWidth="3.5" fill="none" filter="url(#glow)" />
+                      <ellipse cx="205" cy="38" rx="14" ry="7" fill="rgba(255,255,255,0.05)" />
 
                       {/* Bridge */}
-                      <path d="M143 47 C153 38, 163 38, 157 47" stroke="#E2C974" strokeWidth="4" strokeLinecap="round" fill="none" filter="url(#glow)" />
-                      <path d="M143 52 C153 43, 163 43, 157 52" stroke="#C5A028" strokeWidth="2" strokeLinecap="round" fill="none" />
+                      <path d="M143 47 C153 38, 163 38, 157 47" stroke="#FCC48A" strokeWidth="4" strokeLinecap="round" fill="none" filter="url(#glow)" />
+                      <path d="M143 52 C153 43, 163 43, 157 52" stroke="#FAAE62" strokeWidth="2" strokeLinecap="round" fill="none" />
 
                       {/* Temples */}
-                      <path d="M7 54 L0 40" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M293 54 L300 40" stroke="#C5A028" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M7 54 L0 40" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M293 54 L300 40" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round" />
 
-                      {/* Gold accent dots on frame corners */}
-                      <circle cx="18" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
-                      <circle cx="132" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
-                      <circle cx="168" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
-                      <circle cx="282" cy="46" r="3.5" fill="#C5A028" opacity="0.8" />
+                      {/* Orange accent dots on frame corners */}
+                      <circle cx="18" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
+                      <circle cx="132" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
+                      <circle cx="168" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
+                      <circle cx="282" cy="46" r="3.5" fill="#FAAE62" opacity="0.9" />
                     </svg>
                   </div>
                 </div>
 
-                {/* Card footer specs */}
-                <div className="px-6 pb-6 grid grid-cols-3 gap-3 border-t border-white/5 pt-4">
+                {/* Card footer specs — orange accents */}
+                <div className="px-6 pb-6 grid grid-cols-3 gap-3 pt-4" style={{borderTop: '1px solid rgba(250,174,98,0.08)'}}>
                   {[
                     { label: 'Material', value: 'Titanium' },
-                    { label: 'Finish', value: '18K Gold' },
+                    { label: 'Finish', value: 'Satin PVD' },
                     { label: 'Lens', value: 'Polarized' },
                   ].map(({ label, value }) => (
                     <div key={label} className="text-center">
-                      <p className="text-[9px] text-gray-500 uppercase tracking-wider mb-0.5">{label}</p>
-                      <p className="text-xs font-bold text-premium-accent font-mono">{value}</p>
+                      <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{color: '#9B7EA8'}}>{label}</p>
+                      <p className="text-xs font-bold font-mono" style={{color: '#FAAE62'}}>{value}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Floating badge chips around the card */}
+              {/* Floating badge chips — Purple glassmorphism */}
               <div
-                className="absolute -top-4 -left-4 bg-premium-black border border-premium-accent/30 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-1"
-                style={{ backdropFilter: 'blur(10px)' }}
+                className="absolute -top-4 -left-4 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-1"
+                style={{background: 'rgba(13,0,22,0.85)', border: '1px solid rgba(250,174,98,0.25)', backdropFilter: 'blur(10px)'}}
               >
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Try-On</p>
-                <p className="text-xs font-bold text-white">Live AR 🥽</p>
+                <p className="text-[9px] uppercase tracking-wider" style={{color: '#9B7EA8'}}>Try-On</p>
+                <p className="text-xs font-bold" style={{color: '#FEF6EE'}}>Live AR 🥽</p>
               </div>
               <div
-                className="absolute -bottom-4 -right-4 bg-premium-black border border-emerald-500/30 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-2"
-                style={{ backdropFilter: 'blur(10px)' }}
+                className="absolute -bottom-4 -right-4 rounded-xl px-3 py-2 shadow-lg animate-float-slow float-delay-2"
+                style={{background: 'rgba(13,0,22,0.85)', border: '1px solid rgba(16,185,129,0.3)', backdropFilter: 'blur(10px)'}}
               >
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider">Delivery</p>
+                <p className="text-[9px] uppercase tracking-wider" style={{color: '#9B7EA8'}}>Delivery</p>
                 <p className="text-xs font-bold text-emerald-400">Free & Fast ✓</p>
               </div>
             </div>
@@ -457,12 +475,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-premium-light to-transparent pointer-events-none" />
+        {/* Bottom fade into dark purple */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{background: 'linear-gradient(to top, #0D0016, transparent)'}} />
       </section>
 
       {/* 2. Brand Value Pillars */}
-      <section className="bg-white border-y border-premium-border py-8">
+      <section className="border-y py-8" style={{background: "rgba(30,0,48,0.6)", borderColor: "rgba(74,18,104,0.5)"}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             <div className="flex flex-col items-center p-4 group cursor-default">
@@ -494,8 +512,8 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <ScrollReveal3D>
           <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-premium-accent font-bold mb-2">Curated Collections</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black">
+            <p className="text-xs uppercase tracking-widest font-bold mb-2" style={{color: '#FAAE62'}}>Curated Collections</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight" style={{color: '#FEF6EE'}}>
               Shop by Collection
             </h2>
           </div>
@@ -584,17 +602,17 @@ export default function Home() {
       </section>
 
       {/* 3.5 Five Premium Tools Section */}
-      <section className="bg-white border-y border-premium-border py-16 relative overflow-hidden">
-        {/* Subtle background moving shapes */}
-        <div className="absolute top-10 right-10 w-24 h-24 bg-premium-accent/5 rounded-full blur-xl animate-float-slow float-delay-1"></div>
-        <div className="absolute bottom-10 left-10 w-32 h-32 bg-premium-accent/5 rounded-full blur-xl animate-float-slow float-delay-2"></div>
+      <section className="border-y py-16 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #0D0016 0%, #1A0024 50%, #0D0016 100%)', borderColor: 'rgba(74,18,104,0.5)'}}>
+        {/* Animated background orbs */}
+        <div className="absolute top-10 right-10 w-24 h-24 rounded-full blur-xl animate-float-slow float-delay-1" style={{background: 'rgba(250,174,98,0.06)'}}></div>
+        <div className="absolute bottom-10 left-10 w-32 h-32 rounded-full blur-xl animate-float-slow float-delay-2" style={{background: 'rgba(62,8,86,0.4)'}}></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal3D className="text-center mb-10">
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black mb-2">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-2" style={{color: '#FEF6EE'}}>
               Powerful Tools, Just For You
             </h2>
-            <p className="text-sm text-premium-gray font-light">Everything you need to find the perfect pair — smarter, faster, better.</p>
+            <p className="text-sm font-light" style={{color: '#9B7EA8'}}>Everything you need to find the perfect pair — smarter, faster, better.</p>
           </ScrollReveal3D>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -610,23 +628,30 @@ export default function Home() {
             ].map(({ href, icon: Icon, title, desc, label, badge }) => (
               <ScrollReveal3D key={href}>
                 <ThreeDTiltCard className="h-full">
-                  <GlowSpotlightCard className="group relative border border-premium-border rounded-lg p-5 text-center transition-all bg-premium-light hover:bg-white hover:border-premium-black hover:shadow-md h-full flex flex-col justify-between">
-                    <Link href={href} className="block w-full h-full" style={{ textDecoration: 'none' }}>
+                  <Link href={href} className="block h-full" style={{ textDecoration: 'none' }}>
+                    <div
+                      className="group relative rounded-xl p-5 text-center transition-all duration-300 h-full flex flex-col justify-between"
+                      style={{background: 'rgba(30,0,48,0.7)', border: '1px solid rgba(74,18,104,0.5)'}}
+                      onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(250,174,98,0.4)'; e.currentTarget.style.background = 'rgba(42,4,64,0.9)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(74,18,104,0.5)'; e.currentTarget.style.background = 'rgba(30,0,48,0.7)'; }}
+                    >
                       {badge && (
-                        <span className="absolute -top-2 -right-2 bg-premium-accent text-premium-black text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full z-20">
+                        <span className="absolute -top-2 -right-2 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full z-20" style={{background: 'linear-gradient(135deg, #D4893F, #FAAE62)', color: '#0D0016'}}>
                           {badge}
                         </span>
                       )}
-                      <div className="w-12 h-12 rounded-full bg-premium-accent/15 text-premium-black flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:bg-premium-accent transition-all duration-300">
-                        <Icon className="w-5 h-5 text-premium-golddark group-hover:text-premium-black transition-colors" />
+                      <div>
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300" style={{background: 'rgba(250,174,98,0.1)', border: '1px solid rgba(250,174,98,0.2)'}}>
+                          <Icon className="w-5 h-5" style={{color: '#FAAE62'}} />
+                        </div>
+                        <h3 className="font-bold text-sm mb-1.5" style={{color: '#FEF6EE'}}>{title}</h3>
+                        <p className="text-[11px] leading-relaxed mb-4 font-light" style={{color: '#9B7EA8'}}>{desc}</p>
                       </div>
-                      <h3 className="font-bold text-sm text-premium-black mb-1.5">{title}</h3>
-                      <p className="text-[11px] text-premium-gray leading-relaxed mb-4 font-light">{desc}</p>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-premium-accent group-hover:text-premium-black transition-colors">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider" style={{color: '#FAAE62'}}>
                         {label} <ArrowRight className="w-3 h-3" />
                       </span>
-                    </Link>
-                  </GlowSpotlightCard>
+                    </div>
+                  </Link>
                 </ThreeDTiltCard>
               </ScrollReveal3D>
             ))}
@@ -634,28 +659,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. AI Widget Spotlight CTA */}
-      <section className="bg-premium-dark text-white py-16 sm:py-24">
+      {/* 4. AI Widget Spotlight CTA — Purple + Orange */}
+      <section className="py-16 sm:py-24" style={{background: 'linear-gradient(135deg, #0D0016 0%, #1A0024 100%)'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border border-premium-accent/30 rounded bg-black/40 p-8 sm:p-16 flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="max-w-xl">
-              <div className="inline-flex items-center gap-1.5 text-premium-accent font-semibold tracking-wider text-xs uppercase mb-4">
+          <div className="rounded-2xl p-8 sm:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden" style={{background: 'rgba(30,0,48,0.8)', border: '1px solid rgba(250,174,98,0.2)'}}>
+            {/* Ambient glow in corner */}
+            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{background: 'radial-gradient(circle, rgba(250,174,98,0.12) 0%, transparent 70%)'}} />
+            <div className="max-w-xl relative z-10">
+              <div className="inline-flex items-center gap-1.5 font-semibold tracking-wider text-xs uppercase mb-4" style={{color: '#FAAE62'}}>
                 <Sparkles className="w-4 h-4" />
                 Next-Gen Face Shape Detection
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4" style={{color: '#FEF6EE'}}>
                 Not sure which frames match your face?
               </h2>
-              <p className="text-gray-300 leading-relaxed font-light mb-6">
+              <p className="leading-relaxed font-light mb-6" style={{color: '#9B7EA8'}}>
                 Use your webcam to run our high-precision client-side face landmark analyzer. We process everything in your browser instantly—meaning complete privacy. We'll find whether you have an oval, round, heart, square, or diamond face and suggest the exact frame shapes that complement you.
               </p>
-              <div className="flex items-center gap-6 text-sm text-gray-400">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-premium-accent" /> 100% Private (No photos sent to server)</span>
-                <span className="flex items-center gap-1.5"><Star className="w-4 h-4 text-premium-accent fill-premium-accent" /> Highly Accurate</span>
+              <div className="flex items-center gap-6 text-sm" style={{color: '#6B4A80'}}>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" style={{color:'#FAAE62'}} /> 100% Private (No photos sent to server)</span>
+                <span className="flex items-center gap-1.5"><Star className="w-4 h-4" style={{color:'#FAAE62',fill:'#FAAE62'}} /> Highly Accurate</span>
               </div>
             </div>
-            <div>
-              <Link href="/face-shape" className="bg-premium-accent hover:bg-premium-golddark text-premium-black font-bold uppercase tracking-wider text-sm px-8 py-5 rounded transition-all inline-block shadow-lg">
+            <div className="relative z-10">
+              <Link href="/face-shape" className="inline-block font-bold uppercase tracking-wider text-sm px-8 py-5 rounded-xl shadow-lg transition-all hover:scale-105" style={{background: 'linear-gradient(135deg, #D4893F, #FAAE62)', color: '#0D0016'}}>
                 Scan Your Face Shape Now
               </Link>
             </div>
@@ -695,15 +722,15 @@ export default function Home() {
             ) : recommendedProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {recommendedProducts.map(product => (
-                  <ThreeDTiltCard key={product.id} className="bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+                  <ThreeDTiltCard key={product.id} className="rounded-xl p-4 flex flex-col transition-all" style={{background:"rgba(30,0,48,0.7)",border:"1px solid rgba(74,18,104,0.5)"}} onMouseEnter={e=>e.currentTarget.style.border="1px solid rgba(250,174,98,0.4)"} onMouseLeave={e=>e.currentTarget.style.border="1px solid rgba(74,18,104,0.5)"}>
                     <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
-                      <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                      <div className="relative overflow-hidden rounded-lg mb-4 aspect-square flex items-center justify-center hover-zoom">
                         <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-all" />
                       </div>
-                      <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                      <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{color:"#FAAE62"}}>
                         {product.gender} • {product.category}
                       </div>
-                      <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                      <h3 className="font-serif text-base font-bold truncate transition-colors" style={{color:"#FEF6EE"}}>
                         {product.name}
                       </h3>
                       <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
@@ -711,7 +738,7 @@ export default function Home() {
                         <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
                         <span className="text-gray-400">({product.review_count})</span>
                       </div>
-                      <div className="font-semibold text-premium-black mt-auto text-lg">
+                      <div className="font-semibold mt-auto text-lg" style={{color:"#FAAE62"}}>
                         ₹{parseFloat(product.price).toLocaleString('en-IN')}
                       </div>
                     </Link>
@@ -724,7 +751,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="bg-premium-black border border-premium-accent/20 rounded-xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-xl">
-            <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #C5A028 0%, transparent 60%)' }} />
+            <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #FAAE62 0%, transparent 60%)' }} />
             <span className="inline-flex items-center gap-1 bg-premium-accent/15 border border-premium-accent/40 text-premium-accent text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
               <Sparkles className="w-3 h-3 animate-pulse" /> Smart Styling Studio
             </span>
@@ -752,8 +779,8 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-12">
           <div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black tracking-tight mb-2">{settings.trending_title}</h2>
-            <p className="text-sm text-premium-gray font-light">The absolute favorites from our current catalog</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-2" style={{color: "#FEF6EE"}}>{settings.trending_title}</h2>
+            <p className="text-sm font-light" style={{color:"#9B7EA8"}}>The absolute favorites from our current catalog</p>
           </div>
           <Link href="/shop" className="text-sm uppercase tracking-wider text-premium-black hover:text-premium-accent font-semibold flex items-center gap-1 mt-4 sm:mt-0">
             View All Catalog <ArrowRight className="w-4 h-4" />
@@ -773,9 +800,9 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {featuredProducts.map(product => (
-              <ThreeDTiltCard key={product.id} className="bg-white border border-premium-border rounded p-4 shadow-sm hover:shadow-md hover:border-premium-accent/50 transition-all flex flex-col">
+              <ThreeDTiltCard key={product.id} className="rounded-xl p-4 flex flex-col transition-all" style={{background:"rgba(30,0,48,0.7)",border:"1px solid rgba(74,18,104,0.5)"}} onMouseEnter={e=>e.currentTarget.style.border="1px solid rgba(250,174,98,0.4)"} onMouseLeave={e=>e.currentTarget.style.border="1px solid rgba(74,18,104,0.5)"}>
                 <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
-                  <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center hover-zoom">
+                  <div className="relative overflow-hidden rounded-lg mb-4 aspect-square flex items-center justify-center hover-zoom">
                     <img 
                       src={product.image_urls[0]} 
                       alt={product.name} 
@@ -785,10 +812,10 @@ export default function Home() {
                       <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
                     )}
                   </div>
-                  <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
+                  <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{color:"#FAAE62"}}>
                     {product.gender} • {product.category}
                   </div>
-                  <h3 className="font-serif text-base font-bold text-premium-black truncate group-hover:text-premium-accent transition-colors">
+                  <h3 className="font-serif text-base font-bold truncate transition-colors" style={{color:"#FEF6EE"}}>
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-1 mt-1 mb-2 text-xs text-amber-500">
@@ -796,7 +823,7 @@ export default function Home() {
                     <span className="font-medium text-premium-dark">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
                     <span className="text-gray-400">({product.review_count})</span>
                   </div>
-                  <div className="font-semibold text-premium-black mt-auto text-lg">
+                  <div className="font-semibold mt-auto text-lg" style={{color:"#FAAE62"}}>
                     ₹{parseFloat(product.price).toLocaleString('en-IN')}
                   </div>
                 </Link>
@@ -831,13 +858,13 @@ export default function Home() {
       )}
 
       {/* 6. Testimonials Section */}
-      <section className="bg-white py-16 sm:py-24 border-t border-premium-border">
+      <section className="py-16 sm:py-24 border-t" style={{background:"rgba(30,0,48,0.5)",borderColor:"rgba(74,18,104,0.5)"}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal3D className="text-center">
             <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-premium-black mb-4">
               Loved by Visionaries
             </h2>
-            <p className="text-center text-premium-gray text-sm font-light max-w-md mx-auto mb-16">
+            <p className="text-center text-sm font-light max-w-md" style={{color:"#9B7EA8 mx-auto mb-16">
               Hear from our community who have upgraded their eyewear experience.
             </p>
           </ScrollReveal3D>
@@ -845,18 +872,18 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                <div className="rounded-xl p-8 flex flex-col justify-between h-full transition-all" style={{background:"rgba(13,0,22,0.6)",border:"1px solid rgba(74,18,104,0.5)"}}>
                   <div>
-                    <div className="flex text-premium-accent mb-4">
+                    <div className="flex mb-4" style={{color:"#FAAE62"}}>
                       {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
                     </div>
-                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                    <p className="text-sm italic leading-relaxed mb-6 font-light" style={{color:"#D4C8DC"}}>
                       "I was skeptic about the face-shape tool but it suggested Square frames for my round face. I ordered the Classic Onyx and it looks unbelievably sharp! The lens quality is superior to my previous designer spectacles."
                     </p>
                   </div>
-                  <div className="border-t border-premium-border pt-4">
-                    <p className="font-bold text-sm text-premium-black">Amit Sharma</p>
-                    <p className="text-xs text-premium-gray">Mumbai, India</p>
+                  <div className="pt-4" style={{borderTop:"1px solid rgba(74,18,104,0.5)"}}>
+                    <p className="font-bold text-sm" style={{color:"#FEF6EE"}}>Amit Sharma</p>
+                    <p className="text-xs" style={{color:"#9B7EA8"}}>Mumbai, India</p>
                   </div>
                 </div>
               </ThreeDTiltCard>
@@ -864,18 +891,18 @@ export default function Home() {
 
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                <div className="rounded-xl p-8 flex flex-col justify-between h-full transition-all" style={{background:"rgba(13,0,22,0.6)",border:"1px solid rgba(74,18,104,0.5)"}}>
                   <div>
-                    <div className="flex text-premium-accent mb-4">
+                    <div className="flex mb-4" style={{color:"#FAAE62"}}>
                       {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
                     </div>
-                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                    <p className="text-sm italic leading-relaxed mb-6 font-light" style={{color:"#D4C8DC"}}>
                       "Absolutely love the minimal gold aviator shades! The polarization is excellent for driving in bright sun. Delivery took just 2 days. The box packaging feels extremely luxurious like a premium design brand."
                     </p>
                   </div>
-                  <div className="border-t border-premium-border pt-4">
-                    <p className="font-bold text-sm text-premium-black">Priya Patel</p>
-                    <p className="text-xs text-premium-gray">Bangalore, India</p>
+                  <div className="pt-4" style={{borderTop:"1px solid rgba(74,18,104,0.5)"}}>
+                    <p className="font-bold text-sm" style={{color:"#FEF6EE"}}>Priya Patel</p>
+                    <p className="text-xs" style={{color:"#9B7EA8"}}>Bangalore, India</p>
                   </div>
                 </div>
               </ThreeDTiltCard>
@@ -883,18 +910,18 @@ export default function Home() {
 
             <ScrollReveal3D>
               <ThreeDTiltCard className="h-full">
-                <div className="border border-premium-border p-8 rounded bg-premium-light shadow-sm flex flex-col justify-between h-full hover:border-premium-accent/50 transition-colors">
+                <div className="rounded-xl p-8 flex flex-col justify-between h-full transition-all" style={{background:"rgba(13,0,22,0.6)",border:"1px solid rgba(74,18,104,0.5)"}}>
                   <div>
-                    <div className="flex text-premium-accent mb-4">
+                    <div className="flex mb-4" style={{color:"#FAAE62"}}>
                       {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
                     </div>
-                    <p className="text-sm text-premium-dark italic leading-relaxed mb-6 font-light">
+                    <p className="text-sm italic leading-relaxed mb-6 font-light" style={{color:"#D4C8DC"}}>
                       "The Blue-light blockers for my daughter are indestructible. She drops them constantly, but the flexible silicon frames survive everything. Extremely happy with Lekya Specs service!"
                     </p>
                   </div>
-                  <div className="border-t border-premium-border pt-4">
-                    <p className="font-bold text-sm text-premium-black">Dr. Rajesh Kumar</p>
-                    <p className="text-xs text-premium-gray">New Delhi, India</p>
+                  <div className="pt-4" style={{borderTop:"1px solid rgba(74,18,104,0.5)"}}>
+                    <p className="font-bold text-sm" style={{color:"#FEF6EE"}}>Dr. Rajesh Kumar</p>
+                    <p className="text-xs" style={{color:"#9B7EA8"}}>New Delhi, India</p>
                   </div>
                 </div>
               </ThreeDTiltCard>
@@ -1049,9 +1076,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Why Choose Us Trust Badges */}
-      <section className="bg-premium-black py-16 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ background: 'radial-gradient(circle at bottom left, #C5A028 0%, transparent 60%)' }} />
+      {/* 6. Why Choose Us Trust Badges — dark purple bg already */}
+      <section className="py-16 relative overflow-hidden" style={{background: 'linear-gradient(180deg, #0D0016 0%, #1A0024 100%)'}}>
+        <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ background: 'radial-gradient(circle at bottom left, #FAAE62 0%, transparent 60%)' }} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ScrollReveal3D>
@@ -1085,21 +1112,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Newsletter Signup Banner */}
-      <section className="bg-gradient-to-r from-premium-accent via-yellow-400 to-premium-accent py-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-black/10 border border-black/20 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+      {/* 7. Newsletter Signup Banner — Orange Premium */}
+      <section className="py-16 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #D4893F 0%, #FAAE62 40%, #FCC48A 60%, #FAAE62 80%, #D4893F 100%)'}}>
+        <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(circle at 30% 50%, rgba(62,8,86,0.2) 0%, transparent 60%)'}} />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4" style={{background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(0,0,0,0.2)', color: '#0D0016'}}>
             <Mail className="w-3.5 h-3.5" /> Exclusive Members Club
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-premium-black mb-4">
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4" style={{color: '#0D0016'}}>
             Get 15% Off Your First Order
           </h2>
-          <p className="text-premium-black/70 text-sm mb-8 font-light leading-relaxed">
+          <p className="text-sm mb-8 font-light leading-relaxed" style={{color: 'rgba(13,0,22,0.7)'}}>
             Join thousands of style-forward Lekya Specs members. Subscribe for early access to new collections, exclusive coupons, and personalized eyewear recommendations.
           </p>
           {newsletterDone ? (
-            <div className="bg-black/10 border border-black/20 rounded p-4 inline-block">
-              <p className="font-bold text-premium-black text-sm">✓ You're subscribed! Use code <strong>WELCOME10</strong> for 10% off.</p>
+            <div className="inline-block rounded-xl p-4" style={{background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.2)'}}>
+              <p className="font-bold text-sm" style={{color: '#0D0016'}}>✓ You're subscribed! Use code <strong>WELCOME10</strong> for 10% off.</p>
             </div>
           ) : (
             <form
@@ -1112,17 +1140,19 @@ export default function Home() {
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Your email address"
-                className="flex-grow px-4 py-3 rounded bg-white text-premium-black text-sm font-medium focus:outline-none border-2 border-transparent focus:border-premium-black"
+                className="flex-grow px-4 py-3 rounded-xl text-sm font-medium focus:outline-none"
+                style={{background: '#FEF6EE', color: '#0D0016', border: '2px solid transparent'}}
               />
               <button
                 type="submit"
-                className="bg-premium-black text-white hover:bg-white hover:text-premium-black font-bold text-xs tracking-widest uppercase px-8 py-3 rounded transition-all"
+                className="font-bold text-xs tracking-widest uppercase px-8 py-3 rounded-xl transition-all hover:scale-105"
+                style={{background: '#0D0016', color: '#FAAE62'}}
               >
                 Subscribe
               </button>
             </form>
           )}
-          <p className="text-premium-black/50 text-[10px] mt-4">No spam. Unsubscribe anytime. Your privacy is respected.</p>
+          <p className="text-[10px] mt-4" style={{color: 'rgba(13,0,22,0.45)'}}>No spam. Unsubscribe anytime. Your privacy is respected.</p>
         </div>
       </section>
 

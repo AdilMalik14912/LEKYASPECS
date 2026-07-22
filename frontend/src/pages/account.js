@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -137,7 +137,7 @@ export default function Account() {
     for (let i = 0; i < 40; i++) {
       ctx.beginPath();
       ctx.arc(Math.random()*W, Math.random()*H, Math.random()*2+0.5, 0, 2*Math.PI);
-      ctx.fillStyle = `rgba(197,160,40,${(Math.random()*0.25+0.05).toFixed(2)})`;
+      ctx.fillStyle = `rgba(250,174,98,${(Math.random()*0.25+0.05).toFixed(2)})`;
       ctx.fill();
     }
     // Noise lines
@@ -145,12 +145,12 @@ export default function Account() {
       ctx.beginPath();
       ctx.moveTo(Math.random()*W*0.3, Math.random()*H);
       ctx.lineTo(Math.random()*W*0.5+W*0.5, Math.random()*H);
-      ctx.strokeStyle = `rgba(197,160,40,${(Math.random()*0.3+0.1).toFixed(2)})`;
+      ctx.strokeStyle = `rgba(250,174,98,${(Math.random()*0.3+0.1).toFixed(2)})`;
       ctx.lineWidth = Math.random()*1.5+0.5;
       ctx.stroke();
     }
     // Draw each character
-    const colors = ['#C5A028','#e8c547','#ffffff','#aaaaaa','#d4870c'];
+    const colors = ['#FAAE62','#e8c547','#ffffff','#aaaaaa','#d4870c'];
     const cw = W / (code.length + 1);
     code.split('').forEach((ch, i) => {
       ctx.save();
@@ -320,7 +320,7 @@ export default function Account() {
   // --- RENDERING: Logged Out (Auth Screen) ---
   if (!user) {
     return (
-      <div className="bg-premium-light min-h-screen py-16 sm:py-24 flex items-center justify-center">
+      <div className="bg-premium-black min-h-screen py-16 sm:py-24 flex items-center justify-center">
         <div className="max-w-md w-full mx-4 bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm">
           
           {/* Tab Selector */}
@@ -502,7 +502,7 @@ export default function Account() {
                       onClick={refreshCaptcha}
                       title="Click to refresh"
                       className="flex-shrink-0 cursor-pointer rounded"
-                      style={{ border: '1px solid rgba(197,160,40,0.25)', borderRadius: 8 }}
+                      style={{ border: '1px solid rgba(250,174,98,0.25)', borderRadius: 8 }}
                     />
                     <button
                       type="button"
@@ -618,7 +618,7 @@ export default function Account() {
   const loyaltyCount = useCountUp(user ? (user.loyalty_points || 0) : 0, 1500);
 
   return (
-    <div className="bg-premium-light min-h-screen py-12">
+    <div className="bg-premium-black min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Profile overview bar */}
@@ -972,9 +972,9 @@ export default function Account() {
   <title>Tax Invoice #${order.id} - Lekya Specs</title>
   <style>
     body { font-family: Georgia, serif; color: #1a1a1a; padding: 40px; margin: 0; background: #fff; }
-    .header { border-bottom: 2px solid #C5A028; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+    .header { border-bottom: 2px solid #FAAE62; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
     .brand { font-size: 26px; font-weight: bold; color: #000; }
-    .gold { color: #C5A028; }
+    .gold { color: #FAAE62; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
     th { background: #f8f9fa; text-align: left; padding: 10px; border-bottom: 2px solid #ddd; }
     .total { text-align: right; margin-top: 30px; font-size: 18px; font-weight: bold; }

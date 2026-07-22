@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
         <meta name="description" content="Read Lekya Specs Privacy Policy. We are committed to protecting your personal information and browser privacy." />
       </Head>
 
-      <div className="bg-premium-light min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
+      <div className="bg-premium-black min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
         <div className="max-w-3xl mx-auto">
           
           {/* Back button */}

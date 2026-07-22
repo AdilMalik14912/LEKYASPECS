@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useAuth } from './_app';
@@ -133,7 +133,7 @@ export default function FrameCustomizer() {
                   </div>
                 ) : (
                   // Holographic background when no image uploaded
-                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A028_1px,transparent_1px)] [background-size:16px_16px]" />
+                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FAAE62_1px,transparent_1px)] [background-size:16px_16px]" />
                 )}
 
                 {/* Live Glasses Rendering */}

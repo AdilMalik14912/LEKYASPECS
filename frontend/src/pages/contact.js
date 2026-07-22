@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
@@ -102,7 +102,7 @@ export default function ContactPage() {
 
       {/* Hero Banner */}
       <div className="bg-premium-black pt-32 pb-16 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(ellipse at center, #C5A028 0%, transparent 70%)' }} />
+        <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(ellipse at center, #FAAE62 0%, transparent 70%)' }} />
         <span className="text-[10px] uppercase font-bold text-premium-accent tracking-widest mb-3 block">Get In Touch</span>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-4">
           {typedText}<span className="typewriter-cursor text-premium-accent" style={{ opacity: typedText.length < CONTACT_HEADING.length ? 1 : 0 }} />

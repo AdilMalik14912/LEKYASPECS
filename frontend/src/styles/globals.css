@@ -2,27 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+/* ============================================================
+   GOOGLE FONTS — Premium Typography
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
+/* ============================================================
+   CSS CUSTOM PROPERTIES — Brand Tokens
+   ============================================================ */
+:root {
+  --color-purple-darkest: #0D0016;
+  --color-purple-dark:    #1A0024;
+  --color-purple-mid:     #2A0440;
+  --color-purple:         #3E0856;
+  --color-purple-glow:    #7B22A8;
+  --color-purple-light:   #9B4DC0;
+  --color-orange:         #FAAE62;
+  --color-orange-light:   #FCC48A;
+  --color-orange-dark:    #D4893F;
+  --color-orange-muted:   #E8A050;
+  --color-text-primary:   #FEF6EE;
+  --color-text-muted:     #9B7EA8;
+  --color-text-subtle:    #6B4A80;
+  --color-border:         #4A1268;
+  --color-border-light:   rgba(250,174,98,0.2);
+  --color-surface:        #1E0030;
+  --color-surface-mid:    #2D0848;
+
+  /* Orange glow radial for spotlight effects */
+  --orange-glow: rgba(250,174,98,0.12);
+  --orange-glow-strong: rgba(250,174,98,0.25);
+  --purple-glow: rgba(62,8,86,0.6);
+}
+
+/* ============================================================
+   BASE — Dark Purple Theme
+   ============================================================ */
 html,
 body {
   padding: 0;
   margin: 0;
-  background-color: #fcfaf7;
-  color: #111111;
+  background-color: var(--color-purple-darkest);
+  color: var(--color-text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   scroll-behavior: smooth;
 }
 
 h1, h2, h3, h4, .font-serif {
-  font-family: 'Playfair Display', Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-/* Custom premium scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f4edd6; }
-::-webkit-scrollbar-thumb { background: #c5a880; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #9d8059; }
+/* Custom premium scrollbar — Purple & Orange */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-purple-dark); }
+::-webkit-scrollbar-thumb  { background: var(--color-orange); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-orange-dark); }
 
 /* ============================================================
    CORE ANIMATION KEYFRAMES
@@ -63,10 +97,35 @@ h1, h2, h3, h4, .font-serif {
 }
 
 /* ============================================================
+   BACKGROUND AMBIENT ORBS — 3D Floating Purple/Orange Blobs
+   ============================================================ */
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); opacity: 0.5; }
+  25%       { transform: translate(30px, -40px) scale(1.1); opacity: 0.7; }
+  50%       { transform: translate(-20px, -60px) scale(0.9); opacity: 0.4; }
+  75%       { transform: translate(40px, -30px) scale(1.05); opacity: 0.6; }
+}
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); opacity: 0.4; }
+  33%       { transform: translate(-40px, 30px) scale(1.15); opacity: 0.6; }
+  66%       { transform: translate(25px, 50px) scale(0.85); opacity: 0.5; }
+}
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate(0px, 0px) rotate(0deg) scale(1); opacity: 0.3; }
+  50%       { transform: translate(20px, -35px) rotate(180deg) scale(1.2); opacity: 0.55; }
+}
+
+.ambient-orb-1 { animation: orb-drift-1 12s ease-in-out infinite; }
+.ambient-orb-2 { animation: orb-drift-2 15s ease-in-out infinite; animation-delay: -4s; }
+.ambient-orb-3 { animation: orb-drift-3 10s ease-in-out infinite; animation-delay: -7s; }
+.ambient-orb-4 { animation: orb-drift-1 18s ease-in-out infinite; animation-delay: -2s; }
+
+/* ============================================================
    HERO SECTION — PARALLAX & PARTICLE EFFECTS
    ============================================================ */
 
-/* Floating particles for hero */
+/* Floating particles — now orange tinted */
 @keyframes particle-drift {
   0%   { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.4; }
   25%  { transform: translateY(-20px) translateX(8px) scale(1.1); opacity: 0.7; }
@@ -77,33 +136,27 @@ h1, h2, h3, h4, .font-serif {
 
 .particle { animation: particle-drift var(--dur, 6s) ease-in-out infinite; }
 .particle-1 { --dur: 5.5s; animation-delay: 0s; }
-.particle-2 { --dur: 7s; animation-delay: -1.5s; }
-.particle-3 { --dur: 6s; animation-delay: -3s; }
-.particle-4 { --dur: 8s; animation-delay: -0.8s; }
-.particle-5 { --dur: 5s; animation-delay: -2.2s; }
-.particle-6 { --dur: 9s; animation-delay: -4s; }
+.particle-2 { --dur: 7s;   animation-delay: -1.5s; }
+.particle-3 { --dur: 6s;   animation-delay: -3s; }
+.particle-4 { --dur: 8s;   animation-delay: -0.8s; }
+.particle-5 { --dur: 5s;   animation-delay: -2.2s; }
+.particle-6 { --dur: 9s;   animation-delay: -4s; }
 
-/* Hero showcase orbit ring spinning */
-@keyframes orbit-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes orbit-spin-reverse {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-.animate-orbit      { animation: orbit-spin 18s linear infinite; }
-.animate-orbit-rev  { animation: orbit-spin-reverse 24s linear infinite; }
+/* Hero showcase orbit ring spinning — orange gradient */
+@keyframes orbit-spin         { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+@keyframes orbit-spin-reverse { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
+.animate-orbit     { animation: orbit-spin 18s linear infinite; }
+.animate-orbit-rev { animation: orbit-spin-reverse 24s linear infinite; }
 
-/* Hero glass card float */
+/* Hero glass card float — purple/orange depth shadows */
 @keyframes hero-float {
   0%, 100% {
     transform: perspective(1200px) rotateX(8deg) rotateY(-12deg) translateY(0px);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(197,160,40,0.15);
+    box-shadow: 0 30px 80px rgba(13,0,22,0.7), 0 0 60px rgba(250,174,98,0.15);
   }
   50% {
     transform: perspective(1200px) rotateX(5deg) rotateY(-8deg) translateY(-18px);
-    box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 100px rgba(197,160,40,0.25);
+    box-shadow: 0 50px 100px rgba(13,0,22,0.8), 0 0 100px rgba(250,174,98,0.28);
   }
 }
 .animate-hero-float {
@@ -111,34 +164,68 @@ h1, h2, h3, h4, .font-serif {
   transform-style: preserve-3d;
 }
 
-/* Hero glasses SVG animation — depth float with slight Y-tilt */
+/* Hero glasses SVG — orange neon glow */
 @keyframes glasses-showcase {
   0%, 100% {
     transform: translateY(0px) rotateZ(-1deg);
-    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6)) drop-shadow(0 0 30px rgba(197,160,40,0.3));
+    filter: drop-shadow(0 20px 40px rgba(13,0,22,0.8)) drop-shadow(0 0 30px rgba(250,174,98,0.35));
   }
   50% {
     transform: translateY(-12px) rotateZ(1deg);
-    filter: drop-shadow(0 35px 60px rgba(0,0,0,0.7)) drop-shadow(0 0 50px rgba(197,160,40,0.5));
+    filter: drop-shadow(0 35px 60px rgba(13,0,22,0.9)) drop-shadow(0 0 60px rgba(250,174,98,0.6));
   }
 }
 .animate-glasses-showcase {
   animation: glasses-showcase 5s ease-in-out infinite;
 }
 
-/* Ambient glow pulse on hero right panel */
+/* Ambient glow pulse — orange */
 @keyframes ambient-glow {
   0%, 100% { opacity: 0.3; transform: scale(1); }
-  50%       { opacity: 0.7; transform: scale(1.15); }
+  50%       { opacity: 0.75; transform: scale(1.18); }
 }
-.animate-ambient-glow { animation: ambient-glow 4s ease-in-out infinite; }
+.animate-ambient-glow      { animation: ambient-glow 4s ease-in-out infinite; }
 .animate-ambient-glow-slow { animation: ambient-glow 6s ease-in-out infinite; animation-delay: -2s; }
+
+/* ============================================================
+   ORANGE SHIMMER TEXT
+   ============================================================ */
+
+@keyframes orange-shimmer-text {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-orange-text {
+  background: linear-gradient(90deg, #D4893F 0%, #FAAE62 25%, #FCC48A 50%, #FAAE62 75%, #D4893F 100%);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: orange-shimmer-text 4s linear infinite;
+}
+
+/* Legacy alias — keep shimmer-gold-text pointing to orange shimmer */
+.shimmer-gold-text {
+  background: linear-gradient(90deg, #D4893F 0%, #FAAE62 25%, #FCC48A 50%, #FAAE62 75%, #D4893F 100%);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: orange-shimmer-text 4s linear infinite;
+}
+
+/* Purple-Orange gradient text */
+.gradient-text-brand {
+  background: linear-gradient(135deg, #FAAE62 0%, #FCC48A 50%, #FAAE62 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
 
 /* ============================================================
    CATEGORY CARDS — HOVER EFFECTS
    ============================================================ */
 
-/* Shine sweep effect on hover — pure CSS, no JS needed */
 .cat-card {
   position: relative;
   overflow: hidden;
@@ -147,6 +234,7 @@ h1, h2, h3, h4, .font-serif {
               box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Shine sweep — warm orange tint */
 .cat-card::after {
   content: '';
   position: absolute;
@@ -154,30 +242,26 @@ h1, h2, h3, h4, .font-serif {
   left: -120%;
   width: 70%;
   height: 100%;
-  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 50%, transparent 80%);
+  background: linear-gradient(105deg, transparent 20%, rgba(250,174,98,0.15) 50%, transparent 80%);
   transform: skewX(-20deg);
   transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
   z-index: 20;
 }
 
-.cat-card:hover::after {
-  left: 130%;
-}
+.cat-card:hover::after { left: 130%; }
 
 .cat-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 30px 70px rgba(0,0,0,0.4), 0 0 40px rgba(197,160,40,0.15);
+  box-shadow: 0 30px 70px rgba(13,0,22,0.6), 0 0 40px rgba(250,174,98,0.2);
 }
 
 .cat-card .cat-img {
   transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.cat-card:hover .cat-img {
-  transform: scale(1.1);
-}
+.cat-card:hover .cat-img { transform: scale(1.1); }
 
-/* Gold border reveal on hover */
+/* Orange border reveal on hover */
 .cat-card .cat-border-reveal {
   position: absolute;
   inset: 0;
@@ -187,11 +271,8 @@ h1, h2, h3, h4, .font-serif {
   pointer-events: none;
   z-index: 10;
 }
-.cat-card:hover .cat-border-reveal {
-  border-color: rgba(197,160,40,0.5);
-}
+.cat-card:hover .cat-border-reveal { border-color: rgba(250,174,98,0.55); }
 
-/* Text slide-up on hover */
 .cat-card .cat-label {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
@@ -212,7 +293,6 @@ h1, h2, h3, h4, .font-serif {
 .perspective-3d { perspective: 1200px; }
 .preserve-3d    { transform-style: preserve-3d; }
 
-/* 3D Scroll Reveal Animations */
 .reveal-3d {
   opacity: 0;
   transform: perspective(1000px) rotateX(12deg) translateY(45px) scale(0.95);
@@ -229,6 +309,8 @@ h1, h2, h3, h4, .font-serif {
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
 
 /* ============================================================
    FLOATING ELEMENTS
@@ -249,7 +331,7 @@ h1, h2, h3, h4, .font-serif {
 .float-delay-3 { animation-delay: 0.75s; }
 
 /* ============================================================
-   GLOW SPOTLIGHT (mouse-tracking)
+   GLOW SPOTLIGHT (mouse-tracking) — Orange glow
    ============================================================ */
 
 .glow-spotlight-card {
@@ -261,7 +343,7 @@ h1, h2, h3, h4, .font-serif {
   position: absolute;
   inset: 0;
   background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(197,160,40,0.09), transparent 40%);
+    rgba(250,174,98,0.1), transparent 40%);
   z-index: 1;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -280,8 +362,8 @@ h1, h2, h3, h4, .font-serif {
 }
 .tool-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(197,160,40,0.12), 0 8px 20px rgba(0,0,0,0.08);
-  border-color: rgba(197,160,40,0.5);
+  box-shadow: 0 20px 50px rgba(250,174,98,0.15), 0 8px 20px rgba(13,0,22,0.5);
+  border-color: rgba(250,174,98,0.5);
 }
 .tool-card::after {
   content: '';
@@ -290,7 +372,7 @@ h1, h2, h3, h4, .font-serif {
   left: -100%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.12) 50%, transparent 80%);
+  background: linear-gradient(105deg, transparent 20%, rgba(250,174,98,0.12) 50%, transparent 80%);
   transform: skewX(-15deg);
   transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
@@ -310,7 +392,7 @@ h1, h2, h3, h4, .font-serif {
 }
 .product-card:hover {
   transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 25px 60px rgba(0,0,0,0.12), 0 0 30px rgba(197,160,40,0.1);
+  box-shadow: 0 25px 60px rgba(13,0,22,0.6), 0 0 35px rgba(250,174,98,0.18);
 }
 .product-card::after {
   content: '';
@@ -319,7 +401,7 @@ h1, h2, h3, h4, .font-serif {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%);
+  background: linear-gradient(105deg, transparent 20%, rgba(250,174,98,0.1) 50%, transparent 80%);
   transform: skewX(-15deg);
   transition: left 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
@@ -328,7 +410,7 @@ h1, h2, h3, h4, .font-serif {
 .product-card:hover::after { left: 150%; }
 
 /* ============================================================
-   3D BUTTON
+   3D BUTTON — Orange glow press effect
    ============================================================ */
 
 .btn-3d {
@@ -339,32 +421,46 @@ h1, h2, h3, h4, .font-serif {
 }
 .btn-3d:hover {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 12px 25px rgba(197,160,40,0.3);
+  box-shadow: 0 12px 25px rgba(250,174,98,0.35), 0 0 20px rgba(250,174,98,0.2);
 }
 .btn-3d:active {
   transform: translateY(1px) scale(0.98);
-  box-shadow: 0 4px 10px rgba(197,160,40,0.2);
+  box-shadow: 0 4px 10px rgba(250,174,98,0.2);
 }
 
 /* ============================================================
-   GLASS MORPHISM
+   GLASS MORPHISM — Deep Purple
    ============================================================ */
 
 .glass-morphic-3d {
-  background: rgba(255,255,255,0.03);
+  background: rgba(62,8,86,0.12);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(250,174,98,0.08);
+}
+
+.glass-dark {
+  background: rgba(13,0,22,0.7);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(250,174,98,0.1);
+}
+
+.glass-purple {
+  background: rgba(30,0,48,0.8);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(74,18,104,0.6);
 }
 
 .shadow-premium-3d {
   box-shadow:
-    0 1px 1px rgba(0,0,0,0.1),
-    0 2px 2px rgba(0,0,0,0.1),
-    0 4px 4px rgba(0,0,0,0.1),
-    0 8px 8px rgba(0,0,0,0.1),
-    0 16px 16px rgba(0,0,0,0.15),
-    0 0 60px rgba(197,160,40,0.08);
+    0 1px 1px rgba(0,0,0,0.2),
+    0 2px 2px rgba(0,0,0,0.2),
+    0 4px 4px rgba(0,0,0,0.2),
+    0 8px 8px rgba(0,0,0,0.2),
+    0 16px 16px rgba(0,0,0,0.25),
+    0 0 60px rgba(250,174,98,0.08);
 }
 
 /* ============================================================
@@ -381,23 +477,10 @@ h1, h2, h3, h4, .font-serif {
   transform-style: preserve-3d;
 }
 
-@keyframes gold-shimmer-text {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-.shimmer-gold-text {
-  background: linear-gradient(90deg, #9d8059 0%, #E2C974 25%, #C5A028 50%, #E2C974 75%, #9d8059 100%);
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: gold-shimmer-text 4s linear infinite;
-}
-
 .preloader-overlay {
   position: fixed;
   inset: 0;
-  background-color: #080808;
+  background: linear-gradient(135deg, #0D0016 0%, #1A0024 50%, #2A0440 100%);
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -412,7 +495,7 @@ h1, h2, h3, h4, .font-serif {
   transform: scale(1.06) translateY(-16px);
 }
 
-/* Top route bar */
+/* Top route bar — orange gradient */
 @keyframes route-bar-slide {
   0%   { transform: scaleX(0); transform-origin: left; }
   100% { transform: scaleX(1); transform-origin: left; }
@@ -423,7 +506,7 @@ h1, h2, h3, h4, .font-serif {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #C5A028, #E2C974, #C5A028);
+  background: linear-gradient(90deg, #D4893F, #FAAE62, #FCC48A, #FAAE62, #D4893F);
   background-size: 200% 100%;
   z-index: 999999;
   animation: route-bar-slide 0.4s ease-out, top-bar-shimmer 1.5s linear infinite 0.4s;
@@ -443,20 +526,20 @@ h1, h2, h3, h4, .font-serif {
 .hover-zoom:hover img { transform: scale(1.08); }
 
 /* ============================================================
-   LEGACY COMPATIBILITY ANIMATIONS (used in non-hero sections)
+   LEGACY COMPATIBILITY ANIMATIONS
    ============================================================ */
 
 @keyframes float3d {
-  0%   { transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg); box-shadow: 0 15px 35px rgba(0,0,0,0.3), 0 5px 15px rgba(197,160,40,0.1); }
-  50%  { transform: perspective(1000px) translateY(-12px) rotateX(14deg) rotateY(-8deg); box-shadow: 0 25px 45px rgba(0,0,0,0.4), 0 10px 25px rgba(197,160,40,0.2); }
-  100% { transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg); box-shadow: 0 15px 35px rgba(0,0,0,0.3), 0 5px 15px rgba(197,160,40,0.1); }
+  0%   { transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg);  box-shadow: 0 15px 35px rgba(13,0,22,0.5), 0 5px 15px rgba(250,174,98,0.12); }
+  50%  { transform: perspective(1000px) translateY(-12px) rotateX(14deg) rotateY(-8deg); box-shadow: 0 25px 45px rgba(13,0,22,0.7), 0 10px 25px rgba(250,174,98,0.22); }
+  100% { transform: perspective(1000px) translateY(0px) rotateX(10deg) rotateY(-15deg);  box-shadow: 0 15px 35px rgba(13,0,22,0.5), 0 5px 15px rgba(250,174,98,0.12); }
 }
 .animate-float-3d { animation: float3d 6s ease-in-out infinite; }
 
 @keyframes float-glasses {
-  0%   { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); }
-  50%  { transform: translateY(-8px) rotate(3deg) scale(1.03); filter: drop-shadow(0 25px 30px rgba(197,160,40,0.35)); }
-  100% { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); }
+  0%   { transform: translateY(0px) rotate(0deg) scale(1);     filter: drop-shadow(0 15px 20px rgba(13,0,22,0.7)); }
+  50%  { transform: translateY(-8px) rotate(3deg) scale(1.03); filter: drop-shadow(0 25px 30px rgba(250,174,98,0.4)); }
+  100% { transform: translateY(0px) rotate(0deg) scale(1);     filter: drop-shadow(0 15px 20px rgba(13,0,22,0.7)); }
 }
 .animate-float-glasses { animation: float-glasses 4.5s ease-in-out infinite; }
 
@@ -552,7 +635,7 @@ h1, h2, h3, h4, .font-serif {
 .ken-burns-b { animation: ken-burns-b 16s ease-in-out infinite; }
 
 /* ============================================================
-   FACE-SHAPE PAGE — Scan line pulse over webcam
+   FACE-SHAPE PAGE — Scan line pulse over webcam — Orange
    ============================================================ */
 @keyframes scan-line {
   0%   { top: 0%; opacity: 0.9; }
@@ -564,8 +647,8 @@ h1, h2, h3, h4, .font-serif {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #C5A028 20%, #E2C974 50%, #C5A028 80%, transparent 100%);
-  box-shadow: 0 0 12px 4px rgba(197,160,40,0.5);
+  background: linear-gradient(90deg, transparent 0%, #D4893F 20%, #FAAE62 50%, #D4893F 80%, transparent 100%);
+  box-shadow: 0 0 12px 4px rgba(250,174,98,0.55);
   animation: scan-line 2.5s linear infinite;
   pointer-events: none;
   z-index: 20;
@@ -574,9 +657,7 @@ h1, h2, h3, h4, .font-serif {
   0%   { transform: scale(0.5); opacity: 0.8; }
   100% { transform: scale(2.2); opacity: 0; }
 }
-.radar-ping {
-  animation: radar-ping 1.8s ease-out infinite;
-}
+.radar-ping { animation: radar-ping 1.8s ease-out infinite; }
 
 /* ============================================================
    WISHLIST PAGE — Heart pulse beat
@@ -588,7 +669,7 @@ h1, h2, h3, h4, .font-serif {
   42%       { transform: scale(1.2); }
   70%       { transform: scale(1); }
 }
-.animate-heartbeat { animation: heartbeat 1.4s ease-in-out infinite; }
+.animate-heartbeat      { animation: heartbeat 1.4s ease-in-out infinite; }
 .animate-heartbeat-once { animation: heartbeat 0.6s ease-in-out; }
 
 /* ============================================================
@@ -611,16 +692,16 @@ h1, h2, h3, h4, .font-serif {
 .quiz-slide-back { animation: slide-in-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 /* ============================================================
-   PRIVACY / TERMS — Section glow highlight on scroll
+   PRIVACY / TERMS — Section glow highlight on scroll — Orange
    ============================================================ */
 @keyframes section-glow {
   0%   { background-color: transparent; }
-  30%  { background-color: rgba(197,160,40,0.06); }
+  30%  { background-color: rgba(250,174,98,0.06); }
   100% { background-color: transparent; }
 }
 .section-highlight-active {
   animation: section-glow 2s ease-out forwards;
-  border-left: 3px solid rgba(197,160,40,0.4);
+  border-left: 3px solid rgba(250,174,98,0.5);
   padding-left: 16px;
   transition: border-color 0.3s ease;
 }
@@ -631,12 +712,12 @@ h1, h2, h3, h4, .font-serif {
   scroll-margin-top: 80px;
 }
 .policy-section.in-view {
-  border-left-color: rgba(197,160,40,0.5);
-  background-color: rgba(197,160,40,0.04);
+  border-left-color: rgba(250,174,98,0.55);
+  background-color: rgba(250,174,98,0.04);
 }
 
 /* ============================================================
-   AR TRY-ON / WEBCAM PAGES — Radar concentric rings
+   AR TRY-ON / WEBCAM PAGES — Radar concentric rings — Orange
    ============================================================ */
 @keyframes concentric-ring {
   0%   { transform: scale(1); opacity: 0.6; }
@@ -646,3 +727,114 @@ h1, h2, h3, h4, .font-serif {
 .concentric-2 { animation: concentric-ring 2s ease-out 0.65s infinite; }
 .concentric-3 { animation: concentric-ring 2s ease-out 1.3s infinite; }
 
+/* ============================================================
+   ORANGE NEON BORDER GLOW
+   ============================================================ */
+.neon-border-orange {
+  border: 1px solid rgba(250,174,98,0.4);
+  box-shadow:
+    0 0 5px rgba(250,174,98,0.2),
+    0 0 10px rgba(250,174,98,0.15),
+    inset 0 0 5px rgba(250,174,98,0.05);
+}
+.neon-border-orange:hover {
+  border-color: rgba(250,174,98,0.7);
+  box-shadow:
+    0 0 10px rgba(250,174,98,0.4),
+    0 0 20px rgba(250,174,98,0.25),
+    inset 0 0 10px rgba(250,174,98,0.08);
+}
+
+/* ============================================================
+   PURPLE CARD BASE — For product cards, feature cards etc.
+   ============================================================ */
+.card-purple {
+  background: linear-gradient(145deg, #1E0030 0%, #2A0440 100%);
+  border: 1px solid rgba(74,18,104,0.6);
+  border-radius: 1rem;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease;
+}
+.card-purple:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(250,174,98,0.35);
+  box-shadow: 0 20px 50px rgba(13,0,22,0.7), 0 0 35px rgba(250,174,98,0.15);
+}
+
+/* Orange accent line underneath headings */
+.accent-underline {
+  position: relative;
+  display: inline-block;
+}
+.accent-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #D4893F, #FAAE62, #FCC48A);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   UTILITY — Orange Badge
+   ============================================================ */
+.badge-orange {
+  background: linear-gradient(135deg, #D4893F, #FAAE62);
+  color: #0D0016;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* ============================================================
+   INTERACTIVE ORANGE BUTTON BASE
+   ============================================================ */
+.btn-orange {
+  background: linear-gradient(135deg, #D4893F 0%, #FAAE62 50%, #FCC48A 100%);
+  color: #0D0016;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-orange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-orange:hover::before { left: 140%; }
+.btn-orange:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(250,174,98,0.45), 0 0 15px rgba(250,174,98,0.25);
+}
+.btn-orange:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* ============================================================
+   PURPLE OUTLINE BUTTON
+   ============================================================ */
+.btn-purple-outline {
+  background: transparent;
+  border: 1.5px solid rgba(250,174,98,0.5);
+  color: var(--color-orange);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-purple-outline:hover {
+  background: rgba(250,174,98,0.08);
+  border-color: rgba(250,174,98,0.8);
+  box-shadow: 0 0 15px rgba(250,174,98,0.2);
+}

@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -26,11 +26,11 @@ const {
 function LekyaSpecsLogo({ className = "w-10 h-10" }) {
   return (
     <svg viewBox="0 0 88 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <rect x="2" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="3.5" fill="none"/>
-      <rect x="52" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="3.5" fill="none"/>
-      <path d="M36 20 Q44 14 52 20" stroke="#C5A028" strokeWidth="3" fill="none" strokeLinecap="round"/>
-      <circle cx="14" cy="16" r="2.5" fill="#C5A028" opacity="0.6"/>
-      <circle cx="66" cy="16" r="2.5" fill="#C5A028" opacity="0.6"/>
+      <rect x="2" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
+      <rect x="52" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
+      <path d="M36 20 Q44 14 52 20" stroke="#FAAE62" strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <circle cx="14" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
+      <circle cx="66" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
     </svg>
   );
 }

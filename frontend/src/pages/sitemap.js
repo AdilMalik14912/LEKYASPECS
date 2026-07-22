@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { ArrowLeft, Navigation, ShoppingBag, User, Sparkles, HelpCircle, ShieldAlert } = require('lucide-react');
@@ -50,7 +50,7 @@ export default function Sitemap() {
         <meta name="description" content="View the complete visual sitemap directory for Lekya Specs. Access shopping catalogs, interactive visual modules, and support dashboards." />
       </Head>
 
-      <div className="bg-premium-light min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
+      <div className="bg-premium-black min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-premium-dark font-sans">
         <div className="max-w-4xl mx-auto">
           
           {/* Back button */}

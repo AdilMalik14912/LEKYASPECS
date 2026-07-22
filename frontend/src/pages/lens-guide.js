@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -154,7 +154,7 @@ export default function LensGuidePage() {
       const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 10, centerX, centerY, lensRadius);
       gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
       gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.25)');
-      gradient.addColorStop(1, 'rgba(197, 160, 40, 0.35)'); // subtle gold rim tint
+      gradient.addColorStop(1, 'rgba(250, 174, 98, 0.35)'); // subtle gold rim tint
       ctx.strokeStyle = gradient;
       ctx.lineWidth = 3;
       ctx.stroke();
@@ -176,7 +176,7 @@ export default function LensGuidePage() {
         ctx.save();
         ctx.beginPath();
         ctx.arc(centerX, centerY, lensRadius - 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(197, 160, 40, 0.06)'; // warm anti-blue tint
+        ctx.fillStyle = 'rgba(250, 174, 98, 0.06)'; // warm anti-blue tint
         ctx.fill();
 
         // Draw soft purple/blue light reflection arcs at the top edge of lens
@@ -221,7 +221,7 @@ export default function LensGuidePage() {
       }
 
       // Draw Center Focal crosshair
-      ctx.strokeStyle = 'rgba(197, 160, 40, 0.5)';
+      ctx.strokeStyle = 'rgba(250, 174, 98, 0.5)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(centerX - 6, centerY);
@@ -247,7 +247,7 @@ export default function LensGuidePage() {
         <meta name="description" content="Precision lens customizer and 3D refraction simulator. Calculate lens thickness, test anti-reflective coatings, photochromic transitions, and screen filters." />
       </Head>
 
-      <div className="bg-premium-light min-h-screen py-16 sm:py-24">
+      <div className="bg-premium-black min-h-screen py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Header Banner */}
@@ -439,8 +439,8 @@ export default function LensGuidePage() {
                               ? `M 5 2 Q 50 ${15 - (Math.abs(parseFloat(odSph)) * 1.5 * activeIndexDetails.factor)} 95 2 L 95 28 Q 50 ${15 + (Math.abs(parseFloat(odSph)) * 1.5 * activeIndexDetails.factor)} 5 28 Z` // Concave
                               : `M 5 ${12 - (Math.abs(parseFloat(odSph)) * 1.2 * activeIndexDetails.factor)} Q 50 2 95 ${12 - (Math.abs(parseFloat(odSph)) * 1.2 * activeIndexDetails.factor)} L 95 ${18 + (Math.abs(parseFloat(odSph)) * 1.2 * activeIndexDetails.factor)} Q 50 28 5 ${18 + (Math.abs(parseFloat(odSph)) * 1.2 * activeIndexDetails.factor)} Z` // Convex
                             } 
-                            fill="rgba(197, 160, 40, 0.15)" 
-                            stroke="rgba(197, 160, 40, 0.6)" 
+                            fill="rgba(250, 174, 98, 0.15)" 
+                            stroke="rgba(250, 174, 98, 0.6)" 
                             strokeWidth="1"
                           />
                           {/* Thickness measurement lines */}
@@ -592,7 +592,7 @@ export default function LensGuidePage() {
 
               {/* Browse Compatible Frames callout */}
               <div className="bg-premium-black border border-premium-accent/20 rounded-lg p-6 text-center text-white shadow-md relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #C5A028 0%, transparent 60%)' }} />
+                <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at top right, #FAAE62 0%, transparent 60%)' }} />
                 <h3 className="font-serif text-xl font-bold text-premium-accent mb-2">Configure Your Frames with Prescriptions</h3>
                 <p className="text-xs text-gray-400 font-light max-w-md mx-auto mb-5 leading-relaxed">
                   Choose any frame from our catalog. You can configure it with the lens index and protective coatings verified in this Eye Lab during checkout!

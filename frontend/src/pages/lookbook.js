@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useCart, useWishlist } = require('./_app');
@@ -100,7 +100,7 @@ export default function Lookbook() {
   const col = LOOKBOOK_COLLECTIONS[activeCollection];
 
   return (
-    <div className="bg-premium-light min-h-screen">
+    <div className="bg-premium-black min-h-screen">
 
       {/* Hero Banner */}
       <div className="relative h-[70vh] flex items-end justify-start overflow-hidden">

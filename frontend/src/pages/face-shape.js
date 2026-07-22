@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useAuth } = require('./_app');
@@ -349,7 +349,7 @@ export default function FaceShapeSuggestion() {
   };
 
   return (
-    <div className="bg-premium-light min-h-screen py-12">
+    <div className="bg-premium-black min-h-screen py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Title */}
@@ -507,13 +507,13 @@ export default function FaceShapeSuggestion() {
               {/* Connecting Holographic Grid Lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
                 {/* Forehead */}
-                <line x1={`${(points.foreheadLeft.x / 400) * 100}%`} y1={`${(points.foreheadLeft.y / 400) * 100}%`} x2={`${(points.foreheadRight.x / 400) * 100}%`} y2={`${(points.foreheadRight.y / 400) * 100}%`} stroke="#c5a880" strokeWidth="1.5" strokeDasharray="3" />
+                <line x1={`${(points.foreheadLeft.x / 400) * 100}%`} y1={`${(points.foreheadLeft.y / 400) * 100}%`} x2={`${(points.foreheadRight.x / 400) * 100}%`} y2={`${(points.foreheadRight.y / 400) * 100}%`} stroke="#FAAE62" strokeWidth="1.5" strokeDasharray="3" />
                 {/* Cheekbones */}
-                <line x1={`${(points.cheekLeft.x / 400) * 100}%`} y1={`${(points.cheekLeft.y / 400) * 100}%`} x2={`${(points.cheekRight.x / 400) * 100}%`} y2={`${(points.cheekRight.y / 400) * 100}%`} stroke="#c5a880" strokeWidth="1.5" strokeDasharray="3" />
+                <line x1={`${(points.cheekLeft.x / 400) * 100}%`} y1={`${(points.cheekLeft.y / 400) * 100}%`} x2={`${(points.cheekRight.x / 400) * 100}%`} y2={`${(points.cheekRight.y / 400) * 100}%`} stroke="#FAAE62" strokeWidth="1.5" strokeDasharray="3" />
                 {/* Jawline */}
-                <line x1={`${(points.jawLeft.x / 400) * 100}%`} y1={`${(points.jawLeft.y / 400) * 100}%`} x2={`${(points.jawRight.x / 400) * 100}%`} y2={`${(points.jawRight.y / 400) * 100}%`} stroke="#c5a880" strokeWidth="1.5" strokeDasharray="3" />
+                <line x1={`${(points.jawLeft.x / 400) * 100}%`} y1={`${(points.jawLeft.y / 400) * 100}%`} x2={`${(points.jawRight.x / 400) * 100}%`} y2={`${(points.jawRight.y / 400) * 100}%`} stroke="#FAAE62" strokeWidth="1.5" strokeDasharray="3" />
                 {/* Center line (Face Height) */}
-                <line x1="50%" y1={`${(((points.foreheadLeft.y + points.foreheadRight.y) / 2) / 400) * 100}%`} x2="50%" y2={`${(points.chin.y / 400) * 100}%`} stroke="#c5a880" strokeWidth="1.5" strokeDasharray="3" />
+                <line x1="50%" y1={`${(((points.foreheadLeft.y + points.foreheadRight.y) / 2) / 400) * 100}%`} x2="50%" y2={`${(points.chin.y / 400) * 100}%`} stroke="#FAAE62" strokeWidth="1.5" strokeDasharray="3" />
               </svg>
 
               {/* Draggable Pins */}
