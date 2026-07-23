@@ -293,7 +293,7 @@ export default function Account() {
           .catch(err => {
             setFormLoading(false);
             setFormError(err.message);
-            fetchCaptcha(); // Refresh captcha on error
+            refreshCaptcha(); // Refresh captcha on error
           });
       } else {
         // OTP Verification step
@@ -772,7 +772,7 @@ export default function Account() {
                   <input 
                     type="text" 
                     readOnly 
-                    value={user ? `${window.location.origin}/account?ref=${user.referral_code || 'REF-USER'}` : ''}
+                    value={user && typeof window !== 'undefined' ? `${window.location.origin}/account?ref=${user.referral_code || 'REF-USER'}` : ''}
                     className="flex-grow bg-premium-light border border-premium-border rounded px-2.5 py-1.5 text-[10px] text-premium-dark focus:outline-none"
                   />
                   <button
@@ -934,7 +934,7 @@ export default function Account() {
                               <span className="text-xs text-premium-gray block sm:inline sm:ml-2">Qty: {item.quantity}</span>
                             </div>
                           </div>
-                          <span className="font-bold text-premium-dark">₹{parseFloat(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                          <span className="font-bold text-premium-dark">₹{((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1)).toLocaleString('en-IN')}</span>
                         </div>
                       ))}
                     </div>
