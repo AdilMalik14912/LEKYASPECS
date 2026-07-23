@@ -1874,7 +1874,7 @@ export default function Admin() {
                         p.category.toLowerCase().includes(productSearch.toLowerCase()) ||
                         p.frame_shape.toLowerCase().includes(productSearch.toLowerCase())
                       ).map(prod => (
-                        <tr key={prod.id} className="hover:bg-premium-light/50">
+                        <tr key={prod.id} className="hover:bg-[#2A0440]/80 transition-colors">
                           <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{prod.id}</td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -2015,7 +2015,7 @@ export default function Admin() {
                           
                           return matchesSearch && matchesStatus;
                         }).map(order => (
-                          <tr key={order.id} className="hover:bg-premium-light/50">
+                        <tr key={order.id} className="hover:bg-[#2A0440]/80 transition-colors">
                             <td className="px-6 py-4 text-xs">
                               <span className="font-bold text-premium-accent block">#{order.id}</span>
                               {order.tracking_id && (

@@ -896,3 +896,28 @@ input[type="checkbox"]:checked, input[type="radio"]:checked {
   box-shadow: 0 15px 40px rgba(13,0,22,0.85), 0 0 25px rgba(250, 174, 98, 0.2) !important;
 }
 
+/* Fix table row hover - prevent muddy grey background */
+tr:hover,
+tr.hover\:bg-premium-light\/50:hover,
+tr.hover\:bg-premium-light:hover {
+  background-color: rgba(42, 4, 64, 0.85) !important;
+  color: #FEF6EE !important;
+}
+
+/* Ensure table cells stay crisp on row hover */
+tr:hover td,
+tr:hover td span,
+tr:hover td div {
+  color: #FEF6EE !important;
+}
+tr:hover td span.text-premium-accent,
+tr:hover td span.text-amber-400 {
+  color: #FAAE62 !important;
+}
+
+/* Fix dropdown menu items - prevent bright white box hover */
+.hover\:bg-white:hover {
+  background-color: rgba(62, 8, 86, 0.5) !important;
+}
+
+

@@ -452,14 +452,14 @@ export default function App({ Component, pageProps }) {
                                 href="https://lekyalogistics.com" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-2 rounded-xl hover:bg-white transition-all group/item cursor-pointer border border-transparent hover:border-blue-200 shadow-none hover:shadow-sm"
+                                className="flex items-center gap-3 p-2.5 rounded-xl transition-all group/item cursor-pointer border border-transparent hover:border-[#3B82F6]/50 hover:bg-[#3E0856]/40"
                               >
-                                <div className="w-11 h-11 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-bold shadow-sm group-hover/item:scale-105 transition-transform flex-shrink-0">
                                   <Truck className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-black uppercase tracking-wide text-black group-hover/item:text-blue-600 transition-colors truncate">Lekya Logistics</p>
-                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 truncate">Pan-India Freight Logistics</p>
+                                  <p className="text-xs font-black uppercase tracking-wide text-[#FEF6EE] group-hover/item:text-[#3B82F6] transition-colors truncate">Lekya Logistics</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9B7EA8] truncate">Pan-India Freight Logistics</p>
                                 </div>
                                 <ExternalLink className="w-4 h-4 text-[#3B82F6] opacity-80 group-hover/item:opacity-100 flex-shrink-0" />
                               </a>
@@ -469,16 +469,16 @@ export default function App({ Component, pageProps }) {
                                 href="https://parceluncle.com" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-2 rounded-xl hover:bg-white transition-all group/item cursor-pointer border border-transparent hover:border-orange-200 shadow-none hover:shadow-sm"
+                                className="flex items-center gap-3 p-2.5 rounded-xl transition-all group/item cursor-pointer border border-transparent hover:border-[#FAAE62]/50 hover:bg-[#3E0856]/40"
                               >
-                                <div className="w-11 h-11 rounded-2xl bg-[#F97316] text-white flex items-center justify-center font-extrabold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#F97316] text-white flex items-center justify-center font-extrabold text-sm tracking-tighter shadow-sm group-hover/item:scale-105 transition-transform flex-shrink-0">
                                   PU
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-black uppercase tracking-wide text-black group-hover/item:text-orange-600 transition-colors truncate">Parcel Uncle</p>
-                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 truncate">Hyperlocal Dispatch Network</p>
+                                  <p className="text-xs font-black uppercase tracking-wide text-[#FEF6EE] group-hover/item:text-[#FAAE62] transition-colors truncate">Parcel Uncle</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9B7EA8] truncate">Hyperlocal Dispatch Network</p>
                                 </div>
-                                <ExternalLink className="w-4 h-4 text-[#F97316] opacity-80 group-hover/item:opacity-100 flex-shrink-0" />
+                                <ExternalLink className="w-4 h-4 text-[#FAAE62] opacity-80 group-hover/item:opacity-100 flex-shrink-0" />
                               </a>
 
                               {/* 3. Infinior Advisors */}
@@ -486,38 +486,38 @@ export default function App({ Component, pageProps }) {
                                 href="https://infinioradvisors.com" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-2 rounded-xl hover:bg-white transition-all group/item cursor-pointer border border-transparent hover:border-purple-200 shadow-none hover:shadow-sm"
+                                className="flex items-center gap-3 p-2.5 rounded-xl transition-all group/item cursor-pointer border border-transparent hover:border-[#8B5CF6]/50 hover:bg-[#3E0856]/40"
                               >
-                                <div className="w-11 h-11 rounded-2xl bg-[#8B5CF6] text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#8B5CF6] text-white flex items-center justify-center font-bold shadow-sm group-hover/item:scale-105 transition-transform flex-shrink-0">
                                   <Layers className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-black uppercase tracking-wide text-black group-hover/item:text-purple-600 transition-colors truncate">Infinior Advisors</p>
-                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 truncate">Corporate Growth & Advisory</p>
+                                  <p className="text-xs font-black uppercase tracking-wide text-[#FEF6EE] group-hover/item:text-[#A78BFA] transition-colors truncate">Infinior Advisors</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9B7EA8] truncate">Corporate Growth & Advisory</p>
                                 </div>
                                 <ExternalLink className="w-4 h-4 text-[#8B5CF6] opacity-80 group-hover/item:opacity-100 flex-shrink-0" />
                               </a>
 
-                              {/* 4. Lekya Energy (Bordered Highlight Card) */}
+                              {/* 4. Lekya Energy */}
                               <a 
                                 href="https://lekyaenergy.com" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#ECFDF5] hover:bg-[#D1FAE5] border-2 border-[#10B981] transition-all group/item shadow-sm"
+                                className="flex items-center gap-3 p-2.5 rounded-xl transition-all group/item cursor-pointer border border-[#10B981]/40 hover:border-[#10B981] bg-[#059669]/10 hover:bg-[#059669]/25"
                               >
-                                <div className="w-11 h-11 rounded-2xl bg-[#059669] text-white flex items-center justify-center font-bold shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#059669] text-white flex items-center justify-center font-bold shadow-sm group-hover/item:scale-105 transition-transform flex-shrink-0">
                                   <Zap className="w-5 h-5 fill-white stroke-none" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1.5">
-                                    <p className="text-xs font-black uppercase tracking-wide text-black group-hover/item:text-[#047857] transition-colors truncate">Lekya Energy</p>
+                                    <p className="text-xs font-black uppercase tracking-wide text-[#FEF6EE] group-hover/item:text-[#34D399] transition-colors truncate">Lekya Energy</p>
                                     <span className="bg-[#059669] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md tracking-wider uppercase flex items-center gap-0.5 flex-shrink-0">
                                       SOLAR ☀️
                                     </span>
                                   </div>
-                                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#047857] truncate mt-0.5">Clean Renewable Energy</p>
+                                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#34D399] truncate mt-0.5">Clean Renewable Energy</p>
                                 </div>
-                                <ExternalLink className="w-4 h-4 text-[#059669] flex-shrink-0" />
+                                <ExternalLink className="w-4 h-4 text-[#34D399] flex-shrink-0" />
                               </a>
                             </div>
                           </div>
