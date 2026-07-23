@@ -6,7 +6,7 @@ const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -690,6 +690,14 @@ export default function Admin() {
   const [signupOtps, setSignupOtps] = useState([]);
   const [signupOtpsLoading, setSignupOtpsLoading] = useState(true);
 
+  // Returns & Exchanges State
+  const [returnsData, setReturnsData] = useState([]);
+  const [returnsLoading, setReturnsLoading] = useState(true);
+  const [updatingReturnId, setUpdatingReturnId] = useState(null);
+  const [returnStatusMap, setReturnStatusMap] = useState({});
+  const [returnNotesMap, setReturnNotesMap] = useState({});
+  const [returnUpdateMsg, setReturnUpdateMsg] = useState('');
+
   const fetchSignupOtps = () => {
     if (!token) return;
     fetch(`${API_BASE}/api/admin/otps`, {
@@ -864,6 +872,24 @@ export default function Admin() {
         .then(res => res.json())
         .then(data => { setDeliveryOtps(data || []); setDeliveryOtpsLoading(false); })
         .catch(err => { console.error(err); setDeliveryOtpsLoading(false); });
+    } else if (activeTab === 'returns') {
+      setReturnsLoading(true);
+      fetch(`${API_BASE}/api/returns/all`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          const arr = Array.isArray(data) ? data : [];
+          setReturnsData(arr);
+          // Pre-fill status map
+          const sm = {};
+          const nm = {};
+          arr.forEach(r => { sm[r.id] = r.status; nm[r.id] = ''; });
+          setReturnStatusMap(sm);
+          setReturnNotesMap(nm);
+          setReturnsLoading(false);
+        })
+        .catch(err => { console.error(err); setReturnsLoading(false); });
     }
   }, [activeTab, token, user]);
 
@@ -2198,6 +2224,164 @@ export default function Admin() {
                     </table>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- TAB 3b: RETURNS & EXCHANGES MANAGEMENT --- */}
+        {activeTab === 'returns' && (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
+              <h2 className="font-serif text-3xl font-bold text-premium-black flex items-center gap-3">
+                <RefreshCw className="w-7 h-7 text-premium-accent" /> Returns &amp; Exchanges
+              </h2>
+              <button
+                onClick={() => {
+                  setReturnsLoading(true);
+                  fetch(`${API_BASE}/api/returns/all`, { headers: { 'Authorization': `Bearer ${token}` } })
+                    .then(r => r.json())
+                    .then(data => {
+                      const arr = Array.isArray(data) ? data : [];
+                      setReturnsData(arr);
+                      const sm = {}; const nm = {};
+                      arr.forEach(r => { sm[r.id] = r.status; nm[r.id] = ''; });
+                      setReturnStatusMap(sm); setReturnNotesMap(nm);
+                      setReturnsLoading(false);
+                    })
+                    .catch(() => setReturnsLoading(false));
+                }}
+                className="flex items-center gap-2 text-xs bg-premium-black text-white px-4 py-2 rounded hover:bg-premium-accent hover:text-premium-black transition-colors font-semibold uppercase tracking-wider"
+              >
+                <RotateCcw className="w-4 h-4" /> Refresh
+              </button>
+            </div>
+
+            {returnsLoading ? (
+              <div className="text-center py-24"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : returnsData.length === 0 ? (
+              <div className="text-center py-24">
+                <PackageX className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-premium-gray text-lg">No return or exchange requests found.</p>
+                <p className="text-xs text-gray-400 mt-1">All customer return/exchange requests will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {returnUpdateMsg && (
+                  <div className="bg-green-50 border border-green-300 text-green-800 text-sm px-4 py-3 rounded flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" /> {returnUpdateMsg}
+                  </div>
+                )}
+                {returnsData.map(ret => {
+                  const statusColors = {
+                    'Requested': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                    'Approved': 'bg-blue-100 text-blue-800 border-blue-300',
+                    'Pickup Booked': 'bg-indigo-100 text-indigo-800 border-indigo-300',
+                    'Received': 'bg-purple-100 text-purple-800 border-purple-300',
+                    'Inspected': 'bg-cyan-100 text-cyan-800 border-cyan-300',
+                    'Refunded': 'bg-green-100 text-green-800 border-green-300',
+                    'Exchanged': 'bg-teal-100 text-teal-800 border-teal-300',
+                    'Rejected': 'bg-red-100 text-red-800 border-red-300',
+                    'Cancelled': 'bg-gray-100 text-gray-600 border-gray-300',
+                  };
+                  const badgeClass = statusColors[ret.status] || 'bg-gray-100 text-gray-700 border-gray-300';
+                  const isReturn = ret.return_type === 'exchange';
+
+                  return (
+                    <div key={ret.id} className="bg-white border border-premium-border rounded-xl shadow-sm overflow-hidden">
+                      {/* Header Row */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-premium-border bg-premium-light">
+                        <div className="flex items-center gap-3">
+                          {isReturn
+                            ? <ArrowLeftRight className="w-5 h-5 text-indigo-500" />
+                            : <PackageX className="w-5 h-5 text-red-500" />
+                          }
+                          <div>
+                            <span className="font-bold text-sm text-premium-black">
+                              {isReturn ? 'Exchange' : 'Return'} Request #{ret.id}
+                            </span>
+                            <span className="text-xs text-premium-gray ml-3">Order #{ret.order_id}</span>
+                          </div>
+                        </div>
+                        <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${badgeClass}`}>
+                          {ret.status}
+                        </span>
+                      </div>
+
+                      {/* Body */}
+                      <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Customer</p>
+                          <p className="font-semibold text-premium-black">{ret.customer_name || '—'}</p>
+                          <p className="text-xs text-premium-gray">{ret.customer_email || ''}</p>
+                          <p className="text-xs text-premium-gray">{ret.customer_phone || ''}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Return Reason</p>
+                          <p className="text-premium-black">{ret.reason}</p>
+                          {ret.comments && <p className="text-xs text-premium-gray mt-1 italic">{ret.comments}</p>}
+                        </div>
+                        <div>
+                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Refund Amount</p>
+                          <p className="text-lg font-bold text-premium-accent">₹{parseFloat(ret.refund_amount || ret.total_amount || 0).toLocaleString('en-IN')}</p>
+                          {ret.waybill_id && (
+                            <p className="text-xs text-blue-600 mt-1">Reverse AWB: <strong>{ret.waybill_id}</strong></p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Admin Action Row */}
+                      <div className="px-5 py-4 border-t border-premium-border bg-gray-50 flex flex-wrap items-center gap-3">
+                        <select
+                          value={returnStatusMap[ret.id] || ret.status}
+                          onChange={e => setReturnStatusMap(prev => ({ ...prev, [ret.id]: e.target.value }))}
+                          className="text-xs border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-premium-accent"
+                        >
+                          {['Requested','Approved','Pickup Booked','Received','Inspected','Refunded','Exchanged','Rejected','Cancelled'].map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="Admin notes (optional)"
+                          value={returnNotesMap[ret.id] || ''}
+                          onChange={e => setReturnNotesMap(prev => ({ ...prev, [ret.id]: e.target.value }))}
+                          className="flex-1 text-xs border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-premium-accent min-w-[180px]"
+                        />
+                        <button
+                          disabled={updatingReturnId === ret.id}
+                          onClick={() => {
+                            setUpdatingReturnId(ret.id);
+                            setReturnUpdateMsg('');
+                            fetch(`${API_BASE}/api/returns/${ret.id}/status`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                              body: JSON.stringify({ status: returnStatusMap[ret.id] || ret.status, adminNotes: returnNotesMap[ret.id] || '' })
+                            })
+                              .then(r => r.json())
+                              .then(data => {
+                                setUpdatingReturnId(null);
+                                if (data.success) {
+                                  setReturnUpdateMsg(`Return #${ret.id} updated to "${returnStatusMap[ret.id]}" successfully.`);
+                                  // Update local state
+                                  setReturnsData(prev => prev.map(r => r.id === ret.id ? { ...r, status: returnStatusMap[ret.id], waybill_id: data.waybill_id || r.waybill_id } : r));
+                                  setTimeout(() => setReturnUpdateMsg(''), 4000);
+                                }
+                              })
+                              .catch(() => setUpdatingReturnId(null));
+                          }}
+                          className="flex items-center gap-2 text-xs bg-premium-black text-white px-4 py-2 rounded hover:bg-premium-accent hover:text-premium-black transition-colors font-semibold disabled:opacity-60"
+                        >
+                          {updatingReturnId === ret.id
+                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                            : <CheckCircle2 className="w-3 h-3" />
+                          }
+                          Update Status
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
