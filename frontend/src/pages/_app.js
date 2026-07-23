@@ -291,8 +291,7 @@ export default function App({ Component, pageProps }) {
     user.email === 'admin@specs.com'
   );
 
-  const isStaffRoute = isStaff ||
-                       router.pathname.startsWith('/admin') ||
+  const isStaffRoute = router.pathname.startsWith('/admin') ||
                        router.pathname.startsWith('/seller') ||
                        router.pathname.startsWith('/delivery') ||
                        router.pathname.startsWith('/chat') ||
@@ -414,7 +413,7 @@ export default function App({ Component, pageProps }) {
                     </div>
 
                     {/* Desktop Navigation Links */}
-                    {!isStaff ? (
+                    {!isStaffRoute ? (
                       <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-sm font-medium uppercase tracking-wider text-[#D4C8DC] mr-4">
                         <Link href="/shop?category=Eyeglasses" className="hover:text-[#FAAE62] transition-colors py-2">Eyeglasses</Link>
                         <Link href="/shop?category=Sunglasses" className="hover:text-[#FAAE62] transition-colors py-2">Sunglasses</Link>
@@ -566,7 +565,7 @@ export default function App({ Component, pageProps }) {
 
 
                     {/* Desktop Search Bar */}
-                    {!isStaff && (
+                    {!isStaffRoute && (
                       <div className="hidden lg:flex items-center relative max-w-xs w-full mr-6">
                         <input
                           type="text"
@@ -596,7 +595,7 @@ export default function App({ Component, pageProps }) {
 
                     {/* Action Icons */}
                     <div className="flex items-center space-x-3 sm:space-x-6">
-                      {!isStaff && (
+                      {!isStaffRoute && (
                         <>
                           <Link href="/wishlist" className="relative p-2 text-[#D4C8DC] hover:text-[#FAAE62] transition-colors">
                             <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -656,7 +655,7 @@ export default function App({ Component, pageProps }) {
                 {mobileMenuOpen && (
                   <div className="lg:hidden transition-all duration-300 border-b" style={{background: 'rgba(13,0,22,0.97)', backdropFilter: 'blur(20px)', borderColor: 'rgba(74,18,104,0.7)'}}>
                     <div className="px-2 pt-2 pb-4 space-y-1">
-                      {!isStaff ? (
+                      {!isStaffRoute ? (
                         <>
                           {/* Mobile Search Bar */}
                           <div className="px-3 py-2 relative">
