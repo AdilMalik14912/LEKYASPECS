@@ -18,7 +18,7 @@ const SECRET = process.env.JWT_SECRET || 'fallback_secret_change_in_production';
  * @param {object} payload  - data to encode (e.g. { id, name, email })
  * @param {string} expiresIn - e.g. '7d', '2h', '30m'
  */
-function signToken(payload, expiresIn = '7d') {
+function signToken(payload, expiresIn = '30d') {
   return jwt.sign(payload, SECRET, { expiresIn });
 }
 

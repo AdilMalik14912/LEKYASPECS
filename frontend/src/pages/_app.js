@@ -78,7 +78,14 @@ export default function App({ Component, pageProps }) {
           headers: { 'Authorization': `Bearer ${storedToken}` }
         })
           .then(res => {
-            if (!res.ok) throw new Error();
+            if (res.status === 401 || res.status === 403) {
+              localStorage.removeItem('specs_token');
+              localStorage.removeItem('specs_user');
+              setToken(null);
+              setUser(null);
+              throw new Error('Token expired');
+            }
+            if (!res.ok) throw new Error('Profile fetch error');
             return res.json();
           })
           .then(freshUser => {

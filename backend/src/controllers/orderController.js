@@ -144,6 +144,7 @@ const verifyPayment = async (req, res) => {
     }
 
     let orderId;
+    let finalTotalAmount = 0;
 
     await db.transaction(async (tx) => {
       let totalAmount = 0;
@@ -242,6 +243,7 @@ const verifyPayment = async (req, res) => {
         [userId, razorpay_payment_id]
       );
       orderId = orderRes.rows[0].id;
+      finalTotalAmount = totalAmount;
 
       // Insert Order Items
       for (const item of validatedItems) {
@@ -274,7 +276,7 @@ const verifyPayment = async (req, res) => {
         customerName: row.name,
         orderId,
         status:       'Payment Confirmed',
-        totalAmount:  req.body.items?.reduce((s, i) => s, 0) // will be recalculated in the email
+        totalAmount:  finalTotalAmount
       }).catch(err => console.warn('[Payment Confirmed Email]', err.message));
       // Send status SMS
       if (row.phone) {
@@ -300,7 +302,7 @@ const verifyPayment = async (req, res) => {
         customerEmail: userRow?.email,
         shippingAddress: shipping_address,
         items,
-        totalAmount: req.body.items?.reduce((s, i) => s + (i.price * i.quantity), 0) || 0,
+        totalAmount: finalTotalAmount,
         isUrgent: req.body.is_urgent || false
       });
 

@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -164,6 +164,15 @@ export default function Checkout() {
 
       const orderData = await createRes.json();
       if (!createRes.ok) {
+        if (createRes.status === 401 || createRes.status === 403 || (orderData.message && orderData.message.toLowerCase().includes('token'))) {
+          localStorage.removeItem('specs_token');
+          localStorage.removeItem('specs_user');
+          setCheckoutError('Your session has expired. Redirecting to login to refresh your account...');
+          setTimeout(() => {
+            router.push('/account?redirect=checkout');
+          }, 1200);
+          return;
+        }
         throw new Error(orderData.message || 'Failed to create order on backend');
       }
 
