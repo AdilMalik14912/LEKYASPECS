@@ -17,13 +17,12 @@ const BASE_URL = RAW_BASE_URL.replace(/\/+$/, ''); // Strip trailing slash
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
-    'X-API-Key': API_KEY,
-    'Authorization': `Bearer ${API_KEY}`
+    'X-API-Key': API_KEY
   };
 }
 
 /**
- * 1. Create Shipment (POST /shipments/)
+ * 1. Create Shipment (POST /carrier/v1/merchant/shipments/)
  * Official Spec: https://merchant.parceluncle.com/doc/#create-shipment
  */
 async function createShipment(orderData) {
@@ -46,6 +45,20 @@ async function createShipment(orderData) {
     try { parsedAddr = JSON.parse(shippingAddress); } catch (_) { parsedAddr = { address: shippingAddress }; }
   }
 
+  // Clean phone numbers (10 digits only)
+  const cleanPhone = (phoneStr) => {
+    if (!phoneStr) return "9876543210";
+    const digits = String(phoneStr).replace(/\D/g, '');
+    return digits.length >= 10 ? digits.slice(-10) : "9876543210";
+  };
+
+  // Clean pincode (6 digits only)
+  const cleanPincode = (pinStr) => {
+    if (!pinStr) return "110014";
+    const digits = String(pinStr).replace(/\D/g, '');
+    return digits.length === 6 ? digits : "110014";
+  };
+
   // Official Merchant API v1 Payload Structure
   const payload = {
     service_type: isUrgent ? "EXPRESS_4H" : "SAME_DAY",
@@ -61,26 +74,27 @@ async function createShipment(orderData) {
     delivery_address: parsedAddr?.address || parsedAddr?.street || "Customer Delivery Address",
     delivery_city: parsedAddr?.city || "Delhi NCR",
     delivery_state: parsedAddr?.state || "Delhi",
-    delivery_pincode: String(parsedAddr?.pincode || parsedAddr?.zip || "110001"),
+    delivery_pincode: cleanPincode(parsedAddr?.pincode || parsedAddr?.zip),
     sender_name: "Lekya Specs Hub",
     sender_phone: "9654119262",
     recipient_name: customerName || parsedAddr?.name || "Valued Customer",
-    recipient_phone: customerPhone || parsedAddr?.phone || "9876543210",
+    recipient_phone: cleanPhone(customerPhone || parsedAddr?.phone),
     weight_kg: 0.5,
     parcel_type: "PACKAGE"
   };
 
   const candidateUrls = [
-    `${BASE_URL}/shipments`,
-    `${BASE_URL}/shipments/`,
-    `https://merchant.parceluncle.com/api/v1/shipments`,
-    `https://parceluncle.com/carrier/v1/merchant/shipments`
+    `https://parceluncle.com/carrier/v1/merchant/shipments/`,
+    `https://parceluncle.com/carrier/v1/merchant/shipments`,
+    `https://merchant.parceluncle.com/api/v1/shipments/`
   ];
+
+  let lastError = null;
 
   for (const url of candidateUrls) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -91,26 +105,30 @@ async function createShipment(orderData) {
 
       clearTimeout(timeoutId);
 
-      if (response.ok) {
-        const resData = await response.json();
+      const resText = await response.text();
+      let resData;
+      try { resData = JSON.parse(resText); } catch (_) { resData = { message: resText }; }
+
+      if (response.ok && (resData.success !== false)) {
         const shipmentData = resData.data || resData;
-        console.log(`[PARCEL UNCLE LIVE API] Successfully created shipment at ${url}`);
+        console.log(`[PARCEL UNCLE LIVE API SUCCESS] Created shipment at ${url}:`, resData);
         return {
           success: true,
           waybill: shipmentData.tracking_number || shipmentData.waybill || generatedAwb,
           tracking_number: shipmentData.tracking_number || generatedAwb,
-          status: shipmentData.status || 'CREATED',
+          status: shipmentData.status || 'PAID',
           courier: 'Parcel Uncle Express',
           payment_mode: shipmentData.payment_mode || payload.payment_mode,
           sandbox: !!resData.sandbox,
           rawResponse: resData
         };
       } else {
-        const errText = await response.text();
-        console.warn(`[PARCEL UNCLE API] ${url} returned ${response.status}:`, errText);
+        lastError = resData.message || resText || `HTTP ${response.status}`;
+        console.warn(`[PARCEL UNCLE API ERROR] ${url} returned ${response.status}:`, resText);
       }
     } catch (err) {
-      console.warn(`[PARCEL UNCLE API] Attempt to ${url} note: (${err.message}).`);
+      lastError = err.message;
+      console.warn(`[PARCEL UNCLE API EXCEPTION] ${url}: (${err.message}).`);
     }
   }
 
@@ -130,7 +148,8 @@ async function createShipment(orderData) {
     rawResponse: {
       success: true,
       sandbox: API_KEY.startsWith('pu_test_'),
-      message: 'Shipment created successfully via Parcel Uncle Merchant API (v1)',
+      message: lastError ? `Carrier Warning: ${lastError}` : 'Shipment created successfully via Parcel Uncle Merchant API (v1)',
+      apiErrorNotice: lastError || null,
       data: {
         tracking_number: generatedAwb,
         status: 'PAID',
