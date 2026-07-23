@@ -7,6 +7,95 @@ const parcelUncle = require('../utils/parcelUncle');
 const { sendStatusUpdateEmail } = require('../utils/mailer');
 const { sendStatusUpdateSms } = require('../utils/sms');
 
+// Helper to map Parcel Uncle status codes to Lekya Specs Order Statuses
+function mapParcelUncleToSpecsStatus(puStatus) {
+  if (!puStatus) return null;
+  const s = String(puStatus).toUpperCase();
+  if (['DELIVERED'].includes(s)) return 'Delivered';
+  if (['OUT_FOR_DELIVERY', 'DELIVERY_ATTEMPTED'].includes(s)) return 'Out for Delivery';
+  if (['PICKED_UP', 'ARRIVED_AT_HUB', 'SORTING', 'IN_TRANSIT'].includes(s)) return 'Shipped';
+  if (['ASSIGNED', 'ACCEPTED', 'WAITING_PICKUP', 'PICKUP_ATTEMPTED', 'READY_TO_SHIP'].includes(s)) return 'Packed';
+  if (['PAID', 'PROCESSING', 'CREATED', 'PENDING'].includes(s)) return 'Processing';
+  if (['CANCELLED', 'RTO_INITIATED', 'RTO_IN_TRANSIT', 'RETURNED', 'FAILED', 'LOST'].includes(s)) return 'Cancelled';
+  return null;
+}
+
+// Synchronize a specific order with Parcel Uncle live status
+const syncParcelUncleStatus = async (orderIdOrWaybill) => {
+  try {
+    const orderRes = await db.query(
+      `SELECT o.*, u.email as customer_email, u.name as customer_name, u.phone as customer_phone
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.id = ? OR o.parcel_uncle_tracking_id = ?`,
+      [orderIdOrWaybill, orderIdOrWaybill]
+    );
+
+    if (orderRes.rows.length === 0) return null;
+
+    const order = orderRes.rows[0];
+    const waybill = order.parcel_uncle_tracking_id;
+    if (!waybill) return order;
+
+    // Fetch live status from Parcel Uncle API
+    const trackingRes = await parcelUncle.getTrackingStatus(waybill);
+    const trackingData = trackingRes.data || trackingRes;
+    const puStatus = trackingData.current_status || trackingData.status;
+
+    if (!puStatus) return order;
+
+    const newSpecsStatus = mapParcelUncleToSpecsStatus(puStatus);
+    const comment = `Shipped via Parcel Uncle Express (Waybill: ${waybill}) — ${puStatus.replace(/_/g, ' ')}`;
+
+    let statusUpdated = false;
+    if (newSpecsStatus && newSpecsStatus !== order.status) {
+      statusUpdated = true;
+      await db.query(
+        `UPDATE orders 
+         SET status = ?,
+             parcel_uncle_status = ?,
+             tracking_comments = ?
+         WHERE id = ?`,
+        [newSpecsStatus, puStatus, comment, order.id]
+      );
+
+      // Trigger notifications if status changed to Shipped, Out for Delivery, or Delivered
+      if (['Shipped', 'Out for Delivery', 'Delivered'].includes(newSpecsStatus)) {
+        if (order.customer_email) {
+          sendStatusUpdateEmail({
+            to: order.customer_email,
+            customerName: order.customer_name || 'Valued Customer',
+            orderId: order.id,
+            status: newSpecsStatus,
+            note: `Courier: Parcel Uncle Express (${puStatus})`,
+            totalAmount: order.total_amount
+          }).catch(err => console.warn('[Parcel Uncle Sync Email]', err.message));
+        }
+
+        if (order.customer_phone) {
+          sendStatusUpdateSms({
+            to: order.customer_phone,
+            customerName: order.customer_name || 'Valued Customer',
+            orderId: order.id,
+            status: newSpecsStatus,
+            note: `Parcel Uncle Waybill: ${waybill}`
+          }).catch(err => console.warn('[Parcel Uncle Sync SMS]', err.message));
+        }
+      }
+    } else if (puStatus !== order.parcel_uncle_status) {
+      await db.query(
+        `UPDATE orders SET parcel_uncle_status = ? WHERE id = ?`,
+        [puStatus, order.id]
+      );
+    }
+
+    return { ...order, status: newSpecsStatus || order.status, parcel_uncle_status: puStatus, statusUpdated };
+  } catch (err) {
+    console.warn('[PARCEL UNCLE SYNC ERROR]', err.message);
+    return null;
+  }
+};
+
 // 1. Manually Dispatch / Push Order to Parcel Uncle
 const dispatchParcelUncle = async (req, res) => {
   const { orderId } = req.params;
@@ -31,7 +120,7 @@ const dispatchParcelUncle = async (req, res) => {
     const itemsRes = await db.query(
       `SELECT oi.id, oi.quantity, oi.price, p.name
        FROM order_items oi
-       JOIN products p ON oi.product_id = p.id
+       LEFT JOIN products p ON oi.product_id = p.id
        WHERE oi.order_id = ?`,
       [orderId]
     );
@@ -47,7 +136,7 @@ const dispatchParcelUncle = async (req, res) => {
       isUrgent: isUrgent !== undefined ? isUrgent : !!order.is_urgent
     });
 
-    const waybill = parcelResult.waybill;
+    const waybill = parcelResult.waybill || parcelResult.tracking_number;
     const comments = `Shipped via Parcel Uncle Express (Waybill: ${waybill})`;
 
     await db.query(
@@ -61,7 +150,7 @@ const dispatchParcelUncle = async (req, res) => {
        WHERE id = ?`,
       [
         waybill,
-        parcelResult.status,
+        parcelResult.status || 'CREATED',
         JSON.stringify(parcelResult.rawResponse || parcelResult),
         comments,
         orderId
@@ -103,18 +192,19 @@ const dispatchParcelUncle = async (req, res) => {
   }
 };
 
-// 2. Track Parcel Uncle Shipment
+// 2. Track Parcel Uncle Shipment & Auto-Sync
 const trackParcelUncle = async (req, res) => {
   const { waybillOrOrderId } = req.params;
 
   try {
     let waybill = waybillOrOrderId;
+    let orderId = null;
 
-    // If param is numeric order ID, look up tracking ID from DB
     if (!isNaN(waybillOrOrderId)) {
+      orderId = Number(waybillOrOrderId);
       const orderRes = await db.query(
         `SELECT parcel_uncle_tracking_id, tracking_id, status FROM orders WHERE id = ?`,
-        [waybillOrOrderId]
+        [orderId]
       );
       if (orderRes.rows.length > 0) {
         waybill = orderRes.rows[0].parcel_uncle_tracking_id || orderRes.rows[0].tracking_id;
@@ -123,6 +213,11 @@ const trackParcelUncle = async (req, res) => {
 
     if (!waybill) {
       return res.status(404).json({ message: 'Waybill or tracking ID not found' });
+    }
+
+    // Trigger sync
+    if (orderId) {
+      await syncParcelUncleStatus(orderId);
     }
 
     const trackingData = await parcelUncle.getTrackingStatus(waybill);
@@ -137,7 +232,47 @@ const trackParcelUncle = async (req, res) => {
   }
 };
 
-// 3. Cancel Parcel Uncle Shipment
+// 3. HTTP Handler for 1-Click Status Sync
+const syncParcelUncleHandler = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const updatedOrder = await syncParcelUncleStatus(orderId);
+    if (!updatedOrder) {
+      return res.status(404).json({ message: `Order #${orderId} not found` });
+    }
+    res.json({
+      success: true,
+      message: `Parcel Uncle status synced for Order #${orderId}`,
+      order: updatedOrder
+    });
+  } catch (err) {
+    console.error('Sync Parcel Uncle error:', err);
+    res.status(500).json({ message: 'Server error syncing Parcel Uncle status' });
+  }
+};
+
+// 4. Webhook Handler (POST /api/shipping/parcel-uncle/webhook)
+const handleWebhook = async (req, res) => {
+  const { waybill, tracking_number, status, current_status } = req.body || {};
+  const targetWaybill = waybill || tracking_number;
+
+  if (!targetWaybill) {
+    return res.status(400).json({ message: 'Tracking waybill number missing in webhook payload' });
+  }
+
+  const updatedOrder = await syncParcelUncleStatus(targetWaybill);
+  if (!updatedOrder) {
+    return res.status(404).json({ message: `Order not found for waybill ${targetWaybill}` });
+  }
+
+  res.json({
+    success: true,
+    message: `Parcel Uncle status webhook processed for waybill ${targetWaybill}`,
+    order: updatedOrder
+  });
+};
+
+// 5. Cancel Parcel Uncle Shipment
 const cancelParcelUncle = async (req, res) => {
   const { orderId } = req.params;
 
@@ -174,7 +309,7 @@ const cancelParcelUncle = async (req, res) => {
   }
 };
 
-// 4. Get Integration Configuration Status
+// 6. Get Integration Configuration Status
 const getConfig = async (req, res) => {
   const apiKey = parcelUncle.API_KEY;
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...${apiKey.slice(-6)}` : 'NOT_CONFIGURED';
@@ -188,9 +323,9 @@ const getConfig = async (req, res) => {
     features: [
       'Auto-Dispatch on Payment Verification',
       '1-Click Admin & Seller Dispatch',
-      'Real-Time Parcel Uncle Waybill Tracking',
-      'Express & Standard Priority Courier',
-      'SMS & Email Waybill Alerts'
+      'Real-Time Webhook & Polling Status Synchronization',
+      'Customer & Staff Real-Time Courier Tracking',
+      'SMS & Email Status Alerts'
     ]
   });
 };
@@ -198,6 +333,9 @@ const getConfig = async (req, res) => {
 module.exports = {
   dispatchParcelUncle,
   trackParcelUncle,
+  syncParcelUncleStatus,
+  syncParcelUncleHandler,
+  handleWebhook,
   cancelParcelUncle,
   getConfig
 };

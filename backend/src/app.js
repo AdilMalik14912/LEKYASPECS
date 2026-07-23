@@ -448,6 +448,8 @@ app.get('/api/ho-staff/all-reports', authenticateToken, isAdmin, hoStaffControll
 
 // 14. Parcel Uncle Logistics & Shipping Integration API
 app.post('/api/shipping/parcel-uncle/dispatch/:orderId', authenticateToken, isTeamMember, shippingController.dispatchParcelUncle);
+app.post('/api/shipping/parcel-uncle/sync/:orderId', authenticateToken, isTeamMember, shippingController.syncParcelUncleHandler);
+app.post('/api/shipping/parcel-uncle/webhook', shippingController.handleWebhook);
 app.get('/api/shipping/parcel-uncle/track/:waybillOrOrderId', shippingController.trackParcelUncle);
 app.post('/api/shipping/parcel-uncle/cancel/:orderId', authenticateToken, isTeamMember, shippingController.cancelParcelUncle);
 app.get('/api/shipping/parcel-uncle/config', authenticateToken, isTeamMember, shippingController.getConfig);

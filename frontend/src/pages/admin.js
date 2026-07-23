@@ -1011,6 +1011,37 @@ export default function Admin() {
       });
   };
 
+  // 1-Click Parcel Uncle Live Status Sync Trigger
+  const [syncingOrder, setSyncingOrder] = useState(null);
+  const handleSyncParcelUncle = (orderId) => {
+    setSyncingOrder(orderId);
+    fetch(`${API_BASE}/api/shipping/parcel-uncle/sync/${orderId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setSyncingOrder(null);
+        if (data.success) {
+          alert(`Parcel Uncle courier status synced!\nLive Status: ${data.order.parcel_uncle_status || 'MANIFESTED'}`);
+          fetch(`${API_BASE}/api/admin/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(list => setOrders(list));
+        } else {
+          alert(data.message || 'Sync failed');
+        }
+      })
+      .catch(() => {
+        setSyncingOrder(null);
+        alert('Network error connecting to Parcel Uncle sync service');
+      });
+  };
+
   // Assign delivery agent (rider) to order trigger
   const handleRiderAssign = (orderId, agentId) => {
     if (!agentId) return; // Ignore empty values
@@ -2030,8 +2061,18 @@ export default function Admin() {
                               <div className="mt-2 pt-2 border-t border-premium-border/40">
                                 {order.parcel_uncle_tracking_id ? (
                                   <div className="bg-orange-500/10 border border-orange-500/30 rounded p-1.5 text-[9px]">
-                                    <span className="font-bold text-orange-400 block">📦 Parcel Uncle Waybill:</span>
-                                    <span className="font-mono text-white block">{order.parcel_uncle_tracking_id}</span>
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-bold text-orange-400 block">📦 Parcel Uncle:</span>
+                                      <button
+                                        onClick={() => handleSyncParcelUncle(order.id)}
+                                        disabled={syncingOrder === order.id}
+                                        className="text-[8px] bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-orange-500/40 transition-all uppercase tracking-wider"
+                                        title="Sync live status from Parcel Uncle API"
+                                      >
+                                        {syncingOrder === order.id ? '...' : '🔄 Sync'}
+                                      </button>
+                                    </div>
+                                    <span className="font-mono text-white block mt-0.5">{order.parcel_uncle_tracking_id}</span>
                                     <span className="text-gray-400 block text-[8px] mt-0.5">
                                       Status: <strong className="text-emerald-400 font-bold uppercase">{order.parcel_uncle_status || 'MANIFESTED'}</strong>
                                     </span>

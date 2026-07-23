@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -203,11 +203,12 @@ export default function Account() {
     })
       .then(res => res.json())
       .then(data => {
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
         setOrdersLoading(false);
       })
       .catch(err => {
         console.error('Error fetching orders:', err);
+        setOrders([]);
         setOrdersLoading(false);
       });
   }, [token]);

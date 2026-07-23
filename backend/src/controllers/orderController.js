@@ -356,12 +356,24 @@ const getOrders = async (req, res) => {
       [userId]
     );
 
-    // For each order fetch its items
-    const ordersWithItems = await Promise.all(ordersRes.rows.map(async (order) => {
+    const { syncParcelUncleStatus } = require('./shippingController');
+
+    // For each order fetch its items & auto-sync Parcel Uncle status if active
+    const ordersWithItems = await Promise.all(ordersRes.rows.map(async (rawOrder) => {
+      let order = rawOrder;
+
+      // Auto-sync Parcel Uncle courier status for active shipments
+      if (order.parcel_uncle_tracking_id && order.status !== 'Delivered' && order.status !== 'Cancelled') {
+        try {
+          const synced = await syncParcelUncleStatus(order.id);
+          if (synced) order = { ...order, ...synced };
+        } catch (_) {}
+      }
+
       const itemsRes = await db.query(
-        `SELECT oi.id, oi.product_id, p.name, p.image_urls, oi.quantity, oi.price
+        `SELECT oi.id, oi.product_id, COALESCE(p.name, 'Eyewear Frame') as name, p.image_urls, oi.quantity, oi.price
          FROM order_items oi
-         JOIN products p ON oi.product_id = p.id
+         LEFT JOIN products p ON oi.product_id = p.id
          WHERE oi.order_id = ?`,
         [order.id]
       );
@@ -372,13 +384,13 @@ const getOrders = async (req, res) => {
         else if (typeof img === 'string') {
           try { img = JSON.parse(img)[0]; } catch (_) {}
         }
-        return { ...item, image: img };
+        return { ...item, image: img || 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=400&q=80' };
       });
 
       return { ...order, items };
     }));
 
-    res.json(ordersWithItems);
+    res.json(ordersWithItems || []);
   } catch (err) {
     console.error('Get orders error:', err);
     res.status(500).json({ message: 'Server error fetching orders' });
