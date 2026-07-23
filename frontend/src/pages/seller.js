@@ -212,6 +212,28 @@ export default function SellerPanel() {
     setAssigningAgent(null);
   };
 
+  const handleDispatchParcelUncle = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/api/shipping/parcel-uncle/dispatch/${orderId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Dispatched via Parcel Uncle! Waybill: ${data.waybill}`, 'success');
+        fetchAll();
+      } else {
+        showToast(data.message || 'Dispatch failed', 'error');
+      }
+    } catch {
+      showToast('Network error connecting to Parcel Uncle API', 'error');
+    }
+  };
+
   const filteredOrders = orders.filter(o => {
     const q = orderSearch.toLowerCase();
     const matchSearch = !q ||
@@ -557,6 +579,18 @@ export default function SellerPanel() {
                             >
                               <Eye className="w-3 h-3" /> Manage
                             </button>
+                            {order.parcel_uncle_tracking_id ? (
+                              <div className="text-[9px] bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded text-orange-300 font-mono font-bold flex items-center gap-1" title={`Status: ${order.parcel_uncle_status || 'MANIFESTED'}`}>
+                                <span>📦 PU: {order.parcel_uncle_tracking_id}</span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleDispatchParcelUncle(order.id)}
+                                className="text-[9px] bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black font-extrabold px-2 py-0.5 rounded border border-amber-500/40 transition-all uppercase tracking-wider flex items-center gap-1"
+                              >
+                                🚚 Parcel Uncle
+                              </button>
+                            )}
                             {!order.assigned_delivery_agent_id && (
                               <button
                                 onClick={() => handleAutoAssign(order.id)}

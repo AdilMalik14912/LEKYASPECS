@@ -980,6 +980,37 @@ export default function Admin() {
       .catch(err => console.error(err));
   };
 
+  // 1-Click Parcel Uncle Courier Dispatch Trigger
+  const [dispatchingOrder, setDispatchingOrder] = useState(null);
+  const handleDispatchParcelUncle = (orderId) => {
+    setDispatchingOrder(orderId);
+    fetch(`${API_BASE}/api/shipping/parcel-uncle/dispatch/${orderId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setDispatchingOrder(null);
+        if (data.success) {
+          alert(`Success! Dispatched via Parcel Uncle Logistics Network.\nWaybill: ${data.waybill}`);
+          fetch(`${API_BASE}/api/admin/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(list => setOrders(list));
+        } else {
+          alert(data.message || 'Failed to dispatch via Parcel Uncle');
+        }
+      })
+      .catch(err => {
+        setDispatchingOrder(null);
+        alert('Network error connecting to Parcel Uncle API');
+      });
+  };
+
   // Assign delivery agent (rider) to order trigger
   const handleRiderAssign = (orderId, agentId) => {
     if (!agentId) return; // Ignore empty values
@@ -1994,6 +2025,27 @@ export default function Admin() {
                                   + Add Dispatch
                                 </button>
                               )}
+
+                              {/* Parcel Uncle Express Logistics Courier Status & 1-Click Dispatch */}
+                              <div className="mt-2 pt-2 border-t border-premium-border/40">
+                                {order.parcel_uncle_tracking_id ? (
+                                  <div className="bg-orange-500/10 border border-orange-500/30 rounded p-1.5 text-[9px]">
+                                    <span className="font-bold text-orange-400 block">📦 Parcel Uncle Waybill:</span>
+                                    <span className="font-mono text-white block">{order.parcel_uncle_tracking_id}</span>
+                                    <span className="text-gray-400 block text-[8px] mt-0.5">
+                                      Status: <strong className="text-emerald-400 font-bold uppercase">{order.parcel_uncle_status || 'MANIFESTED'}</strong>
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => handleDispatchParcelUncle(order.id)}
+                                    disabled={dispatchingOrder === order.id}
+                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-[9px] uppercase tracking-wider py-1.5 px-2 rounded shadow transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+                                  >
+                                    {dispatchingOrder === order.id ? 'Pushing...' : '🚚 Ship via Parcel Uncle'}
+                                  </button>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-xs">
                               {new Date(order.created_at).toLocaleDateString('en-IN', {

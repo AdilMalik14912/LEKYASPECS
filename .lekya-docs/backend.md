@@ -215,6 +215,20 @@ Uses `fetch` connecting to **Fast2SMS API gateway** using `FAST2SMS_API_KEY` env
 
 ---
 
+## 📦 Parcel Uncle Logistics API ([parcelUncle.js](file:///C:/Users/Admin/Specs/backend/src/utils/parcelUncle.js))
+Uses API key `PARCEL_UNCLE_API_KEY` (`pu_test_a2fd0fc443f79d17a1bc94d4cf575cbd828e94c4eae135e9`) connecting to Parcel Uncle Courier Network.
+
+- `createShipment({ orderId, customerName, customerPhone, customerEmail, shippingAddress, items, totalAmount, isUrgent })` → Manifests a shipment, generates waybill, and registers courier pickup.
+- `getTrackingStatus(waybill)` → Queries real-time tracking status from Parcel Uncle API.
+- `cancelShipment(waybill)` → Cancels a waybill shipment on Parcel Uncle network.
+- **Endpoints**:
+  - `POST /api/shipping/parcel-uncle/dispatch/:orderId` → 1-Click dispatch for Admin/Seller/Staff.
+  - `GET /api/shipping/parcel-uncle/track/:waybillOrOrderId` → Live tracking status lookup.
+  - `POST /api/shipping/parcel-uncle/cancel/:orderId` → Cancel waybill shipment.
+  - `GET /api/shipping/parcel-uncle/config` → Check Parcel Uncle integration health.
+
+---
+
 ## ⚠️ Known Fixes Applied
 
 | Date       | Bug | Fix |
@@ -227,3 +241,4 @@ Uses `fetch` connecting to **Fast2SMS API gateway** using `FAST2SMS_API_KEY` env
 | 2026-07-05 | `stylist.js` ReferenceError: `Head` is not defined during prerendering | Added `next/head` import |
 | 2026-07-10 | `seller.js` and `delivery.js` crash on load due to invalid `useToast` import | Removed `useToast`, implemented local toast system |
 | 2026-07-10 | Seller page blank on `/seller` route | Fixed by properly exporting default function |
+| 2026-07-23 | Integrate Parcel Uncle Courier API with test API key | Created `parcelUncle.js` utility, shipping controller, auto-manifest on payment verify, 1-click Admin/Seller dispatch buttons, and public tracking UI badge. |

@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
@@ -218,6 +218,39 @@ export default function PublicTracker() {
                 </div>
               </div>
             </div>
+
+            {/* Parcel Uncle Express Logistics Courier Badge */}
+            {order.parcel_uncle_tracking_id && (
+              <div className="bg-[#1E0030] border border-[#FAAE62]/40 rounded-2xl p-5 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/40 flex items-center justify-center text-2xl shrink-0">
+                    🚚
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-[#FAAE62] uppercase tracking-wider">Parcel Uncle Express Logistics</span>
+                      <span className="bg-orange-500/20 text-orange-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-orange-500/30">Active Courier</span>
+                    </div>
+                    <p className="text-xs font-mono font-bold text-white mt-1">
+                      Waybill Number: <span className="text-[#FAAE62]">{order.parcel_uncle_tracking_id}</span>
+                    </p>
+                    {order.parcel_uncle_status && (
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        Courier Network Status: <span className="text-emerald-400 font-bold uppercase">{order.parcel_uncle_status}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <a
+                  href={`https://parceluncle.com/track?waybill=${order.parcel_uncle_tracking_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-black text-xs tracking-wider uppercase px-5 py-3 rounded-xl hover:scale-105 transition-transform flex items-center gap-1.5 shrink-0 shadow-lg"
+                >
+                  Track on ParcelUncle.com <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
 
             {/* Visual Tracking Timelines */}
             <div className="bg-[#1A0024] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">

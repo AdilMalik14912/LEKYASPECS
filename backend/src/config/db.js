@@ -164,6 +164,13 @@ const initDb = async () => {
       console.log('Migration: admin_activity_log table ready.');
     } catch (_) {}
 
+    // Parcel Uncle Logistics Columns Migration
+    try { await client.execute("ALTER TABLE orders ADD COLUMN parcel_uncle_tracking_id TEXT DEFAULT NULL"); } catch (_) {}
+    try { await client.execute("ALTER TABLE orders ADD COLUMN parcel_uncle_status TEXT DEFAULT NULL"); } catch (_) {}
+    try { await client.execute("ALTER TABLE orders ADD COLUMN parcel_uncle_response TEXT DEFAULT NULL"); } catch (_) {}
+    try { await client.execute("ALTER TABLE orders ADD COLUMN courier_partner TEXT DEFAULT 'Parcel Uncle Express'"); } catch (_) {}
+    console.log('Migration: Parcel Uncle logistics columns verified in orders table.');
+
     // 10 new e-commerce features migrations:
     try {
       await client.execute("ALTER TABLE users ADD COLUMN loyalty_points INTEGER DEFAULT 0");

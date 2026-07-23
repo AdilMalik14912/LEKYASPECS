@@ -16,6 +16,7 @@ const deliveryController = require('./controllers/deliveryController');
 const chatController = require('./controllers/chatController');
 const crmController = require('./controllers/crmController');
 const hoStaffController = require('./controllers/hoStaffController');
+const shippingController = require('./controllers/shippingController');
 
 
 // Middlewares
@@ -444,6 +445,12 @@ app.post('/api/crm/ai-generate-email',        authenticateToken, isTeamMember, c
 app.post('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffController.submitReport);
 app.get('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffController.getMyReports);
 app.get('/api/ho-staff/all-reports', authenticateToken, isAdmin, hoStaffController.getAllReports);
+
+// 14. Parcel Uncle Logistics & Shipping Integration API
+app.post('/api/shipping/parcel-uncle/dispatch/:orderId', authenticateToken, isTeamMember, shippingController.dispatchParcelUncle);
+app.get('/api/shipping/parcel-uncle/track/:waybillOrOrderId', shippingController.trackParcelUncle);
+app.post('/api/shipping/parcel-uncle/cancel/:orderId', authenticateToken, isTeamMember, shippingController.cancelParcelUncle);
+app.get('/api/shipping/parcel-uncle/config', authenticateToken, isTeamMember, shippingController.getConfig);
 
 // Global Error Handler
 

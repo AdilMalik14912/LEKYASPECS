@@ -289,6 +289,42 @@ const verifyPayment = async (req, res) => {
 
     console.log(`[ORDER] Confirmation notifications sent for Order ${orderId}`);
 
+    // ── Auto-Dispatch & Register Shipment with Parcel Uncle API ──────────────────
+    try {
+      const { createShipment } = require('../utils/parcelUncle');
+      const userRow = userRes.rows[0];
+      const parcelResult = await createShipment({
+        orderId,
+        customerName: userRow?.name || shipping_address?.name,
+        customerPhone: userRow?.phone || shipping_address?.phone,
+        customerEmail: userRow?.email,
+        shippingAddress: shipping_address,
+        items,
+        totalAmount: req.body.items?.reduce((s, i) => s + (i.price * i.quantity), 0) || 0,
+        isUrgent: req.body.is_urgent || false
+      });
+
+      if (parcelResult && parcelResult.waybill) {
+        await db.query(
+          `UPDATE orders 
+           SET parcel_uncle_tracking_id = ?,
+               parcel_uncle_status = ?,
+               parcel_uncle_response = ?,
+               courier_partner = 'Parcel Uncle Express'
+           WHERE id = ?`,
+          [
+            parcelResult.waybill,
+            parcelResult.status,
+            JSON.stringify(parcelResult.rawResponse || parcelResult),
+            orderId
+          ]
+        );
+        console.log(`[PARCEL UNCLE] Shipment created automatically for Order #${orderId}. Waybill: ${parcelResult.waybill}`);
+      }
+    } catch (puErr) {
+      console.warn('[PARCEL UNCLE AUTO-SHIPMENT WARNING]', puErr.message);
+    }
+
     // Auto-update customer metrics in CRM
     try {
       const { upsertCrmLeadFromUser } = require('./crmController');
@@ -488,6 +524,9 @@ const trackOrderByTrackingId = async (req, res) => {
       lens_type: order.lens_type,
       customer_name: maskedName,
       city: shippingCity,
+      parcel_uncle_tracking_id: order.parcel_uncle_tracking_id,
+      parcel_uncle_status: order.parcel_uncle_status,
+      courier_partner: order.courier_partner || 'Parcel Uncle Express',
       items
     });
   } catch (err) {
