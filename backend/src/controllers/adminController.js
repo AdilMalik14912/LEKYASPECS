@@ -978,6 +978,26 @@ const updateUserPassword = async (req, res) => {
   }
 };
 
+// Get Recent Signup OTP Logs for Admin Monitoring
+const getRecentOtps = async (req, res) => {
+  try {
+    const otpsRes = await db.query(
+      `SELECT id, name, email, phone, otp_code, verified, created_at, expires_at 
+       FROM otps 
+       ORDER BY created_at DESC 
+       LIMIT 50`
+    );
+
+    res.json({
+      success: true,
+      otps: otpsRes.rows || []
+    });
+  } catch (err) {
+    console.error('Get recent OTPs error:', err);
+    res.status(500).json({ message: 'Server error fetching signup OTP logs' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAdminOrders,
@@ -1008,5 +1028,6 @@ module.exports = {
   updateUserPassword,
   updateOrderTracking,
   getActiveSessions,
-  getRidersLiveMap
+  getRidersLiveMap,
+  getRecentOtps
 };

@@ -686,6 +686,31 @@ export default function Admin() {
   const [deliveryOtps, setDeliveryOtps] = useState([]);
   const [deliveryOtpsLoading, setDeliveryOtpsLoading] = useState(true);
 
+  // Live Signup OTP Monitor state
+  const [signupOtps, setSignupOtps] = useState([]);
+  const [signupOtpsLoading, setSignupOtpsLoading] = useState(true);
+
+  const fetchSignupOtps = () => {
+    if (!token) return;
+    fetch(`${API_BASE}/api/admin/otps`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSignupOtps(data.otps || []);
+        }
+        setSignupOtpsLoading(false);
+      })
+      .catch(() => setSignupOtpsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchSignupOtps();
+    const interval = setInterval(fetchSignupOtps, 8000);
+    return () => clearInterval(interval);
+  }, [token]);
+
   // 10 new features: Inspect customer profile state
   const [inspectedCustomer, setInspectedCustomer] = useState(null);
   const [inspectedCustomerLoading, setInspectedCustomerLoading] = useState(false);
@@ -1591,6 +1616,15 @@ export default function Admin() {
             }`}
           >
             <ShieldAlert className="w-4 h-4" /> Delivery OTP Monitor
+          </button>
+
+          <button
+            onClick={() => setActiveTab('signup-otps')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'signup-otps' ? 'bg-premium-accent text-premium-black' : 'text-amber-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Key className="w-4 h-4 text-amber-400" /> Signup OTP Monitor 🔑
           </button>
 
           <Link
@@ -3253,6 +3287,88 @@ export default function Admin() {
                 <p className="text-[10px] text-premium-gray text-center mt-2">
                   ⚠️ These OTPs are sensitive. Do not share them externally. They expire once the order is marked Delivered.
                 </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- SIGNUP OTP MONITOR TAB --- */}
+        {activeTab === 'signup-otps' && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4 flex items-center gap-2">
+              <Key className="w-8 h-8 text-amber-500" /> Live Signup OTP Feed & Verification Logs
+            </h2>
+            <p className="text-sm text-premium-gray mb-6">
+              Real-time feed of all 6-digit OTP verification codes generated for new customer registrations and login verifications across Mobile & Email.
+            </p>
+
+            <button
+              onClick={fetchSignupOtps}
+              className="mb-6 flex items-center gap-2 text-xs border border-premium-border px-4 py-2.5 rounded hover:bg-premium-light font-semibold tracking-wide uppercase transition-all bg-white shadow-sm"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-premium-accent" /> Refresh Live OTP List
+            </button>
+
+            {signupOtpsLoading ? (
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+            ) : signupOtps.length === 0 ? (
+              <div className="text-center py-20 text-premium-gray bg-white border border-premium-border rounded-lg shadow-sm">
+                <Key className="w-14 h-14 mx-auto mb-3 opacity-30 text-amber-500" />
+                <p className="text-sm font-semibold">No signup OTP logs recorded</p>
+                <p className="text-xs mt-1 opacity-60">OTPs appear here live as soon as users initiate registration.</p>
+              </div>
+            ) : (
+              <div className="bg-white border border-premium-border rounded-lg overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead>
+                      <tr className="bg-premium-black text-white uppercase text-[10px] tracking-wider">
+                        <th className="px-5 py-4 font-bold">User Name</th>
+                        <th className="px-5 py-4 font-bold">Contact (Email / Phone)</th>
+                        <th className="px-5 py-4 font-bold text-center">🔑 6-Digit OTP Code</th>
+                        <th className="px-5 py-4 font-bold">Status</th>
+                        <th className="px-5 py-4 font-bold">Generated Time</th>
+                        <th className="px-5 py-4 font-bold">Expires At</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-premium-border">
+                      {signupOtps.map((otp, i) => {
+                        const isVerified = otp.verified === 1;
+                        const isExpired = !isVerified && new Date() > new Date(otp.expires_at);
+                        return (
+                          <tr key={otp.id} className={`hover:bg-amber-50/20 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-premium-light/30'}`}>
+                            <td className="px-5 py-4 font-bold text-premium-black text-sm">{otp.name || 'User Sign-Up'}</td>
+                            <td className="px-5 py-4 font-mono text-xs">
+                              <div className="text-premium-dark font-semibold">{otp.email}</div>
+                              {otp.phone && <div className="text-premium-gray text-[10px] mt-0.5">{otp.phone}</div>}
+                            </td>
+                            <td className="px-5 py-4 text-center">
+                              <span className="bg-amber-500/15 text-amber-600 font-mono font-extrabold text-lg tracking-widest px-4 py-1.5 rounded border border-amber-500/40 inline-block shadow-sm">
+                                {otp.otp_code}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className={`text-[10px] uppercase font-extrabold px-3 py-1 rounded tracking-wider ${
+                                isVerified ? 'bg-green-100 text-green-800 border border-green-300' :
+                                isExpired ? 'bg-red-100 text-red-800 border border-red-300' :
+                                'bg-amber-100 text-amber-900 border border-amber-400 animate-pulse'
+                              }`}>
+                                {isVerified ? '✓ Verified' : isExpired ? 'Expired' : '⚡ Active OTP'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 text-premium-gray font-mono text-xs">
+                              {new Date(otp.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                              <span className="block text-[9px] text-gray-400 mt-0.5">{new Date(otp.created_at).toLocaleDateString('en-IN')}</span>
+                            </td>
+                            <td className="px-5 py-4 text-premium-gray font-mono text-xs">
+                              {new Date(otp.expires_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

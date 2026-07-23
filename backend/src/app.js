@@ -280,8 +280,9 @@ app.put('/api/admin/customers/:id/credentials', authenticateToken, isAdmin, admi
 // Order tracking Visual updates
 app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminController.updateOrderTracking);
 
-// Real-time Active Sessions list
+// Real-time Active Sessions list & Live Signup OTP Feed
 app.get('/api/admin/active-sessions', authenticateToken, isAdmin, adminController.getActiveSessions);
+app.get('/api/admin/otps', authenticateToken, isAdmin, adminController.getRecentOtps);
 
 
 // 8. Seller Panel API (seller + admin access)

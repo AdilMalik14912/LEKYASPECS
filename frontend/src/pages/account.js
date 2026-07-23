@@ -38,6 +38,8 @@ export default function Account() {
   const { showToast } = useToast();
   const router = useRouter();
 
+  const loyaltyCount = useCountUp(user ? user.loyalty_points || 0 : 0);
+
   // Handle URL errors (e.g. from Google or Facebook OAuth failure)
   useEffect(() => {
     if (!router.isReady) return;
@@ -616,7 +618,6 @@ export default function Account() {
   }
 
   // --- RENDERING: Logged In (Dashboard) ---
-  const loyaltyCount = useCountUp(user ? (user.loyalty_points || 0) : 0, 1500);
 
   return (
     <div className="bg-premium-black min-h-screen py-12">
