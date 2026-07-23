@@ -6,6 +6,7 @@ const { useRouter } = require('next/router');
 const Head = require('next/head').default;
 const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle } = require('lucide-react');
 const SpinWheel = require('../components/SpinWheel').default;
+const VisionEyeLogo = require('../components/VisionEyeLogo');
 
 // Contexts
 const AuthContext = createContext(null);
@@ -328,23 +329,20 @@ export default function App({ Component, pageProps }) {
                 </div>
                 <div className="flex flex-col items-center justify-center space-y-8 max-w-sm px-6 text-center relative z-10">
                   
-                  {/* Rotating 3D Logo wireframe — Orange Neon */}
-                  <div className="w-24 h-24 flex items-center justify-center perspective-3d">
-                    <div style={{filter: 'drop-shadow(0 0 12px rgba(250,174,98,0.7)) drop-shadow(0 0 25px rgba(250,174,98,0.3))'}}>
-                      <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-preloader-spin-3d">
-                        <rect x="2" y="8" width="38" height="26" rx="13" stroke="#FAAE62" strokeWidth="4" fill="none"/>
-                        <rect x="60" y="8" width="38" height="26" rx="13" stroke="#FAAE62" strokeWidth="4" fill="none"/>
-                        <path d="M40 21 Q50 15 60 21" stroke="#FAAE62" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
-                        <circle cx="14" cy="20" r="4" fill="rgba(250,174,98,0.15)" />
-                        <circle cx="76" cy="20" r="4" fill="rgba(250,174,98,0.15)" />
-                      </svg>
-                    </div>
+                  {/* Rotating 3D Logo wireframe — Vision Eye */}
+                  <div className="w-24 h-24 flex items-center justify-center">
+                    <VisionEyeLogo size={68} showText={false} animated={true} />
                   </div>
 
                   {/* Brand name — Orange shimmer */}
-                  <h1 className="font-serif text-3xl font-bold tracking-widest uppercase shimmer-orange-text">
-                    LEKYASPECS
-                  </h1>
+                  <div className="flex flex-col items-center">
+                    <h1 className="font-serif text-3xl font-bold tracking-widest uppercase shimmer-orange-text">
+                      LEKYASPECS
+                    </h1>
+                    <span className="text-[10px] font-bold tracking-[0.35em] text-[#FAAE62] uppercase mt-1">
+                      See Beyond. Deliver More.
+                    </span>
+                  </div>
 
                   {/* Loading progress bar — Orange on purple */}
                   <div className="w-full bg-white/5 border border-[#FAAE62]/20 rounded-full h-1.5 overflow-hidden p-0.5">
@@ -379,36 +377,10 @@ export default function App({ Component, pageProps }) {
                       </button>
                     </div>
 
-                    {/* Logo — Inline SVG for perfect sizing and alignment */}
+                    {/* Logo — Vision Eye Concept 10 */}
                     <div className="flex-shrink-0 flex justify-center sm:justify-start items-center mr-6 md:mr-10 lg:mr-16">
-                      <Link href="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity group">
-                        {/* Glasses Icon SVG */}
-                        <div style={{filter: 'drop-shadow(0 0 8px rgba(250,174,98,0.45))'}}>
-                          <svg width="44" height="22" viewBox="0 0 88 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-                            {/* Left lens */}
-                            <rect x="2" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
-                            {/* Right lens */}
-                            <rect x="52" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
-                            {/* Bridge */}
-                            <path d="M36 20 Q44 14 52 20" stroke="#FAAE62" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                            {/* Left temple */}
-                            <path d="M2 20 L0 16" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round"/>
-                            {/* Right temple */}
-                            <path d="M86 20 L88 16" stroke="#9B4DC0" strokeWidth="3" strokeLinecap="round"/>
-                            {/* Lens shimmer dots */}
-                            <circle cx="14" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
-                            <circle cx="66" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
-                          </svg>
-                        </div>
-                        {/* Brand Name */}
-                        <div className="flex flex-col leading-none">
-                          <span className="font-serif text-xl sm:text-2xl font-black tracking-[0.15em] text-[#FEF6EE] group-hover:text-[#FAAE62] transition-colors uppercase">
-                            Lekya
-                          </span>
-                          <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.4em] text-[#9B7EA8] uppercase" style={{letterSpacing: '0.35em'}}>
-                            Specs
-                          </span>
-                        </div>
+                      <Link href="/" className="flex items-center hover:opacity-90 transition-opacity group">
+                        <VisionEyeLogo size={40} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
                       </Link>
                     </div>
 
@@ -739,7 +711,9 @@ export default function App({ Component, pageProps }) {
                     
                     {/* Brand column */}
                     <div className="md:col-span-2">
-                      <h2 className="font-serif text-3xl tracking-widest font-bold mb-4 shimmer-orange-text">LEKYA SPECS</h2>
+                      <Link href="/" className="inline-block mb-4 hover:opacity-90 transition-opacity">
+                        <VisionEyeLogo size={44} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
+                      </Link>
                       <p className="text-sm leading-relaxed mb-6 max-w-sm" style={{color: '#9B7EA8'}}>
                         Designed with hand-polished premium materials and engineered for visual clarity. We believe in high-fashion, high-function eyewear without the luxury markup.
                       </p>

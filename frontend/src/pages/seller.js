@@ -3,6 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
+const VisionEyeLogo = require('../components/VisionEyeLogo');
 const {
   BarChart3, Package, ShoppingBag, Users, AlertTriangle, TrendingUp,
   RefreshCw, Truck, CheckCircle2, Clock, ChevronRight, Search,
@@ -271,13 +272,8 @@ export default function SellerPanel() {
       <header className="border-b border-white/10 bg-[#0f0f0f] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <svg width="32" height="16" viewBox="0 0 88 40" fill="none">
-                <rect x="2" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="3.5" fill="none"/>
-                <rect x="52" y="8" width="34" height="24" rx="12" stroke="#C5A028" strokeWidth="3.5" fill="none"/>
-                <path d="M36 20 Q44 14 52 20" stroke="#C5A028" strokeWidth="3" fill="none" strokeLinecap="round"/>
-              </svg>
-              <span className="text-xs font-bold tracking-[0.3em] text-premium-accent uppercase">Lekya Specs</span>
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+              <VisionEyeLogo size={32} showText={true} tagline="Seller Operations" showTagline={false} />
             </Link>
             <div className="hidden sm:flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1">
               <Layers className="w-3 h-3 text-amber-400" />

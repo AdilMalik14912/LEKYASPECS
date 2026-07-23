@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -22,15 +22,26 @@ const {
 
 // ── Custom SVG Corporate Brand Logos ─────────────────────────────────────────
 
-// 1. Lekya Specs Logo
+// 1. Lekya Specs Logo (Concept 10: Vision Eye)
 function LekyaSpecsLogo({ className = "w-10 h-10" }) {
   return (
-    <svg viewBox="0 0 88 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <rect x="2" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
-      <rect x="52" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="3.5" fill="none"/>
-      <path d="M36 20 Q44 14 52 20" stroke="#FAAE62" strokeWidth="3" fill="none" strokeLinecap="round"/>
-      <circle cx="14" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
-      <circle cx="66" cy="16" r="2.5" fill="#FAAE62" opacity="0.6"/>
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <defs>
+        <linearGradient id="vEyeP" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#C084FC" />
+          <stop offset="100%" stopColor="#3B0764" />
+        </linearGradient>
+        <linearGradient id="vEyeO" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFE0B2" />
+          <stop offset="100%" stopColor="#E67E22" />
+        </linearGradient>
+      </defs>
+      <path d="M 6 50 C 20 16, 80 16, 94 50 C 78 24, 22 24, 6 50 Z" fill="url(#vEyeP)"/>
+      <path d="M 6 50 C 20 84, 80 84, 94 50 C 78 76, 22 76, 6 50 Z" fill="url(#vEyeP)"/>
+      <circle cx="50" cy="50" r="23" stroke="url(#vEyeO)" strokeWidth="5" fill="#13011E"/>
+      <circle cx="50" cy="50" r="15" fill="#FAAE62"/>
+      <circle cx="50" cy="50" r="7.5" fill="#0D0016"/>
+      <circle cx="44.5" cy="44.5" r="3" fill="#FFFFFF" opacity="0.95"/>
     </svg>
   );
 }

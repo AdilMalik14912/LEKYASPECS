@@ -2,6 +2,7 @@ const React = require('react');
 const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
+const VisionEyeLogo = require('../components/VisionEyeLogo');
 const {
   Search, Package, RefreshCw, Gift, Truck, Navigation, CheckCircle2,
   Clock, MapPin, Sparkles, Inbox, AlertCircle, Calendar, ArrowRight, User
@@ -91,13 +92,8 @@ export default function PublicTracker() {
       {/* Header */}
       <header className="border-b border-white/5 bg-black/40 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-85 transition-opacity">
-            <svg width="34" height="17" viewBox="0 0 88 40" fill="none">
-              <rect x="2" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="4" fill="none"/>
-              <rect x="52" y="8" width="34" height="24" rx="12" stroke="#FAAE62" strokeWidth="4" fill="none"/>
-              <path d="M36 20 Q44 14 52 20" stroke="#FAAE62" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
-            </svg>
-            <span className="text-xs font-bold tracking-[0.4em] text-[#FAAE62] uppercase font-serif">Lekya Specs</span>
+          <Link href="/" className="flex items-center hover:opacity-85 transition-opacity">
+            <VisionEyeLogo size={36} showText={true} tagline="Order Tracking" showTagline={false} />
           </Link>
           <Link href="/shop" className="text-[10px] uppercase font-bold tracking-widest text-gray-400 hover:text-[#FAAE62] transition-colors">
             Shop Storefront

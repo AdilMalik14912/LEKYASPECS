@@ -3,6 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
+const VisionEyeLogo = require('../components/VisionEyeLogo');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
@@ -1502,11 +1503,10 @@ export default function Admin() {
       
       {/* Sidebar Controls */}
       <aside className="w-full md:w-64 bg-premium-black text-white p-6 shrink-0 flex flex-col border-r border-premium-accent/20">
-        <div className="mb-10 text-center sm:text-left">
-          <Link href="/" className="font-serif text-2xl font-bold tracking-widest text-premium-accent">
-            LEKYA SPECS ADMIN
+        <div className="mb-8 text-center sm:text-left">
+          <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
+            <VisionEyeLogo size={36} showText={true} tagline="Admin Management Portal" showTagline={true} />
           </Link>
-          <span className="block text-[10px] text-gray-500 uppercase tracking-widest mt-1">Management Portal</span>
         </div>
 
         <nav className="space-y-2 flex-grow uppercase text-xs tracking-wider font-semibold">
