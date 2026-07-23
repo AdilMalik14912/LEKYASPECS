@@ -1,3 +1,4 @@
+// Lekya Specs Account & Customer Portal - Build 2026.07.23.01
 const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
