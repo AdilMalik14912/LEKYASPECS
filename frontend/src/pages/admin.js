@@ -6,7 +6,7 @@ const { useAuth } = require('./_app');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -569,7 +569,7 @@ const EMAIL_TEMPLATES = [
 
 export default function Admin() {
   const router = useRouter();
-  const { user, token, authLoading } = useAuth();
+  const { user, token, authLoading, logout } = useAuth();
 
   // Active dashboard tabs: 'stats', 'products', 'orders', 'customers'
   const [activeTab, setActiveTab] = useState('stats');
@@ -1685,10 +1685,32 @@ export default function Admin() {
           >
             📈 CRM Platform
           </Link>
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
+                logout();
+                router.push('/account');
+              }
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left bg-red-950/50 border border-red-800/40 text-red-400 hover:bg-red-600 hover:text-white font-bold text-xs tracking-wider uppercase mt-4 shadow-sm"
+          >
+            <LogOut className="w-4 h-4" /> Sign Out Admin 🚪
+          </button>
         </nav>
 
-        <div className="border-t border-gray-800 pt-6 mt-10 flex items-center gap-2 text-[10px] text-premium-accent">
-          <ShieldCheck className="w-4 h-4" /> Root Authorization
+        <div className="border-t border-gray-800 pt-6 mt-10 flex items-center justify-between text-[10px] text-premium-accent">
+          <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Root Auth</span>
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
+                logout();
+                router.push('/account');
+              }
+            }}
+            className="text-red-400 hover:text-red-300 underline font-bold uppercase tracking-wider text-[9px]"
+          >
+            Sign Out
+          </button>
         </div>
       </aside>
 
