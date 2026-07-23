@@ -22,6 +22,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
+  const [show360, setShow360] = useState(false);
   const [isFaceShapeMatched, setIsFaceShapeMatched] = useState(false);
   const [inCart, setInCart] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);

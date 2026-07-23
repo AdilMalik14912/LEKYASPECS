@@ -32,9 +32,10 @@ const createOrder = async (req, res) => {
     let totalAmount = 0;
 
     for (const item of items) {
-      const productRes = await db.query('SELECT id, name, price, stock FROM products WHERE id = ?', [item.productId]);
+      const pId = item.productId || item.product_id || item.id || item.product?.id;
+      const productRes = await db.query('SELECT id, name, price, stock FROM products WHERE id = ?', [pId]);
       if (productRes.rows.length === 0) {
-        return res.status(404).json({ message: `Product ID ${item.productId} not found` });
+        return res.status(404).json({ message: `Product ID ${pId} not found` });
       }
 
       const product = productRes.rows[0];
@@ -151,13 +152,14 @@ const verifyPayment = async (req, res) => {
       const validatedItems = [];
 
       for (const item of items) {
+        const pId = item.productId || item.product_id || item.id || item.product?.id;
         const productRes = await tx.query(
           'SELECT id, name, price, stock FROM products WHERE id = ?',
-          [item.productId]
+          [pId]
         );
 
         if (productRes.rows.length === 0) {
-          throw new Error(`Product ID ${item.productId} not found`);
+          throw new Error(`Product ID ${pId} not found`);
         }
 
         const product = productRes.rows[0];
