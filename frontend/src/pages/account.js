@@ -1,4 +1,4 @@
-// Lekya Specs - Parcel Uncle LIVE Production Network Active - Build 2026.07.23.02
+// Lekya Specs - Full Parcel Uncle API Suite v1.0.3 Live - Build 2026.07.23.03
 const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
