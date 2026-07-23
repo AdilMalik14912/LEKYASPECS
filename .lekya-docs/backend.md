@@ -260,3 +260,4 @@ Official Merchant API v1 integration connecting to Parcel Uncle Courier Network.
 | 2026-07-10 | Seller page blank on `/seller` route | Fixed by properly exporting default function |
 | 2026-07-23 | `ReferenceError: Download is not defined` crash on `/account` page | Added `Download` to `lucide-react` imports in `account.js`. |
 | 2026-07-23 | Integrate Parcel Uncle Production Key & Complete API Suite (v1.0.3) | Switched to LIVE key `pu_live_3a58bac5...`, added 4x6 PDF Label downloads, Webhook Auto-Registration, NDR management, multi-URL fallback, phone/pincode sanitization, and 1-Click Admin buttons. |
+| 2026-07-23 | Product SKU items & 4x6 Thermal Label Generator (v1.0.4) | Added `items`, `order_items`, and `sku_items` arrays to Parcel Uncle API payload with `SKU-LEKYA-{id}` codes & prices. Added 4x6 Thermal Printable Label Generator fallback with barcode & QR code. |
