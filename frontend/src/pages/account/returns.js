@@ -3,7 +3,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { RefreshCw, PackageCheck, AlertCircle, ArrowLeft, Truck, CheckCircle, ShieldCheck } from 'lucide-react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://lekyaspecs.vercel.app';
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
+  : '';
 
 export default function ReturnsPortal() {
   const [user, setUser] = useState(null);
@@ -18,8 +20,8 @@ export default function ReturnsPortal() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('specs_token');
+    const userData = localStorage.getItem('specs_user');
     if (token && userData) {
       setUser(JSON.parse(userData));
       fetchData(token);
@@ -50,7 +52,7 @@ export default function ReturnsPortal() {
 
     setSubmitting(true);
     setMessage('');
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('specs_token');
 
     try {
       const res = await fetch(`${API_BASE}/api/returns`, {
