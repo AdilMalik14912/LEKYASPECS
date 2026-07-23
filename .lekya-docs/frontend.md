@@ -6,7 +6,7 @@ The Lekya Specs frontend is built with Next.js using the Pages router. Global st
 
 The Lekya Specs frontend is built with Next.js using the Pages router. Global state is managed via React Contexts in [_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js).
 
-**Last Updated:** 2026-07-22
+**Last Updated:** 2026-07-23
 
 ---
 

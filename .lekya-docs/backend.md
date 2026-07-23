@@ -215,17 +215,34 @@ Uses `fetch` connecting to **Fast2SMS API gateway** using `FAST2SMS_API_KEY` env
 
 ---
 
-## 📦 Parcel Uncle Logistics API ([parcelUncle.js](file:///C:/Users/Admin/Specs/backend/src/utils/parcelUncle.js))
-Uses API key `PARCEL_UNCLE_API_KEY` (`pu_test_a2fd0fc443f79d17a1bc94d4cf575cbd828e94c4eae135e9`) connecting to Parcel Uncle Courier Network.
+## 📦 Parcel Uncle Logistics Merchant API ([parcelUncle.js](file:///C:/Users/Admin/Specs/backend/src/utils/parcelUncle.js) & [shippingController.js](file:///C:/Users/Admin/Specs/backend/src/controllers/shippingController.js))
+Official Merchant API v1 integration connecting to Parcel Uncle Courier Network.
 
-- `createShipment({ orderId, customerName, customerPhone, customerEmail, shippingAddress, items, totalAmount, isUrgent })` → Manifests a shipment, generates waybill, and registers courier pickup.
-- `getTrackingStatus(waybill)` → Queries real-time tracking status from Parcel Uncle API.
-- `cancelShipment(waybill)` → Cancels a waybill shipment on Parcel Uncle network.
-- **Endpoints**:
-  - `POST /api/shipping/parcel-uncle/dispatch/:orderId` → 1-Click dispatch for Admin/Seller/Staff.
-  - `GET /api/shipping/parcel-uncle/track/:waybillOrOrderId` → Live tracking status lookup.
-  - `POST /api/shipping/parcel-uncle/cancel/:orderId` → Cancel waybill shipment.
-  - `GET /api/shipping/parcel-uncle/config` → Check Parcel Uncle integration health.
+- **Active Live Production API Key**: `pu_live_3a58bac546fddf0d9402569053b0f5e7da28915ac3822d8c`
+- **Carrier Base URL**: `https://parceluncle.com/carrier/v1/merchant/`
+- **Auth Header**: `X-API-Key: pu_live_...`
+- **Live Webhook URL**: `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook`
+
+### 🛠️ Connected Utility Functions:
+- `createShipment({ orderId, customerName, customerPhone, shippingAddress, items, totalAmount, isUrgent, isCod })` → Manifests shipment with strict 10-digit phone & 6-digit pincode sanitization, multi-URL candidate fallback, and transparent error reporting.
+- `getShippingLabel(trackingNumber)` → Downloads 4x6 inch printable PDF shipping label (with QR code, barcode, COD badge).
+- `registerWebhook(webhookUrl)` → Registers merchant webhook URL via `PUT /carrier/v1/merchant/webhook/`.
+- `getNdrList(status)` & `takeNdrAction(trackingNumber, actionData)` → Fetches Non-Delivery Reports & submits `REATTEMPT` / `ADDRESS_UPDATE` / `RTO` actions.
+- `getTrackingStatus(waybill)` → Queries real-time tracking status & timeline.
+- `checkServiceability(pincode)` & `getRateQuote(quoteData)` → Pincode serviceability & shipping rate calculations.
+- `cancelShipment(waybill)` → Cancels a waybill shipment & requests wallet refund.
+
+### 🛣️ Endpoints Registered (`app.js`):
+- `POST /api/shipping/parcel-uncle/dispatch/:orderId` → 1-Click order dispatch.
+- `POST /api/shipping/parcel-uncle/sync/:orderId` → Live status sync.
+- `POST /api/shipping/parcel-uncle/webhook` → Live webhook receiver.
+- `PUT /api/shipping/parcel-uncle/register-webhook` → Webhook auto-registration.
+- `GET /api/shipping/parcel-uncle/track/:waybillOrOrderId` → Tracking lookup.
+- `GET /api/shipping/parcel-uncle/label/:waybillOrOrderId` → Download 4x6 PDF Shipping Label.
+- `GET /api/shipping/parcel-uncle/ndr` & `POST /api/shipping/parcel-uncle/ndr/:trackingNumber/action` → NDR management.
+- `GET /api/shipping/parcel-uncle/serviceability` & `POST /api/shipping/parcel-uncle/rates` → Serviceability & rate quotes.
+- `POST /api/shipping/parcel-uncle/cancel/:orderId` → Cancel shipment.
+- `GET /api/shipping/parcel-uncle/config` → Merchant health & key status.
 
 ---
 
@@ -241,4 +258,5 @@ Uses API key `PARCEL_UNCLE_API_KEY` (`pu_test_a2fd0fc443f79d17a1bc94d4cf575cbd82
 | 2026-07-05 | `stylist.js` ReferenceError: `Head` is not defined during prerendering | Added `next/head` import |
 | 2026-07-10 | `seller.js` and `delivery.js` crash on load due to invalid `useToast` import | Removed `useToast`, implemented local toast system |
 | 2026-07-10 | Seller page blank on `/seller` route | Fixed by properly exporting default function |
-| 2026-07-23 | Integrate Parcel Uncle Courier API with test API key | Created `parcelUncle.js` utility, shipping controller, auto-manifest on payment verify, 1-click Admin/Seller dispatch buttons, and public tracking UI badge. |
+| 2026-07-23 | `ReferenceError: Download is not defined` crash on `/account` page | Added `Download` to `lucide-react` imports in `account.js`. |
+| 2026-07-23 | Integrate Parcel Uncle Production Key & Complete API Suite (v1.0.3) | Switched to LIVE key `pu_live_3a58bac5...`, added 4x6 PDF Label downloads, Webhook Auto-Registration, NDR management, multi-URL fallback, phone/pincode sanitization, and 1-Click Admin buttons. |

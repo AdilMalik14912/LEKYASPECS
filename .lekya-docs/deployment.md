@@ -58,6 +58,7 @@ Ensure the following variables are configured under your **Vercel Project Settin
 *   `SMTP_PASSWORD` -> Gmail App Password (16 characters, e.g. `fbceuzlrcumeejjb`).
 *   `CLOUDINARY_URL` -> URL for Cloudinary image uploads storage.
 *   `RAZORPAY_KEY_ID` & `RAZORPAY_KEY_SECRET` -> Razorpay credentials.
+*   `PARCEL_UNCLE_API_KEY` -> Production key (`pu_live_3a58bac546fddf0d9402569053b0f5e7da28915ac3822d8c`).
 
 ---
 
@@ -75,15 +76,17 @@ Whenever commits are pushed to the `main` branch:
 | Service | URL |
 |---------|-----|
 | **Main Store** | `https://lekyaspecs.vercel.app` |
-| **About Us & Ecosystem** | `https://lekyaspecs.vercel.app/about` ← NEW (2026-07-16) |
+| **About Us & Ecosystem** | `https://lekyaspecs.vercel.app/about` |
 | **Admin Panel** | `https://lekyaspecs.vercel.app/admin` |
 | **Admin Live Map** | `https://lekyaspecs.vercel.app/admin-map` |
 | **Seller Panel** | `https://lekyaspecs.vercel.app/seller` |
 | **Delivery Panel** | `https://lekyaspecs.vercel.app/delivery` |
 | **Delivery Route Map** | `https://lekyaspecs.vercel.app/delivery-map` |
-| **HO Staff Panel** | `https://lekyaspecs.vercel.app/ho-staff` ← NEW (2026-07-16) |
+| **HO Staff Panel** | `https://lekyaspecs.vercel.app/ho-staff` |
 | **Team Chat** | `https://lekyaspecs.vercel.app/chat` |
 | **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` |
+| **Parcel Uncle Live Webhook** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook` |
+| **Printable Label PDF Endpoint** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/label/:waybill` |
 
 > **Note:** Obsolete preview URLs like `lekyaspecs-800x4yrhk-lekya.vercel.app` are old preview deployments — always use the main production URL above.
 
@@ -98,6 +101,12 @@ Whenever commits are pushed to the `main` branch:
 | 2026-07-10 | `870d619` | Seller panel, delivery panel, RBAC, 6 smart rider features (auto-assign, urgent, workload, leaderboard, stale alerts, city grouping) |
 | 2026-07-10 | `b1ba736` | Real-time map system: delivery-map.js + admin-map.js + GPS backend endpoints |
 | 2026-07-13 | `eea7a57` | HO Staff Panel, Enterprise CRM Platform, Order Tracking timeline, Voice Recording in Team Chat |
+| 2026-07-23 | `7ac9857` | Fixed `ReferenceError: Download is not defined` on `/account` page. Version v1.0.1. |
+| 2026-07-23 | `68d3174` | Fixed hover background color contrast glitches on Admin table rows and Navbar Group Companies dropdown. |
+| 2026-07-23 | `bc29f08` | Switched Parcel Uncle Courier API key to Live Production Key `pu_live_3a58bac5...` (v1.0.2). |
+| 2026-07-23 | `df4a758` | Aligned Parcel Uncle Integration 100% with official merchant docs (phone & pincode sanitization, exact auth headers). |
+| 2026-07-23 | `a53035f` | Connected 100% complete Parcel Uncle API Suite (v1.0.3) — 4x6 PDF Shipping Label Download, Webhook Auto-Registration, NDR List/Actions, Rate Quote, Serviceability. |
+| 2026-07-23 | `b91fe37` | Verified clean production release v1.0.3 deployment for full Parcel Uncle Merchant API Suite. |
 | 2026-07-14 | `44bb855` | Chat Fixes: file download MIME extension fixes, sender deletion constraints, emoji picker UI fixes |
 | 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block |
 | 2026-07-16 | `1259d7d` | About Us & Group Companies Ecosystem page (`/about`), Lekya Group Navbar Dropdown (`_app.js`), Razorpay HMAC Webhook, Fast2SMS OTP Gateway |

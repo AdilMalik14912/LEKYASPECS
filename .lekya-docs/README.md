@@ -35,6 +35,7 @@ LEKYASPECS/
 │   │   │   ├── productController.js    # Product catalog queries
 │   │   │   ├── sellerController.js     # Seller panel API handlers
 │   │   │   ├── deliveryController.js   # Delivery agent API handlers
+│   │   │   ├── shippingController.js   # Parcel Uncle logistics API suite (v1.0.3)
 │   │   │   ├── chatController.js       # Team Chat API handlers
 │   │   │   └── crmController.js        # CRM sales pipeline & lead sync
 │   │   ├── middleware/
@@ -42,7 +43,8 @@ LEKYASPECS/
 │   │   └── utils/
 │   │       ├── jwt.js        # Sign/verify JWT tokens
 │   │       ├── mailer.js     # Nodemailer Gmail SMTP helpers
-│   │       └── sms.js        # Fast2SMS OTP & SMS notification gateway
+│   │       ├── sms.js        # Fast2SMS OTP & SMS notification gateway
+│   │       └── parcelUncle.js# Official Parcel Uncle Merchant API integration (LIVE key, Label PDF, Webhook, NDR, Rates)
 │   ├── package.json
 │   └── .env                  # Local environment variables
 │
