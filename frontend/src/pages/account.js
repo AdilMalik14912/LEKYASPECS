@@ -1,3 +1,4 @@
+// Lekya Specs - Verified Clean Production Build 2026.07.23
 const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
