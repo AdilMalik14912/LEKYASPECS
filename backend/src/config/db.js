@@ -248,6 +248,9 @@ const initDb = async () => {
         last_active_at TEXT DEFAULT (datetime('now')),
         created_at TEXT DEFAULT (datetime('now'))
       )`);
+      console.log('Migration: active_sessions table ready.');
+    } catch (_) {}
+
     // Migration: Create order_returns table
     try {
       await client.execute(`CREATE TABLE IF NOT EXISTS order_returns (
