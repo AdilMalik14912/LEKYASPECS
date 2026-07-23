@@ -7,7 +7,7 @@
 
 require('dotenv').config();
 
-const API_KEY = process.env.PARCEL_UNCLE_API_KEY || 'pu_test_a2fd0fc443f79d17a1bc94d4cf575cbd828e94c4eae135e9';
+const API_KEY = process.env.PARCEL_UNCLE_API_KEY || 'pu_live_b0b10910ea3b2b4a6f81d912ab367d6c6dc7f4baae04950e';
 const RAW_BASE_URL = process.env.PARCEL_UNCLE_API_URL || 'https://parceluncle.com/carrier/v1/merchant';
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, ''); // Strip trailing slash
 
