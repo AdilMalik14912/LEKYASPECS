@@ -1,6 +1,6 @@
 {
   "name": "specs-backend",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Specs premium eyewear e-commerce backend server",
   "main": "src/app.js",
   "scripts": {

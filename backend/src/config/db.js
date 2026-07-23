@@ -248,7 +248,21 @@ const initDb = async () => {
         last_active_at TEXT DEFAULT (datetime('now')),
         created_at TEXT DEFAULT (datetime('now'))
       )`);
-      console.log('Migration: active_sessions table ready.');
+    // Migration: Create order_returns table
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS order_returns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        return_type TEXT DEFAULT 'return',
+        reason TEXT NOT NULL,
+        comments TEXT DEFAULT NULL,
+        status TEXT DEFAULT 'Requested',
+        waybill_id TEXT DEFAULT NULL,
+        refund_amount REAL DEFAULT 0.0,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+      console.log('Migration: order_returns table ready.');
     } catch (_) {}
 
 

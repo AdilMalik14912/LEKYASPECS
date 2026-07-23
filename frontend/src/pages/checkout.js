@@ -3,7 +3,7 @@ const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useCart, useAuth } = require('./_app');
-const { ShieldCheck, ShoppingBag, CreditCard, ArrowLeft, Loader2, Sparkles, CheckCircle2, Glasses, ChevronDown, ChevronUp } = require('lucide-react');
+const { ShieldCheck, ShoppingBag, CreditCard, ArrowLeft, Loader2, Sparkles, CheckCircle2, Glasses, ChevronDown, ChevronUp, MapPin, Navigation } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -325,6 +325,42 @@ export default function Checkout() {
     );
   }
 
+  // GPS Address Auto-Fill state & handler
+  const [detectingGps, setDetectingGps] = useState(false);
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+    setDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+          const data = await res.json();
+          if (data && data.address) {
+            const addr = data.address;
+            setAddress(data.display_name || `${addr.road || ''} ${addr.suburb || ''}`);
+            setCity(addr.city || addr.town || addr.county || 'Delhi NCR');
+            setStateName(addr.state || 'Delhi');
+            setZip(addr.postcode || '110014');
+          }
+        } catch (err) {
+          console.warn('GPS reverse geocoding error:', err);
+        } finally {
+          setDetectingGps(false);
+        }
+      },
+      (err) => {
+        setDetectingGps(false);
+        alert('Could not detect location. Please type your address.');
+      }
+    );
+  };
+
   return (
     <div className="bg-premium-black min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -344,9 +380,20 @@ export default function Checkout() {
           
           {/* 1. Left Column: Address Form */}
           <div className="lg:col-span-2 bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm">
-            <h2 className="font-serif text-xl font-bold text-premium-black border-b border-premium-border pb-4 mb-6">
-              Shipping Address
-            </h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-premium-border pb-4 mb-6 gap-2">
+              <h2 className="font-serif text-xl font-bold text-premium-black">
+                Shipping Address
+              </h2>
+              <button
+                type="button"
+                onClick={handleDetectLocation}
+                disabled={detectingGps}
+                className="bg-purple-900/10 border border-purple-800/30 text-purple-700 hover:bg-purple-900 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                {detectingGps ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Navigation className="w-3.5 h-3.5 text-orange-500" />}
+                {detectingGps ? 'Detecting Location...' : '📍 Detect My Location (GPS Auto-Fill)'}
+              </button>
+            </div>
 
             <form onSubmit={handlePlaceOrder} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

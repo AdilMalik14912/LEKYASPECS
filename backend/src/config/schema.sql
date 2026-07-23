@@ -124,3 +124,17 @@ CREATE TABLE IF NOT EXISTS ho_reports (
     issues_faced TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );
+
+-- 12. Order Returns & Exchanges Table
+CREATE TABLE IF NOT EXISTS order_returns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    return_type TEXT DEFAULT 'return',
+    reason TEXT NOT NULL,
+    comments TEXT DEFAULT NULL,
+    status TEXT DEFAULT 'Requested',
+    waybill_id TEXT DEFAULT NULL,
+    refund_amount REAL DEFAULT 0.0,
+    created_at TEXT DEFAULT (datetime('now'))
+);

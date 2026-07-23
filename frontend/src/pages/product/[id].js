@@ -3,7 +3,8 @@ const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
 const { useCart, useWishlist, useAuth, useToast } = require('../_app');
-const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight } = require('lucide-react');
+const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight, RotateCw } = require('lucide-react');
+const Product360Viewer = require('../../components/Product360Viewer').default;
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -207,26 +208,46 @@ export default function ProductDetail() {
           
           {/* 1. Left Column: Image Gallery */}
           <div className="flex flex-col gap-4">
-            <div className="relative overflow-hidden bg-premium-light border border-premium-border rounded aspect-square flex items-center justify-center hover-zoom shadow-inner group">
-              <img 
-                src={activeImage} 
-                alt={product.name} 
-                className="w-full h-full object-cover"
-              />
-              {/* Prev / Next Buttons */}
-              {product.image_urls.length > 1 && (
-                <>
-                  <button onClick={() => {
-                    const idx = product.image_urls.indexOf(activeImage);
-                    setActiveImage(product.image_urls[idx === 0 ? product.image_urls.length - 1 : idx - 1]);
-                  }} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronLeft className="w-5 h-5" /></button>
-                  <button onClick={() => {
-                    const idx = product.image_urls.indexOf(activeImage);
-                    setActiveImage(product.image_urls[idx === product.image_urls.length - 1 ? 0 : idx + 1]);
-                  }} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronRight className="w-5 h-5" /></button>
-                </>
-              )}
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-premium-gray">Product View</span>
+              <button
+                type="button"
+                onClick={() => setShow360(!show360)}
+                className={`text-xs font-bold px-3 py-1 rounded-full border transition-all flex items-center gap-1.5 ${
+                  show360
+                    ? 'bg-purple-900 text-white border-purple-600 shadow-md'
+                    : 'bg-premium-light border-premium-border text-premium-dark hover:border-purple-600'
+                }`}
+              >
+                <RotateCw className="w-3.5 h-3.5 text-orange-500" />
+                {show360 ? 'Close 360° View' : 'Interactive 360° View'}
+              </button>
             </div>
+
+            {show360 ? (
+              <Product360Viewer imageUrls={product.image_urls} productName={product.name} />
+            ) : (
+              <div className="relative overflow-hidden bg-premium-light border border-premium-border rounded aspect-square flex items-center justify-center hover-zoom shadow-inner group">
+                <img 
+                  src={activeImage} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                />
+                {/* Prev / Next Buttons */}
+                {product.image_urls.length > 1 && (
+                  <>
+                    <button onClick={() => {
+                      const idx = product.image_urls.indexOf(activeImage);
+                      setActiveImage(product.image_urls[idx === 0 ? product.image_urls.length - 1 : idx - 1]);
+                    }} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronLeft className="w-5 h-5" /></button>
+                    <button onClick={() => {
+                      const idx = product.image_urls.indexOf(activeImage);
+                      setActiveImage(product.image_urls[idx === product.image_urls.length - 1 ? 0 : idx + 1]);
+                    }} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-premium-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"><ChevronRight className="w-5 h-5" /></button>
+                  </>
+                )}
+              </div>
+            )}
             
             {/* Gallery Thumbnails */}
             {product.image_urls.length > 1 && (
@@ -234,9 +255,9 @@ export default function ProductDetail() {
                 {product.image_urls.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => setActiveImage(img)}
+                    onClick={() => { setActiveImage(img); setShow360(false); }}
                     className={`w-20 h-20 border rounded bg-premium-light overflow-hidden transition-all ${
-                      activeImage === img ? 'border-premium-accent ring-2 ring-premium-accent/20' : 'border-premium-border opacity-70 hover:opacity-100'
+                      !show360 && activeImage === img ? 'border-premium-accent ring-2 ring-premium-accent/20' : 'border-premium-border opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt={`view-${i}`} className="w-full h-full object-cover" />

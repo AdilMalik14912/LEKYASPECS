@@ -1512,6 +1512,15 @@ export default function Admin() {
           </button>
 
           <button
+            onClick={() => setActiveTab('returns')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
+              activeTab === 'returns' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <RefreshCw className="w-4 h-4" /> Returns & Exchanges
+          </button>
+
+          <button
             onClick={() => setActiveTab('customers')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
               activeTab === 'customers' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'

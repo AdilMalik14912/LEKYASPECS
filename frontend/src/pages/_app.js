@@ -4,7 +4,8 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle } = require('lucide-react');
+const SpinWheel = require('../components/SpinWheel').default;
 
 // Contexts
 const AuthContext = createContext(null);
@@ -43,7 +44,8 @@ export default function App({ Component, pageProps }) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [routeChanging, setRouteChanging] = useState(false);
 
-  // 7. Toast State
+  // 7. Toast & SpinWheel State
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const [toastTimeout, setToastTimeout] = useState(null);
 
@@ -791,6 +793,42 @@ export default function App({ Component, pageProps }) {
                 </div>
               </footer>
             )}
+
+            {/* Floating VIP WhatsApp Concierge & Spin Wheel Widgets */}
+            <div className="fixed bottom-6 left-6 z-40 flex flex-col gap-3">
+              <button
+                onClick={() => setShowSpinWheel(true)}
+                className="group relative bg-gradient-to-r from-[#7B22A8] to-[#FAAE62] text-white p-3 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border border-[#FAAE62]/50 animate-bounce"
+                title="Spin & Win Rewards"
+              >
+                <Gift className="w-5 h-5 text-white" />
+                <span className="absolute left-14 bg-[#0D0016] text-[#FAAE62] border border-[#FAAE62]/40 font-bold text-xs px-3 py-1 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                  Spin & Win Rewards 🎡
+                </span>
+              </button>
+
+              <a
+                href="https://wa.me/919654119262?text=Hello%20Lekya%20Specs%20VIP%20Concierge%2C%20I%20need%20assistance"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative bg-[#25D366] text-white p-3.5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border border-white/30"
+                title="Chat with Lekya VIP Concierge on WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5 fill-current" />
+                <span className="absolute left-14 bg-[#0D0016] text-white border border-[#25D366]/40 font-bold text-xs px-3 py-1 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                  VIP Concierge WhatsApp Chat 💬
+                </span>
+              </a>
+            </div>
+
+            {/* Spin & Win Modal */}
+            <SpinWheel
+              isOpen={showSpinWheel}
+              onClose={() => setShowSpinWheel(false)}
+              onApplyCoupon={(code) => {
+                showToast(`🎉 Coupon ${code} unlocked! Auto-applying at checkout.`, 'success');
+              }}
+            />
 
             {/* Global Toast */}
             {toast.visible && (

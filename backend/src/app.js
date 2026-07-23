@@ -18,6 +18,7 @@ const chatController = require('./controllers/chatController');
 const crmController = require('./controllers/crmController');
 const hoStaffController = require('./controllers/hoStaffController');
 const shippingController = require('./controllers/shippingController');
+const returnController = require('./controllers/returnController');
 
 
 // Middlewares
@@ -461,6 +462,12 @@ app.get('/api/shipping/parcel-uncle/serviceability', shippingController.checkSer
 app.post('/api/shipping/parcel-uncle/rates', shippingController.getRateQuoteHandler);
 app.post('/api/shipping/parcel-uncle/cancel/:orderId', authenticateToken, isTeamMember, shippingController.cancelParcelUncle);
 app.get('/api/shipping/parcel-uncle/config', authenticateToken, isTeamMember, shippingController.getConfig);
+
+// 15. Customer Returns & Exchanges API
+app.post('/api/returns', authenticateToken, returnController.createReturn);
+app.get('/api/returns/my', authenticateToken, returnController.getUserReturns);
+app.get('/api/returns/all', authenticateToken, isAdmin, returnController.getAllReturns);
+app.put('/api/returns/:returnId/status', authenticateToken, isAdmin, returnController.updateReturnStatus);
 
 // Global Error Handler
 
