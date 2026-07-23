@@ -365,7 +365,7 @@ export default function App({ Component, pageProps }) {
             {!isStaffRoute && (
               <header className="sticky top-0 z-50 border-b" style={{background: 'rgba(13,0,22,0.88)', backdropFilter: 'blur(24px) saturate(160%)', WebkitBackdropFilter: 'blur(24px) saturate(160%)', borderColor: 'rgba(74,18,104,0.7)'}}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="flex items-center justify-between h-16 sm:h-20">
+                  <div className="flex items-center justify-between h-16 sm:h-20 relative">
                     
                     {/* Menu Button for Mobile */}
                     <div className="flex items-center lg:hidden">
@@ -378,7 +378,7 @@ export default function App({ Component, pageProps }) {
                     </div>
 
                     {/* Logo — Vision Eye Concept 10 */}
-                    <div className="flex-shrink-0 flex justify-center sm:justify-start items-center mr-6 md:mr-10 lg:mr-16">
+                    <div className="flex-shrink-0 flex items-center absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:transform-none lg:mr-10 xl:mr-16">
                       <Link href="/" className="flex items-center hover:opacity-90 transition-opacity group">
                         <VisionEyeLogo size={40} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
                       </Link>
