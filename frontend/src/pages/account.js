@@ -642,30 +642,28 @@ export default function Account() {
 
           {/* Google & Facebook OAuth Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() => handleOpenSocialModal('google')}
+            <a
+              href={`${API_BASE}/api/auth/google`}
               className="flex items-center justify-center gap-2.5 border border-premium-border hover:border-red-500/50 rounded-lg py-3 px-4 text-xs font-bold text-premium-dark hover:bg-red-500/5 transition-all cursor-pointer shadow-sm group"
             >
               <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                 <path
                   fill="#EA4335"
-                  d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.137 4.114-3.478 0-6.3-2.823-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.106.625 4.225 1.637l3.136-3.136C19.123 2.502 15.86 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.895 0 10.865-4.224 10.865-11.24 0-.668-.057-1.314-.165-1.955H12.24z"
+                  d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.137 4.114-3.478 0-6.3-2.823-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.106.625 4.225 1.637l3.136-3.136C19.123 2.502 15.86 1 12.24 1 6.033 1 1 6.033 1 1 6.033 11.24 11.24 11.24c5.895 0 10.865-4.224 10.865-11.24 0-.668-.057-1.314-.165-1.955H12.24z"
                 />
               </svg>
               <span>Google Account</span>
-            </button>
+            </a>
 
-            <button
-              type="button"
-              onClick={() => handleOpenSocialModal('facebook')}
+            <a
+              href={`${API_BASE}/api/auth/facebook`}
               className="flex items-center justify-center gap-2.5 border border-premium-border hover:border-blue-500/50 rounded-lg py-3 px-4 text-xs font-bold text-premium-dark hover:bg-blue-500/5 transition-all cursor-pointer shadow-sm group"
             >
               <svg className="w-4 h-4 fill-[#1877F2] shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               <span>Facebook Account</span>
-            </button>
+            </a>
           </div>
 
 
