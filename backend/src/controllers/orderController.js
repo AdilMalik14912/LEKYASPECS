@@ -295,13 +295,24 @@ const verifyPayment = async (req, res) => {
     try {
       const { createShipment } = require('../utils/parcelUncle');
       const userRow = userRes.rows[0];
+
+      // Fetch full order items with product names & SKUs
+      const orderItemsRes = await db.query(
+        `SELECT oi.quantity, oi.price, p.name, p.id as product_id
+         FROM order_items oi
+         LEFT JOIN products p ON oi.product_id = p.id
+         WHERE oi.order_id = ?`,
+        [orderId]
+      );
+      const richItems = orderItemsRes.rows.length > 0 ? orderItemsRes.rows : items;
+
       const parcelResult = await createShipment({
         orderId,
         customerName: userRow?.name || shipping_address?.name,
         customerPhone: userRow?.phone || shipping_address?.phone,
         customerEmail: userRow?.email,
         shippingAddress: shipping_address,
-        items,
+        items: richItems,
         totalAmount: finalTotalAmount,
         isUrgent: req.body.is_urgent || false
       });

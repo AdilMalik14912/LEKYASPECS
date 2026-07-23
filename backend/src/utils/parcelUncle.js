@@ -59,6 +59,27 @@ async function createShipment(orderData) {
     return digits.length === 6 ? digits : "110014";
   };
 
+  // Format rich product SKU item list
+  const formattedItems = (items || []).map((it, idx) => {
+    const pName = it.name || it.pname || it.product_name || `Lekya Eyewear Frame #${it.product_id || it.productId || (idx + 1)}`;
+    const pId = it.product_id || it.productId || it.id || (idx + 1);
+    const skuCode = `SKU-LEKYA-${pId}`;
+    const qty = Number(it.quantity || it.qty || 1);
+    const unitPrice = Number(it.price || 0);
+
+    return {
+      sku: skuCode,
+      name: pName,
+      title: pName,
+      item_name: pName,
+      quantity: qty,
+      qty: qty,
+      price: unitPrice,
+      unit_price: unitPrice,
+      total_price: unitPrice * qty
+    };
+  });
+
   // Official Merchant API v1 Payload Structure
   const payload = {
     service_type: isUrgent ? "EXPRESS_4H" : "SAME_DAY",
@@ -80,7 +101,10 @@ async function createShipment(orderData) {
     recipient_name: customerName || parsedAddr?.name || "Valued Customer",
     recipient_phone: cleanPhone(customerPhone || parsedAddr?.phone),
     weight_kg: 0.5,
-    parcel_type: "PACKAGE"
+    parcel_type: "PACKAGE",
+    items: formattedItems,
+    order_items: formattedItems,
+    sku_items: formattedItems
   };
 
   const candidateUrls = [
