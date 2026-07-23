@@ -323,34 +323,50 @@ export default function Account() {
   // --- RENDERING: Logged Out (Auth Screen) ---
   if (!user) {
     return (
-      <div className="bg-premium-black min-h-screen py-16 sm:py-24 flex items-center justify-center">
-        <div className="max-w-md w-full mx-4 bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm">
-          
-          {/* Tab Selector */}
-          <div className="flex border-b border-premium-border mb-8">
-            <button
-              onClick={() => { setIsLoginTab(true); setFormError(''); }}
-              className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
-                isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => { setIsLoginTab(false); setFormError(''); }}
-              className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
-                !isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
-              }`}
-            >
-              Register
-            </button>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-16"
+        style={{ background: 'linear-gradient(135deg, #0D0016 0%, #1A0024 55%, #2A0440 100%)' }}>
+        {/* Ambient Orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="ambient-orb-1 absolute top-1/4 left-1/4 w-80 h-80 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(250,174,98,0.1) 0%, transparent 70%)' }} />
+          <div className="ambient-orb-2 absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(62,8,86,0.35) 0%, transparent 70%)' }} />
+        </div>
+        <div className="max-w-md w-full mx-4 relative z-10">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <svg width='40' height='22' viewBox='0 0 40 22' className='group-hover:scale-105 transition-transform'>
+                <ellipse cx='10' cy='11' rx='9' ry='9' fill='none' stroke='#FAAE62' strokeWidth='2.5'/>
+                <ellipse cx='30' cy='11' rx='9' ry='9' fill='none' stroke='#FAAE62' strokeWidth='2.5'/>
+                <line x1='19' y1='11' x2='21' y2='11' stroke='#FAAE62' strokeWidth='2.5' strokeLinecap='round'/>
+              </svg>
+              <span className="font-serif text-2xl font-bold" style={{ color: '#FEF6EE' }}>LEKYA <span style={{ color: '#FAAE62' }}>SPECS</span></span>
+            </Link>
+            <p className="mt-2 text-xs tracking-widest uppercase" style={{ color: '#9B7EA8' }}>Premium Eyewear</p>
           </div>
-
-          <h2 className="font-serif text-2xl font-bold text-premium-black text-center mb-6">
-            {isLoginTab ? 'Welcome Back to Lekya Specs' : 'Create Premium Account'}
-          </h2>
-
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
+          {/* Main Card */}
+          <div className="rounded-2xl p-8"
+            style={{ background: 'rgba(26,0,36,0.95)', border: '1px solid rgba(74,18,104,0.7)', backdropFilter: 'blur(20px)', boxShadow: '0 30px 80px rgba(13,0,22,0.8)' }}>
+            {/* Tab Selector */}
+            <div className="flex rounded-xl overflow-hidden mb-8" style={{ background: 'rgba(13,0,22,0.6)', border: '1px solid rgba(74,18,104,0.5)' }}>
+              <button onClick={() => { setIsLoginTab(true); setFormError(''); }}
+                className="flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-all"
+                style={isLoginTab ? { background: 'linear-gradient(135deg, #FAAE62, #D4893F)', color: '#0D0016' } : { color: '#9B7EA8' }}>
+                Sign In
+              </button>
+              <button onClick={() => { setIsLoginTab(false); setFormError(''); }}
+                className="flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-all"
+                style={!isLoginTab ? { background: 'linear-gradient(135deg, #FAAE62, #D4893F)', color: '#0D0016' } : { color: '#9B7EA8' }}>
+                Register
+              </button>
+            </div>
+            <h2 className="font-serif text-2xl font-bold text-center mb-6" style={{ color: '#FEF6EE' }}>
+              {isLoginTab ? 'Welcome Back' : 'Create Account'}
+            </h2>
+            <div style={{ display: 'none' }}>
+              <input type="text" name="website_verify" value={websiteVerify} onChange={(e) => setWebsiteVerify(e.target.value)} tabIndex="-1" autoComplete="off" />
+            </div>
             {isLoginTab ? (
               // --- SIGN IN FORM ---
               <>
@@ -610,8 +626,8 @@ export default function Account() {
               <span className="font-bold text-premium-accent block mb-1">Developer Testing Accounts:</span>
               <span>Admin Dashboard: <strong>dev.parceluncle@gmail.com</strong> / password: <strong>14912malik</strong></span>
             </div>
-          )}
-
+            )}
+          </div>
         </div>
       </div>
     );
@@ -620,14 +636,20 @@ export default function Account() {
   // --- RENDERING: Logged In (Dashboard) ---
 
   return (
-    <div className="bg-premium-black min-h-screen py-12">
+    <div className="min-h-screen py-12" style={{ background: 'linear-gradient(160deg, #0D0016 0%, #1A0024 55%, #2A0440 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Profile overview bar */}
-        <div className="stat-card-enter bg-white border border-premium-border rounded p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-premium-accent/20 border-2 border-premium-accent flex items-center justify-center shrink-0">
-              <User className="w-8 h-8 text-premium-accent" />
+        <div className="stat-card-enter rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 mb-8"
+          style={{ background: 'rgba(26,0,36,0.92)', border: '1px solid rgba(250,174,98,0.18)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 60px rgba(13,0,22,0.7), 0 0 40px rgba(250,174,98,0.05)' }}>
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center shrink-0 relative"
+              style={{ background: 'linear-gradient(135deg, rgba(250,174,98,0.2), rgba(62,8,86,0.4))', border: '2px solid rgba(250,174,98,0.5)', boxShadow: '0 0 20px rgba(250,174,98,0.2)' }}>
+              <User className="w-8 h-8" style={{ color: '#FAAE62' }} />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+                style={{ background: '#FAAE62' }}>
+                <span className="text-[8px] font-black" style={{ color: '#0D0016' }}>✓</span>
+              </div>
             </div>
             <div>
               {isEditingName ? (
@@ -650,7 +672,7 @@ export default function Account() {
                   </button>
                 </div>
               )}
-              <p className="text-sm text-premium-gray font-light mt-0.5">{user.email}</p>
+              <p className="text-sm font-light" style={{ color: '#9B7EA8' }}>{user.email}</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -1065,3 +1087,4 @@ export default function Account() {
     </div>
   );
 }
+
