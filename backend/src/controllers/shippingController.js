@@ -330,6 +330,92 @@ const getConfig = async (req, res) => {
   });
 };
 
+// 7. Download Printable 4x6 Shipping Label PDF
+const downloadLabel = async (req, res) => {
+  const { waybillOrOrderId } = req.params;
+  try {
+    let waybill = waybillOrOrderId;
+    if (!isNaN(waybillOrOrderId)) {
+      const orderRes = await db.query('SELECT parcel_uncle_tracking_id FROM orders WHERE id = ?', [waybillOrOrderId]);
+      if (orderRes.rows.length > 0 && orderRes.rows[0].parcel_uncle_tracking_id) {
+        waybill = orderRes.rows[0].parcel_uncle_tracking_id;
+      }
+    }
+
+    const labelResult = await parcelUncle.getShippingLabel(waybill);
+    if (labelResult.success && labelResult.buffer) {
+      res.setHeader('Content-Type', labelResult.contentType || 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="Shipping-Label-${waybill}.pdf"`);
+      return res.send(labelResult.buffer);
+    } else {
+      res.status(404).json({ message: labelResult.message || 'Shipping label PDF unavailable from carrier API' });
+    }
+  } catch (err) {
+    console.error('Download shipping label error:', err);
+    res.status(500).json({ message: 'Server error generating shipping label PDF' });
+  }
+};
+
+// 8. Register Merchant Webhook URL with Parcel Uncle Network
+const registerWebhookHandler = async (req, res) => {
+  try {
+    const { webhookUrl } = req.body || {};
+    const urlToRegister = webhookUrl || 'https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook';
+    const result = await parcelUncle.registerWebhook(urlToRegister);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('Register webhook error:', err);
+    res.status(500).json({ message: 'Server error registering webhook URL' });
+  }
+};
+
+// 9. List Non-Delivery Reports (NDR)
+const getNdrListHandler = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const result = await parcelUncle.getNdrList(status || 'OPEN');
+    res.json(result);
+  } catch (err) {
+    console.error('Get NDR list error:', err);
+    res.status(500).json({ message: 'Server error fetching NDR list' });
+  }
+};
+
+// 10. Take Action on NDR Case
+const takeNdrActionHandler = async (req, res) => {
+  const { trackingNumber } = req.params;
+  try {
+    const result = await parcelUncle.takeNdrAction(trackingNumber, req.body);
+    res.json(result);
+  } catch (err) {
+    console.error('Take NDR action error:', err);
+    res.status(500).json({ message: 'Server error taking NDR action' });
+  }
+};
+
+// 11. Serviceability Check
+const checkServiceabilityHandler = async (req, res) => {
+  const { pincode } = req.query;
+  try {
+    const result = await parcelUncle.checkServiceability(pincode || '110014');
+    res.json(result);
+  } catch (err) {
+    console.error('Check serviceability error:', err);
+    res.status(500).json({ message: 'Server error checking pincode serviceability' });
+  }
+};
+
+// 12. Rate Quote Calculator
+const getRateQuoteHandler = async (req, res) => {
+  try {
+    const result = await parcelUncle.getRateQuote(req.body);
+    res.json(result);
+  } catch (err) {
+    console.error('Get rate quote error:', err);
+    res.status(500).json({ message: 'Server error fetching rate quote' });
+  }
+};
+
 module.exports = {
   dispatchParcelUncle,
   trackParcelUncle,
@@ -337,5 +423,11 @@ module.exports = {
   syncParcelUncleHandler,
   handleWebhook,
   cancelParcelUncle,
+  downloadLabel,
+  registerWebhookHandler,
+  getNdrListHandler,
+  takeNdrActionHandler,
+  checkServiceabilityHandler,
+  getRateQuoteHandler,
   getConfig
 };

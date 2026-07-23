@@ -2097,14 +2097,25 @@ export default function Admin() {
                                   <div className="bg-orange-500/10 border border-orange-500/30 rounded p-1.5 text-[9px]">
                                     <div className="flex items-center justify-between">
                                       <span className="font-bold text-orange-400 block">📦 Parcel Uncle:</span>
-                                      <button
-                                        onClick={() => handleSyncParcelUncle(order.id)}
-                                        disabled={syncingOrder === order.id}
-                                        className="text-[8px] bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-orange-500/40 transition-all uppercase tracking-wider"
-                                        title="Sync live status from Parcel Uncle API"
-                                      >
-                                        {syncingOrder === order.id ? '...' : '🔄 Sync'}
-                                      </button>
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() => handleSyncParcelUncle(order.id)}
+                                          disabled={syncingOrder === order.id}
+                                          className="text-[8px] bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-orange-500/40 transition-all uppercase tracking-wider"
+                                          title="Sync live status from Parcel Uncle API"
+                                        >
+                                          {syncingOrder === order.id ? '...' : '🔄 Sync'}
+                                        </button>
+                                        <a
+                                          href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.parcel_uncle_tracking_id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-[8px] bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-emerald-500/40 transition-all uppercase tracking-wider flex items-center gap-0.5"
+                                          title="Download/Print official 4x6 inch PDF Shipping Label"
+                                        >
+                                          🏷️ Label PDF
+                                        </a>
+                                      </div>
                                     </div>
                                     <span className="font-mono text-white block mt-0.5">{order.parcel_uncle_tracking_id}</span>
                                     <span className="text-gray-400 block text-[8px] mt-0.5">

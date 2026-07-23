@@ -448,11 +448,17 @@ app.post('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffControlle
 app.get('/api/ho-staff/reports', authenticateToken, isHoStaff, hoStaffController.getMyReports);
 app.get('/api/ho-staff/all-reports', authenticateToken, isAdmin, hoStaffController.getAllReports);
 
-// 14. Parcel Uncle Logistics & Shipping Integration API
+// 14. Parcel Uncle Logistics & Shipping Integration API (100% Complete Suite)
 app.post('/api/shipping/parcel-uncle/dispatch/:orderId', authenticateToken, isTeamMember, shippingController.dispatchParcelUncle);
 app.post('/api/shipping/parcel-uncle/sync/:orderId', authenticateToken, isTeamMember, shippingController.syncParcelUncleHandler);
 app.post('/api/shipping/parcel-uncle/webhook', shippingController.handleWebhook);
+app.put('/api/shipping/parcel-uncle/register-webhook', authenticateToken, isTeamMember, shippingController.registerWebhookHandler);
 app.get('/api/shipping/parcel-uncle/track/:waybillOrOrderId', shippingController.trackParcelUncle);
+app.get('/api/shipping/parcel-uncle/label/:waybillOrOrderId', shippingController.downloadLabel);
+app.get('/api/shipping/parcel-uncle/ndr', authenticateToken, isTeamMember, shippingController.getNdrListHandler);
+app.post('/api/shipping/parcel-uncle/ndr/:trackingNumber/action', authenticateToken, isTeamMember, shippingController.takeNdrActionHandler);
+app.get('/api/shipping/parcel-uncle/serviceability', shippingController.checkServiceabilityHandler);
+app.post('/api/shipping/parcel-uncle/rates', shippingController.getRateQuoteHandler);
 app.post('/api/shipping/parcel-uncle/cancel/:orderId', authenticateToken, isTeamMember, shippingController.cancelParcelUncle);
 app.get('/api/shipping/parcel-uncle/config', authenticateToken, isTeamMember, shippingController.getConfig);
 

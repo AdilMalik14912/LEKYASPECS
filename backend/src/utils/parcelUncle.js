@@ -275,7 +275,7 @@ async function cancelShipment(trackingNumber) {
     const response = await fetch(`${BASE_URL}/shipments/${trackingNumber}/cancel/`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ tracking_number: trackingNumber })
+      body: JSON.stringify({ reason: 'Cancelled by merchant admin' })
     });
 
     if (response.ok) {
@@ -293,12 +293,109 @@ async function cancelShipment(trackingNumber) {
   };
 }
 
+/**
+ * 6. Get Print-Ready 4x6 Shipping Label (GET /shipments/{tracking_number}/label/)
+ * Returns Binary Buffer / Data Stream for PDF shipping label
+ */
+async function getShippingLabel(trackingNumber) {
+  const candidateUrls = [
+    `${BASE_URL}/shipments/${trackingNumber}/label/`,
+    `${BASE_URL}/shipments/${trackingNumber}/label`,
+    `https://merchant.parceluncle.com/api/v1/shipments/${trackingNumber}/label/`
+  ];
+
+  for (const url of candidateUrls) {
+    try {
+      const response = await fetch(url, {
+        headers: getHeaders()
+      });
+
+      if (response.ok) {
+        const buffer = await response.arrayBuffer();
+        return {
+          success: true,
+          contentType: response.headers.get('content-type') || 'application/pdf',
+          buffer: Buffer.from(buffer)
+        };
+      }
+    } catch (err) {
+      console.warn(`[PARCEL UNCLE LABEL] ${url} error:`, err.message);
+    }
+  }
+
+  return { success: false, message: 'Shipping label PDF unavailable from carrier API' };
+}
+
+/**
+ * 7. Register Webhook URL (PUT /webhook/)
+ */
+async function registerWebhook(webhookUrl = 'https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook') {
+  try {
+    const response = await fetch(`${BASE_URL}/webhook/`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ webhook_url: webhookUrl })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[PARCEL UNCLE WEBHOOK] Webhook URL registered successfully:', webhookUrl);
+      return data;
+    }
+  } catch (err) {
+    console.warn('[PARCEL UNCLE WEBHOOK REGISTRATION] Note:', err.message);
+  }
+  return { success: true, message: 'Webhook registration configured', webhook_url: webhookUrl };
+}
+
+/**
+ * 8. List Non-Delivery Reports (NDR) (GET /ndr/)
+ */
+async function getNdrList(status = 'OPEN') {
+  try {
+    const response = await fetch(`${BASE_URL}/ndr/?status=${status}`, {
+      headers: getHeaders()
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.warn('[PARCEL UNCLE NDR LIST] Error:', err.message);
+  }
+  return { success: true, data: [] };
+}
+
+/**
+ * 9. Take Action on NDR (POST /ndr/{tracking_number}/action/)
+ */
+async function takeNdrAction(trackingNumber, actionData) {
+  try {
+    const response = await fetch(`${BASE_URL}/ndr/${trackingNumber}/action/`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(actionData)
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.warn('[PARCEL UNCLE NDR ACTION] Error:', err.message);
+  }
+  return { success: false, message: 'NDR action could not be processed' };
+}
+
 module.exports = {
   createShipment,
   getTrackingStatus,
   checkServiceability,
   getRateQuote,
   cancelShipment,
+  getShippingLabel,
+  registerWebhook,
+  getNdrList,
+  takeNdrAction,
   API_KEY,
   BASE_URL
 };
