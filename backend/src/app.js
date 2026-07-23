@@ -99,6 +99,8 @@ app.post('/api/auth/login', strictLimiter, validateHoneypot, authController.logi
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
 
+app.post('/api/auth/social-login', authController.socialLogin);
+
 // 2b. Google OAuth
 app.get('/api/auth/google', async (req, res, next) => {
   const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -106,31 +108,8 @@ app.get('/api/auth/google', async (req, res, next) => {
   const fUrl = getFrontendUrl(req);
 
   if (!googleClientId || !googleClientSecret || googleClientId === 'dummy_client_id_to_prevent_passport_crash') {
-    // If no credentials, simulate Google OAuth instantly
-    const mockEmail = 'google_user@specs.com';
-    const mockName = 'Google Customer';
-
-    try {
-      let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
-      if (userRes.rows.length === 0) {
-        await db.query(
-          `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
-          [mockName, mockEmail, 'OAUTH_GOOGLE_MOCK_PASSWORD']
-        );
-        userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
-        // Send welcome email (non-blocking)
-        const { sendWelcomeEmail } = require('./utils/mailer');
-        sendWelcomeEmail({ to: mockEmail, name: mockName }).catch(console.warn);
-      }
-      const user = userRes.rows[0];
-      const { signToken } = require('./utils/jwt');
-      const token = signToken({ id: user.id, name: user.name, email: user.email, role: user.role || 'user' });
-
-      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'user')}&provider=Google`);
-    } catch (err) {
-      console.error('Mock Google OAuth error:', err);
-      return res.redirect(`${fUrl}/account?error=google_failed`);
-    }
+    // Redirect to frontend Google Account Selection Modal so user can choose/enter their actual Google credentials
+    return res.redirect(`${fUrl}/account?open_social_modal=google`);
   } else {
     // Redirect to real Google OAuth
     passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
@@ -150,40 +129,15 @@ app.get('/api/auth/google/callback', (req, res, next) => {
 });
 
 
-// 2c. Facebook OAuth (Mockable / Real)
-// Since Facebook OAuth requires custom developers portal config, we provide an automatic interactive simulation if keys are empty.
+// 2c. Facebook OAuth
 app.get('/api/auth/facebook', async (req, res) => {
   const fbClientId = process.env.FACEBOOK_CLIENT_ID;
   const fbClientSecret = process.env.FACEBOOK_CLIENT_SECRET;
   const fUrl = getFrontendUrl(req);
 
   if (!fbClientId || !fbClientSecret) {
-    // If credentials are empty, simulate Facebook OAuth instantly
-    // We register/login a mock Facebook User
-    const mockEmail = 'fb_user@specs.com';
-    const mockName = 'Facebook Customer';
-
-    try {
-      let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
-      if (userRes.rows.length === 0) {
-        await db.query(
-          `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
-          [mockName, mockEmail, 'OAUTH_FACEBOOK_MOCK_PASSWORD']
-        );
-        userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
-        // Send welcome email (non-blocking)
-        const { sendWelcomeEmail } = require('./utils/mailer');
-        sendWelcomeEmail({ to: mockEmail, name: mockName }).catch(console.warn);
-      }
-      const user = userRes.rows[0];
-      const { signToken } = require('./utils/jwt');
-      const token = signToken({ id: user.id, name: user.name, email: user.email, role: user.role || 'user' });
-
-      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'user')}&provider=Facebook`);
-    } catch (err) {
-      console.error('Mock Facebook OAuth error:', err);
-      return res.redirect(`${fUrl}/account?error=facebook_failed`);
-    }
+    // Redirect to frontend Facebook Account Selection Modal so user can choose/enter their actual Facebook credentials
+    return res.redirect(`${fUrl}/account?open_social_modal=facebook`);
   } else {
     // Redirect to real Facebook OAuth if credentials exist
     res.redirect(`https://www.facebook.com/v12.0/dialog/oauth?client_id=${fbClientId}&redirect_uri=${encodeURIComponent(fUrl + '/api/auth/facebook/callback')}&scope=email`);
@@ -191,7 +145,6 @@ app.get('/api/auth/facebook', async (req, res) => {
 });
 
 app.get('/api/auth/facebook/callback', async (req, res) => {
-  // If real Facebook OAuth was used
   const fUrl = getFrontendUrl(req);
   res.redirect(`${fUrl}/oauth-success?error=not_fully_configured`);
 });

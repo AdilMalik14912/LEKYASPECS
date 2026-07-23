@@ -350,11 +350,62 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// Social Auth (Google / Facebook) Login & Registration
+const socialLogin = async (req, res) => {
+  const { email, name, provider } = req.body;
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ message: 'Valid Google/Facebook email is required' });
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const cleanName = name ? name.trim() : (provider === 'facebook' ? 'Facebook User' : 'Google User');
+
+  try {
+    let userRes = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
+
+    if (userRes.rows.length === 0) {
+      // New Social User Registration
+      await db.query(
+        `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
+        [cleanName, cleanEmail, `OAUTH_${(provider || 'SOCIAL').toUpperCase()}_SECURE_PASS`]
+      );
+      userRes = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
+
+      // Send welcome email (non-blocking)
+      const { sendWelcomeEmail } = require('../utils/mailer');
+      sendWelcomeEmail({ to: cleanEmail, name: cleanName }).catch(console.warn);
+    }
+
+    const user = userRes.rows[0];
+    const token = generateToken(user);
+
+    return res.json({
+      message: `Signed in successfully via ${provider || 'Social'}`,
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || null,
+        role: user.role || 'user',
+        loyalty_points: user.loyalty_points || 0,
+        referral_code: user.referral_code || null,
+        face_shape: user.face_shape || null
+      }
+    });
+  } catch (err) {
+    console.error('Social login error:', err);
+    return res.status(500).json({ message: 'Social authentication failed' });
+  }
+};
+
 module.exports = {
   register,
   registerInitiate,
   registerVerify,
   login,
   getProfile,
-  updateProfile
+  updateProfile,
+  socialLogin
 };

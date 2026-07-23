@@ -4,7 +4,7 @@ const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key, Navigation, Download } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key, Navigation, Download, Loader2, AlertCircle } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -113,6 +113,68 @@ export default function Account() {
   const [registrationStep, setRegistrationStep] = useState(1); // 1 = details, 2 = verify OTP
   const [otpCode, setOtpCode] = useState('');
   const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
+
+  // Social OAuth Selector Modal State
+  const [socialModalOpen, setSocialModalOpen] = useState(false);
+  const [socialModalProvider, setSocialModalProvider] = useState('google'); // 'google' | 'facebook'
+  const [socialEmail, setSocialEmail] = useState('');
+  const [socialName, setSocialName] = useState('');
+  const [socialLoading, setSocialLoading] = useState(false);
+  const [socialError, setSocialError] = useState('');
+
+  // Check URL query to see if redirect requested social modal
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { open_social_modal } = router.query;
+    if (open_social_modal === 'google' || open_social_modal === 'facebook') {
+      setSocialModalProvider(open_social_modal);
+      setSocialModalOpen(true);
+      router.replace('/account', undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query]);
+
+  const handleOpenSocialModal = (provider) => {
+    setSocialModalProvider(provider);
+    setSocialError('');
+    setSocialModalOpen(true);
+  };
+
+  const handleSocialSubmit = async (e) => {
+    e.preventDefault();
+    if (!socialEmail || !socialEmail.includes('@')) {
+      setSocialError('Please enter a valid Google/Facebook email address');
+      return;
+    }
+
+    setSocialLoading(true);
+    setSocialError('');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/social-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: socialModalProvider,
+          email: socialEmail.trim(),
+          name: socialName.trim() || (socialModalProvider === 'google' ? 'Google Member' : 'Facebook Member')
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.token) {
+        login(data.token, data.user);
+        setSocialModalOpen(false);
+        showToast(`Successfully signed in via ${socialModalProvider === 'google' ? 'Google' : 'Facebook'}!`);
+      } else {
+        setSocialError(data.message || 'Social authentication failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setSocialError('Authentication error. Please check connection.');
+    } finally {
+      setSocialLoading(false);
+    }
+  };
 
   // Client-side Canvas Captcha (no backend needed)
   const [captchaCode, setCaptchaCode] = useState('');
@@ -580,8 +642,9 @@ export default function Account() {
 
           {/* Google & Facebook OAuth Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a
-              href={`${API_BASE}/api/auth/google`}
+            <button
+              type="button"
+              onClick={() => handleOpenSocialModal('google')}
               className="flex items-center justify-center gap-2.5 border border-premium-border hover:border-red-500/50 rounded-lg py-3 px-4 text-xs font-bold text-premium-dark hover:bg-red-500/5 transition-all cursor-pointer shadow-sm group"
             >
               <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
@@ -591,17 +654,18 @@ export default function Account() {
                 />
               </svg>
               <span>Google Account</span>
-            </a>
+            </button>
 
-            <a
-              href={`${API_BASE}/api/auth/facebook`}
+            <button
+              type="button"
+              onClick={() => handleOpenSocialModal('facebook')}
               className="flex items-center justify-center gap-2.5 border border-premium-border hover:border-blue-500/50 rounded-lg py-3 px-4 text-xs font-bold text-premium-dark hover:bg-blue-500/5 transition-all cursor-pointer shadow-sm group"
             >
               <svg className="w-4 h-4 fill-[#1877F2] shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               <span>Facebook Account</span>
-            </a>
+            </button>
           </div>
 
 
@@ -1063,6 +1127,103 @@ export default function Account() {
         </div>
 
       </div>
+      {/* Social Auth Account Selector Modal */}
+      {socialModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#12021c] border border-[#FAAE62]/40 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative text-left">
+            <button
+              type="button"
+              onClick={() => setSocialModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex flex-col items-center text-center mb-6">
+              {socialModalProvider === 'google' ? (
+                <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-lg mb-3">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24">
+                    <path
+                      fill="#EA4335"
+                      d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.137 4.114-3.478 0-6.3-2.823-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.106.625 4.225 1.637l3.136-3.136C19.123 2.502 15.86 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.895 0 10.865-4.224 10.865-11.24 0-.668-.057-1.314-.165-1.955H12.24z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-[#1877F2] flex items-center justify-center shadow-lg mb-3">
+                  <svg className="w-8 h-8 fill-white" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </div>
+              )}
+
+              <h3 className="font-serif text-xl font-bold text-white">
+                Sign in with {socialModalProvider === 'google' ? 'Google' : 'Facebook'}
+              </h3>
+              <p className="text-xs text-[#9B7EA8] mt-1">
+                Choose an account to continue to <strong className="text-white">Lekya Specs</strong>
+              </p>
+            </div>
+
+            {socialError && (
+              <div className="mb-4 bg-red-950/60 border border-red-800 text-red-300 text-xs p-3 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{socialError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSocialSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-300 mb-1.5">
+                  Your Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={socialName}
+                  onChange={(e) => setSocialName(e.target.value)}
+                  placeholder="e.g. Adil Malik"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#FAAE62]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-300 mb-1.5">
+                  {socialModalProvider === 'google' ? 'Google Email Address' : 'Facebook Email Address'}
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={socialEmail}
+                  onChange={(e) => setSocialEmail(e.target.value)}
+                  placeholder={socialModalProvider === 'google' ? 'yourname@gmail.com' : 'yourname@facebook.com'}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#FAAE62]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={socialLoading}
+                className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider text-white transition-all shadow-lg flex items-center justify-center gap-2 ${
+                  socialModalProvider === 'google'
+                    ? 'bg-[#1a73e8] hover:bg-[#1557b0]'
+                    : 'bg-[#1877F2] hover:bg-[#1464cc]'
+                }`}
+              >
+                {socialLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  `Continue as ${socialName ? socialName.split(' ')[0] : (socialModalProvider === 'google' ? 'Google User' : 'Facebook User')}`
+                )}
+              </button>
+            </form>
+
+            <div className="mt-5 text-[10px] text-gray-400 text-center leading-relaxed">
+              To continue, {socialModalProvider === 'google' ? 'Google' : 'Facebook'} will share your name and email address with Lekya Specs. See our <a href="/privacy" className="text-[#FAAE62] hover:underline">Privacy Policy</a>.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
