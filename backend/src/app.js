@@ -107,8 +107,8 @@ app.get('/api/auth/google', async (req, res, next) => {
 
   if (!googleClientId || !googleClientSecret || googleClientId === 'dummy_client_id_to_prevent_passport_crash') {
     // If no credentials, simulate Google OAuth instantly
-    const mockEmail = 'google_adil.specs@gmail.com';
-    const mockName = 'Adil Malik (via Google)';
+    const mockEmail = 'google_user@specs.com';
+    const mockName = 'Google Customer';
 
     try {
       let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
@@ -124,9 +124,9 @@ app.get('/api/auth/google', async (req, res, next) => {
       }
       const user = userRes.rows[0];
       const { signToken } = require('./utils/jwt');
-      const token = signToken({ id: user.id, name: user.name, email: user.email });
+      const token = signToken({ id: user.id, name: user.name, email: user.email, role: user.role || 'user' });
 
-      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'user')}&provider=Google`);
     } catch (err) {
       console.error('Mock Google OAuth error:', err);
       return res.redirect(`${fUrl}/account?error=google_failed`);
@@ -145,7 +145,7 @@ app.get('/api/auth/google/callback', (req, res, next) => {
       return res.redirect(`${fUrl}/account?error=google_failed`);
     }
     const { token, user } = userAndToken;
-    res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+    res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'user')}&provider=Google`);
   })(req, res, next);
 });
 
@@ -160,8 +160,8 @@ app.get('/api/auth/facebook', async (req, res) => {
   if (!fbClientId || !fbClientSecret) {
     // If credentials are empty, simulate Facebook OAuth instantly
     // We register/login a mock Facebook User
-    const mockEmail = 'fb_adil.specs@gmail.com';
-    const mockName = 'Adil Malik (via Facebook)';
+    const mockEmail = 'fb_user@specs.com';
+    const mockName = 'Facebook Customer';
 
     try {
       let userRes = await db.query('SELECT * FROM users WHERE email = ?', [mockEmail]);
@@ -177,9 +177,9 @@ app.get('/api/auth/facebook', async (req, res) => {
       }
       const user = userRes.rows[0];
       const { signToken } = require('./utils/jwt');
-      const token = signToken({ id: user.id, name: user.name, email: user.email });
+      const token = signToken({ id: user.id, name: user.name, email: user.email, role: user.role || 'user' });
 
-      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+      return res.redirect(`${fUrl}/oauth-success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&role=${encodeURIComponent(user.role || 'user')}&provider=Facebook`);
     } catch (err) {
       console.error('Mock Facebook OAuth error:', err);
       return res.redirect(`${fUrl}/account?error=facebook_failed`);
