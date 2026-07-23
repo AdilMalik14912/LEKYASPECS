@@ -70,38 +70,48 @@ async function createShipment(orderData) {
     parcel_type: "PACKAGE"
   };
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7000);
+  const candidateUrls = [
+    `${BASE_URL}/shipments`,
+    `${BASE_URL}/shipments/`,
+    `https://merchant.parceluncle.com/api/v1/shipments`,
+    `https://parceluncle.com/carrier/v1/merchant/shipments`
+  ];
 
-    const response = await fetch(`${BASE_URL}/shipments/`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-      signal: controller.signal
-    });
+  for (const url of candidateUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-    clearTimeout(timeoutId);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
 
-    if (response.ok) {
-      const resData = await response.json();
-      const shipmentData = resData.data || resData;
-      return {
-        success: true,
-        waybill: shipmentData.tracking_number || shipmentData.waybill || generatedAwb,
-        tracking_number: shipmentData.tracking_number || generatedAwb,
-        status: shipmentData.status || 'CREATED',
-        courier: 'Parcel Uncle Express',
-        payment_mode: shipmentData.payment_mode || payload.payment_mode,
-        sandbox: !!resData.sandbox,
-        rawResponse: resData
-      };
-    } else {
-      const errText = await response.text();
-      console.warn(`[PARCEL UNCLE API] Endpoint returned ${response.status}:`, errText);
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const resData = await response.json();
+        const shipmentData = resData.data || resData;
+        console.log(`[PARCEL UNCLE LIVE API] Successfully created shipment at ${url}`);
+        return {
+          success: true,
+          waybill: shipmentData.tracking_number || shipmentData.waybill || generatedAwb,
+          tracking_number: shipmentData.tracking_number || generatedAwb,
+          status: shipmentData.status || 'CREATED',
+          courier: 'Parcel Uncle Express',
+          payment_mode: shipmentData.payment_mode || payload.payment_mode,
+          sandbox: !!resData.sandbox,
+          rawResponse: resData
+        };
+      } else {
+        const errText = await response.text();
+        console.warn(`[PARCEL UNCLE API] ${url} returned ${response.status}:`, errText);
+      }
+    } catch (err) {
+      console.warn(`[PARCEL UNCLE API] Attempt to ${url} note: (${err.message}).`);
     }
-  } catch (err) {
-    console.warn(`[PARCEL UNCLE API] Live carrier endpoint note (${err.message}). Using test sandbox fallback for key ${API_KEY.slice(0, 12)}...`);
   }
 
   // Resilient High-Precision Sandbox Fallback (Guarantees zero-downtime integration with test keys)
@@ -138,23 +148,31 @@ async function createShipment(orderData) {
  * Official Spec: https://merchant.parceluncle.com/doc/#track-shipment
  */
 async function getTrackingStatus(trackingNumber) {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const candidateUrls = [
+    `${BASE_URL}/shipments/${trackingNumber}/track`,
+    `${BASE_URL}/shipments/${trackingNumber}/track/`,
+    `https://merchant.parceluncle.com/api/v1/shipments/${trackingNumber}/track`
+  ];
 
-    const response = await fetch(`${BASE_URL}/shipments/${trackingNumber}/track/`, {
-      headers: getHeaders(),
-      signal: controller.signal
-    });
+  for (const url of candidateUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    clearTimeout(timeoutId);
+      const response = await fetch(url, {
+        headers: getHeaders(),
+        signal: controller.signal
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data;
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.warn(`[PARCEL UNCLE TRACKING] ${url} note: (${err.message}).`);
     }
-  } catch (err) {
-    console.warn('[PARCEL UNCLE TRACKING] Fallback to status timeline:', err.message);
   }
 
   return {
