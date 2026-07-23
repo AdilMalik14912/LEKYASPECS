@@ -107,6 +107,7 @@ Whenever commits are pushed to the `main` branch:
 | 2026-07-23 | `df4a758` | Aligned Parcel Uncle Integration 100% with official merchant docs (phone & pincode sanitization, exact auth headers). |
 | 2026-07-23 | `a53035f` | Connected 100% complete Parcel Uncle API Suite (v1.0.3) — 4x6 PDF Shipping Label Download, Webhook Auto-Registration, NDR List/Actions, Rate Quote, Serviceability. |
 | 2026-07-23 | `32e01dc` | Fixed Product SKU items in Parcel Uncle payload (`items`, `order_items`, `sku_items`) & added 4x6 Thermal Printable Label Generator fallback with barcode & QR code (v1.0.4). |
+| 2026-07-23 | `bf521c8` | Release v1.0.5 — 360° Product Frame Spinner, 📍 GPS 1-Click Address Auto-Fill, 🎡 Gamified Lucky Wheel Rewards, 📦 Self-Service Customer Returns Portal & 💬 WhatsApp VIP Concierge. |
 | 2026-07-23 | `b91fe37` | Verified clean production release v1.0.3 deployment for full Parcel Uncle Merchant API Suite. |
 | 2026-07-14 | `44bb855` | Chat Fixes: file download MIME extension fixes, sender deletion constraints, emoji picker UI fixes |
 | 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block |
