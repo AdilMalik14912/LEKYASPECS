@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useCart, useWishlist } = require('./_app');
@@ -13,40 +13,84 @@ const LOOKBOOK_COLLECTIONS = [
     title: 'The Boardroom Edit',
     subtitle: 'Power dressing for the modern professional',
     mood: 'Professional · Confident · Authoritative',
-    heroImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80',
     accent: '#1a1a1a',
     category: 'Eyeglasses',
     shape: 'Rectangle',
+    theme: {
+      bg: 'linear-gradient(135deg, #0a0a0f 0%, #1a1028 40%, #0f0820 100%)',
+      orb1: 'rgba(26,16,40,0.9)',
+      orb2: 'rgba(250,174,98,0.15)',
+      orb3: 'rgba(212,137,63,0.1)',
+      glassColor: 'rgba(250,174,98,0.12)',
+      glassStroke: 'rgba(250,174,98,0.4)',
+      accent: '#FAAE62',
+      label: 'BOARDROOM',
+      emoji: '💼',
+      particles: ['✦', '◈', '⬟', '◆'],
+    }
   },
   {
     id: 'golden-hour',
     title: 'Golden Hour',
     subtitle: 'Sun-kissed luxury for every outdoor adventure',
     mood: 'Wanderlust · Radiant · Free-spirited',
-    heroImage: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
     accent: '#d4a843',
     category: 'Sunglasses',
     shape: 'Round',
+    theme: {
+      bg: 'linear-gradient(135deg, #1a0800 0%, #2d1200 40%, #3d2000 100%)',
+      orb1: 'rgba(255,160,0,0.2)',
+      orb2: 'rgba(255,100,0,0.12)',
+      orb3: 'rgba(255,200,50,0.08)',
+      glassColor: 'rgba(255,180,0,0.12)',
+      glassStroke: 'rgba(255,180,0,0.5)',
+      accent: '#FFBB33',
+      label: 'GOLDEN HOUR',
+      emoji: '☀️',
+      particles: ['✦', '★', '⬡', '◉'],
+    }
   },
   {
     id: 'midnight-city',
     title: 'Midnight City',
     subtitle: 'Urban edge for the night wanderer',
     mood: 'Bold · Dark · Magnetic',
-    heroImage: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1200&q=80',
     accent: '#8b5cf6',
     category: 'Sunglasses',
     shape: 'Square',
+    theme: {
+      bg: 'linear-gradient(135deg, #05001a 0%, #120033 40%, #0d0028 100%)',
+      orb1: 'rgba(139,92,246,0.25)',
+      orb2: 'rgba(99,24,200,0.15)',
+      orb3: 'rgba(180,120,255,0.08)',
+      glassColor: 'rgba(139,92,246,0.12)',
+      glassStroke: 'rgba(180,120,255,0.5)',
+      accent: '#A78BFA',
+      label: 'MIDNIGHT CITY',
+      emoji: '🌃',
+      particles: ['✦', '◈', '⬟', '◆'],
+    }
   },
   {
     id: 'weekend-minimalist',
     title: 'Weekend Minimalist',
     subtitle: 'Clean lines, effortless style',
     mood: 'Calm · Curated · Intentional',
-    heroImage: 'https://images.unsplash.com/photo-1488508872907-592763824245?auto=format&fit=crop&w=1200&q=80',
     accent: '#6b7280',
     category: 'Eyeglasses',
     shape: 'Oval',
+    theme: {
+      bg: 'linear-gradient(135deg, #0c1014 0%, #141c22 40%, #0e151c 100%)',
+      orb1: 'rgba(100,160,200,0.18)',
+      orb2: 'rgba(60,120,160,0.1)',
+      orb3: 'rgba(150,200,220,0.06)',
+      glassColor: 'rgba(100,200,240,0.1)',
+      glassStroke: 'rgba(120,200,240,0.4)',
+      accent: '#7DD3FC',
+      label: 'MINIMALIST',
+      emoji: '🪞',
+      particles: ['✦', '○', '◯', '⬡'],
+    }
   },
 ];
 
@@ -102,16 +146,114 @@ export default function Lookbook() {
   return (
     <div className="bg-premium-black min-h-screen">
 
-      {/* Hero Banner */}
-      <div className="relative h-[70vh] flex items-end justify-start overflow-hidden">
-        {/* Ken Burns animated background */}
-        <div
-          key={activeCollection}
-          className={`absolute inset-0 bg-cover bg-center ${activeCollection % 2 === 0 ? 'ken-burns' : 'ken-burns-b'}`}
-          style={{ backgroundImage: `url('${col.heroImage}')` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+      {/* 3D Glassmorphism Hero */}
+      <div className="relative h-[70vh] flex items-end justify-start overflow-hidden" style={{ background: col.theme.bg }}>
+
+        {/* Animated gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-[500px] h-[500px] rounded-full blur-[120px] animate-float-slow" style={{ background: col.theme.orb1, top: '-10%', left: '-10%' }} />
+          <div className="absolute w-[400px] h-[400px] rounded-full blur-[100px] animate-float-slow2" style={{ background: col.theme.orb2, bottom: '-5%', right: '-5%' }} />
+          <div className="absolute w-[300px] h-[300px] rounded-full blur-[80px] animate-float-slow3" style={{ background: col.theme.orb3, top: '40%', left: '50%' }} />
+        </div>
+
+        {/* 3D Spectacle Frame SVG — hero centerpiece */}
+        <div className="absolute inset-0 flex items-center justify-end pr-8 sm:pr-20 pointer-events-none">
+          <div className="relative" style={{ perspective: '1000px' }}>
+            {/* Main 3D rotating frame display */}
+            <div style={{
+              width: '420px',
+              height: '260px',
+              transformStyle: 'preserve-3d',
+              animation: 'glassRotate 8s ease-in-out infinite alternate',
+              filter: `drop-shadow(0 0 60px ${col.theme.accent}66)`,
+            }}>
+              <svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
+                <defs>
+                  <linearGradient id={`lensGrad${activeCollection}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={col.theme.accent} stopOpacity="0.25" />
+                    <stop offset="50%" stopColor="white" stopOpacity="0.05" />
+                    <stop offset="100%" stopColor={col.theme.accent} stopOpacity="0.15" />
+                  </linearGradient>
+                  <linearGradient id={`frameGrad${activeCollection}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={col.theme.accent} stopOpacity="0.9" />
+                    <stop offset="100%" stopColor={col.theme.accent} stopOpacity="0.4" />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+
+                {/* Left lens */}
+                <ellipse cx="105" cy="100" rx="88" ry="72" fill={`url(#lensGrad${activeCollection})`} stroke={col.theme.glassStroke} strokeWidth="3" filter="url(#glow)" />
+                {/* Left lens inner shine */}
+                <ellipse cx="80" cy="78" rx="30" ry="18" fill="white" fillOpacity="0.06" />
+                <path d="M 50 80 Q 80 60 110 80" stroke="white" strokeWidth="1.5" strokeOpacity="0.15" fill="none" />
+
+                {/* Right lens */}
+                <ellipse cx="315" cy="100" rx="88" ry="72" fill={`url(#lensGrad${activeCollection})`} stroke={col.theme.glassStroke} strokeWidth="3" filter="url(#glow)" />
+                {/* Right lens inner shine */}
+                <ellipse cx="290" cy="78" rx="30" ry="18" fill="white" fillOpacity="0.06" />
+                <path d="M 260 80 Q 290 60 320 80" stroke="white" strokeWidth="1.5" strokeOpacity="0.15" fill="none" />
+
+                {/* Bridge */}
+                <path d="M 193 98 Q 210 85 227 98" stroke={`url(#frameGrad${activeCollection})`} strokeWidth="4" fill="none" strokeLinecap="round" filter="url(#glow)" />
+
+                {/* Left temple */}
+                <line x1="17" y1="100" x2="-20" y2="110" stroke={`url(#frameGrad${activeCollection})`} strokeWidth="4" strokeLinecap="round" />
+                {/* Right temple */}
+                <line x1="403" y1="100" x2="440" y2="110" stroke={`url(#frameGrad${activeCollection})`} strokeWidth="4" strokeLinecap="round" />
+
+                {/* Lens rim highlight */}
+                <ellipse cx="105" cy="100" rx="88" ry="72" fill="none" stroke="white" strokeWidth="1" strokeOpacity="0.12" />
+                <ellipse cx="315" cy="100" rx="88" ry="72" fill="none" stroke="white" strokeWidth="1" strokeOpacity="0.12" />
+              </svg>
+            </div>
+
+            {/* Floating particles */}
+            {col.theme.particles.map((p, i) => (
+              <span key={i} style={{
+                position: 'absolute',
+                color: col.theme.accent,
+                opacity: 0.3 + (i * 0.1),
+                fontSize: `${14 + i * 4}px`,
+                top: `${-20 + i * 35}%`,
+                left: `${5 + i * 20}%`,
+                animation: `floatParticle${i % 3} ${3 + i}s ease-in-out infinite alternate`,
+                filter: `drop-shadow(0 0 8px ${col.theme.accent})`,
+              }}>{p}</span>
+            ))}
+
+            {/* Collection badge */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-40px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: `rgba(0,0,0,0.5)`,
+              border: `1px solid ${col.theme.glassStroke}`,
+              backdropFilter: 'blur(12px)',
+              borderRadius: '999px',
+              padding: '6px 20px',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ color: col.theme.accent, fontWeight: 800, fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                {col.theme.emoji} {col.theme.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Grid overlay pattern */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: `linear-gradient(${col.theme.glassStroke} 1px, transparent 1px), linear-gradient(90deg, ${col.theme.glassStroke} 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+          opacity: 0.04,
+        }} />
+
+        {/* Bottom fade */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
 
         {/* Collection Tabs */}
         <div className="absolute top-8 left-0 right-0 flex justify-center gap-2 z-10 px-4">

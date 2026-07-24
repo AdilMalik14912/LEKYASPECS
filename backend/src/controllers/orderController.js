@@ -244,7 +244,11 @@ const verifyPayment = async (req, res) => {
         'SELECT id FROM orders WHERE user_id = ? AND payment_id = ? ORDER BY id DESC LIMIT 1',
         [userId, razorpay_payment_id]
       );
+      if (!orderRes.rows || orderRes.rows.length === 0) {
+        throw new Error('Order was created but could not retrieve order ID');
+      }
       orderId = orderRes.rows[0].id;
+      if (!orderId) throw new Error('Order ID is null after creation');
       finalTotalAmount = totalAmount;
 
       // Insert Order Items

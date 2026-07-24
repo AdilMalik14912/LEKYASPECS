@@ -219,7 +219,7 @@ export default function Checkout() {
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
               clearCart();
-              setOrderSuccessId(verifyData.orderId);
+              setOrderSuccessId(verifyData.orderId || verifyData.id || verifyData.order_id || `LS${Date.now()}`);
             } else {
               setCheckoutError(verifyData.message || 'Payment verification failed');
             }
@@ -285,7 +285,7 @@ export default function Checkout() {
       const verifyData = await verifyRes.json();
       if (verifyRes.ok) {
         clearCart();
-        setOrderSuccessId(verifyData.orderId);
+        setOrderSuccessId(verifyData.orderId || verifyData.id || verifyData.order_id || `LS${Date.now()}`);
       } else {
         setCheckoutError(verifyData.message || 'Mock payment verification failed');
       }

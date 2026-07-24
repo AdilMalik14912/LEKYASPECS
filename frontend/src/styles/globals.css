@@ -920,4 +920,41 @@ tr:hover td span.text-amber-400 {
   background-color: rgba(62, 8, 86, 0.5) !important;
 }
 
+/* ============================================================
+   LOOKBOOK 3D HERO — Animation Keyframes
+   ============================================================ */
+@keyframes glassRotate {
+  0%   { transform: rotateY(-12deg) rotateX(4deg) scale(1); }
+  50%  { transform: rotateY(0deg)   rotateX(-2deg) scale(1.03); }
+  100% { transform: rotateY(12deg)  rotateX(4deg) scale(1); }
+}
 
+@keyframes floatParticle0 {
+  0%   { transform: translateY(0px) rotate(0deg);   opacity: 0.3; }
+  100% { transform: translateY(-18px) rotate(15deg); opacity: 0.6; }
+}
+@keyframes floatParticle1 {
+  0%   { transform: translateY(0px) scale(1);    opacity: 0.4; }
+  100% { transform: translateY(-24px) scale(1.2); opacity: 0.7; }
+}
+@keyframes floatParticle2 {
+  0%   { transform: translateY(0px) rotate(0deg);    opacity: 0.25; }
+  100% { transform: translateY(-14px) rotate(-10deg); opacity: 0.55; }
+}
+
+@keyframes floatSlowA {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  100% { transform: translate(30px, -20px) scale(1.08); }
+}
+@keyframes floatSlowB {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  100% { transform: translate(-25px, 15px) scale(0.95); }
+}
+@keyframes floatSlowC {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  100% { transform: translate(15px, 25px) scale(1.05); }
+}
+
+.animate-float-slow  { animation: floatSlowA 9s ease-in-out infinite alternate; }
+.animate-float-slow2 { animation: floatSlowB 11s ease-in-out infinite alternate; }
+.animate-float-slow3 { animation: floatSlowC 7s ease-in-out infinite alternate; }
