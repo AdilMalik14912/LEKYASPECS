@@ -4,7 +4,7 @@ const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth, useToast } = require('./_app');
-const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key, Navigation, Download, Loader2, AlertCircle } = require('lucide-react');
+const { User, Mail, Calendar, Eye, ShoppingBag, Landmark, ArrowRight, Star, RefreshCw, Truck, Package, CheckCircle2, XCircle, Edit2, Save, X, Copy, Award, Gift, Phone, Key, Navigation, Download, Loader2, AlertCircle, Check, Sparkles } = require('lucide-react');
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
