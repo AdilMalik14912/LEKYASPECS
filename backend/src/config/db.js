@@ -120,10 +120,25 @@ const initDb = async () => {
     // Programmatic migrations
     try {
       await client.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
-      console.log('Migration: Added role column to users table.');
-    } catch (_) {
-      // Ignore if column already exists
-    }
+    } catch (_) {}
+
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT NULL");
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS otps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT DEFAULT NULL,
+        password_hash TEXT NOT NULL,
+        otp_code TEXT NOT NULL,
+        verified INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
 
     try {
       await client.execute(

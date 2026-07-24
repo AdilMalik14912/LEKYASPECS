@@ -422,13 +422,14 @@ export default function Account() {
             name, 
             email: email || '', 
             phone: phone || '', 
-            password,
-            website_verify: websiteVerify
+            password
           })
         })
-          .then(res => {
-            if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'Initiation failed') });
-            return res.json();
+          .then(async res => {
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (!res.ok) throw new Error(data.message || 'Registration initiation failed. Please try again.');
+            return data;
           })
           .then(data => {
             setFormLoading(false);
@@ -437,7 +438,7 @@ export default function Account() {
           })
           .catch(err => {
             setFormLoading(false);
-            setFormError(err.message);
+            setFormError(err.message || 'Registration initiation failed.');
             refreshCaptcha(); // Refresh captcha on error
           });
       } else {
@@ -447,9 +448,11 @@ export default function Account() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: otpTarget.email, phone: otpTarget.phone, otp: otpCode })
         })
-          .then(res => {
-            if (!res.ok) return res.json().then(d => { throw new Error(d.message || 'OTP verification failed') });
-            return res.json();
+          .then(async res => {
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (!res.ok) throw new Error(data.message || 'OTP verification failed. Please try again.');
+            return data;
           })
           .then(data => {
             setFormLoading(false);

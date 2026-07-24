@@ -52,7 +52,21 @@ const registerInitiate = async (req, res) => {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 mins validity
 
-    // Save to otps table
+    // Save to otps table (ensuring table exists first)
+    try {
+      await db.query(`CREATE TABLE IF NOT EXISTS otps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT DEFAULT NULL,
+        password_hash TEXT NOT NULL,
+        otp_code TEXT NOT NULL,
+        verified INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
+
     await db.query(
       'INSERT INTO otps (name, email, phone, password_hash, otp_code, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
       [name, targetEmail, targetPhone, passwordHash, otpCode, expiresAt]

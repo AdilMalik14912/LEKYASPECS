@@ -6,12 +6,26 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    phone TEXT DEFAULT NULL,
     password_hash TEXT NOT NULL,
     face_shape TEXT DEFAULT NULL,
     role TEXT DEFAULT 'user',
     loyalty_points INTEGER DEFAULT 0,
     referral_code TEXT DEFAULT NULL,
     avatar TEXT DEFAULT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 1b. OTPs Table for Registration Verification
+CREATE TABLE IF NOT EXISTS otps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT DEFAULT NULL,
+    password_hash TEXT NOT NULL,
+    otp_code TEXT NOT NULL,
+    verified INTEGER DEFAULT 0,
+    expires_at TEXT NOT NULL,
     created_at TEXT DEFAULT (datetime('now'))
 );
 
