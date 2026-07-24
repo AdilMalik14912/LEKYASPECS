@@ -59,6 +59,9 @@ Ensure the following variables are configured under your **Vercel Project Settin
 *   `CLOUDINARY_URL` -> URL for Cloudinary image uploads storage.
 *   `RAZORPAY_KEY_ID` & `RAZORPAY_KEY_SECRET` -> Razorpay credentials.
 *   `PARCEL_UNCLE_API_KEY` -> Production key (`pu_live_3a58bac546fddf0d9402569053b0f5e7da28915ac3822d8c`).
+*   `WA_PHONE_NUMBER_ID` -> Meta WhatsApp Business Phone Number ID.
+*   `WA_ACCESS_TOKEN` -> Meta WhatsApp Business Permanent Access Token.
+*   `WA_WEBHOOK_VERIFY_TOKEN` -> Secret verification token for WhatsApp Webhook (e.g. `lekya_specs_webhook_2024`).
 
 ---
 
@@ -85,6 +88,7 @@ Whenever commits are pushed to the `main` branch:
 | **HO Staff Panel** | `https://lekyaspecs.vercel.app/ho-staff` |
 | **Team Chat** | `https://lekyaspecs.vercel.app/chat` |
 | **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` |
+| **WhatsApp Business API Webhook** | `https://lekyaspecs.vercel.app/api/webhooks/whatsapp` |
 | **Parcel Uncle Live Webhook** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook` |
 | **Printable Label PDF Endpoint** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/label/:waybill` |
 
@@ -96,24 +100,14 @@ Whenever commits are pushed to the `main` branch:
 
 | Date | Commit | What Was Deployed |
 |------|--------|--------------------|
-| 2026-07-04 | Initial | Base platform: shop, checkout, account, admin |
-| 2026-07-05 | Feature batch | Try-On, Face AI, Skin AI, Prescription, Stylist Hub |
-| 2026-07-10 | `870d619` | Seller panel, delivery panel, RBAC, 6 smart rider features (auto-assign, urgent, workload, leaderboard, stale alerts, city grouping) |
-| 2026-07-10 | `b1ba736` | Real-time map system: delivery-map.js + admin-map.js + GPS backend endpoints |
-| 2026-07-13 | `eea7a57` | HO Staff Panel, Enterprise CRM Platform, Order Tracking timeline, Voice Recording in Team Chat |
-| 2026-07-23 | `7ac9857` | Fixed `ReferenceError: Download is not defined` on `/account` page. Version v1.0.1. |
-| 2026-07-23 | `68d3174` | Fixed hover background color contrast glitches on Admin table rows and Navbar Group Companies dropdown. |
-| 2026-07-23 | `bc29f08` | Switched Parcel Uncle Courier API key to Live Production Key `pu_live_3a58bac5...` (v1.0.2). |
-| 2026-07-23 | `df4a758` | Aligned Parcel Uncle Integration 100% with official merchant docs (phone & pincode sanitization, exact auth headers). |
-| 2026-07-23 | `a53035f` | Connected 100% complete Parcel Uncle API Suite (v1.0.3) — 4x6 PDF Shipping Label Download, Webhook Auto-Registration, NDR List/Actions, Rate Quote, Serviceability. |
-| 2026-07-23 | `32e01dc` | Fixed Product SKU items in Parcel Uncle payload (`items`, `order_items`, `sku_items`) & added 4x6 Thermal Printable Label Generator fallback with barcode & QR code (v1.0.4). |
-| 2026-07-23 | `bf521c8` | Release v1.0.5 — 360° Product Frame Spinner, 📍 GPS 1-Click Address Auto-Fill, 🎡 Gamified Lucky Wheel Rewards, 📦 Self-Service Customer Returns Portal & 💬 WhatsApp VIP Concierge. |
-| 2026-07-23 | `01bb47c` | Hotfix: resolved missing catch brace syntax error in `db.js` active_sessions migration block. |
-| 2026-07-23 | `b91fe37` | Verified clean production release v1.0.3 deployment for full Parcel Uncle Merchant API Suite. |
-| 2026-07-14 | `44bb855` | Chat Fixes: file download MIME extension fixes, sender deletion constraints, emoji picker UI fixes |
-| 2026-07-16 | `760583e` | fix(chat): force raw resource type on Cloudinary for PDF files to fix 401 ACL/delivery block |
-| 2026-07-16 | `1259d7d` | About Us & Group Companies Ecosystem page (`/about`), Lekya Group Navbar Dropdown (`_app.js`), Razorpay HMAC Webhook, Fast2SMS OTP Gateway |
-| 2026-07-17 | `3766756` | Complete AI wording removal across 15+ pages, Tax Invoice HTML download & iframe print fix, HO staff & staff dashboard auth gate fixes |
+| 2026-07-24 | `df9c77b` | Fix Next.js static prerender TDZ `ReferenceError: Cannot access G before initialization` in `checkout.js`. |
+| 2026-07-24 | `c163201` | Fix missing `Check` and `Sparkles` icon imports in `account.js` for Vercel compilation. |
+| 2026-07-24 | `4ee649d` | Customer Self-Service Return, Exchange & Refund Hub in `/account` with Parcel Uncle reverse pickup integration. |
+| 2026-07-24 | `9f5226c` | Segmented 6-box OTP entry UI, auto-advance, error shake animation & 3D celebratory confetti modal overlay. |
+| 2026-07-24 | `d4871d1` | Meta WhatsApp Business Cloud API webhook & 9-intent auto-reply engine (`/api/webhooks/whatsapp`). |
+| 2026-07-24 | `c49e129` | 3D CSS/SVG Glassmorphism animated SVG hero lookbook, right-side floating widgets with expandable WhatsApp menu, and 24-hr SpinWheel daily limit. |
+| 2026-07-23 | `3766756` | Complete AI wording removal across 15+ pages, Tax Invoice HTML download & iframe print fix, HO staff & staff dashboard auth gate fixes. |
+
 
 ---
 

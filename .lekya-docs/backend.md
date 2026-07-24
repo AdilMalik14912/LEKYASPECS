@@ -30,23 +30,25 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 1. **users** — name, email, phone, password_hash, face_shape, role, loyalty_points, referral_code, rider_lat, rider_lng, rider_last_seen, created_at
 2. **products** — name, description, price, category, gender, frame_shape, stock, image_urls, style_tags
-3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, delivery_otp, shipping_address, tracking_id, created_at
+3. **orders** — user_id, total_amount, status, payment_id, lens_type, lens_price, prescription_details, tracking_comments, assigned_delivery_agent_id, delivery_notes, is_urgent, urgent_note, delivery_otp, shipping_address, tracking_id, parcel_uncle_tracking_id, created_at
 4. **order_items** — order_id, product_id, quantity, price
-5. **reviews** — user_id, product_id, rating, comment, spotlight, created_at
-6. **store_settings** — key, value (CMS key-value store)
-7. **coupons** — code, discount_type, discount_value, expiry_date, max_uses, times_used, is_active
-8. **admin_activity_log** — admin_email, action_type, description, created_at
-9. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
-10. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at
-11. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at
-12. **chat_conversations** — type (dm/group), name, description, avatar, created_by, created_at
-13. **chat_members** — conversation_id, user_id, joined_at
-14. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at
-15. **chat_reads** — message_id, user_id, read_at (unique per message+user)
-16. **chat_reactions** — message_id, user_id, emoji (unique per message+user+emoji)
-17. **crm_leads** — user_id, name, email, phone, stage, source, lead_score, estimated_value, assigned_to, tags, notes, created_at, updated_at
-18. **crm_interactions** — lead_id, user_id, created_by, type, subject, notes, outcome, created_at
-19. **crm_tasks** — lead_id, assigned_to, created_by, title, description, due_date, priority, status, created_at
+5. **order_returns** — order_id, user_id, return_type, reason, comments, status, waybill_id, refund_amount, created_at
+6. **whatsapp_messages** — phone, customer_name, message_body, detected_intent, auto_replied, created_at
+7. **reviews** — user_id, product_id, rating, comment, spotlight, created_at
+8. **store_settings** — key, value (CMS key-value store)
+9. **coupons** — code, discount_type, discount_value, expiry_date, max_uses, times_used, is_active
+10. **admin_activity_log** — admin_email, action_type, description, created_at
+11. **contact_messages** — name, email, phone, subject, message, reply_message, replied_at, created_at
+12. **otps** — name, email, phone, password_hash, otp_code, expires_at, verified, created_at
+13. **active_sessions** — user_id, email, phone, session_key, ip_address, user_agent, last_active_at, created_at
+14. **chat_conversations** — type (dm/group), name, description, avatar, created_by, created_at
+15. **chat_members** — conversation_id, user_id, joined_at
+16. **chat_messages** — conversation_id, sender_id, content, file_url, file_name, file_type, is_pinned, reply_to_id, message_type, edited_at, created_at
+17. **chat_reads** — message_id, user_id, read_at
+18. **chat_reactions** — message_id, user_id, emoji
+19. **crm_leads** — user_id, name, email, phone, stage, source, lead_score, estimated_value, assigned_to, tags, notes, created_at, updated_at
+20. **crm_interactions** — lead_id, user_id, created_by, type, subject, notes, outcome, created_at
+21. **crm_tasks** — lead_id, assigned_to, created_by, title, description, due_date, priority, status, created_at
 
 ---
 
@@ -54,50 +56,50 @@ We use **Turso DB** (LibSQL/SQLite client). Connection configuration resides in 
 
 All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/src/app.js):
 
+### 0. WhatsApp Business Cloud API Webhook (`/api/webhooks/whatsapp`)
+- `GET /api/webhooks/whatsapp` → Meta webhook verification challenge handler (`hub.challenge`).
+- `POST /api/webhooks/whatsapp` → Incoming message event listener & 9-intent auto-reply engine (`greeting`, `track_order`, `browse`, `consultation`, `prescription`, `return`, `human`, `thank_you`, `coupon`). Logs to `whatsapp_messages` DB table.
+
 ### 1. Authentication (`/api/auth`)
-- `POST /register/initiate` → Pre-registers details and sends 6-digit verification OTP (via Fast2SMS with email fallback).
-- `POST /register/verify` → Verifies OTP code, creates customer account (JWT token returned), and triggers `upsertCrmLeadFromUser()` to auto-sync sales leads into CRM.
+- `POST /register/initiate` → Pre-registers details and sends 6-digit verification OTP.
+- `POST /register/verify` → Verifies OTP code, creates customer account (JWT token returned), and triggers `upsertCrmLeadFromUser()`.
 - `POST /register` → Legacy single-step registration fallback.
 - `POST /login` → Dual login method supporting either Email address OR Phone number.
 - `GET /profile` → Returns authenticated user profile.
 - `PUT /profile` → Updates user details (face_shape, name, phone, etc.).
-- `GET /google` & `GET /facebook` → OAuth integrations. Auto-simulated with mock users if credentials missing in `.env`.
+- `GET /google` & `GET /facebook` → OAuth integrations.
 
-### 2. Products Catalog (`/api/products`)
+### 2. Return & Exchange Management (`/api/returns`)
+- `POST /api/returns/request` → Customer submits return/exchange request for an order.
+- `GET /api/returns/my-returns` → Fetches authenticated user's active & past return requests.
+- `GET /api/admin/returns` → List all customer return/exchange requests (Admin).
+- `PUT /api/admin/returns/:returnId` → Approve/update return status and trigger reverse pickup waybill.
+
+### 3. Products Catalog (`/api/products`)
 - `GET /` → All products with sorting/filtering/search.
 - `GET /filters` → Min/max price range + category tags.
 - `GET /recommendations/:shape` → Face-shape matched glasses.
 - `GET /:id` → Single product detail.
 
-### 3. Orders & Razorpay (`/api/orders`)
+### 4. Orders & Razorpay (`/api/orders`)
 - `POST /create` → Creates Razorpay order, stores prescription/lens details.
 - `POST /verify` → Verifies Razorpay signature, marks order PAID.
-- `POST /webhook` → HMAC-SHA256 Razorpay webhook handler for async payment updates & auto-fulfillment.
+- `POST /webhook` → HMAC-SHA256 Razorpay webhook handler.
 - `GET /history` → Returns user's order history.
 - `POST /review` → Submit a product review.
-- `GET /track/:trackingId` → Public tracking lookup (no authentication needed). Returns masked customer metadata and items details list.
+- `GET /track/:trackingId` → Public tracking lookup.
 
-### 4. Coupons (`/api/coupons`)
-- `POST /validate` → Validates coupon code, returns discount info.
+---
 
-### 5. Admin Panel (`/api/admin`) — all require `authenticateToken + isAdmin`
-- `GET /stats` → Dashboard analytics (revenue, orders, customers, low stock alerts)
-- `GET /orders` & `PUT /orders/:id` → Manage + update order status
-- `POST /refund/:id` → Issues instant Razorpay API refund for cancelled/returned orders
-- `PUT /orders/:id/tracking` → Update dispatch/tracking notes per order
-- `GET /customers` → List all customers
-- `GET /customers/:id` → Deep inspect a specific customer (profile + order history)
-- `PUT /customers/:id/credentials` → Edit customer details (name, email, phone, role) and reset/re-hash password
-- `POST/PUT/DELETE /products` → Full CRUD for eyewear catalog
-- `GET/PUT /settings` → CMS settings management
-- `POST /create-admin` → Create a new admin sub-user
-- `GET /admins` → List all admins
-- `POST /demote-admin` → Revoke admin access
-- `POST/GET/PUT/DELETE /coupons` → Coupon management
-- `POST /broadcast` → Send bulk email or targeted email
-- `GET /export/orders` → Download orders as CSV
-- `GET /export/customers` → Download customers as CSV
-- `GET /logs` → Admin activity log viewer
+## ⚠️ Known Fixes & Enhancements Applied
+
+| Date       | Bug / Feature | Fix |
+|------------|---------------|-----|
+| 2026-07-24 | WhatsApp Business API Webhook | Built `whatsappWebhookController.js` with GET verification & POST auto-reply engine covering 9 intents. Added `whatsapp_messages` table. |
+| 2026-07-24 | Return & Exchange Self-Service | Registered `/api/returns/*` endpoints in `app.js`, linked to `returnController.js` and `order_returns` table. |
+| 2026-07-24 | Checkout TDZ ReferenceError Fix | Moved `orderSuccessId` state declaration before `useEffect` in `checkout.js` to fix Next.js static prerendering crash. |
+| 2026-07-24 | Missing Lucide Icons Import Fix | Imported `Check` and `Sparkles` in `account.js` to fix Vercel compilation crash. |
+
 - `GET /db/health` → Database health stats
 - `POST /db/optimize` → Run SQLite VACUUM optimization
 - `GET /helpdesk` → Fetch all contact form submissions
