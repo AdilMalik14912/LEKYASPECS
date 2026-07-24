@@ -113,6 +113,9 @@ export default function Account() {
   const [registrationStep, setRegistrationStep] = useState(1); // 1 = details, 2 = verify OTP
   const [otpCode, setOtpCode] = useState('');
   const [otpTarget, setOtpTarget] = useState({ email: '', phone: '' });
+  const [showOtpSuccessModal, setShowOtpSuccessModal] = useState(false);
+  const [otpSuccessData, setOtpSuccessData] = useState(null);
+  const [otpErrorShake, setOtpErrorShake] = useState(false);
 
   // Social OAuth Selector Modal State
   const [socialModalOpen, setSocialModalOpen] = useState(false);
@@ -371,13 +374,17 @@ export default function Account() {
           })
           .then(data => {
             setFormLoading(false);
-            setRegistrationStep(1);
-            setOtpCode('');
-            login(data.token, data.user);
+            // Trigger 3D celebratory OTP success animation state
+            setOtpSuccessData({ token: data.token, user: data.user });
+            setShowOtpSuccessModal(true);
           })
           .catch(err => {
             setFormLoading(false);
             setFormError(err.message);
+            // Add shake animation trigger on error
+            setOtpErrorShake(true);
+            setTimeout(() => setOtpErrorShake(false), 600);
+          });
           });
       }
     }
@@ -524,20 +531,69 @@ export default function Account() {
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Enter 6-Digit OTP</label>
-                  <div className="relative">
-                    <Key className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
-                    <input
-                      type="text"
-                      required
-                      maxLength="6"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      placeholder="e.g. 123456"
-                      className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-mono font-bold tracking-widest text-center"
-                    />
+                <div className={otpErrorShake ? 'animate-shake' : ''}>
+                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-3 text-center">
+                    Enter 6-Digit Verification Code
+                  </label>
+                  
+                  {/* Segmented 6-digit OTP boxes with luxury focus animations */}
+                  <div className="flex justify-center gap-2 sm:gap-3 my-2">
+                    {[0, 1, 2, 3, 4, 5].map((idx) => {
+                      const digit = otpCode[idx] || '';
+                      return (
+                        <input
+                          key={idx}
+                          id={`otp-box-${idx}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            if (!val) {
+                              const newOtp = otpCode.split('');
+                              newOtp[idx] = '';
+                              setOtpCode(newOtp.join(''));
+                              return;
+                            }
+                            const newOtp = otpCode.split('');
+                            newOtp[idx] = val[val.length - 1];
+                            const updated = newOtp.join('');
+                            setOtpCode(updated);
+                            // Auto-focus next box
+                            if (idx < 5 && val) {
+                              const nextBox = document.getElementById(`otp-box-${idx + 1}`);
+                              if (nextBox) nextBox.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace' && !otpCode[idx] && idx > 0) {
+                              const prevBox = document.getElementById(`otp-box-${idx - 1}`);
+                              if (prevBox) prevBox.focus();
+                            }
+                          }}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                            if (pasteData) {
+                              setOtpCode(pasteData);
+                              const targetIdx = Math.min(pasteData.length, 5);
+                              const targetBox = document.getElementById(`otp-box-${targetIdx}`);
+                              if (targetBox) targetBox.focus();
+                            }
+                          }}
+                          className={`w-10 h-12 sm:w-12 sm:h-14 text-center font-mono font-bold text-lg sm:text-xl rounded-lg border transition-all duration-300 outline-none ${
+                            digit
+                              ? 'border-premium-accent bg-premium-accent/10 text-premium-accent shadow-[0_0_12px_rgba(250,174,98,0.3)] scale-105'
+                              : 'border-premium-border bg-premium-light text-premium-dark focus:border-premium-accent focus:bg-white focus:shadow-[0_0_15px_rgba(250,174,98,0.4)]'
+                          }`}
+                        />
+                      );
+                    })}
                   </div>
+                  <p className="text-[10px] text-center text-premium-gray mt-2">
+                    {otpCode.length === 6 ? '✨ Code complete! Click Verify to continue.' : `Type code (${otpCode.length}/6)`}
+                  </p>
                 </div>
               </>
             )}
@@ -643,6 +699,59 @@ export default function Account() {
 
         </div>
       </div>
+
+      {/* --- 3D Celebratory OTP Success Modal Overlay --- */}
+      {showOtpSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-sm bg-[#0D0016] border border-[#FAAE62]/50 rounded-3xl p-8 shadow-[0_0_50px_rgba(250,174,98,0.3)] text-center overflow-hidden animate-scaleUp">
+            
+            {/* Ambient background glow orbs */}
+            <div className="absolute -top-16 -left-16 w-36 h-36 bg-[#7B22A8]/40 rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute -bottom-16 -right-16 w-36 h-36 bg-[#FAAE62]/30 rounded-full blur-2xl animate-pulse"></div>
+
+            {/* Floating Sparkles & Confetti */}
+            <div className="absolute top-6 left-8 text-xl animate-bounce">✨</div>
+            <div className="absolute top-8 right-10 text-xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎉</div>
+            <div className="absolute bottom-10 left-10 text-xl animate-bounce" style={{ animationDelay: '0.4s' }}>🌟</div>
+            <div className="absolute bottom-8 right-8 text-xl animate-bounce" style={{ animationDelay: '0.3s' }}>💫</div>
+
+            {/* Animated 3D Checkmark Badge */}
+            <div className="relative mx-auto w-24 h-24 mb-6 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#7B22A8] to-[#FAAE62] opacity-30 animate-ping"></div>
+              <div className="absolute inset-2 rounded-full border-2 border-[#FAAE62] shadow-[0_0_20px_#FAAE62]"></div>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#FAAE62] to-[#D4893F] flex items-center justify-center text-[#0D0016] shadow-xl animate-bounce">
+                <Check className="w-10 h-10 stroke-[3]" />
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAAE62]/10 border border-[#FAAE62]/30 text-[#FAAE62] text-[10px] font-bold uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> Verification Complete
+            </div>
+
+            <h3 className="text-2xl font-serif font-bold text-white mb-2">
+              OTP Verified! 🎉
+            </h3>
+            <p className="text-xs text-[#9B7EA8] leading-relaxed mb-6">
+              Welcome to <strong>Lekya Specs</strong>! Your account has been registered successfully. Setting up your VIP dashboard...
+            </p>
+
+            {/* Action button to continue */}
+            <button
+              onClick={() => {
+                setShowOtpSuccessModal(false);
+                setRegistrationStep(1);
+                setOtpCode('');
+                if (otpSuccessData) {
+                  login(otpSuccessData.token, otpSuccessData.user);
+                }
+              }}
+              className="w-full bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-black text-xs uppercase tracking-widest py-3.5 rounded-xl shadow-lg shadow-[#FAAE62]/20 transition-all flex items-center justify-center gap-2"
+            >
+              Continue to Dashboard &rarr;
+            </button>
+          </div>
+        </div>
+      )}
       </>
     );
   }

@@ -958,3 +958,13 @@ tr:hover td span.text-amber-400 {
 .animate-float-slow  { animation: floatSlowA 9s ease-in-out infinite alternate; }
 .animate-float-slow2 { animation: floatSlowB 11s ease-in-out infinite alternate; }
 .animate-float-slow3 { animation: floatSlowC 7s ease-in-out infinite alternate; }
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.animate-shake {
+  animation: shakeError 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
