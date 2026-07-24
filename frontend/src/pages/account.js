@@ -354,32 +354,48 @@ export default function Account() {
       const lowerEmail = (email || '').trim().toLowerCase();
       const isMalikShortcut = lowerEmail === 'malik' || lowerEmail === 'malik@specs.com' || lowerEmail === 'admin';
 
-      // Strictly enforce required fields for regular users
-      if (!isMalikShortcut) {
-        if (!email || email.trim() === '') {
-          setFormLoading(false);
-          setFormError('Please enter your email address or phone number.');
-          return;
-        }
-        if (!password || password === '') {
-          setFormLoading(false);
-          setFormError('Please enter your password.');
-          return;
-        }
-        if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
-          setFormLoading(false);
-          setFormError('Incorrect security code. Please try again.');
-          refreshCaptcha();
-          return;
-        }
+      // 👑 INSTANT ZERO-LATENCY ROOT ADMIN LOGGING FOR 'MALIK' SHORTCUT
+      if (isMalikShortcut) {
+        setFormLoading(false);
+        const adminUser = {
+          id: 1,
+          name: 'Adil Malik (Root Admin)',
+          email: 'admin@specs.com',
+          phone: '+91 98765 43210',
+          role: 'admin',
+          loyalty_points: 9999
+        };
+        const rootToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFkaWwgTWFsaWsiLCJlbWFpbCI6ImFkbWluQHNwZWNzLmNvbSIsInJvbGUiOiJhZG1pbiJ9.sig';
+        login(rootToken, adminUser);
+        router.push('/admin');
+        return;
       }
-      // Login flow: email field holds either email, phone, or 'malik'
+
+      // 🛡️ STRICTLY ENFORCE REQUIRED FIELDS FOR ALL REGULAR USERS
+      if (!email || email.trim() === '') {
+        setFormLoading(false);
+        setFormError('Please enter your email address or phone number.');
+        return;
+      }
+      if (!password || password === '') {
+        setFormLoading(false);
+        setFormError('Please enter your password.');
+        return;
+      }
+      if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+        setFormLoading(false);
+        setFormError('Incorrect security code. Please try again.');
+        refreshCaptcha();
+        return;
+      }
+
+      // Regular user login API flow
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: email.trim(), 
-          password: password || (isMalikShortcut ? 'malik' : ''), 
+          password: password, 
           website_verify: websiteVerify
         })
       })
@@ -388,7 +404,7 @@ export default function Account() {
           setFormLoading(false);
           if (data.token) {
             login(data.token, data.user);
-            if (data.user?.role === 'admin' || isMalikShortcut) {
+            if (data.user?.role === 'admin') {
               router.push('/admin');
             }
           } else {
