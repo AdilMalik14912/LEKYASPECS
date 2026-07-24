@@ -138,3 +138,15 @@ CREATE TABLE IF NOT EXISTS order_returns (
     refund_amount REAL DEFAULT 0.0,
     created_at TEXT DEFAULT (datetime('now'))
 );
+
+-- 12. WhatsApp Incoming Messages Log (Auto-Reply CRM)
+CREATE TABLE IF NOT EXISTS whatsapp_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT NOT NULL,
+    customer_name TEXT DEFAULT 'Unknown',
+    message_body TEXT,
+    detected_intent TEXT DEFAULT 'unknown',
+    auto_replied INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_wa_messages_phone ON whatsapp_messages (phone);

@@ -19,6 +19,7 @@ const crmController = require('./controllers/crmController');
 const hoStaffController = require('./controllers/hoStaffController');
 const shippingController = require('./controllers/shippingController');
 const returnController = require('./controllers/returnController');
+const whatsappWebhookController = require('./controllers/whatsappWebhookController');
 
 
 // Middlewares
@@ -80,6 +81,12 @@ app.use(userAgentShield);
 app.use('/api', generalLimiter);
 
 // --- ROUTES ---
+
+// 0. WhatsApp Business API Webhook — MUST be before rate limiters
+//    GET: Meta webhook verification challenge
+//    POST: Incoming messages & auto-reply engine
+app.get('/api/webhooks/whatsapp', whatsappWebhookController.verifyWebhook);
+app.post('/api/webhooks/whatsapp', whatsappWebhookController.handleIncomingMessage);
 
 // 1. Health Check
 app.get('/api/health', (req, res) => {
