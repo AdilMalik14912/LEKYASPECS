@@ -227,6 +227,13 @@ app.get('/api/admin/logs', authenticateToken, isAdmin, adminController.getActivi
 // Real-time Coupon validation
 app.post('/api/coupons/validate', authenticateToken, orderController.validateCouponCode);
 
+// Return & Exchange Customer Self-Service Endpoints
+app.post('/api/returns/request', authenticateToken, returnController.createReturn);
+app.get('/api/returns/my-returns', authenticateToken, returnController.getUserReturns);
+app.get('/api/admin/returns', authenticateToken, isAdmin, returnController.getAllReturns);
+app.put('/api/admin/returns/:returnId', authenticateToken, isAdmin, returnController.updateReturnStatus);
+
+
 // Database Health & Performance Monitor
 app.get('/api/admin/db/health', authenticateToken, isAdmin, adminController.getDatabaseHealth);
 app.post('/api/admin/db/optimize', authenticateToken, isAdmin, adminController.optimizeDatabase);

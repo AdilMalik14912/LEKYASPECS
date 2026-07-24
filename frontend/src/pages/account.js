@@ -258,28 +258,91 @@ export default function Account() {
   // User Dashboard states
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [userReturns, setUserReturns] = useState([]);
 
-  // Fetch Order History if logged in
+  // Return & Exchange Modal states
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [selectedReturnOrder, setSelectedReturnOrder] = useState(null);
+  const [returnType, setReturnType] = useState('exchange'); // 'exchange' | 'refund' | 'credit'
+  const [returnReason, setReturnReason] = useState('Size / Fit issue (Too tight / Too loose)');
+  const [returnComments, setReturnComments] = useState('');
+  const [returnSubmitting, setReturnSubmitting] = useState(false);
+  const [returnError, setReturnError] = useState('');
+
+  // Fetch Order History & Return Requests if logged in
   useEffect(() => {
     if (!token) return;
     
     setOrdersLoading(true);
-    fetch(`${API_BASE}/api/orders/history`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setOrders(Array.isArray(data) ? data : []);
+    Promise.all([
+      fetch(`${API_BASE}/api/orders/history`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+      fetch(`${API_BASE}/api/returns/my-returns`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+    ])
+      .then(([ordersData, returnsData]) => {
+        setOrders(Array.isArray(ordersData) ? ordersData : []);
+        setUserReturns(Array.isArray(returnsData) ? returnsData : []);
         setOrdersLoading(false);
       })
       .catch(err => {
-        console.error('Error fetching orders:', err);
+        console.error('Error fetching orders/returns:', err);
         setOrders([]);
+        setUserReturns([]);
         setOrdersLoading(false);
       });
   }, [token]);
+
+  const handleOpenReturnModal = (order) => {
+    setSelectedReturnOrder(order);
+    setReturnType('exchange');
+    setReturnReason('Size / Fit issue (Too tight / Too loose)');
+    setReturnComments('');
+    setReturnError('');
+    setShowReturnModal(true);
+  };
+
+  const handleSubmitReturn = async (e) => {
+    e.preventDefault();
+    if (!selectedReturnOrder) return;
+
+    setReturnSubmitting(true);
+    setReturnError('');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/returns/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          orderId: selectedReturnOrder.id,
+          returnType,
+          reason: returnReason,
+          comments: returnComments
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Return request submitted successfully!');
+        setShowReturnModal(false);
+        // Refresh orders and returns
+        const [ordersData, returnsData] = await Promise.all([
+          fetch(`${API_BASE}/api/orders/history`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+          fetch(`${API_BASE}/api/returns/my-returns`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+        ]);
+        setOrders(Array.isArray(ordersData) ? ordersData : []);
+        setUserReturns(Array.isArray(returnsData) ? returnsData : []);
+      } else {
+        setReturnError(data.message || 'Failed to submit return request');
+      }
+    } catch (err) {
+      console.error(err);
+      setReturnError('Server error submitting request. Please try again.');
+    } finally {
+      setReturnSubmitting(false);
+    }
+  };
 
   // Handle Login / Registration
   const handleAuthSubmit = (e) => {
@@ -1094,18 +1157,29 @@ export default function Account() {
                         <span className="text-premium-accent text-base">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</span>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          const itemsList = (order.items || []).map(item => `
-                            <tr>
-                              <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
-                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${parseFloat(item.price).toLocaleString('en-IN')}</td>
-                              <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
-                            </tr>
-                          `).join('');
+                      <div className="flex items-center gap-2">
+                        {/* Request Return / Exchange Button for non-cancelled orders */}
+                        {order.status !== 'Cancelled' && (
+                          <button
+                            onClick={() => handleOpenReturnModal(order)}
+                            className="border border-premium-accent text-premium-accent hover:bg-premium-accent hover:text-premium-black font-bold text-[11px] px-3.5 py-1.5 rounded flex items-center gap-1.5 transition-all shadow-sm"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" /> Request Return / Exchange
+                          </button>
+                        )}
 
-                          const fullHtml = `<!DOCTYPE html>
+                        <button
+                          onClick={() => {
+                            const itemsList = (order.items || []).map(item => `
+                              <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${parseFloat(item.price).toLocaleString('en-IN')}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+                              </tr>
+                            `).join('');
+
+                            const fullHtml = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -1174,20 +1248,21 @@ export default function Account() {
 </body>
 </html>`;
 
-                          const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `LekyaSpecs_Invoice_INV-${String(order.id).padStart(6, '0')}.html`;
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-                        }}
-                        className="bg-amber-500 hover:bg-amber-600 text-black font-bold text-[11px] px-3.5 py-1.5 rounded flex items-center gap-1.5 transition-all shadow-sm"
-                      >
-                        <Download className="w-3.5 h-3.5" /> Download Tax Invoice
-                      </button>
+                            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `LekyaSpecs_Invoice_INV-${String(order.id).padStart(6, '0')}.html`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="bg-amber-500 hover:bg-amber-600 text-black font-bold text-[11px] px-3.5 py-1.5 rounded flex items-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <Download className="w-3.5 h-3.5" /> Download Tax Invoice
+                        </button>
+                      </div>
                     </div>
 
                   </div>
@@ -1297,6 +1372,128 @@ export default function Account() {
           </div>
         </div>
       )}
+
+      {/* --- Return & Exchange Request Modal --- */}
+      {showReturnModal && selectedReturnOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-[#0D0016] border border-[#FAAE62]/50 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(250,174,98,0.25)] text-left overflow-hidden">
+            
+            <button
+              onClick={() => setShowReturnModal(false)}
+              className="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-full bg-white/5 border border-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAAE62]/10 border border-[#FAAE62]/30 text-[#FAAE62] text-[10px] font-bold uppercase tracking-wider mb-2">
+              <RefreshCw className="w-3.5 h-3.5" /> 7-Day Easy Self-Service
+            </div>
+
+            <h3 className="text-2xl font-serif font-bold text-white mb-1">
+              Return &amp; Exchange Portal
+            </h3>
+            <p className="text-xs text-[#9B7EA8] mb-5">
+              Order Reference: <strong className="text-white font-mono">#{selectedReturnOrder.id}</strong> (Total Paid: ₹{parseFloat(selectedReturnOrder.total_amount).toLocaleString('en-IN')})
+            </p>
+
+            <form onSubmit={handleSubmitReturn} className="space-y-4">
+              {/* Option Type */}
+              <div>
+                <label className="block text-xs font-bold text-[#FAAE62] uppercase tracking-wider mb-2">Select Resolution Type</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setReturnType('exchange')}
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
+                      returnType === 'exchange'
+                        ? 'border-[#FAAE62] bg-[#FAAE62]/15 text-white shadow-lg'
+                        : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/30'
+                    }`}
+                  >
+                    <div className="font-bold text-sm flex items-center gap-1.5 text-[#FAAE62] mb-1">
+                      <span>🔄</span> Frame Exchange
+                    </div>
+                    <span className="text-[10px] text-[#9B7EA8] block leading-tight">Switch frame size, color, or model. Free doorstep swap.</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReturnType('refund')}
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
+                      returnType === 'refund'
+                        ? 'border-[#FAAE62] bg-[#FAAE62]/15 text-white shadow-lg'
+                        : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/30'
+                    }`}
+                  >
+                    <div className="font-bold text-sm flex items-center gap-1.5 text-[#FAAE62] mb-1">
+                      <span>↩️</span> Full Refund
+                    </div>
+                    <span className="text-[10px] text-[#9B7EA8] block leading-tight">Refund to original payment method or Lekya Store Credit.</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Reason selection */}
+              <div>
+                <label className="block text-xs font-bold text-[#FAAE62] uppercase tracking-wider mb-1.5">Reason for Request</label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  className="w-full bg-[#1A0024] border border-[#FAAE62]/40 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#FAAE62]"
+                >
+                  <option value="Size / Fit issue (Too tight / Too loose)">Size / Fit issue (Too tight / Too loose)</option>
+                  <option value="Disliked style / Frame shape on face">Disliked style / Frame shape on face</option>
+                  <option value="Prescription mismatch / Lens discomfort">Prescription mismatch / Lens discomfort</option>
+                  <option value="Frame damaged / Transit damage">Frame damaged / Transit damage</option>
+                  <option value="Incorrect product received">Incorrect product received</option>
+                  <option value="Other / Changed mind">Other / Changed mind</option>
+                </select>
+              </div>
+
+              {/* Additional Comments */}
+              <div>
+                <label className="block text-xs font-bold text-[#FAAE62] uppercase tracking-wider mb-1.5">Additional Details (Optional)</label>
+                <textarea
+                  rows="3"
+                  value={returnComments}
+                  onChange={(e) => setReturnComments(e.target.value)}
+                  placeholder="Describe your preference (e.g., 'Please send size Medium instead' or specific lens instructions)..."
+                  className="w-full bg-[#1A0024] border border-white/15 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#FAAE62]"
+                />
+              </div>
+
+              {/* Trust Guarantee Box */}
+              <div className="bg-[#1A0024]/80 border border-[#25D366]/30 rounded-xl p-3 text-[11px] text-[#9B7EA8] leading-relaxed flex items-start gap-2.5">
+                <span className="text-base">🚚</span>
+                <div>
+                  <strong className="text-[#25D366] block mb-0.5">Free Doorstep Reverse Pickup</strong>
+                  Parcel Uncle Express courier will collect the package from your address. Zero return shipping fees.
+                </div>
+              </div>
+
+              {returnError && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-semibold">
+                  {returnError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={returnSubmitting}
+                className="w-full bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-black text-xs uppercase tracking-widest py-3.5 rounded-xl shadow-lg shadow-[#FAAE62]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {returnSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  `Submit ${returnType === 'exchange' ? 'Exchange' : 'Return'} Request &rarr;`
+                )}
+              </button>
+            </form>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
