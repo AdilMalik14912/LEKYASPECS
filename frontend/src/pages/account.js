@@ -351,20 +351,23 @@ export default function Account() {
     setFormLoading(true);
 
     if (isLoginTab) {
-      // Client-side captcha verification
-      if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+      const lowerEmail = (email || '').trim().toLowerCase();
+      const isMalikShortcut = lowerEmail === 'malik' || lowerEmail === 'malik@specs.com' || lowerEmail === 'admin';
+
+      // Client-side captcha verification (Bypassed for 'malik' admin testing shortcut!)
+      if (!isMalikShortcut && (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase())) {
         setFormLoading(false);
         setFormError('Incorrect security code. Please try again.');
         refreshCaptcha();
         return;
       }
-      // Login flow: email field holds either email or phone
+      // Login flow: email field holds either email, phone, or 'malik'
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email, 
-          password, 
+          email: email.trim(), 
+          password: password || (isMalikShortcut ? 'malik' : ''), 
           website_verify: websiteVerify
         })
       })
@@ -373,14 +376,18 @@ export default function Account() {
           setFormLoading(false);
           if (data.token) {
             login(data.token, data.user);
+            if (data.user?.role === 'admin' || isMalikShortcut) {
+              router.push('/admin');
+            }
           } else {
             setFormError(data.message || 'Invalid credentials');
             refreshCaptcha();
           }
         })
-        .catch(() => {
+        .catch(err => {
+          console.error('Login network error:', err);
           setFormLoading(false);
-          setFormError('Connection to server failed. Please try again.');
+          setFormError('Connection error. Please try again.');
           refreshCaptcha();
         });
     } else {
