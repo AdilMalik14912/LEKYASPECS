@@ -50,7 +50,7 @@ function RevenueChart({ data }) {
     const minSales = 0;
 
     // Draw horizontal grid lines & Y labels
-    ctx.strokeStyle = '#f0f0f0';
+    ctx.strokeStyle = 'rgba(250, 174, 98, 0.12)';
     ctx.lineWidth = 1;
     const yTicks = 4;
     for (let i = 0; i <= yTicks; i++) {
@@ -62,8 +62,8 @@ function RevenueChart({ data }) {
       ctx.lineTo(margin.left + chartWidth, yPos);
       ctx.stroke();
 
-      ctx.fillStyle = '#777';
-      ctx.font = '10px monospace';
+      ctx.fillStyle = '#9B7EA8';
+      ctx.font = '10px Inter, monospace';
       ctx.textAlign = 'right';
       ctx.fillText(`₹${Math.round(yVal).toLocaleString('en-IN')}`, margin.left - 10, yPos + 3);
     }
@@ -95,8 +95,8 @@ function RevenueChart({ data }) {
     ctx.closePath();
 
     const gradient = ctx.createLinearGradient(0, margin.top, 0, margin.top + chartHeight);
-    gradient.addColorStop(0, 'rgba(197, 160, 40, 0.25)');
-    gradient.addColorStop(1, 'rgba(197, 160, 40, 0.01)');
+    gradient.addColorStop(0, 'rgba(250, 174, 98, 0.35)');
+    gradient.addColorStop(1, 'rgba(250, 174, 98, 0.01)');
     ctx.fillStyle = gradient;
     ctx.fill();
 
@@ -114,18 +114,18 @@ function RevenueChart({ data }) {
         ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, p.x, p.y);
       }
     });
-    ctx.strokeStyle = '#C5A028';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#FAAE62';
+    ctx.lineWidth = 3.5;
     ctx.stroke();
 
     // Draw dots and X date labels
     points.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0D0016';
       ctx.fill();
-      ctx.strokeStyle = '#C5A028';
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#FAAE62';
+      ctx.lineWidth = 3;
       ctx.stroke();
 
       ctx.fillStyle = '#555';
@@ -1499,192 +1499,92 @@ export default function Admin() {
   }
 
   return (
-    <div className="bg-premium-light min-h-screen flex flex-col md:flex-row">
+  return (
+    <div className="bg-[#0D0016] text-white min-h-screen flex flex-col md:flex-row relative overflow-hidden">
       
+      {/* Background ambient gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#7B22A8]/15 rounded-full blur-[140px] pointer-events-none animate-float-slow" />
+      <div className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-[#FAAE62]/10 rounded-full blur-[120px] pointer-events-none animate-float-slow2" />
+
       {/* Sidebar Controls */}
-      <aside className="w-full md:w-64 bg-premium-black text-white p-6 shrink-0 flex flex-col border-r border-premium-accent/20">
+      <aside className="w-full md:w-64 bg-[#1A0024]/90 backdrop-blur-xl text-white p-6 shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-20">
         <div className="mb-8 text-center sm:text-left">
           <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
             <VisionEyeLogo size={36} showText={true} tagline="Admin Management Portal" showTagline={true} />
           </Link>
         </div>
 
-        <nav className="space-y-2 flex-grow uppercase text-xs tracking-wider font-semibold">
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'stats' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" /> Dashboard Analytics
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('products')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'products' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" /> Manage Products
-          </button>
+        <nav className="space-y-1.5 flex-grow uppercase text-xs tracking-wider font-semibold">
+          {[
+            { id: 'stats', label: 'Dashboard Analytics', icon: BarChart3 },
+            { id: 'products', label: 'Manage Products', icon: ShoppingBag },
+            { id: 'orders', label: 'Customer Orders', icon: ClipboardList },
+            { id: 'returns', label: 'Returns & Exchanges', icon: RefreshCw },
+            { id: 'customers', label: 'View Customers', icon: Users },
+            { id: 'admins', label: 'Manage Admins', icon: ShieldCheck },
+            { id: 'coupons', label: 'Promo Codes', icon: Tag },
+            { id: 'broadcast', label: 'Email Broadcast', icon: Mail },
+            { id: 'logs', label: 'Activity Log', icon: ScrollText },
+            { id: 'helpdesk', label: 'Support Helpdesk', icon: HelpCircle },
+            { id: 'db', label: 'DB Optimizer', icon: Activity },
+            { id: 'customizer', label: 'Store Customizer (CMS)', icon: Sliders },
+            { id: 'sessions', label: 'Live User Monitor', icon: Users },
+            { id: 'team', label: 'Team Management', icon: Users },
+            { id: 'delivery-otps', label: 'Delivery OTP Monitor', icon: ShieldAlert },
+            { id: 'signup-otps', label: 'Signup OTP Monitor 🔑', icon: Key, color: 'text-amber-400' },
+          ].map((item) => {
+            const IconComp = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left ${
+                  isActive
+                    ? 'bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-extrabold shadow-[0_0_20px_rgba(250,174,98,0.35)] scale-[1.02]'
+                    : 'text-[#9B7EA8] hover:text-white hover:bg-white/5 border border-transparent hover:border-[#FAAE62]/20'
+                }`}
+              >
+                <IconComp className={`w-4 h-4 ${isActive ? 'text-[#0D0016]' : (item.color || 'text-[#FAAE62]')}`} />
+                {item.label}
+              </button>
+            );
+          })}
 
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'orders' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <ClipboardList className="w-4 h-4" /> Customer Orders
-          </button>
+          <div className="pt-3 space-y-1.5 border-t border-white/10 my-2">
+            <Link
+              href="/stylist"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-[#FAAE62] hover:text-white hover:bg-[#FAAE62]/10 font-semibold text-xs tracking-wider border border-[#FAAE62]/30"
+              style={{ textDecoration: 'none' }}
+            >
+              <Sparkles className="w-4 h-4 text-[#FAAE62]" /> Brand Stylist Hub 🎨
+            </Link>
 
-          <button
-            onClick={() => setActiveTab('returns')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'returns' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <RefreshCw className="w-4 h-4" /> Returns & Exchanges
-          </button>
+            <Link
+              href="/admin-map"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-sky-400 hover:text-white hover:bg-sky-500/10 font-semibold text-xs tracking-wider border border-sky-500/30"
+              style={{ textDecoration: 'none' }}
+            >
+              <Navigation className="w-4 h-4 text-sky-400" /> 🛰 Live Rider Map
+            </Link>
 
-          <button
-            onClick={() => setActiveTab('customers')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'customers' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Users className="w-4 h-4" /> View Customers
-          </button>
+            <Link
+              href="/chat"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-amber-400 hover:text-white hover:bg-amber-500/10 font-semibold text-xs tracking-wider border border-amber-500/30"
+              style={{ textDecoration: 'none' }}
+            >
+              <Mail className="w-4 h-4 text-amber-400" /> 💬 Team Chat
+            </Link>
 
-          <button
-            onClick={() => setActiveTab('admins')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'admins' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" /> Manage Admins
-          </button>
+            <Link
+              href="/crm"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-emerald-400 hover:text-white hover:bg-emerald-500/10 font-semibold text-xs tracking-wider border border-emerald-500/30"
+              style={{ textDecoration: 'none' }}
+            >
+              <BarChart3 className="w-4 h-4 text-emerald-400" /> 📈 CRM Platform
+            </Link>
+          </div>
 
-          <button
-            onClick={() => setActiveTab('coupons')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'coupons' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Tag className="w-4 h-4" /> Promo Codes
-          </button>
-
-          <button
-            onClick={() => setActiveTab('broadcast')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'broadcast' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Mail className="w-4 h-4" /> Email Broadcast
-          </button>
-
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'logs' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <ScrollText className="w-4 h-4" /> Activity Log
-          </button>
-
-          <button
-            onClick={() => setActiveTab('helpdesk')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'helpdesk' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <HelpCircle className="w-4 h-4" /> Support Helpdesk
-          </button>
-
-          <button
-            onClick={() => setActiveTab('db')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'db' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Activity className="w-4 h-4" /> DB Optimizer
-          </button>
-
-          <button
-            onClick={() => setActiveTab('customizer')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'customizer' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Sliders className="w-4 h-4" /> Store Customizer (CMS)
-          </button>
-
-          <button
-            onClick={() => setActiveTab('sessions')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'sessions' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Users className="w-4 h-4" /> Live User Monitor
-          </button>
-
-          <Link
-            href="/stylist"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-premium-accent hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
-            style={{ textDecoration: 'none' }}
-          >
-            <Sparkles className="w-4 h-4" /> Brand Stylist Hub 🎨
-          </Link>
-
-          <button
-            onClick={() => setActiveTab('team')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'team' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Users className="w-4 h-4" /> Team Management
-          </button>
-
-          <button
-            onClick={() => setActiveTab('delivery-otps')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'delivery-otps' ? 'bg-premium-accent text-premium-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" /> Delivery OTP Monitor
-          </button>
-
-          <button
-            onClick={() => setActiveTab('signup-otps')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left ${
-              activeTab === 'signup-otps' ? 'bg-premium-accent text-premium-black' : 'text-amber-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Key className="w-4 h-4 text-amber-400" /> Signup OTP Monitor 🔑
-          </button>
-
-          <Link
-            href="/admin-map"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-blue-400 hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
-            style={{ textDecoration: 'none' }}
-          >
-            🛰 Live Rider Map
-          </Link>
-
-          <Link
-            href="/chat"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-yellow-400 hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
-            style={{ textDecoration: 'none' }}
-          >
-            💬 Team Chat
-          </Link>
-
-          <Link
-            href="/crm"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left text-emerald-400 hover:text-white hover:bg-white/5 font-semibold text-xs tracking-wider"
-            style={{ textDecoration: 'none' }}
-          >
-            📈 CRM Platform
-          </Link>
           <button
             onClick={() => {
               if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
@@ -1692,13 +1592,13 @@ export default function Admin() {
                 router.push('/account');
               }
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all text-left bg-red-950/50 border border-red-800/40 text-red-400 hover:bg-red-600 hover:text-white font-bold text-xs tracking-wider uppercase mt-4 shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all text-center bg-red-950/50 border border-red-800/40 text-red-400 hover:bg-red-600 hover:text-white font-bold text-xs tracking-wider uppercase mt-4 shadow-sm"
           >
             <LogOut className="w-4 h-4" /> Sign Out Admin 🚪
           </button>
         </nav>
 
-        <div className="border-t border-gray-800 pt-6 mt-10 flex items-center justify-between text-[10px] text-premium-accent">
+        <div className="border-t border-white/10 pt-4 mt-6 flex items-center justify-between text-[10px] text-[#FAAE62]">
           <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Root Auth</span>
           <button
             onClick={() => {
@@ -1715,14 +1615,22 @@ export default function Admin() {
       </aside>
 
       {/* Main Panel Content */}
-      <main className="flex-grow p-6 sm:p-10 max-w-7xl overflow-x-hidden">
+      <main className="flex-grow p-6 sm:p-10 max-w-7xl overflow-x-hidden relative z-10">
         
         {/* --- TAB 1: ANALYTICS OVERVIEW --- */}
         {activeTab === 'stats' && (
           <div>
-            <h2 className="font-serif text-3xl font-bold text-premium-black mb-8 border-b border-premium-border pb-4">
-              Dashboard Analytics
-            </h2>
+            <div className="flex items-center justify-between mb-8 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                  Dashboard Analytics
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Real-time sales performance, active orders, and store health metrics.</p>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAAE62]/10 border border-[#FAAE62]/30 text-[#FAAE62] text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5" /> Live Insights
+              </div>
+            </div>
 
             {analyticsLoading ? (
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
@@ -1735,13 +1643,15 @@ export default function Admin() {
                       setOrderStatusFilter('Pending');
                       setActiveTab('orders');
                     }}
-                    className="flex items-center justify-between p-4 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded text-left transition-all group"
+                    className="flex items-center justify-between p-5 bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl text-left transition-all hover:border-[#FAAE62] hover:shadow-[0_0_25px_rgba(250,174,98,0.2)] admin-card-3d group"
                   >
                     <div>
-                      <span className="block text-[10px] uppercase font-bold text-amber-700 tracking-wider">Pending Orders</span>
-                      <span className="text-2xl font-extrabold text-amber-900">{analytics.metrics.pending_orders}</span>
+                      <span className="block text-[10px] uppercase font-bold text-[#FAAE62] tracking-wider mb-1">Pending Orders</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.pending_orders}</span>
                     </div>
-                    <ClipboardList className="w-8 h-8 text-amber-400 group-hover:scale-110 transition-transform" />
+                    <div className="w-12 h-12 rounded-xl bg-[#FAAE62]/10 border border-[#FAAE62]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <ClipboardList className="w-6 h-6 text-[#FAAE62]" />
+                    </div>
                   </button>
 
                   <button 
@@ -1749,21 +1659,25 @@ export default function Admin() {
                       setProductSearch('');
                       setActiveTab('products');
                     }}
-                    className="flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-left transition-all group"
+                    className="flex items-center justify-between p-5 bg-[#1A0024]/80 border border-red-500/30 rounded-2xl text-left transition-all hover:border-red-400 hover:shadow-[0_0_25px_rgba(239,68,68,0.2)] admin-card-3d group"
                   >
                     <div>
-                      <span className="block text-[10px] uppercase font-bold text-red-700 tracking-wider">Out of Stock</span>
-                      <span className="text-2xl font-extrabold text-red-900">{analytics.metrics.out_of_stock}</span>
+                      <span className="block text-[10px] uppercase font-bold text-red-400 tracking-wider mb-1">Out of Stock</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.out_of_stock}</span>
                     </div>
-                    <ShoppingBag className="w-8 h-8 text-red-400 group-hover:scale-110 transition-transform" />
+                    <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <ShoppingBag className="w-6 h-6 text-red-400" />
+                    </div>
                   </button>
 
-                  <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded text-left">
+                  <div className="flex items-center justify-between p-5 bg-[#1A0024]/80 border border-emerald-500/30 rounded-2xl text-left admin-card-3d">
                     <div>
-                      <span className="block text-[10px] uppercase font-bold text-green-700 tracking-wider">Today's Revenue</span>
-                      <span className="text-2xl font-extrabold text-green-900">₹{analytics.metrics.today_sales.toLocaleString('en-IN')}</span>
+                      <span className="block text-[10px] uppercase font-bold text-emerald-400 tracking-wider mb-1">Today's Revenue</span>
+                      <span className="text-2xl font-extrabold text-white">₹{analytics.metrics.today_sales.toLocaleString('en-IN')}</span>
                     </div>
-                    <Landmark className="w-8 h-8 text-green-400" />
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                      <Landmark className="w-6 h-6 text-emerald-400" />
+                    </div>
                   </div>
 
                   <button 
@@ -1771,37 +1685,41 @@ export default function Admin() {
                       setCustomerSearch('');
                       setActiveTab('customers');
                     }}
-                    className="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-left transition-all group"
+                    className="flex items-center justify-between p-5 bg-[#1A0024]/80 border border-sky-500/30 rounded-2xl text-left transition-all hover:border-sky-400 hover:shadow-[0_0_25px_rgba(56,189,248,0.2)] admin-card-3d group"
                   >
                     <div>
-                      <span className="block text-[10px] uppercase font-bold text-blue-700 tracking-wider">New Users Today</span>
-                      <span className="text-2xl font-extrabold text-blue-900">{analytics.metrics.new_customers_today}</span>
+                      <span className="block text-[10px] uppercase font-bold text-sky-400 tracking-wider mb-1">New Users Today</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.new_customers_today}</span>
                     </div>
-                    <Users className="w-8 h-8 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Users className="w-6 h-6 text-sky-400" />
+                    </div>
                   </button>
                 </div>
 
                 {/* Metric Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                    <span className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Total Sales Revenue</span>
-                    <span className="text-3xl font-bold text-premium-black">₹{analytics.metrics.total_sales.toLocaleString('en-IN')}</span>
+                  <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
+                    <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Total Sales Revenue</span>
+                    <span className="text-3xl font-bold text-white font-mono">₹{analytics.metrics.total_sales.toLocaleString('en-IN')}</span>
                   </div>
-                  <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                    <span className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Paid Orders</span>
-                    <span className="text-3xl font-bold text-premium-black">{analytics.metrics.total_orders}</span>
+                  <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
+                    <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Paid Orders</span>
+                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics.total_orders}</span>
                   </div>
-                  <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                    <span className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">Registered Customers</span>
-                    <span className="text-3xl font-bold text-premium-black">{analytics.metrics.total_customers}</span>
+                  <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
+                    <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Registered Customers</span>
+                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics.total_customers}</span>
                   </div>
                 </div>
 
                 {/* 7-Day Revenue Line Chart */}
-                <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
+                <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-serif text-lg font-bold text-premium-black">7-Day Sales Trend</h3>
-                    <span className="text-xs text-premium-gray font-semibold">Live Transaction Activity</span>
+                    <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-[#FAAE62]" /> 7-Day Sales Trend
+                    </h3>
+                    <span className="text-xs text-[#9B7EA8] font-semibold">Live Transaction Activity</span>
                   </div>
                   <RevenueChart data={analytics.sales_trend} />
                 </div>
@@ -1809,22 +1727,24 @@ export default function Admin() {
                 {/* Grid for top selling & low stock */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Top Selling Products */}
-                  <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                    <h3 className="font-serif text-lg font-bold text-premium-black mb-4">Top 5 Best Sellers</h3>
-                    <div className="divide-y divide-premium-border">
+                  <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
+                    <h3 className="font-serif text-lg font-bold text-white mb-4 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-[#FAAE62] fill-[#FAAE62]" /> Top 5 Best Sellers
+                    </h3>
+                    <div className="divide-y divide-white/10">
                       {analytics.top_products.map((item, idx) => (
                         <div key={item.id} className="py-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <span className="font-bold text-xs text-premium-accent w-4">{idx + 1}</span>
-                            <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded border border-premium-border" />
+                            <span className="font-bold text-xs text-[#FAAE62] w-4">{idx + 1}</span>
+                            <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg border border-white/20" />
                             <div>
-                              <span className="font-semibold text-sm text-premium-dark block truncate max-w-[150px]">{item.name}</span>
-                              <span className="text-[10px] text-premium-gray uppercase font-semibold">{item.frame_shape} shape</span>
+                              <span className="font-semibold text-sm text-white block truncate max-w-[150px]">{item.name}</span>
+                              <span className="text-[10px] text-[#9B7EA8] uppercase font-semibold">{item.frame_shape} shape</span>
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-sm block">₹{parseFloat(item.revenue).toLocaleString('en-IN')}</span>
-                            <span className="text-[10px] text-premium-gray block">{item.units_sold} units sold</span>
+                            <span className="font-bold text-sm block text-[#FAAE62]">₹{parseFloat(item.revenue).toLocaleString('en-IN')}</span>
+                            <span className="text-[10px] text-[#9B7EA8] block">{item.units_sold} units sold</span>
                           </div>
                         </div>
                       ))}
@@ -1832,22 +1752,22 @@ export default function Admin() {
                   </div>
 
                   {/* Low Stock Warnings */}
-                  <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                    <h3 className="font-serif text-lg font-bold text-premium-black mb-4 text-red-600 flex items-center gap-2">
-                      <ShieldAlert className="w-5 h-5 text-red-600" /> Low Stock Alerts
+                  <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
+                    <h3 className="font-serif text-lg font-bold text-white mb-4 text-red-400 flex items-center gap-2">
+                      <ShieldAlert className="w-5 h-5 text-red-400" /> Low Stock Alerts
                     </h3>
                     {analytics.low_stock_alerts.length === 0 ? (
-                      <p className="text-sm text-premium-gray py-4 text-center">All product inventory columns healthy.</p>
+                      <p className="text-sm text-[#9B7EA8] py-4 text-center">All product inventory columns healthy.</p>
                     ) : (
-                      <div className="divide-y divide-premium-border">
+                      <div className="divide-y divide-white/10">
                         {analytics.low_stock_alerts.map(item => (
                           <div key={item.id} className="py-3 flex items-center justify-between">
                             <div>
-                              <span className="font-semibold text-sm text-premium-dark block">{item.name}</span>
-                              <span className="text-xs text-premium-gray">Price: ₹{parseFloat(item.price).toLocaleString('en-IN')}</span>
+                              <span className="font-semibold text-sm text-white block">{item.name}</span>
+                              <span className="text-xs text-[#9B7EA8]">Price: ₹{parseFloat(item.price).toLocaleString('en-IN')}</span>
                             </div>
-                            <span className={`font-bold px-3 py-1 rounded text-xs ${
-                              item.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                            <span className={`font-bold px-3 py-1 rounded-full text-xs ${
+                              item.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
                             }`}>
                               {item.stock} left
                             </span>
@@ -1859,14 +1779,14 @@ export default function Admin() {
                 </div>
 
                 {/* Sales Category Distribution */}
-                <div className="bg-white border border-premium-border rounded p-6 shadow-sm">
-                  <h3 className="font-serif text-lg font-bold text-premium-black mb-4">Category Distribution</h3>
+                <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
+                  <h3 className="font-serif text-lg font-bold text-white mb-4">Category Distribution</h3>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     {analytics.category_distribution.map(cat => (
-                      <div key={cat.category} className="p-4 bg-premium-light border border-premium-border rounded">
-                        <span className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-1">{cat.category}</span>
-                        <span className="text-xl font-bold text-premium-black">₹{parseFloat(cat.revenue).toLocaleString('en-IN')}</span>
-                        <span className="block text-[10px] text-premium-accent uppercase font-bold mt-1">{cat.items_sold} sold</span>
+                      <div key={cat.category} className="p-4 bg-[#0D0016]/80 border border-[#FAAE62]/20 rounded-xl">
+                        <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-1">{cat.category}</span>
+                        <span className="text-xl font-bold text-white font-mono">₹{parseFloat(cat.revenue).toLocaleString('en-IN')}</span>
+                        <span className="block text-[10px] text-[#FAAE62] uppercase font-bold mt-1">{cat.items_sold} sold</span>
                       </div>
                     ))}
                   </div>
@@ -1880,41 +1800,44 @@ export default function Admin() {
         {/* --- TAB 2: PRODUCT CATALOG MANAGEMENT --- */}
         {activeTab === 'products' && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
-              <h2 className="font-serif text-3xl font-bold text-premium-black">
-                Manage Inventory
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                  Manage Inventory
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Create, update, or remove eyewear frames and set stock availability.</p>
+              </div>
               <button
                 onClick={openAddModal}
-                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-widest uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-[#FAAE62]/20"
               >
                 <Plus className="w-4 h-4" /> Add Eyewear Frame
               </button>
             </div>
 
             {productsLoading ? (
-              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <div>
                 {/* Product Search */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-5 items-center">
+                <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
                   <input
                     type="text"
                     placeholder="Search products by name, category, shape..."
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
-                    className="w-full sm:w-96 bg-white border border-premium-border rounded p-2.5 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    className="w-full sm:w-96 bg-[#1A0024] border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FAAE62] font-medium"
                   />
-                  <span className="text-xs text-premium-gray font-semibold">{products.filter(p =>
+                  <span className="text-xs text-[#9B7EA8] font-semibold">{products.filter(p =>
                     p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
                     p.category.toLowerCase().includes(productSearch.toLowerCase()) ||
                     p.frame_shape.toLowerCase().includes(productSearch.toLowerCase())
-                  ).length} of {products.length} products</span>
+                  ).length} of {products.length} products listed</span>
                 </div>
 
-                <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
-                  <table className="min-w-full divide-y divide-premium-border text-left">
-                    <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+                  <table className="min-w-full divide-y divide-white/10 text-left">
+                    <thead className="bg-[#0D0016] text-[10px] uppercase tracking-wider text-[#FAAE62] font-bold">
                       <tr>
                         <th className="px-6 py-4">ID</th>
                         <th className="px-6 py-4">Product Details</th>
@@ -1925,37 +1848,37 @@ export default function Admin() {
                         <th className="px-6 py-4 text-center">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                    <tbody className="divide-y divide-white/10 text-xs font-medium text-white">
                       {products.filter(p =>
                         p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
                         p.category.toLowerCase().includes(productSearch.toLowerCase()) ||
                         p.frame_shape.toLowerCase().includes(productSearch.toLowerCase())
                       ).map(prod => (
-                        <tr key={prod.id} className="hover:bg-[#2A0440]/80 transition-colors">
-                          <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{prod.id}</td>
+                        <tr key={prod.id} className="hover:bg-[#2A0440]/60 transition-colors">
+                          <td className="px-6 py-4 text-xs font-bold text-[#FAAE62]">#{prod.id}</td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <img src={prod.image_urls[0]} alt={prod.name} className="w-10 h-10 object-cover rounded border border-premium-border" />
+                              <img src={prod.image_urls[0]} alt={prod.name} className="w-10 h-10 object-cover rounded-lg border border-white/20" />
                               <span className="font-semibold block truncate max-w-[180px]">{prod.name}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-xs">{prod.gender} • {prod.category}</td>
+                          <td className="px-6 py-4 text-xs text-[#9B7EA8]">{prod.gender} • {prod.category}</td>
                           <td className="px-6 py-4">{prod.frame_shape}</td>
-                          <td className="px-6 py-4 font-bold">₹{parseFloat(prod.price).toLocaleString('en-IN')}</td>
+                          <td className="px-6 py-4 font-bold text-[#FAAE62]">₹{parseFloat(prod.price).toLocaleString('en-IN')}</td>
                           <td className="px-6 py-4">
-                            <span className={`font-bold px-2.5 py-0.5 rounded text-xs ${
-                              prod.stock === 0 ? 'bg-red-100 text-red-700' :
-                              prod.stock <= 5 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
+                            <span className={`font-bold px-2.5 py-1 rounded-full text-xs ${
+                              prod.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' :
+                              prod.stock <= 5 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                             }`}>
-                              {prod.stock}
+                              {prod.stock} units
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-center items-center gap-3">
-                              <button onClick={() => openEditModal(prod)} className="p-1.5 text-premium-gray hover:text-premium-accent transition-colors" title="Edit Frame">
+                              <button onClick={() => openEditModal(prod)} className="p-2 bg-white/5 border border-white/10 hover:border-[#FAAE62] rounded-lg text-[#9B7EA8] hover:text-[#FAAE62] transition-all" title="Edit Frame">
                                 <Edit className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleDeleteProduct(prod.id)} className="p-1.5 text-premium-gray hover:text-red-600 transition-colors" title="Delete Frame">
+                              <button onClick={() => handleDeleteProduct(prod.id)} className="p-2 bg-white/5 border border-white/10 hover:border-red-500 rounded-lg text-[#9B7EA8] hover:text-red-400 transition-all" title="Delete Frame">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
@@ -1973,10 +1896,13 @@ export default function Admin() {
         {/* --- TAB 3: ORDER STATUS ACTIONS --- */}
         {activeTab === 'orders' && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
-              <h2 className="font-serif text-3xl font-bold text-premium-black">
-                Customer Orders
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                  Customer Orders
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Manage order fulfillment, status transitions, rider assignments, and export invoices.</p>
+              </div>
               <button
                 onClick={() => {
                   fetch(`${API_BASE}/api/admin/export/orders`, {
@@ -1994,14 +1920,14 @@ export default function Admin() {
                     })
                     .catch(err => console.error(err));
                 }}
-                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-widest uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-[#FAAE62]/20"
               >
                 <Download className="w-4 h-4" /> Export to CSV
               </button>
             </div>
 
             {ordersLoading ? (
-              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <div>
                 {/* Search & Status Filters */}
@@ -2011,14 +1937,14 @@ export default function Admin() {
                     placeholder="Search orders (ID, Name, Email)..."
                     value={orderSearch}
                     onChange={(e) => setOrderSearch(e.target.value)}
-                    className="w-full sm:w-80 bg-white border border-premium-border rounded p-2.5 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    className="w-full sm:w-80 bg-[#1A0024] border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FAAE62] font-medium"
                   />
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <label className="text-xs uppercase tracking-wider text-premium-gray font-semibold">Filter Status</label>
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <label className="text-xs uppercase tracking-wider text-[#FAAE62] font-bold">Filter Status:</label>
                     <select
                       value={orderStatusFilter}
                       onChange={(e) => setOrderStatusFilter(e.target.value)}
-                      className="bg-white text-xs border border-premium-border rounded px-3 py-2 focus:outline-none focus:border-premium-accent font-bold uppercase tracking-wider text-premium-dark"
+                      className="bg-[#1A0024] text-xs border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#FAAE62] font-bold uppercase tracking-wider text-white"
                     >
                       <option value="ALL">All Statuses</option>
                       <option value="Paid">Paid</option>
@@ -2044,11 +1970,11 @@ export default function Admin() {
                   
                   return matchesSearch && matchesStatus;
                 }).length === 0 ? (
-                  <p className="text-center py-10 bg-white border rounded text-premium-gray">No customer orders matching the filter.</p>
+                  <p className="text-center py-10 bg-[#1A0024]/80 border border-[#FAAE62]/20 rounded-2xl text-[#9B7EA8]">No customer orders matching the filter.</p>
                 ) : (
-                  <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
-                    <table className="min-w-full divide-y divide-premium-border text-left">
-                      <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                  <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+                    <table className="min-w-full divide-y divide-white/10 text-left">
+                      <thead className="bg-[#0D0016] text-[10px] uppercase tracking-wider text-[#FAAE62] font-bold">
                         <tr>
                           <th className="px-6 py-4">Order ID</th>
                           <th className="px-6 py-4">Customer</th>
@@ -2061,7 +1987,7 @@ export default function Admin() {
                           <th className="px-6 py-4">Delivery Rider</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                      <tbody className="divide-y divide-white/10 text-xs font-medium text-white">
                         {orders.filter(order => {
                           const matchesSearch = 
                             order.user_name.toLowerCase().includes(orderSearch.toLowerCase()) ||
@@ -2195,15 +2121,15 @@ export default function Admin() {
                                 year: 'numeric', month: 'short', day: 'numeric'
                               })}
                             </td>
-                            <td className="px-6 py-4 font-bold text-premium-accent">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</td>
+                            <td className="px-6 py-4 font-bold text-[#FAAE62]">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</td>
                             <td className="px-6 py-4">
                               <select
                                 value={order.status}
                                 onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                                className={`bg-premium-light text-xs font-bold border border-premium-border rounded px-2.5 py-1 focus:outline-none focus:border-premium-accent uppercase tracking-wide cursor-pointer ${
-                                  order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'text-green-700' :
-                                  order.status === 'Processing' || order.status === 'Packed' ? 'text-amber-700' :
-                                  order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'text-blue-700' : 'text-gray-700'
+                                className={`bg-[#0D0016] text-xs font-bold border rounded-xl px-3 py-1.5 focus:outline-none uppercase tracking-wide cursor-pointer shadow-inner transition-all ${
+                                  order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
+                                  order.status === 'Processing' || order.status === 'Packed' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                                  order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'border-sky-500/50 text-sky-400 bg-sky-500/10' : 'border-white/20 text-gray-300'
                                 }`}
                               >
                                 <option value="Paid">Paid</option>
@@ -2222,7 +2148,7 @@ export default function Admin() {
                                 <select
                                   value={order.assigned_delivery_agent_id || ''}
                                   onChange={(e) => handleRiderAssign(order.id, e.target.value)}
-                                  className="bg-premium-light text-xs font-semibold border border-premium-border rounded px-2 py-1 focus:outline-none focus:border-premium-accent tracking-wide cursor-pointer text-premium-dark max-w-[130px]"
+                                  className="bg-[#0D0016] text-xs font-semibold border border-[#FAAE62]/40 rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#FAAE62] tracking-wide cursor-pointer text-white max-w-[130px]"
                                 >
                                   <option value="">Select Rider</option>
                                   {deliveryAgents.map(agent => (
@@ -2233,7 +2159,7 @@ export default function Admin() {
                                 </select>
                                 <button
                                   onClick={() => setSelectedInvoiceOrder(order)}
-                                  className="text-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-700 font-bold hover:bg-amber-500 hover:text-white px-2 py-1 rounded transition-all whitespace-nowrap"
+                                  className="text-[10px] bg-[#FAAE62]/10 border border-[#FAAE62]/40 text-[#FAAE62] font-bold hover:bg-[#FAAE62] hover:text-[#0D0016] px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap"
                                   title="Print Tax Invoice"
                                 >
                                   📄 Invoice
@@ -2254,10 +2180,13 @@ export default function Admin() {
         {/* --- TAB 3b: RETURNS & EXCHANGES MANAGEMENT --- */}
         {activeTab === 'returns' && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
-              <h2 className="font-serif text-3xl font-bold text-premium-black flex items-center gap-3">
-                <RefreshCw className="w-7 h-7 text-premium-accent" /> Returns &amp; Exchanges
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white flex items-center gap-3 mb-1">
+                  <RefreshCw className="w-7 h-7 text-[#FAAE62]" /> Returns &amp; Exchanges Portal
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Review customer return/exchange submissions and manage Parcel Uncle reverse courier pickups.</p>
+              </div>
               <button
                 onClick={() => {
                   setReturnsLoading(true);
@@ -2273,9 +2202,9 @@ export default function Admin() {
                     })
                     .catch(() => setReturnsLoading(false));
                 }}
-                className="flex items-center gap-2 text-xs bg-premium-black text-white px-4 py-2 rounded hover:bg-premium-accent hover:text-premium-black transition-colors font-semibold uppercase tracking-wider"
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 text-[#0D0016] font-extrabold text-xs tracking-wider uppercase px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-[#FAAE62]/20"
               >
-                <RotateCcw className="w-4 h-4" /> Refresh
+                <RefreshCw className="w-4 h-4" /> Refresh Table
               </button>
             </div>
 
@@ -2310,54 +2239,54 @@ export default function Admin() {
                   const isReturn = ret.return_type === 'exchange';
 
                   return (
-                    <div key={ret.id} className="bg-white border border-premium-border rounded-xl shadow-sm overflow-hidden">
+                    <div key={ret.id} className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl shadow-xl overflow-hidden backdrop-blur-xl admin-card-3d">
                       {/* Header Row */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-premium-border bg-premium-light">
+                      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-white/10 bg-[#0D0016]/80">
                         <div className="flex items-center gap-3">
                           {isReturn
-                            ? <ArrowLeftRight className="w-5 h-5 text-indigo-500" />
-                            : <PackageX className="w-5 h-5 text-red-500" />
+                            ? <ArrowLeftRight className="w-5 h-5 text-indigo-400" />
+                            : <PackageX className="w-5 h-5 text-red-400" />
                           }
                           <div>
-                            <span className="font-bold text-sm text-premium-black">
+                            <span className="font-bold text-sm text-white">
                               {isReturn ? 'Exchange' : 'Return'} Request #{ret.id}
                             </span>
-                            <span className="text-xs text-premium-gray ml-3">Order #{ret.order_id}</span>
+                            <span className="text-xs text-[#9B7EA8] ml-3 font-mono">Order #{ret.order_id}</span>
                           </div>
                         </div>
-                        <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${badgeClass}`}>
+                        <span className="text-xs font-bold px-3 py-1 rounded-full border border-[#FAAE62]/40 bg-[#FAAE62]/10 text-[#FAAE62]">
                           {ret.status}
                         </span>
                       </div>
 
                       {/* Body */}
-                      <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
                         <div>
-                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Customer</p>
-                          <p className="font-semibold text-premium-black">{ret.customer_name || '—'}</p>
-                          <p className="text-xs text-premium-gray">{ret.customer_email || ''}</p>
-                          <p className="text-xs text-premium-gray">{ret.customer_phone || ''}</p>
+                          <p className="text-[10px] text-[#FAAE62] uppercase tracking-wider font-bold mb-1">Customer Info</p>
+                          <p className="font-semibold text-white text-sm">{ret.customer_name || '—'}</p>
+                          <p className="text-[#9B7EA8] mt-0.5">{ret.customer_email || ''}</p>
+                          <p className="text-[#9B7EA8]">{ret.customer_phone || ''}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Return Reason</p>
-                          <p className="text-premium-black">{ret.reason}</p>
-                          {ret.comments && <p className="text-xs text-premium-gray mt-1 italic">{ret.comments}</p>}
+                          <p className="text-[10px] text-[#FAAE62] uppercase tracking-wider font-bold mb-1">Return Reason</p>
+                          <p className="text-white font-medium">{ret.reason}</p>
+                          {ret.comments && <p className="text-[#9B7EA8] mt-1 italic">"{ret.comments}"</p>}
                         </div>
                         <div>
-                          <p className="text-xs text-premium-gray uppercase tracking-wider font-semibold mb-1">Refund Amount</p>
-                          <p className="text-lg font-bold text-premium-accent">₹{parseFloat(ret.refund_amount || ret.total_amount || 0).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] text-[#FAAE62] uppercase tracking-wider font-bold mb-1">Refund Amount</p>
+                          <p className="text-xl font-bold text-[#FAAE62] font-mono">₹{parseFloat(ret.refund_amount || ret.total_amount || 0).toLocaleString('en-IN')}</p>
                           {ret.waybill_id && (
-                            <p className="text-xs text-blue-600 mt-1">Reverse AWB: <strong>{ret.waybill_id}</strong></p>
+                            <p className="text-xs text-sky-400 mt-1 font-mono">Reverse AWB: <strong>{ret.waybill_id}</strong></p>
                           )}
                         </div>
                       </div>
 
                       {/* Admin Action Row */}
-                      <div className="px-5 py-4 border-t border-premium-border bg-gray-50 flex flex-wrap items-center gap-3">
+                      <div className="px-6 py-4 border-t border-white/10 bg-[#0D0016]/50 flex flex-wrap items-center gap-3">
                         <select
                           value={returnStatusMap[ret.id] || ret.status}
                           onChange={e => setReturnStatusMap(prev => ({ ...prev, [ret.id]: e.target.value }))}
-                          className="text-xs border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-premium-accent"
+                          className="text-xs border border-[#FAAE62]/40 rounded-xl px-3 py-2 bg-[#1A0024] text-white focus:outline-none focus:border-[#FAAE62]"
                         >
                           {['Requested','Approved','Pickup Booked','Received','Inspected','Refunded','Exchanged','Rejected','Cancelled'].map(s => (
                             <option key={s} value={s}>{s}</option>
@@ -2368,7 +2297,7 @@ export default function Admin() {
                           placeholder="Admin notes (optional)"
                           value={returnNotesMap[ret.id] || ''}
                           onChange={e => setReturnNotesMap(prev => ({ ...prev, [ret.id]: e.target.value }))}
-                          className="flex-1 text-xs border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-premium-accent min-w-[180px]"
+                          className="flex-1 text-xs border border-white/15 rounded-xl px-3 py-2 bg-[#1A0024] text-white focus:outline-none focus:border-[#FAAE62] min-w-[180px]"
                         />
                         <button
                           disabled={updatingReturnId === ret.id}
@@ -2385,18 +2314,17 @@ export default function Admin() {
                                 setUpdatingReturnId(null);
                                 if (data.success) {
                                   setReturnUpdateMsg(`Return #${ret.id} updated to "${returnStatusMap[ret.id]}" successfully.`);
-                                  // Update local state
                                   setReturnsData(prev => prev.map(r => r.id === ret.id ? { ...r, status: returnStatusMap[ret.id], waybill_id: data.waybill_id || r.waybill_id } : r));
                                   setTimeout(() => setReturnUpdateMsg(''), 4000);
                                 }
                               })
                               .catch(() => setUpdatingReturnId(null));
                           }}
-                          className="flex items-center gap-2 text-xs bg-premium-black text-white px-4 py-2 rounded hover:bg-premium-accent hover:text-premium-black transition-colors font-semibold disabled:opacity-60"
+                          className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-extrabold px-5 py-2 rounded-xl hover:scale-105 transition-all shadow-md disabled:opacity-60"
                         >
                           {updatingReturnId === ret.id
                             ? <Loader2 className="w-3 h-3 animate-spin" />
-                            : <CheckCircle2 className="w-3 h-3" />
+                            : <CheckCircle2 className="w-3.5 h-3.5" />
                           }
                           Update Status
                         </button>
@@ -2412,10 +2340,13 @@ export default function Admin() {
         {/* --- TAB 4: CUSTOMERS DIRECTORY --- */}
         {activeTab === 'customers' && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
-              <h2 className="font-serif text-3xl font-bold text-premium-black">
-                Registered Customers
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                  Registered Customers
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Inspect customer profiles, loyalty tier points, order history, and reset credentials.</p>
+              </div>
               <button
                 onClick={() => {
                   fetch(`${API_BASE}/api/admin/export/customers`, {
@@ -2433,14 +2364,14 @@ export default function Admin() {
                     })
                     .catch(err => console.error(err));
                 }}
-                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-widest uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-[#FAAE62]/20"
               >
                 <Download className="w-4 h-4" /> Export to CSV
               </button>
             </div>
 
             {customersLoading ? (
-              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <div>
                 {/* Customer Search */}
@@ -2450,9 +2381,9 @@ export default function Admin() {
                     placeholder="Search customers (name, email, face shape)..."
                     value={customerSearch}
                     onChange={(e) => setCustomerSearch(e.target.value)}
-                    className="w-full sm:w-96 bg-white border border-premium-border rounded p-2.5 text-xs focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    className="w-full sm:w-96 bg-[#1A0024] border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FAAE62] font-medium"
                   />
-                  <span className="text-xs text-premium-gray font-semibold">
+                  <span className="text-xs text-[#9B7EA8] font-semibold">
                     {customers.filter(c =>
                       c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
                       c.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
@@ -2466,11 +2397,11 @@ export default function Admin() {
                   c.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
                   (c.face_shape || '').toLowerCase().includes(customerSearch.toLowerCase())
                 ).length === 0 ? (
-                  <p className="text-center py-10 bg-white border rounded text-premium-gray">No customers matching your search.</p>
+                  <p className="text-center py-10 bg-[#1A0024]/80 border border-[#FAAE62]/20 rounded-2xl text-[#9B7EA8]">No customers matching your search.</p>
                 ) : (
-                  <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
-                    <table className="min-w-full divide-y divide-premium-border text-left">
-                      <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                  <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+                    <table className="min-w-full divide-y divide-white/10 text-left">
+                      <thead className="bg-[#0D0016] text-[10px] uppercase tracking-wider text-[#FAAE62] font-bold">
                         <tr>
                           <th className="px-6 py-4">User ID</th>
                           <th className="px-6 py-4">Customer Name</th>
@@ -2481,39 +2412,39 @@ export default function Admin() {
                           <th className="px-6 py-4">Total Revenue Generated</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                      <tbody className="divide-y divide-white/10 text-xs font-medium text-white">
                         {customers.filter(c =>
                           c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
                           c.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
                           (c.phone || '').includes(customerSearch) ||
                           (c.face_shape || '').toLowerCase().includes(customerSearch.toLowerCase())
                         ).map(cust => (
-                          <tr key={cust.id} className="hover:bg-premium-light/50">
-                            <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{cust.id}</td>
+                          <tr key={cust.id} className="hover:bg-[#2A0440]/60 transition-colors">
+                            <td className="px-6 py-4 text-xs font-bold text-[#FAAE62]">#{cust.id}</td>
                             <td className="px-6 py-4">
                               <button 
                                 onClick={() => handleInspectCustomer(cust.id)}
-                                className="font-semibold text-premium-black hover:text-premium-accent hover:underline transition-colors text-left"
+                                className="font-bold text-white hover:text-[#FAAE62] hover:underline transition-colors text-left"
                               >
                                 {cust.name}
                               </button>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="font-mono text-xs">{cust.email}</div>
-                              {cust.phone && <div className="text-[10px] text-premium-gray font-normal mt-0.5">{cust.phone}</div>}
+                              <div className="font-mono text-xs text-white">{cust.email}</div>
+                              {cust.phone && <div className="text-[10px] text-[#9B7EA8] font-normal mt-0.5">{cust.phone}</div>}
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`text-[10px] uppercase font-bold tracking-wide ${cust.face_shape ? 'text-premium-golddark font-semibold' : 'text-gray-400'}`}>
+                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full border ${cust.face_shape ? 'bg-[#FAAE62]/10 border-[#FAAE62]/30 text-[#FAAE62]' : 'bg-white/5 border-white/10 text-gray-400'}`}>
                                 {cust.face_shape || 'No Scan'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-xs">
+                            <td className="px-6 py-4 text-xs text-[#9B7EA8]">
                               {new Date(cust.created_at).toLocaleDateString('en-IN', {
                                 year: 'numeric', month: 'short', day: 'numeric'
                               })}
                             </td>
-                            <td className="px-6 py-4 font-bold text-center sm:text-left">{cust.paid_orders_count}</td>
-                            <td className="px-6 py-4 font-bold text-premium-accent">₹{parseFloat(cust.total_spend || 0).toLocaleString('en-IN')}</td>
+                            <td className="px-6 py-4 font-bold text-center sm:text-left text-white">{cust.paid_orders_count}</td>
+                            <td className="px-6 py-4 font-bold text-[#FAAE62]">₹{parseFloat(cust.total_spend || 0).toLocaleString('en-IN')}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2528,88 +2459,90 @@ export default function Admin() {
         {/* --- TAB 5: STORE CUSTOMIZER (CMS) --- */}
         {activeTab === 'customizer' && (
           <div>
-            <h2 className="font-serif text-3xl font-bold text-premium-black mb-2 border-b border-premium-border pb-4">
-              Store Content Customizer
-            </h2>
-            <p className="text-xs text-premium-gray font-light mb-8">
-              Modify the homepage hero banners, main headings, subtitles, background slides, and product showcase titles in real time.
-            </p>
+            <div className="border-b border-[#FAAE62]/20 pb-4 mb-8">
+              <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                Store Content Customizer
+              </h2>
+              <p className="text-xs text-[#9B7EA8]">
+                Modify the homepage hero banners, main headings, subtitles, background slides, and product showcase titles in real time.
+              </p>
+            </div>
 
             {settingsLoading ? (
-              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
-              <form onSubmit={handleSettingsSubmit} className="bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm space-y-6 max-w-2xl">
+              <form onSubmit={handleSettingsSubmit} className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl space-y-6 max-w-2xl admin-card-3d">
                 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Homepage Hero Title</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#FAAE62] font-bold mb-2">Homepage Hero Title</label>
                   <textarea
                     required
                     rows="3"
                     value={heroTitle}
                     onChange={(e) => setHeroTitle(e.target.value)}
                     placeholder="Engineered for \n Style & Clarity"
-                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium leading-relaxed"
+                    className="w-full bg-[#0D0016] text-sm text-white border border-[#FAAE62]/40 rounded-xl p-3 focus:outline-none focus:border-[#FAAE62] font-medium leading-relaxed"
                   />
-                  <p className="text-[10px] text-gray-400 mt-1 font-light">Tip: Type a new line or \n to break the heading line on larger screens.</p>
+                  <p className="text-[10px] text-[#9B7EA8] mt-1 font-light">Tip: Type a new line or \n to break the heading line on larger screens.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Hero Description Subtitle</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#FAAE62] font-bold mb-2">Hero Description Subtitle</label>
                   <textarea
                     required
                     rows="4"
                     value={heroSubtitle}
                     onChange={(e) => setHeroSubtitle(e.target.value)}
                     placeholder="Crafted from premium materials..."
-                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium leading-relaxed"
+                    className="w-full bg-[#0D0016] text-sm text-white border border-[#FAAE62]/40 rounded-xl p-3 focus:outline-none focus:border-[#FAAE62] font-medium leading-relaxed"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Hero Background Image URL</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#FAAE62] font-bold mb-2">Hero Background Image URL</label>
                   <input
                     type="text"
                     required
                     value={heroImage}
                     onChange={(e) => setHeroImage(e.target.value)}
                     placeholder="https://images.unsplash.com/photo-..."
-                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    className="w-full bg-[#0D0016] text-sm text-white border border-[#FAAE62]/40 rounded-xl p-3 focus:outline-none focus:border-[#FAAE62] font-medium"
                   />
-                  <div className="mt-3 relative h-40 w-full bg-premium-light border rounded overflow-hidden">
+                  <div className="mt-3 relative h-40 w-full bg-[#0D0016] border border-white/10 rounded-xl overflow-hidden">
                     {heroImage && <img src={heroImage} alt="hero preview" className="w-full h-full object-cover" />}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Showcase Section Title</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#FAAE62] font-bold mb-2">Showcase Section Title</label>
                   <input
                     type="text"
                     required
                     value={trendingTitle}
                     onChange={(e) => setTrendingTitle(e.target.value)}
                     placeholder="Trending Frames"
-                    className="w-full bg-premium-light text-sm border border-premium-border rounded p-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
+                    className="w-full bg-[#0D0016] text-sm text-white border border-[#FAAE62]/40 rounded-xl p-3 focus:outline-none focus:border-[#FAAE62] font-medium"
                   />
                 </div>
 
                 {settingsError && (
-                  <div className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded border border-red-200">
+                  <div className="text-red-400 text-xs font-semibold p-3 bg-red-500/10 rounded-xl border border-red-500/30">
                     {settingsError}
                   </div>
                 )}
 
                 {settingsSuccess && (
-                  <div className="text-green-700 text-xs font-semibold p-3 bg-green-50 rounded border border-green-200 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  <div className="text-emerald-400 text-xs font-semibold p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/30 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     {settingsSuccess}
                   </div>
                 )}
 
-                <div className="pt-4 border-t border-premium-border">
+                <div className="pt-4 border-t border-white/10">
                   <button
                     type="submit"
                     disabled={settingsSaving}
-                    className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase py-4 px-10 rounded transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                    className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-widest uppercase py-4 px-10 rounded-xl transition-all shadow-lg shadow-[#FAAE62]/20 flex items-center gap-2 disabled:opacity-50"
                   >
                     {settingsSaving ? 'Saving Configurations...' : 'Save & Publish Changes'}
                   </button>
@@ -2623,10 +2556,13 @@ export default function Admin() {
         {/* --- TAB 6: ADMINS ROLES AND MANAGEMENT --- */}
         {activeTab === 'admins' && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-premium-border pb-4">
-              <h2 className="font-serif text-3xl font-bold text-premium-black">
-                Manage Admins
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1">
+                  Manage Admins
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Grant admin access rights, manage team roles, and revoke access keys.</p>
+              </div>
               <button
                 onClick={() => {
                   setAdminName('');
@@ -2636,19 +2572,19 @@ export default function Admin() {
                   setAdminSuccess('');
                   setShowAdminModal(true);
                 }}
-                className="bg-premium-black text-white hover:bg-premium-accent hover:text-premium-black font-semibold text-xs tracking-widest uppercase px-6 py-3.5 rounded transition-all flex items-center gap-1.5 shadow"
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-widest uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-1.5 shadow-lg shadow-[#FAAE62]/20"
               >
                 <Plus className="w-4 h-4" /> Create New Admin
               </button>
             </div>
 
             {adminsLoading ? (
-              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
+              <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <div>
-                <div className="bg-white border border-premium-border rounded overflow-x-auto shadow-sm">
-                  <table className="min-w-full divide-y divide-premium-border text-left">
-                    <thead className="bg-premium-light text-[10px] uppercase tracking-wider text-premium-gray font-bold">
+                <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+                  <table className="min-w-full divide-y divide-white/10 text-left">
+                    <thead className="bg-[#0D0016] text-[10px] uppercase tracking-wider text-[#FAAE62] font-bold">
                       <tr>
                         <th className="px-6 py-4">Admin ID</th>
                         <th className="px-6 py-4">Admin Name</th>
@@ -2657,7 +2593,7 @@ export default function Admin() {
                         <th className="px-6 py-4">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-premium-border text-sm font-medium text-premium-dark">
+                    <tbody className="divide-y divide-white/10 text-xs font-medium text-white">
                       {admins.map(adm => (
                         <tr key={adm.id} className="hover:bg-premium-light/50">
                           <td className="px-6 py-4 text-xs font-bold text-premium-accent">#{adm.id}</td>
