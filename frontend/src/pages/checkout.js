@@ -13,6 +13,9 @@ export default function Checkout() {
   const { cart, clearCart } = useCart();
   const { user, token } = useAuth();
 
+  // Success order state
+  const [orderSuccessId, setOrderSuccessId] = useState(null);
+
   // Redirect to account if not logged in, or cart if empty (unless order just completed)
   useEffect(() => {
     if (!token) {
@@ -37,9 +40,6 @@ export default function Checkout() {
   // Mock Payment Simulator states
   const [showMockModal, setShowMockModal] = useState(false);
   const [mockOrderDetails, setMockOrderDetails] = useState(null);
-  
-  // Success order state
-  const [orderSuccessId, setOrderSuccessId] = useState(null);
 
   // Prescription states
   const [includePrescription, setIncludePrescription] = useState(false);
