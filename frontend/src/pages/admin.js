@@ -1499,7 +1499,6 @@ export default function Admin() {
   }
 
   return (
-  return (
     <div className="bg-[#0D0016] text-white min-h-screen flex flex-col md:flex-row relative overflow-hidden">
       
       {/* Background ambient gradient orbs */}
