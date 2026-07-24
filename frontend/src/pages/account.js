@@ -385,7 +385,6 @@ export default function Account() {
             setOtpErrorShake(true);
             setTimeout(() => setOtpErrorShake(false), 600);
           });
-          });
       }
     }
   };
