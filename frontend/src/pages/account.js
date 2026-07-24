@@ -490,7 +490,7 @@ export default function Account() {
             {isLoginTab ? 'Welcome Back to Lekya Specs' : 'Create Premium Account'}
           </h2>
 
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
+          <form noValidate onSubmit={handleAuthSubmit} className="space-y-4">
             {isLoginTab ? (
               // --- SIGN IN FORM ---
               <>
@@ -500,10 +500,9 @@ export default function Account() {
                     <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
                     <input
                       type="text"
-                      required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. mail@example.com or 9876543210"
+                      placeholder="e.g. mail@example.com, 9876543210 or MALIK"
                       className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
                     />
                   </div>
@@ -515,7 +514,6 @@ export default function Account() {
                     <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
                     <input
                       type="password"
-                      required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
@@ -707,7 +705,6 @@ export default function Account() {
                   </div>
                   <input
                     type="text"
-                    required
                     value={captchaInput}
                     onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
                     placeholder="ENTER CODE"
