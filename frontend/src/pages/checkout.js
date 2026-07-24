@@ -13,14 +13,14 @@ export default function Checkout() {
   const { cart, clearCart } = useCart();
   const { user, token } = useAuth();
 
-  // Redirect to account if not logged in, or cart if empty
+  // Redirect to account if not logged in, or cart if empty (unless order just completed)
   useEffect(() => {
     if (!token) {
       router.push('/account?redirect=checkout');
-    } else if (cart.length === 0) {
+    } else if (cart.length === 0 && !orderSuccessId) {
       router.push('/cart');
     }
-  }, [token, cart]);
+  }, [token, cart, orderSuccessId]);
 
   // Form fields
   const [name, setName] = useState(user ? user.name : '');
