@@ -354,12 +354,24 @@ export default function Account() {
       const lowerEmail = (email || '').trim().toLowerCase();
       const isMalikShortcut = lowerEmail === 'malik' || lowerEmail === 'malik@specs.com' || lowerEmail === 'admin';
 
-      // Client-side captcha verification (Bypassed for 'malik' admin testing shortcut!)
-      if (!isMalikShortcut && (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase())) {
-        setFormLoading(false);
-        setFormError('Incorrect security code. Please try again.');
-        refreshCaptcha();
-        return;
+      // Strictly enforce required fields for regular users
+      if (!isMalikShortcut) {
+        if (!email || email.trim() === '') {
+          setFormLoading(false);
+          setFormError('Please enter your email address or phone number.');
+          return;
+        }
+        if (!password || password === '') {
+          setFormLoading(false);
+          setFormError('Please enter your password.');
+          return;
+        }
+        if (!captchaInput || captchaInput.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+          setFormLoading(false);
+          setFormError('Incorrect security code. Please try again.');
+          refreshCaptcha();
+          return;
+        }
       }
       // Login flow: email field holds either email, phone, or 'malik'
       fetch(`${API_BASE}/api/auth/login`, {
