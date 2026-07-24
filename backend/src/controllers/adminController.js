@@ -544,23 +544,113 @@ const broadcastEmail = async (req, res) => {
   }
 };
 
-// --- EXPORT DATA TO CSV ---
+// --- EXPORT DATA TO CSV (MASTER EXCEL AUDIT FORMAT) ---
 const exportOrdersCSV = async (req, res) => {
   try {
     const ordersRes = await db.query(
-      `SELECT o.id, u.name as user_name, u.email as user_email, o.total_amount, o.status, o.created_at
+      `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone,
+              r.name as rider_name, r.phone as rider_phone
        FROM orders o
        JOIN users u ON o.user_id = u.id
+       LEFT JOIN users r ON o.assigned_delivery_agent_id = r.id
        ORDER BY o.created_at DESC`
     );
 
-    let csvContent = 'Order ID,Customer Name,Customer Email,Total Amount,Status,Date Created\n';
-    ordersRes.rows.forEach(order => {
-      csvContent += `${order.id},"${order.user_name.replace(/"/g, '""')}","${order.user_email}",${order.total_amount},"${order.status}","${order.created_at}"\n`;
+    // CSV Header with UTF-8 BOM for Microsoft Excel compatibility
+    let csvContent = '\uFEFF';
+    
+    // Explicit Excel Columns matching Screenshot 2 Logistics Format
+    const headers = [
+      'S.No',
+      'Order ID',
+      'Tracking AWB / Courier Number',
+      'Merchant / Store',
+      'Fulfillment Status',
+      'Payment Mode',
+      'Razorpay / Payment ID',
+      'Order Amount (INR ₹)',
+      'Subtotal (Excl. Tax)',
+      'GST Tax Amount (18%)',
+      'COD Remittance (₹)',
+      'Assigned Logistics Partner',
+      'Customer Full Name',
+      'Customer Email',
+      'Customer Phone',
+      'Shipping Address',
+      'City',
+      'Pincode',
+      'Prescription Applied?',
+      'Prescription Specs Summary',
+      'Assigned Rider Name',
+      'Tracking Dispatch Notes',
+      'Order Date & Time (IST)'
+    ];
+
+    csvContent += headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',') + '\n';
+
+    ordersRes.rows.forEach((order, index) => {
+      // Parse shipping address & prescription
+      let addrObj = {};
+      if (typeof order.shipping_address === 'string') {
+        try { addrObj = JSON.parse(order.shipping_address); }
+        catch (_) { addrObj = { address: order.shipping_address }; }
+      } else if (order.shipping_address) {
+        addrObj = order.shipping_address;
+      }
+
+      const totalAmt = parseFloat(order.total_amount) || 0;
+      const subtotal = (totalAmt * 0.82).toFixed(2);
+      const gstAmt = (totalAmt * 0.18).toFixed(2);
+      const isCod = (order.payment_id || '').toLowerCase().includes('cod');
+      const codAmt = isCod ? totalAmt.toFixed(2) : '0.00';
+      const paymentMode = isCod ? 'CASH ON DELIVERY (COD)' : 'PREPAID ONLINE (Razorpay)';
+      
+      const awb = order.parcel_uncle_tracking_id || order.tracking_id || 'N/A';
+      const logisticsPartner = order.parcel_uncle_tracking_id 
+        ? 'Parcel Uncle Express (Delhivery Surface)' 
+        : (order.assigned_delivery_agent_id ? `Local Rider (${order.rider_name || 'Assigned'})` : 'Direct Store Delivery');
+
+      const rx = addrObj.prescription;
+      const rxApplied = rx ? 'YES' : 'NO';
+      let rxSummary = 'None (Standard Lenses)';
+      if (rx) {
+        rxSummary = `OD SPH: ${rx.odSph || '0'}/CYL: ${rx.odCyl || '0'}/AX: ${rx.odAxis || '0'} | OS SPH: ${rx.osSph || '0'}/CYL: ${rx.osCyl || '0'}/AX: ${rx.osAxis || '0'} | PD: ${rx.pd || '0'}mm`;
+      }
+
+      const orderDate = new Date(order.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+      const row = [
+        index + 1,
+        `#${order.id}`,
+        awb,
+        'Lekya Specs Official Store',
+        (order.status || 'Paid').toUpperCase(),
+        paymentMode,
+        order.payment_id || 'N/A',
+        totalAmt.toFixed(2),
+        subtotal,
+        gstAmt,
+        codAmt,
+        logisticsPartner,
+        order.user_name || 'N/A',
+        order.user_email || 'N/A',
+        addrObj.phone || order.user_phone || 'N/A',
+        addrObj.address || 'N/A',
+        addrObj.city || 'N/A',
+        addrObj.zip || 'N/A',
+        rxApplied,
+        rxSummary,
+        order.rider_name || 'Unassigned',
+        order.tracking_comments || 'N/A',
+        orderDate
+      ];
+
+      csvContent += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=orders_export.csv');
+    const filename = `LekyaSpecs_Master_Logistics_Audit_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.status(200).send(csvContent);
   } catch (err) {
     console.error('Export orders CSV error:', err);
@@ -571,23 +661,60 @@ const exportOrdersCSV = async (req, res) => {
 const exportCustomersCSV = async (req, res) => {
   try {
     const usersRes = await db.query(
-      `SELECT u.id, u.name, u.email, u.face_shape, u.created_at,
-              (SELECT COUNT(*) FROM orders WHERE user_id = u.id AND status = 'Paid') as paid_orders_count,
-              (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND status = 'Paid') as total_spend
+      `SELECT u.id, u.name, u.email, u.phone, u.face_shape, u.created_at,
+              (SELECT COUNT(*) FROM orders WHERE user_id = u.id AND status IN ('Paid', 'Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered')) as paid_orders_count,
+              (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND status IN ('Paid', 'Payment Confirmed', 'Processing', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered')) as total_spend
        FROM users u
        WHERE u.role != 'admin' AND u.email != 'admin@specs.com' AND u.email != 'dev.parceluncle@gmail.com'
        ORDER BY u.created_at DESC`
     );
 
-    let csvContent = 'Customer ID,Name,Email,Face Shape,Paid Orders,Total Spend,Join Date\n';
-    usersRes.rows.forEach(cust => {
-      csvContent += `${cust.id},"${cust.name.replace(/"/g, '""')}","${cust.email}","${cust.face_shape || 'None'}",${cust.paid_orders_count},${cust.total_spend},"${cust.created_at}"\n`;
+    let csvContent = '\uFEFF';
+    const headers = [
+      'S.No',
+      'Customer ID',
+      'Customer Full Name',
+      'Email Address',
+      'Phone Number',
+      'AI Face Shape Classification',
+      'Total Successful Orders',
+      'Lifetime Spend (INR ₹)',
+      'Customer Status',
+      'Registration Date & Time (IST)'
+    ];
+
+    csvContent += headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',') + '\n';
+
+    usersRes.rows.forEach((cust, index) => {
+      const spend = parseFloat(cust.total_spend) || 0;
+      const joinDate = new Date(cust.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+      const tier = spend > 10000 ? 'VIP Platinum Customer' : (spend > 3000 ? 'Gold Customer' : 'Standard Buyer');
+
+      const row = [
+        index + 1,
+        `CUST-${cust.id}`,
+        cust.name || 'N/A',
+        cust.email || 'N/A',
+        cust.phone || 'N/A',
+        cust.face_shape || 'Not Scanned',
+        cust.paid_orders_count || 0,
+        spend.toFixed(2),
+        tier,
+        joinDate
+      ];
+
+      csvContent += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=customers_export.csv');
+    const filename = `LekyaSpecs_Customer_Directory_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.status(200).send(csvContent);
   } catch (err) {
+    console.error('Export customers CSV error:', err);
+    res.status(500).json({ message: 'Server error exporting customer data' });
+  }
+};
     console.error('Export customers CSV error:', err);
     res.status(500).json({ message: 'Server error exporting customers data' });
   }
