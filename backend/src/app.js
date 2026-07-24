@@ -100,7 +100,7 @@ app.get('/api/auth/captcha', (req, res) => {
 
 // 2. Authentication API
 app.post('/api/auth/register', authController.register);
-app.post('/api/auth/register/initiate', strictLimiter, validateHoneypot, authController.registerInitiate);
+app.post('/api/auth/register/initiate', authController.registerInitiate);
 app.post('/api/auth/register/verify', authController.registerVerify);
 app.post('/api/auth/login', authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);

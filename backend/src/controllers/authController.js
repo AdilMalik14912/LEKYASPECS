@@ -15,13 +15,17 @@ const generateToken = (user) => {
 // Register Step 1: Initiate & Send OTP
 const registerInitiate = async (req, res) => {
   console.log('[Auth API] Initiate registration request received:', req.body);
-  const { name, email, phone, password } = req.body;
+  let { name, email, phone, password } = req.body;
 
-  if (!name || !password) {
-    return res.status(400).json({ message: 'Name and Password are required' });
+  if (!password || password.trim() === '') {
+    return res.status(400).json({ message: 'Password is required for registration.' });
   }
   if (!email && !phone) {
-    return res.status(400).json({ message: 'Either Email or Phone is required' });
+    return res.status(400).json({ message: 'Either Email Address or Phone Number is required.' });
+  }
+
+  if (!name || name.trim() === '') {
+    name = email ? email.split('@')[0] : (phone ? `Customer ${phone.slice(-4)}` : 'Valued Customer');
   }
 
   const targetEmail = email ? email.toLowerCase().trim() : `phone_${phone.trim()}@specs.com`;
