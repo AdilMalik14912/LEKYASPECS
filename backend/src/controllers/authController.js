@@ -230,51 +230,17 @@ const register = async (req, res) => {
   }
 };
 
-// Login User supporting Email, Phone, or Root Admin Shortcut ('malik')
+// Login User supporting Email or Phone
 const login = async (req, res) => {
   const { email, password } = req.body; // email field holds identifier (email or phone)
 
-  if (!email) {
-    return res.status(400).json({ message: 'Email or phone identifier is required' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
   }
 
   const identifier = email.trim();
-  const lowerIdentifier = identifier.toLowerCase();
 
   try {
-    // 👑 ROOT ADMIN 1-SECOND TESTING SHORTCUT: 'malik' or 'malik@specs.com'
-    if (lowerIdentifier === 'malik' || lowerIdentifier === 'malik@specs.com' || lowerIdentifier === 'admin') {
-      let adminRes = await db.query("SELECT * FROM users WHERE role = 'admin' OR email = 'admin@specs.com' LIMIT 1");
-      let adminUser = adminRes.rows[0];
-      if (!adminUser) {
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash('admin123', salt);
-        await db.query(
-          "INSERT INTO users (name, email, password_hash, role) VALUES ('Adil Malik (Root Admin)', 'admin@specs.com', ?, 'admin')",
-          [passwordHash]
-        );
-        const newAdminRes = await db.query("SELECT * FROM users WHERE email = 'admin@specs.com'");
-        adminUser = newAdminRes.rows[0];
-      }
-      const token = generateToken(adminUser);
-      return res.json({
-        token,
-        user: {
-          id: adminUser.id,
-          name: adminUser.name || 'Adil Malik (Root Admin)',
-          email: adminUser.email || 'admin@specs.com',
-          phone: adminUser.phone || '+91 98765 43210',
-          role: 'admin',
-          loyalty_points: 9999,
-          createdAt: adminUser.created_at || new Date().toISOString()
-        }
-      });
-    }
-
-    if (!password) {
-      return res.status(400).json({ message: 'Password is required' });
-    }
-
     let result;
     const isPhone = /^[+\d\s()-]+$/.test(identifier) && identifier.length >= 7;
     
@@ -285,7 +251,7 @@ const login = async (req, res) => {
     }
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
     const user = result.rows[0];
@@ -293,7 +259,7 @@ const login = async (req, res) => {
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
     const token = generateToken(user);
@@ -315,7 +281,7 @@ const login = async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error during login: ' + err.message });
+    res.status(500).json({ message: 'Server error during login. Please try again.' });
   }
 };
 

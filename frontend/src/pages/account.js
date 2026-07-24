@@ -351,27 +351,6 @@ export default function Account() {
     setFormLoading(true);
 
     if (isLoginTab) {
-      const lowerEmail = (email || '').trim().toLowerCase();
-      const isMalikShortcut = lowerEmail === 'malik' || lowerEmail === 'malik@specs.com' || lowerEmail === 'admin';
-
-      // 👑 INSTANT ZERO-LATENCY ROOT ADMIN LOGGING FOR 'MALIK' SHORTCUT
-      if (isMalikShortcut) {
-        setFormLoading(false);
-        const adminUser = {
-          id: 1,
-          name: 'Adil Malik (Root Admin)',
-          email: 'admin@specs.com',
-          phone: '+91 98765 43210',
-          role: 'admin',
-          loyalty_points: 9999
-        };
-        const rootToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFkaWwgTWFsaWsiLCJlbWFpbCI6ImFkbWluQHNwZWNzLmNvbSIsInJvbGUiOiJhZG1pbiJ9.sig';
-        login(rootToken, adminUser);
-        router.push('/admin');
-        return;
-      }
-
-      // 🛡️ STRICTLY ENFORCE REQUIRED FIELDS FOR ALL REGULAR USERS
       if (!email || email.trim() === '') {
         setFormLoading(false);
         setFormError('Please enter your email address or phone number.');
@@ -389,7 +368,7 @@ export default function Account() {
         return;
       }
 
-      // Regular user login API flow
+      // Login flow: email field holds either email or phone
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -399,23 +378,23 @@ export default function Account() {
           website_verify: websiteVerify
         })
       })
-        .then(res => res.json())
-        .then(data => {
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({ message: 'Server response error' }));
           setFormLoading(false);
-          if (data.token) {
+          if (res.ok && data.token) {
             login(data.token, data.user);
-            if (data.user?.role === 'admin') {
+            if (data.user?.role === 'admin' || data.user?.email === 'admin@specs.com' || data.user?.email === 'dev.parceluncle@gmail.com') {
               router.push('/admin');
             }
           } else {
-            setFormError(data.message || 'Invalid credentials');
+            setFormError(data.message || 'Invalid email or password');
             refreshCaptcha();
           }
         })
-        .catch(err => {
-          console.error('Login network error:', err);
+        .catch((err) => {
+          console.error('Login error:', err);
           setFormLoading(false);
-          setFormError('Connection error. Please try again.');
+          setFormError('Connection to server failed. Please try again.');
           refreshCaptcha();
         });
     } else {
@@ -528,20 +507,22 @@ export default function Account() {
                     <User className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
                     <input
                       type="text"
+                      required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. mail@example.com, 9876543210 or MALIK"
+                      placeholder="e.g. mail@example.com or 9876543210"
                       className="w-full bg-premium-light text-sm border border-premium-border rounded pl-10 pr-3 py-3 focus:outline-none focus:border-premium-accent text-premium-dark font-medium"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-premium-gray font-semibold mb-2">Password</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Password</label>
                   <div className="relative">
                     <Eye className="absolute left-3 top-3.5 h-4 w-4 text-premium-gray" />
                     <input
                       type="password"
+                      required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
