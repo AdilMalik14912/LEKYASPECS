@@ -627,9 +627,16 @@ export default function Admin() {
   const [settingsSuccess, setSettingsSuccess] = useState('');
   const [settingsError, setSettingsError] = useState('');
 
-  // Order Filtering State
+  // Order Filtering & Inspection Modal State
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
+  const [orderCourierFilter, setOrderCourierFilter] = useState('ALL'); // 'ALL', 'PARCEL_UNCLE', 'LOCAL_RIDER', 'UNASSIGNED'
+  const [orderPrescriptionFilter, setOrderPrescriptionFilter] = useState('ALL'); // 'ALL', 'WITH_RX', 'NO_RX'
+  const [orderSortBy, setOrderSortBy] = useState('NEWEST'); // 'NEWEST', 'OLDEST', 'AMOUNT_HIGH', 'AMOUNT_LOW'
+
+  // Master Order Inspection Modal State
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
 
   // Customer Filtering State
   const [customerSearch, setCustomerSearch] = useState('');
@@ -2024,236 +2031,265 @@ export default function Admin() {
             {ordersLoading ? (
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
-              <div>
-                {/* Search & Status Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
-                  <input
-                    type="text"
-                    placeholder="Search orders (ID, Name, Email)..."
-                    value={orderSearch}
-                    onChange={(e) => setOrderSearch(e.target.value)}
-                    className="w-full sm:w-80 bg-[#1A0024] border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FAAE62] font-medium"
-                  />
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                    <label className="text-xs uppercase tracking-wider text-[#FAAE62] font-bold">Filter Status:</label>
-                    <select
-                      value={orderStatusFilter}
-                      onChange={(e) => setOrderStatusFilter(e.target.value)}
-                      className="bg-[#1A0024] text-xs border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#FAAE62] font-bold uppercase tracking-wider text-white"
-                    >
-                      <option value="ALL">All Statuses</option>
-                      <option value="Paid">Paid</option>
-                      <option value="Payment Confirmed">Payment Confirmed</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Packed">Packed</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Out for Delivery">Out for Delivery</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Refunded">Refunded</option>
-                    </select>
+              <div className="space-y-6">
+                
+                {/* --- ADVANCED MULTI-FILTER BAR --- */}
+                <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-xl">
+                  
+                  {/* Top Bar: Search + Quick Stats */}
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                      <input
+                        type="text"
+                        placeholder="Search orders (ID, Tracking AWB, Name, Phone)..."
+                        value={orderSearch}
+                        onChange={(e) => setOrderSearch(e.target.value)}
+                        className="w-full bg-[#0D0016] border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 pl-10 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-[#FAAE62] font-medium"
+                      />
+                      <HelpCircle className="w-4 h-4 text-[#FAAE62] absolute left-3 top-3 pointer-events-none" />
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-end text-xs font-mono">
+                      <div className="bg-[#0D0016] px-3 py-1.5 rounded-xl border border-white/10 text-gray-300">
+                        Total Orders: <span className="text-[#FAAE62] font-bold">{orders.length}</span>
+                      </div>
+                      <div className="bg-[#0D0016] px-3 py-1.5 rounded-xl border border-orange-500/30 text-orange-400">
+                        Parcel Uncle: <span className="font-bold">{orders.filter(o => o.parcel_uncle_tracking_id).length}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Filter Pills & Select Options Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-white/10">
+                    
+                    {/* Filter 1: Fulfillment Status */}
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-[#FAAE62] block mb-1">Status Filter</label>
+                      <select
+                        value={orderStatusFilter}
+                        onChange={(e) => setOrderStatusFilter(e.target.value)}
+                        className="w-full bg-[#0D0016] text-xs font-semibold border border-[#FAAE62]/40 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#FAAE62]"
+                      >
+                        <option value="ALL">All Statuses</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Payment Confirmed">Payment Confirmed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Packed">Packed</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Refunded">Refunded</option>
+                      </select>
+                    </div>
+
+                    {/* Filter 2: Courier Partner */}
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Courier Partner</label>
+                      <select
+                        value={orderCourierFilter}
+                        onChange={(e) => setOrderCourierFilter(e.target.value)}
+                        className="w-full bg-[#0D0016] text-xs font-semibold border border-amber-500/40 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="ALL">All Logistics Partners</option>
+                        <option value="PARCEL_UNCLE">Parcel Uncle Express 📦</option>
+                        <option value="LOCAL_RIDER">Local Delivery Rider 🏍️</option>
+                        <option value="UNASSIGNED">Unassigned Orders ⏳</option>
+                      </select>
+                    </div>
+
+                    {/* Filter 3: Prescription Filter */}
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-purple-400 block mb-1">Lens Prescription</label>
+                      <select
+                        value={orderPrescriptionFilter}
+                        onChange={(e) => setOrderPrescriptionFilter(e.target.value)}
+                        className="w-full bg-[#0D0016] text-xs font-semibold border border-purple-500/40 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"
+                      >
+                        <option value="ALL">All Orders</option>
+                        <option value="WITH_RX">With Medical Prescription 👓</option>
+                        <option value="NO_RX">Standard Zero Power</option>
+                      </select>
+                    </div>
+
+                    {/* Filter 4: Sorting Order */}
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Sort By</label>
+                      <select
+                        value={orderSortBy}
+                        onChange={(e) => setOrderSortBy(e.target.value)}
+                        className="w-full bg-[#0D0016] text-xs font-semibold border border-sky-500/40 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sky-400"
+                      >
+                        <option value="NEWEST">Date: Newest First</option>
+                        <option value="OLDEST">Date: Oldest First</option>
+                        <option value="AMOUNT_HIGH">Amount: High to Low</option>
+                        <option value="AMOUNT_LOW">Amount: Low to High</option>
+                      </select>
+                    </div>
+
                   </div>
                 </div>
 
+                {/* --- ULTRA-CLEAN STREAMLINED ORDERS TABLE --- */}
                 {orders.filter(order => {
-                  const matchesSearch = 
-                    order.user_name.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                    order.user_email.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                    order.id.toString().includes(orderSearch);
-                    
-                  const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
+                  const phone = order.shipping_address?.phone || '';
+                  const awb = order.parcel_uncle_tracking_id || order.tracking_id || '';
+                  const searchLower = orderSearch.toLowerCase();
                   
-                  return matchesSearch && matchesStatus;
+                  const matchesSearch = 
+                    order.user_name.toLowerCase().includes(searchLower) ||
+                    order.user_email.toLowerCase().includes(searchLower) ||
+                    phone.toLowerCase().includes(searchLower) ||
+                    awb.toLowerCase().includes(searchLower) ||
+                    order.id.toString().includes(searchLower);
+
+                  const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
+
+                  const matchesCourier = 
+                    orderCourierFilter === 'ALL' ? true :
+                    orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
+                    orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
+                    orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
+
+                  const matchesPrescription = 
+                    orderPrescriptionFilter === 'ALL' ? true :
+                    orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
+                    orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
+
+                  return matchesSearch && matchesStatus && matchesCourier && matchesPrescription;
                 }).length === 0 ? (
-                  <p className="text-center py-10 bg-[#1A0024]/80 border border-[#FAAE62]/20 rounded-2xl text-[#9B7EA8]">No customer orders matching the filter.</p>
+                  <div className="text-center py-12 bg-[#1A0024]/80 border border-[#FAAE62]/20 rounded-2xl text-[#9B7EA8]">
+                    <AlertTriangle className="w-8 h-8 text-[#FAAE62] mx-auto mb-2 opacity-60" />
+                    <p className="font-semibold text-sm">No customer orders found matching selected filters.</p>
+                  </div>
                 ) : (
                   <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
                     <table className="min-w-full divide-y divide-white/10 text-left">
                       <thead className="bg-[#0D0016] text-[10px] uppercase tracking-wider text-[#FAAE62] font-bold">
                         <tr className="border-b border-white/10">
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Order ID</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Customer</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Payment ID</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Shipping Info</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Tracking Info</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Date</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Total</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Fulfillment Status</th>
-                          <th className="px-4 py-3 text-[10px] uppercase font-bold text-[#FAAE62]">Delivery Rider</th>
+                          <th className="px-5 py-3.5">Order &amp; Tracking ID</th>
+                          <th className="px-5 py-3.5">Customer &amp; Contact</th>
+                          <th className="px-5 py-3.5">Assigned Logistics</th>
+                          <th className="px-5 py-3.5">Fulfillment Status</th>
+                          <th className="px-5 py-3.5">Total Amount</th>
+                          <th className="px-5 py-3.5">Date</th>
+                          <th className="px-5 py-3.5 text-right">Master Inspection</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/10 text-xs font-medium text-white">
                         {orders.filter(order => {
-                          const matchesSearch = 
-                            order.user_name.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                            order.user_email.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                            order.id.toString().includes(orderSearch);
-                            
-                          const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
+                          const phone = order.shipping_address?.phone || '';
+                          const awb = order.parcel_uncle_tracking_id || order.tracking_id || '';
+                          const searchLower = orderSearch.toLowerCase();
                           
-                          return matchesSearch && matchesStatus;
-                        }).map(order => (
-                        <tr key={order.id} className="hover:bg-[#2A0440]/60 transition-colors">
-                            <td className="px-4 py-3 text-xs">
-                              <span className="font-bold text-[#FAAE62] block">#{order.id}</span>
-                              {order.tracking_id && (
-                                <span className="font-mono text-[#9B7EA8] block text-[9px] mt-0.5 tracking-wider font-bold">
-                                  {order.tracking_id}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="max-w-[150px]">
-                                <span className="font-bold text-white block text-[11px] truncate">{order.user_name}</span>
-                                <span className="text-[10px] text-[#9B7EA8] block mt-0.5 truncate">{order.user_email}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-[11px] font-mono text-gray-300">{order.payment_id || 'N/A'}</td>
-                            <td className="px-4 py-3 text-xs">
-                              <div className="max-w-[210px] leading-snug">
-                                <span className="font-semibold text-white block text-[11px] truncate" title={typeof order.shipping_address === 'object' ? `${order.shipping_address.address || ''}, ${order.shipping_address.city || ''}` : order.shipping_address}>
-                                  {typeof order.shipping_address === 'object' ? `${order.shipping_address.address || ''}, ${order.shipping_address.city || ''}` : order.shipping_address}
-                                </span>
-                                {typeof order.shipping_address === 'object' && (
-                                  <span className="text-[#9B7EA8] block text-[10px] font-mono mt-0.5 truncate">
-                                    PIN {order.shipping_address.zip} | 📞 {order.shipping_address.phone}
-                                  </span>
-                                )}
-                                {order.shipping_address?.prescription && (
-                                  <div className="mt-1.5 bg-[#FAAE62]/10 border border-[#FAAE62]/30 text-white p-1.5 rounded-lg text-[9px] space-y-0.5 font-mono max-w-[210px]">
-                                    <p className="font-bold uppercase tracking-wider text-[8px] text-[#FAAE62]">👓 Prescription Applied</p>
-                                    <div className="border-t border-[#FAAE62]/20 pt-0.5 flex justify-between">
-                                      <span>OD: {order.shipping_address.prescription.odSph} / {order.shipping_address.prescription.odCyl}</span>
-                                      <span>AX {order.shipping_address.prescription.odAxis}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span>OS: {order.shipping_address.prescription.osSph} / {order.shipping_address.prescription.osCyl}</span>
-                                      <span>AX {order.shipping_address.prescription.osAxis}</span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-xs">
-                              {order.tracking_comments ? (
-                                <div className="max-w-[180px]">
-                                  <p className="font-semibold text-white text-[11px] truncate" title={order.tracking_comments}>{order.tracking_comments}</p>
-                                  <button
-                                    onClick={() => {
-                                      setSelectedTrackingOrder(order);
-                                      setTrackingCommentsText(order.tracking_comments || '');
-                                      setShowTrackingModal(true);
-                                    }}
-                                    className="text-[9px] text-[#FAAE62] hover:underline font-bold mt-0.5"
-                                  >
-                                    Update details
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => {
-                                    setSelectedTrackingOrder(order);
-                                    setTrackingCommentsText('');
-                                    setShowTrackingModal(true);
-                                  }}
-                                  className="text-[9px] bg-white/5 border border-white/10 text-[#FAAE62] font-bold hover:bg-[#FAAE62]/20 px-2 py-1 rounded-lg transition-all"
-                                >
-                                  + Add Dispatch
-                                </button>
-                              )}
+                          const matchesSearch = 
+                            order.user_name.toLowerCase().includes(searchLower) ||
+                            order.user_email.toLowerCase().includes(searchLower) ||
+                            phone.toLowerCase().includes(searchLower) ||
+                            awb.toLowerCase().includes(searchLower) ||
+                            order.id.toString().includes(searchLower);
 
-                              {/* Parcel Uncle Express Logistics Courier Status & 1-Click Dispatch */}
-                              <div className="mt-1.5 pt-1.5 border-t border-white/10">
-                                {order.parcel_uncle_tracking_id ? (
-                                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-1.5 text-[9px]">
-                                    <div className="flex items-center justify-between gap-1">
-                                      <span className="font-bold text-orange-400 block text-[9px]">📦 Parcel Uncle</span>
-                                      <div className="flex gap-1">
-                                        <button
-                                          onClick={() => handleSyncParcelUncle(order.id)}
-                                          disabled={syncingOrder === order.id}
-                                          className="text-[8px] bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-orange-500/40 transition-all uppercase tracking-wider"
-                                          title="Sync live status from Parcel Uncle API"
-                                        >
-                                          {syncingOrder === order.id ? '...' : '🔄 SYNC'}
-                                        </button>
-                                        <a
-                                          href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.parcel_uncle_tracking_id}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-[8px] bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-bold px-1.5 py-0.5 rounded border border-emerald-500/40 transition-all uppercase tracking-wider flex items-center gap-0.5"
-                                          title="Download/Print official 4x6 inch PDF Shipping Label"
-                                        >
-                                          🏷️ LABEL PDF
-                                        </a>
-                                      </div>
-                                    </div>
-                                    <span className="font-mono text-white block mt-0.5 text-[9px]">{order.parcel_uncle_tracking_id}</span>
-                                    <span className="text-gray-400 block text-[8px] mt-0.5">
-                                      Status: <strong className="text-emerald-400 font-bold uppercase">{order.parcel_uncle_status || 'MANIFESTED'}</strong>
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleDispatchParcelUncle(order.id)}
-                                    disabled={dispatchingOrder === order.id}
-                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-[9px] uppercase tracking-wider py-1 px-2 rounded-lg shadow transition-all flex items-center justify-center gap-1 disabled:opacity-50"
-                                  >
-                                    {dispatchingOrder === order.id ? 'Pushing...' : '🚚 Ship via Parcel Uncle'}
-                                  </button>
-                                )}
-                              </div>
+                          const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
+
+                          const matchesCourier = 
+                            orderCourierFilter === 'ALL' ? true :
+                            orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
+                            orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
+                            orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
+
+                          const matchesPrescription = 
+                            orderPrescriptionFilter === 'ALL' ? true :
+                            orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
+                            orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
+
+                          return matchesSearch && matchesStatus && matchesCourier && matchesPrescription;
+                        }).sort((a, b) => {
+                          if (orderSortBy === 'NEWEST') return new Date(b.created_at) - new Date(a.created_at);
+                          if (orderSortBy === 'OLDEST') return new Date(a.created_at) - new Date(b.created_at);
+                          if (orderSortBy === 'AMOUNT_HIGH') return parseFloat(b.total_amount) - parseFloat(a.total_amount);
+                          if (orderSortBy === 'AMOUNT_LOW') return parseFloat(a.total_amount) - parseFloat(b.total_amount);
+                          return 0;
+                        }).map(order => (
+                          <tr key={order.id} className="hover:bg-[#2A0440]/60 transition-colors">
+                            
+                            {/* Column 1: Order & Tracking ID */}
+                            <td className="px-5 py-3.5">
+                              <span className="font-bold text-[#FAAE62] block text-xs">#{order.id}</span>
+                              <button
+                                onClick={() => {
+                                  setSelectedOrderDetails(order);
+                                  setShowOrderDetailsModal(true);
+                                }}
+                                className="mt-1 inline-flex items-center gap-1 bg-[#FAAE62]/10 hover:bg-[#FAAE62]/25 border border-[#FAAE62]/40 text-[#FAAE62] font-mono text-[10px] font-bold px-2 py-1 rounded-md transition-all group"
+                                title="Click to view full order details & status inspector"
+                              >
+                                <span>{order.parcel_uncle_tracking_id || order.tracking_id || 'Inspect AWB 🔍'}</span>
+                                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                              </button>
                             </td>
-                            <td className="px-4 py-3 text-xs text-[#9B7EA8] whitespace-nowrap">
+
+                            {/* Column 2: Customer Name & Phone */}
+                            <td className="px-5 py-3.5">
+                              <span className="font-bold text-white block text-xs truncate max-w-[160px]">{order.user_name}</span>
+                              <span className="text-[10px] text-[#9B7EA8] block font-mono mt-0.5 truncate max-w-[160px]">
+                                📞 {order.shipping_address?.phone || order.user_email}
+                              </span>
+                            </td>
+
+                            {/* Column 3: Assigned Logistics Courier */}
+                            <td className="px-5 py-3.5">
+                              {order.parcel_uncle_tracking_id ? (
+                                <span className="inline-flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 font-semibold text-[10px] px-2.5 py-1 rounded-lg">
+                                  📦 Parcel Uncle Express
+                                </span>
+                              ) : order.assigned_delivery_agent_id ? (
+                                <span className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold text-[10px] px-2.5 py-1 rounded-lg">
+                                  🏍️ Local Rider ({deliveryAgents.find(a => a.id === order.assigned_delivery_agent_id)?.name || 'Assigned'})
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-white/5 border border-white/10 text-gray-400 font-medium text-[10px] px-2.5 py-1 rounded-lg">
+                                  Unassigned
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Column 4: Fulfillment Status */}
+                            <td className="px-5 py-3.5">
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+                                order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-400' :
+                                order.status === 'Processing' || order.status === 'Packed' ? 'bg-amber-500/15 border border-amber-500/40 text-amber-400' :
+                                order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-sky-500/15 border border-sky-500/40 text-sky-400' : 'bg-white/10 border border-white/20 text-gray-300'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+
+                            {/* Column 5: Total Amount */}
+                            <td className="px-5 py-3.5 font-bold text-[#FAAE62] font-mono text-xs whitespace-nowrap">
+                              ₹{parseFloat(order.total_amount).toLocaleString('en-IN')}
+                            </td>
+
+                            {/* Column 6: Date */}
+                            <td className="px-5 py-3.5 text-xs text-[#9B7EA8] font-mono whitespace-nowrap">
                               {new Date(order.created_at).toLocaleDateString('en-IN', {
                                 year: 'numeric', month: 'short', day: 'numeric'
                               })}
                             </td>
-                            <td className="px-4 py-3 font-bold text-[#FAAE62] whitespace-nowrap">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</td>
-                            <td className="px-4 py-3">
-                              <select
-                                value={order.status}
-                                onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                                className={`bg-[#0D0016] text-[10px] font-bold border rounded-lg px-2.5 py-1 focus:outline-none uppercase tracking-wide cursor-pointer shadow-inner transition-all ${
-                                  order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
-                                  order.status === 'Processing' || order.status === 'Packed' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
-                                  order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'border-sky-500/50 text-sky-400 bg-sky-500/10' : 'border-white/20 text-gray-300'
-                                }`}
+
+                            {/* Column 7: Master Inspection Button */}
+                            <td className="px-5 py-3.5 text-right">
+                              <button
+                                onClick={() => {
+                                  setSelectedOrderDetails(order);
+                                  setShowOrderDetailsModal(true);
+                                }}
+                                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-lg transition-all shadow-md inline-flex items-center gap-1"
                               >
-                                <option value="Paid">Paid</option>
-                                <option value="Payment Confirmed">Payment Confirmed</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Packed">Packed</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Out for Delivery">Out for Delivery</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Cancelled">Cancelled</option>
-                                <option value="Refunded">Refunded</option>
-                              </select>
+                                <span>Inspect Details</span>
+                                <ChevronRight className="w-3 h-3" />
+                              </button>
                             </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-1.5">
-                                <select
-                                  value={order.assigned_delivery_agent_id || ''}
-                                  onChange={(e) => handleRiderAssign(order.id, e.target.value)}
-                                  className="bg-[#0D0016] text-[10px] font-semibold border border-[#FAAE62]/40 rounded-lg px-2 py-1 focus:outline-none focus:border-[#FAAE62] tracking-wide cursor-pointer text-white max-w-[120px]"
-                                >
-                                  <option value="">Select Rider</option>
-                                  {deliveryAgents.map(agent => (
-                                    <option key={agent.id} value={agent.id}>
-                                      {agent.name}
-                                    </option>
-                                  ))}
-                                </select>
-                                <button
-                                  onClick={() => setSelectedInvoiceOrder(order)}
-                                  className="text-[9px] bg-[#FAAE62]/10 border border-[#FAAE62]/40 text-[#FAAE62] font-bold hover:bg-[#FAAE62] hover:text-[#0D0016] px-2 py-1 rounded-lg transition-all whitespace-nowrap"
-                                  title="Print Tax Invoice"
-                                >
-                                  📄 Invoice
-                                </button>
-                              </div>
-                            </td>
+
                           </tr>
                         ))}
                       </tbody>
@@ -4790,6 +4826,284 @@ export default function Admin() {
                 className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 text-[#0D0016] font-extrabold text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl transition-all shadow-md"
               >
                 Close Settings Vault
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── MASTER ORDER DETAILS & STATUS INSPECTOR MODAL ── */}
+      {showOrderDetailsModal && selectedOrderDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-scaleUp" onClick={() => setShowOrderDetailsModal(false)}>
+          <div className="bg-[#1A0024]/95 border border-[#FAAE62]/40 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden backdrop-blur-2xl my-6 text-white admin-custom-scrollbar max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-white/10 bg-[#0D0016]/90 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#D4893F] to-[#FAAE62] p-0.5 flex items-center justify-center shadow-lg shadow-[#FAAE62]/20">
+                  <div className="w-full h-full bg-[#0D0016] rounded-[14px] flex items-center justify-center font-serif font-extrabold text-[#FAAE62] text-sm">
+                    #{selectedOrderDetails.id}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    Master Order Details &amp; Tracking Inspector 🔎
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-[#9B7EA8] font-mono mt-0.5">
+                    <span>Order #{selectedOrderDetails.id}</span>
+                    <span>•</span>
+                    <span className="text-[#FAAE62] font-bold">
+                      AWB: {selectedOrderDetails.parcel_uncle_tracking_id || selectedOrderDetails.tracking_id || 'Not Generated'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowOrderDetailsModal(false)}
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-[#FAAE62] transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body Grid */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-grow admin-custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* --- LEFT COLUMN: CUSTOMER, ADDRESS & PRESCRIPTION --- */}
+                <div className="space-y-4">
+                  
+                  {/* Customer Information Card */}
+                  <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">
+                      <Users className="w-4 h-4 text-[#FAAE62]" /> Customer &amp; Contact Info
+                    </h4>
+                    <div className="space-y-1.5 text-xs">
+                      <div>
+                        <span className="text-[#9B7EA8] text-[10px] block uppercase">Customer Name</span>
+                        <span className="font-bold text-white text-sm">{selectedOrderDetails.user_name}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#9B7EA8] text-[10px] block uppercase">Phone Number</span>
+                        <span className="font-mono text-emerald-400 font-bold">
+                          📞 {selectedOrderDetails.shipping_address?.phone || 'Not Provided'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[#9B7EA8] text-[10px] block uppercase">Email Address</span>
+                        <span className="text-gray-300 font-mono">{selectedOrderDetails.user_email}</span>
+                      </div>
+                      <div className="pt-2 border-t border-white/10">
+                        <span className="text-[#9B7EA8] text-[10px] block uppercase">Full Shipping Address</span>
+                        <span className="text-white block leading-relaxed mt-0.5">
+                          {typeof selectedOrderDetails.shipping_address === 'object'
+                            ? `${selectedOrderDetails.shipping_address.address || ''}, ${selectedOrderDetails.shipping_address.city || ''}, PIN: ${selectedOrderDetails.shipping_address.zip || ''}`
+                            : selectedOrderDetails.shipping_address}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prescription Specs Card */}
+                  {selectedOrderDetails.shipping_address?.prescription && (
+                    <div className="p-5 bg-[#0D0016]/80 border border-purple-500/30 rounded-2xl space-y-3 admin-card-3d">
+                      <h4 className="font-bold text-xs uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-purple-400" /> Medical Eye Prescription 👓
+                      </h4>
+                      <div className="bg-[#1A0024] p-3 rounded-xl border border-white/10 font-mono text-xs space-y-2 text-gray-200">
+                        <div className="flex justify-between border-b border-white/10 pb-1.5 font-bold">
+                          <span className="text-purple-300">OD (Right Eye)</span>
+                          <span>SPH: {selectedOrderDetails.shipping_address.prescription.odSph} | CYL: {selectedOrderDetails.shipping_address.prescription.odCyl} | AX: {selectedOrderDetails.shipping_address.prescription.odAxis}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/10 pb-1.5 font-bold">
+                          <span className="text-purple-300">OS (Left Eye)</span>
+                          <span>SPH: {selectedOrderDetails.shipping_address.prescription.osSph} | CYL: {selectedOrderDetails.shipping_address.prescription.osCyl} | AX: {selectedOrderDetails.shipping_address.prescription.osAxis}</span>
+                        </div>
+                        <div className="flex justify-between pt-1 text-[11px]">
+                          <span>Pupillary Distance (PD): <strong className="text-white">{selectedOrderDetails.shipping_address.prescription.pd} mm</strong></span>
+                          <span>Lens Index: <strong className="text-white">{selectedOrderDetails.shipping_address.prescription.lensIndex}</strong></span>
+                        </div>
+                        {selectedOrderDetails.shipping_address.prescription && (
+                          <div className="pt-1.5 border-t border-white/10 text-[10px] text-gray-400 font-sans">
+                            <strong className="text-purple-300">Coatings:</strong> {[
+                              selectedOrderDetails.shipping_address.prescription.antiGlare && 'Anti-Reflective',
+                              selectedOrderDetails.shipping_address.prescription.blueShield && 'Blue-Shield',
+                              selectedOrderDetails.shipping_address.prescription.photochromic && 'Photochromic'
+                            ].filter(Boolean).join(', ') || 'Standard Clean'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Financial Invoice Card */}
+                  <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">
+                      <Landmark className="w-4 h-4 text-[#FAAE62]" /> Payment Breakdown &amp; Invoice
+                    </h4>
+                    <div className="space-y-1.5 text-xs font-mono">
+                      <div className="flex justify-between text-gray-300">
+                        <span>Payment Gateway ID:</span>
+                        <span className="text-white font-bold">{selectedOrderDetails.payment_id || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-300">
+                        <span>Total Paid Amount:</span>
+                        <span className="text-lg font-bold text-[#FAAE62]">₹{parseFloat(selectedOrderDetails.total_amount).toLocaleString('en-IN')}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedInvoiceOrder(selectedOrderDetails);
+                          setShowOrderDetailsModal(false);
+                        }}
+                        className="w-full bg-[#1A0024] hover:bg-[#FAAE62]/20 border border-[#FAAE62]/40 text-[#FAAE62] font-bold text-xs py-2 rounded-xl transition-all uppercase tracking-wider mt-2 flex items-center justify-center gap-2"
+                      >
+                        📄 Download / Print Official Tax Invoice
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* --- RIGHT COLUMN: LOGISTICS, RIDER & STATUS CONTROLLER --- */}
+                <div className="space-y-4">
+
+                  {/* Fulfillment Status Controller */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">
+                      <ClipboardList className="w-4 h-4 text-[#FAAE62]" /> Update Fulfillment Status
+                    </h4>
+                    <select
+                      value={selectedOrderDetails.status}
+                      onChange={(e) => {
+                        handleStatusUpdate(selectedOrderDetails.id, e.target.value);
+                        setSelectedOrderDetails({ ...selectedOrderDetails, status: e.target.value });
+                      }}
+                      className="w-full bg-[#1A0024] text-xs font-bold border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#FAAE62] uppercase tracking-wider"
+                    >
+                      <option value="Paid">Paid</option>
+                      <option value="Payment Confirmed">Payment Confirmed</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Packed">Packed</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Out for Delivery">Out for Delivery</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Refunded">Refunded</option>
+                    </select>
+                  </div>
+
+                  {/* Courier Partner & Parcel Uncle Logistics */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-orange-500/40 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-xs uppercase tracking-wider text-orange-400 flex items-center gap-2">
+                        <PackageX className="w-4 h-4 text-orange-400" /> Logistics &amp; Courier Partner
+                      </h4>
+                      <span className="text-[10px] font-bold font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                        {selectedOrderDetails.parcel_uncle_tracking_id ? 'PARCEL UNCLE ACTIVE' : 'DIRECT SHIPMENT'}
+                      </span>
+                    </div>
+
+                    {selectedOrderDetails.parcel_uncle_tracking_id ? (
+                      <div className="bg-[#1A0024] p-4 rounded-xl border border-orange-500/30 font-mono text-xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#9B7EA8] text-[10px] uppercase">Parcel Uncle AWB:</span>
+                          <span className="font-bold text-white text-sm">{selectedOrderDetails.parcel_uncle_tracking_id}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#9B7EA8]">Live API Status:</span>
+                          <span className="font-bold text-emerald-400 uppercase">{selectedOrderDetails.parcel_uncle_status || 'MANIFESTED'}</span>
+                        </div>
+                        <div className="flex gap-2 pt-2 border-t border-white/10">
+                          <button
+                            onClick={() => handleSyncParcelUncle(selectedOrderDetails.id)}
+                            disabled={syncingOrder === selectedOrderDetails.id}
+                            className="flex-1 bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-black font-bold text-xs py-2 rounded-xl border border-orange-500/40 transition-all uppercase tracking-wider flex items-center justify-center gap-1"
+                          >
+                            {syncingOrder === selectedOrderDetails.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '🔄 Sync Live Status'}
+                          </button>
+                          <a
+                            href={`${API_BASE}/api/shipping/parcel-uncle/label/${selectedOrderDetails.parcel_uncle_tracking_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-bold text-xs py-2 rounded-xl border border-emerald-500/40 transition-all uppercase tracking-wider flex items-center justify-center gap-1"
+                          >
+                            🏷️ Thermal Label PDF
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          handleDispatchParcelUncle(selectedOrderDetails.id);
+                          setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_status: 'MANIFESTED' });
+                        }}
+                        disabled={dispatchingOrder === selectedOrderDetails.id}
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        {dispatchingOrder === selectedOrderDetails.id ? <Loader2 className="w-4 h-4 animate-spin" /> : '🚚 Ship via Parcel Uncle Express API'}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Rider Assignment */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-sky-500/40 rounded-2xl space-y-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-sky-400 flex items-center gap-2">
+                      <Navigation className="w-4 h-4 text-sky-400" /> Local Rider Assignment
+                    </h4>
+                    <select
+                      value={selectedOrderDetails.assigned_delivery_agent_id || ''}
+                      onChange={(e) => {
+                        handleRiderAssign(selectedOrderDetails.id, e.target.value);
+                        setSelectedOrderDetails({ ...selectedOrderDetails, assigned_delivery_agent_id: e.target.value });
+                      }}
+                      className="w-full bg-[#1A0024] text-xs font-semibold border border-sky-500/40 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-sky-400"
+                    >
+                      <option value="">Select Delivery Rider</option>
+                      {deliveryAgents.map(agent => (
+                        <option key={agent.id} value={agent.id}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Dispatch Tracking Comments */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-white/10 rounded-2xl space-y-3">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">
+                      <ScrollText className="w-4 h-4 text-[#FAAE62]" /> Dispatch Notes &amp; Tracking Comments
+                    </h4>
+                    <textarea
+                      rows={2}
+                      placeholder="Add dispatch comments or tracking updates..."
+                      value={selectedOrderDetails.tracking_comments || ''}
+                      onChange={(e) => setSelectedOrderDetails({ ...selectedOrderDetails, tracking_comments: e.target.value })}
+                      className="w-full bg-[#1A0024] border border-white/10 rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#FAAE62]"
+                    />
+                    <button
+                      onClick={() => {
+                        setSelectedTrackingOrder(selectedOrderDetails);
+                        setTrackingCommentsText(selectedOrderDetails.tracking_comments || '');
+                        setShowTrackingModal(true);
+                      }}
+                      className="w-full bg-white/5 hover:bg-[#FAAE62]/20 border border-white/10 text-[#FAAE62] font-bold text-xs py-2 rounded-xl transition-all uppercase tracking-wider"
+                    >
+                      Save Dispatch Notes 📝
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10 bg-[#0D0016]/90 flex justify-end">
+              <button
+                onClick={() => setShowOrderDetailsModal(false)}
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 text-[#0D0016] font-extrabold text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl transition-all shadow-md"
+              >
+                Done Inspecting
               </button>
             </div>
 
