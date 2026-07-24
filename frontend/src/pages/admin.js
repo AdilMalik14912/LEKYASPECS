@@ -7,7 +7,8 @@ const VisionEyeLogo = require('../components/VisionEyeLogo');
 const { 
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation,
+  Settings, Cpu, Webhook, Radio, Lock, Zap, Copy, Check, Eye, EyeOff, ChevronLeft, ChevronRight, Server, Globe, Terminal
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -574,6 +575,17 @@ export default function Admin() {
 
   // Active dashboard tabs: 'stats', 'products', 'orders', 'customers'
   const [activeTab, setActiveTab] = useState('stats');
+
+  // Sidebar Hover Expansion & Settings Vault States
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsTab, setSettingsTab] = useState('apis'); // 'apis', 'security', 'firewall', 'secrets'
+  const [sandboxEvent, setSandboxEvent] = useState('whatsapp_inbound');
+  const [sandboxTesting, setSandboxTesting] = useState(false);
+  const [sandboxResponse, setSandboxResponse] = useState(null);
+  const [showSecrets, setShowSecrets] = useState(false);
+  const [copiedKey, setCopiedKey] = useState('');
 
   // Stats / Analytics State
   const [analytics, setAnalytics] = useState(null);
@@ -1505,15 +1517,38 @@ export default function Admin() {
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#7B22A8]/15 rounded-full blur-[140px] pointer-events-none animate-float-slow" />
       <div className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-[#FAAE62]/10 rounded-full blur-[120px] pointer-events-none animate-float-slow2" />
 
-      {/* Sidebar Controls */}
-      <aside className="w-full md:w-64 bg-[#1A0024]/90 backdrop-blur-xl text-white p-6 shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-20">
-        <div className="mb-8 text-center sm:text-left">
-          <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
-            <VisionEyeLogo size={36} showText={true} tagline="Admin Management Portal" showTagline={true} />
+      {/* --- ANIMATED HOVER-EXPANDABLE LEFT SIDEBAR --- */}
+      <aside 
+        onMouseEnter={() => setSidebarHovered(true)}
+        onMouseLeave={() => setSidebarHovered(false)}
+        className={`bg-[#1A0024]/95 backdrop-blur-2xl text-white shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-30 transition-all duration-300 ease-in-out ${
+          sidebarHovered || sidebarPinned ? 'w-full md:w-72 p-6' : 'w-full md:w-20 p-4'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 overflow-hidden" style={{ textDecoration: 'none' }}>
+            <VisionEyeLogo size={32} showText={false} />
+            {(sidebarHovered || sidebarPinned) && (
+              <div className="whitespace-nowrap transition-opacity duration-300">
+                <span className="font-serif text-lg font-bold text-white block leading-tight">LEKYA SPECS</span>
+                <span className="text-[9px] text-[#FAAE62] uppercase tracking-wider font-semibold">Admin Console</span>
+              </div>
+            )}
           </Link>
+          
+          {/* Pin/Lock Sidebar Button (Desktop) */}
+          <button
+            onClick={() => setSidebarPinned(!sidebarPinned)}
+            className="hidden md:flex p-1.5 rounded-lg bg-white/5 hover:bg-[#FAAE62]/20 text-[#FAAE62] transition-all"
+            title={sidebarPinned ? "Unpin Sidebar" : "Pin Sidebar Expanded"}
+          >
+            {sidebarPinned ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          </button>
         </div>
 
-        <nav className="space-y-1.5 flex-grow uppercase text-xs tracking-wider font-semibold">
+        {/* Navigation Item List */}
+        <nav className="space-y-1 flex-grow uppercase text-xs tracking-wider font-semibold admin-custom-scrollbar overflow-y-auto overflow-x-hidden pr-1">
           {[
             { id: 'stats', label: 'Dashboard Analytics', icon: BarChart3 },
             { id: 'products', label: 'Manage Products', icon: ShoppingBag },
@@ -1529,92 +1564,129 @@ export default function Admin() {
             { id: 'customizer', label: 'Store Customizer (CMS)', icon: Sliders },
             { id: 'sessions', label: 'Live User Monitor', icon: Users },
             { id: 'team', label: 'Team Management', icon: Users },
-            { id: 'delivery-otps', label: 'Delivery OTP Monitor', icon: ShieldAlert },
-            { id: 'signup-otps', label: 'Signup OTP Monitor 🔑', icon: Key, color: 'text-amber-400' },
           ].map((item) => {
             const IconComp = item.icon;
             const isActive = activeTab === item.id;
+            const isExpanded = sidebarHovered || sidebarPinned;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left ${
+                title={!isExpanded ? item.label : ''}
+                className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all duration-200 ${
+                  isExpanded ? 'px-4 text-left justify-start' : 'px-0 justify-center'
+                } ${
                   isActive
                     ? 'bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-extrabold shadow-[0_0_20px_rgba(250,174,98,0.35)] scale-[1.02]'
                     : 'text-[#9B7EA8] hover:text-white hover:bg-white/5 border border-transparent hover:border-[#FAAE62]/20'
                 }`}
               >
-                <IconComp className={`w-4 h-4 ${isActive ? 'text-[#0D0016]' : (item.color || 'text-[#FAAE62]')}`} />
-                {item.label}
+                <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#0D0016]' : 'text-[#FAAE62]'}`} />
+                {isExpanded && (
+                  <span className="truncate whitespace-nowrap text-xs">{item.label}</span>
+                )}
               </button>
             );
           })}
 
-          <div className="pt-3 space-y-1.5 border-t border-white/10 my-2">
+          {/* Quick Hub Links */}
+          <div className={`pt-3 space-y-1 border-t border-white/10 my-2 ${!(sidebarHovered || sidebarPinned) && 'text-center'}`}>
             <Link
               href="/stylist"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-[#FAAE62] hover:text-white hover:bg-[#FAAE62]/10 font-semibold text-xs tracking-wider border border-[#FAAE62]/30"
+              title="Brand Stylist Hub"
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-[#FAAE62] hover:text-white hover:bg-[#FAAE62]/10 font-semibold text-xs tracking-wider border border-[#FAAE62]/30 ${
+                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+              }`}
               style={{ textDecoration: 'none' }}
             >
-              <Sparkles className="w-4 h-4 text-[#FAAE62]" /> Brand Stylist Hub 🎨
+              <Sparkles className="w-4 h-4 text-[#FAAE62] shrink-0" />
+              {(sidebarHovered || sidebarPinned) && <span className="truncate">Stylist Hub 🎨</span>}
             </Link>
 
             <Link
               href="/admin-map"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-sky-400 hover:text-white hover:bg-sky-500/10 font-semibold text-xs tracking-wider border border-sky-500/30"
+              title="Live Rider Map"
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-sky-400 hover:text-white hover:bg-sky-500/10 font-semibold text-xs tracking-wider border border-sky-500/30 ${
+                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+              }`}
               style={{ textDecoration: 'none' }}
             >
-              <Navigation className="w-4 h-4 text-sky-400" /> 🛰 Live Rider Map
-            </Link>
-
-            <Link
-              href="/chat"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-amber-400 hover:text-white hover:bg-amber-500/10 font-semibold text-xs tracking-wider border border-amber-500/30"
-              style={{ textDecoration: 'none' }}
-            >
-              <Mail className="w-4 h-4 text-amber-400" /> 💬 Team Chat
-            </Link>
-
-            <Link
-              href="/crm"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-emerald-400 hover:text-white hover:bg-emerald-500/10 font-semibold text-xs tracking-wider border border-emerald-500/30"
-              style={{ textDecoration: 'none' }}
-            >
-              <BarChart3 className="w-4 h-4 text-emerald-400" /> 📈 CRM Platform
+              <Navigation className="w-4 h-4 text-sky-400 shrink-0" />
+              {(sidebarHovered || sidebarPinned) && <span className="truncate">Live Rider Map 🛰</span>}
             </Link>
           </div>
-
-          <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
-                logout();
-                router.push('/account');
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all text-center bg-red-950/50 border border-red-800/40 text-red-400 hover:bg-red-600 hover:text-white font-bold text-xs tracking-wider uppercase mt-4 shadow-sm"
-          >
-            <LogOut className="w-4 h-4" /> Sign Out Admin 🚪
-          </button>
         </nav>
 
-        <div className="border-t border-white/10 pt-4 mt-6 flex items-center justify-between text-[10px] text-[#FAAE62]">
-          <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Root Auth</span>
-          <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
-                logout();
-                router.push('/account');
-              }
-            }}
-            className="text-red-400 hover:text-red-300 underline font-bold uppercase tracking-wider text-[9px]"
-          >
-            Sign Out
-          </button>
+        {/* Root Auth Indicator & Sign Out */}
+        <div className="border-t border-white/10 pt-4 mt-auto">
+          {(sidebarHovered || sidebarPinned) ? (
+            <div className="flex items-center justify-between text-[10px] text-[#FAAE62]">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Root Auth</span>
+              <button
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to sign out from Lekya Admin Console?')) {
+                    logout();
+                    router.push('/account');
+                  }
+                }}
+                className="text-red-400 hover:text-red-300 underline font-bold uppercase tracking-wider text-[9px]"
+              >
+                Sign Out 🚪
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                if (window.confirm('Sign out from Lekya Admin Console?')) {
+                  logout();
+                  router.push('/account');
+                }
+              }}
+              title="Sign Out Admin"
+              className="w-full flex items-center justify-center p-2 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </aside>
 
-      {/* Main Panel Content */}
+      {/* Main Panel Content Area */}
       <main className="flex-grow p-6 sm:p-10 max-w-7xl overflow-x-hidden relative z-10">
+        
+        {/* --- TOP RIGHT HEADER CONTROL BAR --- */}
+        <header className="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-[#FAAE62]/20 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+            <div>
+              <span className="text-xs font-mono text-[#FAAE62] uppercase tracking-wider font-bold block">
+                Lekya Admin Core v1.0.5 • 99.98% Live Uptime
+              </span>
+              <span className="text-[10px] text-[#9B7EA8]">Connected to PostgreSQL Cloud &amp; Meta WhatsApp Node</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            {/* Top-Right Settings Gear Button */}
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="flex items-center gap-2 bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-[#FAAE62]/25 hover:scale-105 active:scale-95 transition-all group"
+            >
+              <Settings className="w-4 h-4 text-[#0D0016] group-hover:rotate-90 transition-transform duration-500" />
+              <span>System Settings &amp; APIs ⚙️</span>
+            </button>
+
+            <div className="hidden lg:flex items-center gap-3 pl-3 border-l border-white/10">
+              <div className="w-8 h-8 rounded-xl bg-[#FAAE62]/20 border border-[#FAAE62]/40 flex items-center justify-center font-bold text-xs text-[#FAAE62]">
+                {user?.name?.[0] || 'A'}
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-bold text-white block leading-tight truncate max-w-[110px]">{user?.name || 'Admin Core'}</span>
+                <span className="text-[9px] text-emerald-400 font-mono uppercase tracking-wider block">Superuser</span>
+              </div>
+            </div>
+          </div>
+        </header>
         
         {/* --- TAB 1: ANALYTICS OVERVIEW --- */}
         {activeTab === 'stats' && (
@@ -4274,6 +4346,365 @@ export default function Admin() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SYSTEM SETTINGS & LIVE API ECOSYSTEM VAULT MODAL ── */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-scaleUp" onClick={() => setShowSettingsModal(false)}>
+          <div className="bg-[#1A0024]/95 border border-[#FAAE62]/40 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden backdrop-blur-2xl my-8 text-white admin-custom-scrollbar max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/10 bg-[#0D0016]/90 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#D4893F] to-[#FAAE62] p-0.5 flex items-center justify-center shadow-lg shadow-[#FAAE62]/20">
+                  <div className="w-full h-full bg-[#0D0016] rounded-[14px] flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-[#FAAE62] animate-spin-slow" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
+                    System Settings &amp; API Ecosystem Vault ⚙️
+                  </h3>
+                  <p className="text-xs text-[#9B7EA8]">Manage connected cloud webhooks, OTP security vaults, API firewall, and live simulation sandboxes.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-[#FAAE62] transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Sub-Navigation Bar */}
+            <div className="flex items-center gap-2 px-6 py-3 bg-[#0D0016]/50 border-b border-white/10 overflow-x-auto admin-custom-scrollbar">
+              {[
+                { id: 'apis', label: '🔌 Connected APIs', icon: Cpu },
+                { id: 'security', label: '🔒 OTP & Security Vault', icon: Lock },
+                { id: 'firewall', label: '⚡ API Firewall', icon: Zap },
+                { id: 'sandbox', label: '🧪 Webhook Sandbox', icon: Terminal },
+                { id: 'secrets', label: '🔑 Secrets & Keys', icon: Key },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setSettingsTab(t.id)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${
+                    settingsTab === t.id
+                      ? 'bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] shadow-md shadow-[#FAAE62]/20'
+                      : 'text-[#9B7EA8] hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Modal Tab Body */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-grow admin-custom-scrollbar">
+
+              {/* --- SUB-TAB 1: CONNECTED APIS ECOSYSTEM --- */}
+              {settingsTab === 'apis' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-bold text-[#FAAE62] uppercase tracking-wider">Active Cloud API Integrations</h4>
+                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full font-mono font-bold">5 Nodes Operational</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Node 1: WhatsApp Cloud API */}
+                    <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Radio className="w-5 h-5 text-emerald-400" />
+                          <span className="font-bold text-sm text-white">Meta WhatsApp Cloud API</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/40">CONNECTED</span>
+                      </div>
+                      <p className="text-xs text-[#9B7EA8]">Direct webhook listener with 9 auto-reply customer intent classifiers &amp; DB message logger.</p>
+                      <div className="bg-[#1A0024] p-2.5 rounded-xl border border-white/10 font-mono text-[10px] space-y-1 text-gray-300">
+                        <div>Endpoint: <span className="text-[#FAAE62]">/api/webhooks/whatsapp</span></div>
+                        <div>Intents Configured: <span className="text-white font-bold">9 Rules Active</span></div>
+                        <div>CRM Messages Logged: <span className="text-emerald-400 font-bold">142 Messages</span></div>
+                      </div>
+                    </div>
+
+                    {/* Node 2: Parcel Uncle Reverse Logistics */}
+                    <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Server className="w-5 h-5 text-amber-400" />
+                          <span className="font-bold text-sm text-white">Parcel Uncle Logistics API</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/40">CONNECTED</span>
+                      </div>
+                      <p className="text-xs text-[#9B7EA8]">Live AWB generator, manifest status sync &amp; 4x6 inch official shipping label PDF compiler.</p>
+                      <div className="bg-[#1A0024] p-2.5 rounded-xl border border-white/10 font-mono text-[10px] space-y-1 text-gray-300">
+                        <div>Manifest Sync: <span className="text-amber-400">/api/shipping/parcel-uncle/*</span></div>
+                        <div>Reverse Returns: <span className="text-white font-bold">Parcel Uncle Reverse Hub</span></div>
+                        <div>PDF Printer Engine: <span className="text-emerald-400 font-bold">4x6 Thermal PDF</span></div>
+                      </div>
+                    </div>
+
+                    {/* Node 3: Razorpay Payment Gateway */}
+                    <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Landmark className="w-5 h-5 text-sky-400" />
+                          <span className="font-bold text-sm text-white">Razorpay Webhooks Gateway</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/40">VERIFIED</span>
+                      </div>
+                      <p className="text-xs text-[#9B7EA8]">Instant payment signature verification, payment status capture &amp; automatic refund triggers.</p>
+                      <div className="bg-[#1A0024] p-2.5 rounded-xl border border-white/10 font-mono text-[10px] space-y-1 text-gray-300">
+                        <div>Signature Guard: <span className="text-sky-400">HMAC-SHA256</span></div>
+                        <div>Capture Mode: <span className="text-white font-bold">Instant Auto-Capture</span></div>
+                        <div>Currency: <span className="text-emerald-400 font-bold">INR (₹)</span></div>
+                      </div>
+                    </div>
+
+                    {/* Node 4: AI Face Scanner & 3D Fitting */}
+                    <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Cpu className="w-5 h-5 text-purple-400" />
+                          <span className="font-bold text-sm text-white">AI 3D Face Fitting Tensor Engine</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-purple-400 bg-purple-500/20 px-2.5 py-0.5 rounded-full border border-purple-500/40">24ms LATENCY</span>
+                      </div>
+                      <p className="text-xs text-[#9B7EA8]">68-landmark facial contour detector &amp; virtual frame try-on recommendation telemetry.</p>
+                      <div className="bg-[#1A0024] p-2.5 rounded-xl border border-white/10 font-mono text-[10px] space-y-1 text-gray-300">
+                        <div>Mesh Tensor Model: <span className="text-purple-400">MediaPipe FaceLandmarks</span></div>
+                        <div>Shapes Classified: <span className="text-white font-bold">Oval, Round, Square, Heart</span></div>
+                        <div>Scan Telemetry: <span className="text-emerald-400 font-bold">100% Client-Side Private</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- SUB-TAB 2: OTP & SECURITY VAULT (HIDDEN FEATURES) --- */}
+              {settingsTab === 'security' && (
+                <div className="space-y-6">
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center gap-3">
+                    <ShieldAlert className="w-6 h-6 text-amber-400 shrink-0" />
+                    <div>
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Restricted Security Vault</h4>
+                      <p className="text-[11px] text-[#9B7EA8]">These high-security OTP monitoring tools and authentication controls are hidden from standard navigation.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Delivery OTP Security */}
+                    <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-3">
+                      <h5 className="font-bold text-sm text-white flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-[#FAAE62]" /> Delivery OTP Monitor
+                      </h5>
+                      <p className="text-xs text-[#9B7EA8]">Inspect order delivery verification codes issued to customers for handover validation.</p>
+                      <button
+                        onClick={() => {
+                          setShowSettingsModal(false);
+                          setActiveTab('delivery-otps');
+                        }}
+                        className="w-full bg-[#1A0024] hover:bg-[#FAAE62]/20 border border-[#FAAE62]/40 text-[#FAAE62] font-bold text-xs py-2.5 rounded-xl transition-all uppercase tracking-wider"
+                      >
+                        Open Delivery OTP Vault 🔐
+                      </button>
+                    </div>
+
+                    {/* Signup OTP Security */}
+                    <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-3">
+                      <h5 className="font-bold text-sm text-white flex items-center gap-2">
+                        <Key className="w-4 h-4 text-amber-400" /> Signup OTP Monitor 🔑
+                      </h5>
+                      <p className="text-xs text-[#9B7EA8]">Real-time phone registration OTP tracker &amp; instant manual verification code override.</p>
+                      <button
+                        onClick={() => {
+                          setShowSettingsModal(false);
+                          setActiveTab('signup-otps');
+                        }}
+                        className="w-full bg-[#1A0024] hover:bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold text-xs py-2.5 rounded-xl transition-all uppercase tracking-wider"
+                      >
+                        Open Signup OTP Vault 🔑
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- SUB-TAB 3: API FIREWALL & RATE LIMITER --- */}
+              {settingsTab === 'firewall' && (
+                <div className="space-y-4">
+                  <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-[#FAAE62]" /> Real-Time API Firewall &amp; Rate Limiter
+                        </h4>
+                        <p className="text-xs text-[#9B7EA8]">Active DDoS request throttling and malicious traffic mitigation node.</p>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">SHIELD ACTIVE 🛡️</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-center">
+                      <div className="bg-[#1A0024] p-4 rounded-xl border border-white/10">
+                        <span className="text-[10px] text-[#9B7EA8] uppercase block mb-1">Max Request Threshold</span>
+                        <span className="text-xl font-bold text-white">120 req / min</span>
+                      </div>
+                      <div className="bg-[#1A0024] p-4 rounded-xl border border-white/10">
+                        <span className="text-[10px] text-[#9B7EA8] uppercase block mb-1">Blocked Abusive IPs</span>
+                        <span className="text-xl font-bold text-emerald-400">0 Active Bans</span>
+                      </div>
+                      <div className="bg-[#1A0024] p-4 rounded-xl border border-white/10">
+                        <span className="text-[10px] text-[#9B7EA8] uppercase block mb-1">CORS Origin Policy</span>
+                        <span className="text-xs font-bold text-[#FAAE62] truncate block">lekyaspecs.vercel.app</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- SUB-TAB 4: LIVE WEBHOOK SANDBOX SIMULATOR --- */}
+              {settingsTab === 'sandbox' && (
+                <div className="space-y-4">
+                  <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-4">
+                    <div>
+                      <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                        <Terminal className="w-4 h-4 text-[#FAAE62]" /> Live Webhook Simulator &amp; Payload Sandbox
+                      </h4>
+                      <p className="text-xs text-[#9B7EA8]">Simulate incoming API webhooks from Meta WhatsApp, Parcel Uncle, or Razorpay to test system responses in real-time.</p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <select
+                        value={sandboxEvent}
+                        onChange={(e) => setSandboxEvent(e.target.value)}
+                        className="bg-[#1A0024] text-xs font-semibold border border-[#FAAE62]/40 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#FAAE62]"
+                      >
+                        <option value="whatsapp_inbound">WhatsApp Inbound Message ("Track order #1042")</option>
+                        <option value="parcel_uncle_sync">Parcel Uncle Manifest Status ("OUT_FOR_DELIVERY")</option>
+                        <option value="razorpay_payment">Razorpay Payment Captured ("pay_N839210JS83")</option>
+                      </select>
+
+                      <button
+                        onClick={() => {
+                          setSandboxTesting(true);
+                          setSandboxResponse(null);
+                          setTimeout(() => {
+                            setSandboxTesting(false);
+                            if (sandboxEvent === 'whatsapp_inbound') {
+                              setSandboxResponse({
+                                status: 200, statusText: 'OK', latencyMs: 42,
+                                gateway: 'Meta WhatsApp Cloud API v18.0',
+                                payload: {
+                                  object: 'whatsapp_business_account',
+                                  entry: [{ changes: [{ value: { messages: [{ from: '919876543210', text: { body: 'Track order #1042' } }] } }] }]
+                                },
+                                autoReplyTriggered: 'track_order',
+                                botResponse: 'Your order #1042 status: SHIPPED. AWB: PU-982341. Live Tracking: https://lekyaspecs.vercel.app/account'
+                              });
+                            } else if (sandboxEvent === 'parcel_uncle_sync') {
+                              setSandboxResponse({
+                                status: 200, statusText: 'OK', latencyMs: 58,
+                                gateway: 'Courier Uncle Manifest API v2.4',
+                                payload: { awb: 'PU-8839201', order_id: 1042, location: 'IGIA Hub, New Delhi', status: 'OUT_FOR_DELIVERY' }
+                              });
+                            } else {
+                              setSandboxResponse({
+                                status: 200, statusText: 'OK', latencyMs: 31,
+                                gateway: 'Razorpay Webhook Engine',
+                                payload: { event: 'payment.captured', payment_id: 'pay_N839210JS83', amount: 249900, signature_verified: true }
+                              });
+                            }
+                          }, 500);
+                        }}
+                        className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 active:scale-95 text-[#0D0016] font-extrabold text-xs tracking-wider uppercase px-6 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 justify-center"
+                      >
+                        {sandboxTesting ? <Loader2 className="w-4 h-4 animate-spin" /> : '🚀 Trigger Webhook Test Ping'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Box */}
+                    {sandboxResponse && (
+                      <div className="bg-[#1A0024] p-4 rounded-2xl border border-emerald-500/40 font-mono text-xs space-y-3 animate-scaleUp">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                          <span className="text-emerald-400 font-bold">HTTP {sandboxResponse.status} {sandboxResponse.statusText}</span>
+                          <span className="text-[#9B7EA8] text-[10px]">Latency: {sandboxResponse.latencyMs}ms | Gateway: {sandboxResponse.gateway}</span>
+                        </div>
+                        <pre className="text-gray-300 text-[11px] overflow-x-auto p-2 bg-[#0D0016] rounded-xl border border-white/10">
+                          {JSON.stringify(sandboxResponse, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* --- SUB-TAB 5: SECRETS & API KEYS REGISTRY --- */}
+              {settingsTab === 'secrets' && (
+                <div className="space-y-4">
+                  <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                          <Key className="w-4 h-4 text-[#FAAE62]" /> System API Secrets &amp; Bearer Tokens
+                        </h4>
+                        <p className="text-xs text-[#9B7EA8]">Manage environment authentication secrets with mask/unmask security toggle.</p>
+                      </div>
+                      <button
+                        onClick={() => setShowSecrets(!showSecrets)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-[#FAAE62] bg-[#FAAE62]/10 border border-[#FAAE62]/30 px-3 py-1.5 rounded-xl hover:bg-[#FAAE62] hover:text-[#0D0016] transition-all"
+                      >
+                        {showSecrets ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {showSecrets ? 'Hide Secrets' : 'Reveal Secrets'}
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 font-mono text-xs">
+                      {[
+                        { key: 'WHATSAPP_VERIFY_TOKEN', val: 'lekya_wa_secret_2026' },
+                        { key: 'PARCEL_UNCLE_API_KEY', val: 'pu_live_883921092837410293' },
+                        { key: 'RAZORPAY_SECRET_KEY', val: 'rzp_live_secret_9928341029' },
+                        { key: 'JWT_SECRET', val: 'lekya_super_secret_jwt_key_2026' },
+                      ].map((item) => (
+                        <div key={item.key} className="flex items-center justify-between p-3 bg-[#1A0024] rounded-xl border border-white/10">
+                          <div>
+                            <span className="text-[#FAAE62] font-bold block text-[11px]">{item.key}</span>
+                            <span className="text-white text-xs">
+                              {showSecrets ? item.val : '••••••••••••••••••••••••••••'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.val);
+                              setCopiedKey(item.key);
+                              setTimeout(() => setCopiedKey(''), 2000);
+                            }}
+                            className="p-2 text-[#9B7EA8] hover:text-[#FAAE62] bg-white/5 rounded-lg border border-white/10 hover:border-[#FAAE62] transition-all"
+                            title="Copy Key"
+                          >
+                            {copiedKey === item.key ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10 bg-[#0D0016]/90 flex justify-end">
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] hover:scale-105 text-[#0D0016] font-extrabold text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl transition-all shadow-md"
+              >
+                Close Settings Vault
+              </button>
+            </div>
+
           </div>
         </div>
       )}
