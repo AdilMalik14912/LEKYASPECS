@@ -7,7 +7,7 @@ require('dotenv').config();
 const generateToken = (user) => {
   return jwt.sign(
     { id: user.id, name: user.name, email: user.email, phone: user.phone || null, role: user.role || 'user' },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || 'lekya_specs_jwt_secret_key_2024',
     { expiresIn: '7d' }
   );
 };

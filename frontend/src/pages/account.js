@@ -368,20 +368,22 @@ export default function Account() {
         return;
       }
 
-      // Login flow: email field holds either email or phone
       fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: email.trim(), 
-          password: password, 
-          website_verify: websiteVerify
+          password: password
         })
       })
         .then(async (res) => {
-          const data = await res.json().catch(() => ({ message: 'Server response error' }));
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (_) {}
+
           setFormLoading(false);
-          if (res.ok && data.token) {
+          if (res.ok && data && data.token) {
             login(data.token, data.user);
             if (data.user?.role === 'admin' || data.user?.email === 'admin@specs.com' || data.user?.email === 'dev.parceluncle@gmail.com') {
               router.push('/admin');
