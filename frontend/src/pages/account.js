@@ -275,8 +275,8 @@ export default function Account() {
     
     setOrdersLoading(true);
     Promise.all([
-      fetch(`${API_BASE}/api/orders/history`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-      fetch(`${API_BASE}/api/returns/my-returns`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+      fetch(`${API_BASE}/api/orders/history`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.ok ? r.json() : []),
+      fetch(`${API_BASE}/api/returns/my-returns`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.ok ? r.json() : [])
     ])
       .then(([ordersData, returnsData]) => {
         setOrders(Array.isArray(ordersData) ? ordersData : []);

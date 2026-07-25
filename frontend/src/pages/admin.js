@@ -723,10 +723,12 @@ export default function Admin() {
     fetch(`${API_BASE}/api/admin/otps`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : {})
       .then(data => {
-        if (data.success) {
-          setSignupOtps(data.otps || []);
+        if (data && data.success) {
+          setSignupOtps(Array.isArray(data.otps) ? data.otps : []);
+        } else {
+          setSignupOtps([]);
         }
         setSignupOtpsLoading(false);
       })
@@ -833,75 +835,74 @@ export default function Admin() {
       fetch(`${API_BASE}/api/admin/admins`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setAdmins(data); setAdminsLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setAdmins(Array.isArray(data) ? data : []); setAdminsLoading(false); })
+        .catch(err => { console.error(err); setAdminsLoading(false); });
     } else if (activeTab === 'coupons') {
       setCouponsLoading(true);
       fetch(`${API_BASE}/api/admin/coupons`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setCoupons(data); setCouponsLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setCoupons(Array.isArray(data) ? data : []); setCouponsLoading(false); })
+        .catch(err => { console.error(err); setCouponsLoading(false); });
     } else if (activeTab === 'logs') {
       setLogsLoading(true);
       fetch(`${API_BASE}/api/admin/logs`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setLogs(data); setLogsLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setLogs(Array.isArray(data) ? data : []); setLogsLoading(false); })
+        .catch(err => { console.error(err); setLogsLoading(false); });
     } else if (activeTab === 'helpdesk') {
       setContactMessagesLoading(true);
       fetch(`${API_BASE}/api/admin/helpdesk`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setContactMessages(data); setContactMessagesLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setContactMessages(Array.isArray(data) ? data : []); setContactMessagesLoading(false); })
+        .catch(err => { console.error(err); setContactMessagesLoading(false); });
     } else if (activeTab === 'db') {
       setDbHealthLoading(true);
       fetch(`${API_BASE}/api/admin/db/health`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
+        .then(res => res.ok ? res.json() : null)
         .then(data => { setDbHealth(data); setDbHealthLoading(false); })
-        .catch(err => console.error(err));
+        .catch(err => { console.error(err); setDbHealthLoading(false); });
     } else if (activeTab === 'sessions') {
       setActiveSessionsLoading(true);
       fetch(`${API_BASE}/api/admin/active-sessions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
+        .then(res => res.ok ? res.json() : null)
         .then(data => { setActiveSessionsData(data); setActiveSessionsLoading(false); })
-        .catch(err => console.error(err));
+        .catch(err => { console.error(err); setActiveSessionsLoading(false); });
     } else if (activeTab === 'team') {
       setTeamLoading(true);
       fetch(`${API_BASE}/api/admin/team`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setTeamUsers(data || []); setTeamLoading(false); })
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setTeamUsers(Array.isArray(data) ? data : []); setTeamLoading(false); })
         .catch(err => { console.error(err); setTeamLoading(false); });
     } else if (activeTab === 'delivery-otps') {
       setDeliveryOtpsLoading(true);
       fetch(`${API_BASE}/api/admin/delivery-otps`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setDeliveryOtps(data || []); setDeliveryOtpsLoading(false); })
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setDeliveryOtps(Array.isArray(data) ? data : []); setDeliveryOtpsLoading(false); })
         .catch(err => { console.error(err); setDeliveryOtpsLoading(false); });
     } else if (activeTab === 'returns') {
       setReturnsLoading(true);
       fetch(`${API_BASE}/api/returns/all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
+        .then(res => res.ok ? res.json() : [])
         .then(data => {
           const arr = Array.isArray(data) ? data : [];
           setReturnsData(arr);
-          // Pre-fill status map
           const sm = {};
           const nm = {};
           arr.forEach(r => { sm[r.id] = r.status; nm[r.id] = ''; });
