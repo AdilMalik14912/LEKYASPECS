@@ -547,5 +547,6 @@ module.exports = {
   registerVerify,
   getProfile,
   updateProfile,
-  socialLogin
+  socialLogin,
+  memoryOtps
 };

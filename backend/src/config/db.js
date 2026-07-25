@@ -25,7 +25,7 @@ if (!TURSO_URL || !TURSO_URL.includes('turso.io')) {
   TURSO_URL = 'libsql://lekya-specs-adilmalik.aws-ap-south-1.turso.io';
 }
 let TURSO_TOKEN = process.env.TURSO_TOKEN;
-if (!TURSO_TOKEN || TURSO_TOKEN.length < 20) {
+if (!TURSO_TOKEN || !TURSO_TOKEN.startsWith('eyJ') || TURSO_TOKEN.split('.').length !== 3) {
   TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI5Mzg4MTMsImlkIjoiMDE5ZjFmNmUtMjkwMS03YWY5LWFmMzctZjkyZTBlNzVmZjUyIiwia2lkIjoiaTJYZ0V6bkxqZWlYY1didUJXclUyRTFTYWpJNlNGa29wSVE2emtvYTVYTSIsInJpZCI6ImNkZWUzYmY3LTZhY2UtNGZlMS1iYTFlLTVlNTc1OWM3MGZiMyJ9.aIy89sILLvopzGdufh3l4GloxS4aQomoS_Qw0J9FUHEhrocRRrpa2mjzgua4l_IAwIhQ3baY3zFpIzYJO7ZUCw';
 }
 
