@@ -1576,6 +1576,8 @@ export default function Admin() {
             { id: 'customizer', label: 'Store Customizer (CMS)', icon: Sliders },
             { id: 'sessions', label: 'Live User Monitor', icon: Users },
             { id: 'team', label: 'Team Management', icon: Users },
+            { id: 'delivery-otps', label: 'Delivery OTPs', icon: ShieldAlert },
+            { id: 'signup-otps', label: 'Live Signup OTPs', icon: Key },
           ].map((item) => {
             const IconComp = item.icon;
             const isActive = activeTab === item.id;
