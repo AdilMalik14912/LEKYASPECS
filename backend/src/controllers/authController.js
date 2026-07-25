@@ -47,63 +47,53 @@ const login = async (req, res) => {
     const isPhone = /^[\d\s+\-().]{7,15}$/.test(identifier);
 
     // ── ADMIN FAST PATH ──────────────────────────────────────────────────────
-    // For known admin emails: skip password check entirely, just ensure they
-    // exist in DB, then issue token.
+    // For known admin emails: issue token immediately — NO DB REQUIRED.
+    // This ensures admin can always log in even if Turso DB is unreachable.
     if (!isPhone && isAdminEmail(identifierLower)) {
-      let adminResult = await db.query(
-        'SELECT * FROM users WHERE LOWER(email) = ?',
-        [identifierLower]
+      const token = jwt.sign(
+        { id: 'admin-1', name: 'Specs Admin', email: identifierLower, role: 'admin' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
       );
 
-      // Auto-create admin if not in DB
-      if (!adminResult.rows || adminResult.rows.length === 0) {
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(password, salt);
-        await db.query(
-          "INSERT INTO users (name, email, password_hash, role) VALUES ('Specs Admin', ?, ?, 'admin')",
-          [identifierLower, hash]
-        );
-        adminResult = await db.query(
-          'SELECT * FROM users WHERE LOWER(email) = ?',
-          [identifierLower]
-        );
-      } else {
-        // Update password hash in background for future logins
-        bcrypt.genSalt(10)
-          .then(s => bcrypt.hash(password, s))
-          .then(h => db.query('UPDATE users SET password_hash = ? WHERE LOWER(email) = ?', [h, identifierLower]))
-          .catch(() => {});
-      }
-
-      if (!adminResult.rows || adminResult.rows.length === 0) {
-        return res.status(500).json({ message: 'Admin account setup failed. Please try again.' });
-      }
-
-      const admin = adminResult.rows[0];
-      const token = generateToken({
-        id: admin.id,
-        name: admin.name || 'Specs Admin',
-        email: admin.email || identifierLower,
-        phone: admin.phone || null,
-        role: 'admin'
-      });
+      // Best-effort: try to get/create admin user in DB (non-blocking)
+      (async () => {
+        try {
+          let adminResult = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [identifierLower]);
+          if (!adminResult.rows || adminResult.rows.length === 0) {
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(password, salt);
+            await db.query(
+              "INSERT INTO users (name, email, password_hash, role) VALUES ('Specs Admin', ?, ?, 'admin')",
+              [identifierLower, hash]
+            );
+          } else {
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(password, salt);
+            await db.query('UPDATE users SET password_hash = ? WHERE LOWER(email) = ?', [hash, identifierLower]);
+          }
+        } catch (dbErr) {
+          console.warn('[Admin DB Sync Warning]', dbErr.message);
+        }
+      })();
 
       return res.json({
         token,
         user: {
-          id: admin.id,
-          name: admin.name || 'Specs Admin',
-          email: admin.email || identifierLower,
-          phone: admin.phone || null,
-          face_shape: admin.face_shape || null,
+          id: 'admin-1',
+          name: 'Specs Admin',
+          email: identifierLower,
+          phone: null,
+          face_shape: null,
           role: 'admin',
-          loyalty_points: admin.loyalty_points || 0,
-          referral_code: admin.referral_code || null,
-          avatar: admin.avatar || null,
-          createdAt: admin.created_at || null
+          loyalty_points: 0,
+          referral_code: null,
+          avatar: null,
+          createdAt: null
         }
       });
     }
+
 
     // ── REGULAR USER PATH ────────────────────────────────────────────────────
     let result;
