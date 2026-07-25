@@ -12,12 +12,15 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const SMTP_EMAIL = process.env.SMTP_EMAIL || 'am8386757@gmail.com';
+const SMTP_PASSWORD = process.env.SMTP_PASSWORD || 'fbceuzlrcumeejjb';
+
 // ── Transporter (Gmail SMTP) ──────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
+    user: SMTP_EMAIL,
+    pass: SMTP_PASSWORD,
   },
 });
 
@@ -32,12 +35,12 @@ transporter.verify((err) => {
 
 // ── Base send function ─────────────────────────────────────────────────────
 const sendMail = async ({ to, subject, html, text }) => {
-  if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+  if (!SMTP_EMAIL || !SMTP_PASSWORD) {
     console.warn('[Mailer] SMTP credentials not set — skipping email');
     return null;
   }
   return transporter.sendMail({
-    from: `"Lekya Specs" <${process.env.SMTP_EMAIL}>`,
+    from: `"Lekya Specs" <${SMTP_EMAIL}>`,
     to,
     subject,
     html,

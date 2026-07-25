@@ -233,25 +233,44 @@ const registerVerify = async (req, res) => {
       return res.status(400).json({ message: 'Verification code is required.' });
     }
 
-    const targetEmail = email
-      ? String(email).toLowerCase().trim()
-      : `phone_${String(phone).trim()}@specs.com`;
+    const rawEmail = email ? String(email).toLowerCase().trim() : '';
+    const rawPhone = phone ? String(phone).replace(/\D/g, '') : '';
+    const targetEmail = rawEmail || (rawPhone ? `phone_${rawPhone}@specs.com` : '');
 
     const inputOtp = String(otp).trim();
     let otpRecord = null;
 
-    // First check memory map
-    const memRecord = memoryOtps.get(targetEmail);
-    if (memRecord && memRecord.otp_code === inputOtp) {
-      otpRecord = memRecord;
-      memoryOtps.delete(targetEmail);
+    // Search memory map by email or phone key
+    for (const [key, record] of memoryOtps.entries()) {
+      if (
+        record &&
+        record.otp_code === inputOtp &&
+        (
+          (rawEmail && record.email && record.email.toLowerCase() === rawEmail) ||
+          (rawPhone && record.phone && String(record.phone).replace(/\D/g, '') === rawPhone) ||
+          (targetEmail && record.email === targetEmail) ||
+          (key === targetEmail)
+        )
+      ) {
+        otpRecord = record;
+        memoryOtps.delete(key);
+        break;
+      }
     }
 
-    // Fallback: check DB
+    // Fallback: check Turso DB flexibly
     if (!otpRecord) {
       const otpRes = await db.query(
-        'SELECT * FROM otps WHERE email = ? AND otp_code = ? AND verified = 0 ORDER BY created_at DESC LIMIT 1',
-        [targetEmail, inputOtp]
+        `SELECT * FROM otps 
+         WHERE otp_code = ? 
+           AND verified = 0 
+           AND (
+             LOWER(email) = ? 
+             OR email = ? 
+             OR (? != '' AND (REPLACE(phone, '+', '') LIKE ? OR phone LIKE ?))
+           )
+         ORDER BY id DESC LIMIT 1`,
+        [inputOtp, targetEmail.toLowerCase(), targetEmail, rawPhone, `%${rawPhone.slice(-10)}%`, `%${rawPhone}%`]
       );
       if (otpRes.rows && otpRes.rows.length > 0) {
         otpRecord = otpRes.rows[0];

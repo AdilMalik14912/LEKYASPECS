@@ -207,6 +207,7 @@ app.put('/api/admin/settings', authenticateToken, isAdmin, adminController.updat
 app.post('/api/admin/create-admin', authenticateToken, isAdmin, adminController.createAdminUser);
 app.get('/api/admin/admins', authenticateToken, isAdmin, adminController.getAdminList);
 app.post('/api/admin/demote-admin', authenticateToken, isAdmin, adminController.demoteAdminUser);
+app.get('/api/admin/otps', authenticateToken, isAdmin, adminController.getRecentOtps);
 
 // Coupons / Promos
 app.post('/api/admin/coupons', authenticateToken, isAdmin, adminController.createCoupon);

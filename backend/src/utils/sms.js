@@ -10,7 +10,7 @@
 
 // ── Internal helper: send any SMS ────────────────────────────────────────────
 async function sendSms({ to, message, route = 'q', variablesValues = null }) {
-  const apiKey = process.env.FAST2SMS_API_KEY;
+  const apiKey = process.env.FAST2SMS_API_KEY || 'HDf5Niu8mzYKA4j7QMPBaRqcWpV3y0swT9Z6nokxevGCX1Lrbhrbhi7PtXBFy0SITMvYLVfKG5A4Zq1g';
   if (!apiKey) {
     console.warn(`[SMS] FAST2SMS_API_KEY not set — skipped. Message: ${message}`);
     return null;
