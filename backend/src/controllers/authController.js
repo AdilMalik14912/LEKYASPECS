@@ -269,6 +269,24 @@ const login = async (req, res) => {
     }
 
     if (!result || !result.rows || result.rows.length === 0) {
+      // If it's an admin email and they don't exist yet, auto-create them
+      const adminEmails = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
+      if (!isPhone && adminEmails.includes(identifierLower)) {
+        try {
+          const salt = await bcrypt.genSalt(10);
+          const hash = await bcrypt.hash(password, salt);
+          await db.query(
+            "INSERT INTO users (name, email, password_hash, role) VALUES ('Specs Admin', ?, ?, 'admin')",
+            [identifierLower, hash]
+          );
+          result = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [identifierLower]);
+        } catch (createErr) {
+          console.warn('[Admin auto-create]', createErr.message);
+        }
+      }
+    }
+
+    if (!result || !result.rows || result.rows.length === 0) {
       return res.status(400).json({ message: 'Invalid email or password.' });
     }
 
@@ -325,6 +343,7 @@ const login = async (req, res) => {
     console.error('[Login Error]', err.message || err);
     return res.status(500).json({ message: 'Server error. Please try again.' });
   }
+};
 
 // Get User Profile
 
