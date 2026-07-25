@@ -184,20 +184,36 @@ const registerInitiate = async (req, res) => {
     } catch (_) {}
 
     let sentViaEmail = false;
+    let sentViaSms = false;
+
     if (email) {
       try {
         const { sendOtpEmail } = require('../utils/mailer');
         await sendOtpEmail({ to: targetEmail, otp: otpCode });
         sentViaEmail = true;
-      } catch (_) {}
+        console.log(`[OTP] Email verification code sent successfully to ${targetEmail}`);
+      } catch (mailErr) {
+        console.error('[OTP Email Error]', mailErr.message || mailErr);
+      }
+    }
+
+    if (targetPhone) {
+      try {
+        const { sendOtpSms } = require('../utils/sms');
+        await sendOtpSms({ to: targetPhone, otp: otpCode });
+        sentViaSms = true;
+        console.log(`[OTP] SMS verification code sent successfully to ${targetPhone}`);
+      } catch (smsErr) {
+        console.error('[OTP SMS Error]', smsErr.message || smsErr);
+      }
     }
 
     return res.status(200).json({
-      message: `Verification code: ${otpCode}. ${sentViaEmail ? 'Also sent to ' + targetEmail : 'Please enter this code below.'}`,
+      message: `A 6-digit verification OTP code has been sent to ${email ? targetEmail : targetPhone}. Please check your email inbox (and spam folder) or mobile messages.`,
       email: email ? targetEmail : null,
       phone: targetPhone,
       sentViaEmail,
-      otp: otpCode
+      sentViaSms
     });
 
   } catch (err) {

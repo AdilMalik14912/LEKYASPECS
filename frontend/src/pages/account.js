@@ -447,9 +447,7 @@ export default function Account() {
           })
           .then(data => {
             setFormLoading(false);
-            if (data.message) {
-              showToast(data.message, 'info');
-            }
+            showToast(data.message || 'OTP verification code sent! Please check your email inbox and spam folder.', 'success');
             setOtpTarget({ email: data.email || '', phone: data.phone || '' });
             setRegistrationStep(2);
           })
