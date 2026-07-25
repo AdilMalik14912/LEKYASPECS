@@ -37,11 +37,12 @@ let client = nullClient;
 
 if (TURSO_URL) {
   try {
+    const httpUrl = TURSO_URL.startsWith('libsql://') ? TURSO_URL.replace('libsql://', 'https://') : TURSO_URL;
     client = createClient({
-      url: TURSO_URL,
+      url: httpUrl,
       authToken: TURSO_TOKEN || undefined
     });
-    console.log('[DB] Turso client created for:', TURSO_URL);
+    console.log('[DB] Turso client created for:', httpUrl);
   } catch (err) {
     console.error('[DB] Failed to create Turso client:', err.message);
     client = nullClient;
