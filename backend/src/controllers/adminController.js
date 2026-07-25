@@ -715,10 +715,6 @@ const exportCustomersCSV = async (req, res) => {
     res.status(500).json({ message: 'Server error exporting customer data' });
   }
 };
-    console.error('Export customers CSV error:', err);
-    res.status(500).json({ message: 'Server error exporting customers data' });
-  }
-};
 
 
 
