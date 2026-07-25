@@ -108,23 +108,27 @@ export default function SpinWheel({ isOpen, onClose, onApplyCoupon }) {
   };
 
   const handleSpin = () => {
-    if (spinning || wonReward) return;
+    if (spinning) return;
     const remaining = getTimeUntilNextSpin();
-    if (remaining > 0) { setCooldownMs(remaining); return; }
+    if (remaining > 0 && !wonReward) { 
+      setCooldownMs(remaining); 
+    }
+    
     setSpinning(true);
+    setWonReward(null);
 
     const winningIndex = Math.floor(Math.random() * REWARDS.length);
     const sliceDeg = 360 / REWARDS.length;
-    const targetDeg = 360 * 5 + (360 - winningIndex * sliceDeg - sliceDeg / 2);
+    const targetDeg = 360 * 6 + (360 - winningIndex * sliceDeg - sliceDeg / 2);
     let start = null;
-    const duration = 4000;
+    const duration = 4500;
 
     const animate = (timestamp) => {
       if (!start) start = timestamp;
       const progress = timestamp - start;
       const easeOut = (t) => 1 - Math.pow(1 - t, 3);
       const currentDeg = easeOut(Math.min(progress / duration, 1)) * targetDeg;
-      setRotation(currentDeg % 360);
+      setRotation(currentDeg);
       if (progress < duration) {
         requestAnimationFrame(animate);
       } else {
@@ -133,6 +137,7 @@ export default function SpinWheel({ isOpen, onClose, onApplyCoupon }) {
         setWonReward(winner);
         localStorage.setItem(SPIN_STORAGE_KEY, Date.now().toString());
         localStorage.setItem('lekya_won_reward', JSON.stringify(winner));
+        setSavedReward(winner);
         setCooldownMs(COOLDOWN_MS);
         if (onApplyCoupon) onApplyCoupon(winner.code);
       }
@@ -178,7 +183,16 @@ export default function SpinWheel({ isOpen, onClose, onApplyCoupon }) {
               <Clock className="w-4 h-4" /> Next Spin Available In:
             </div>
             <div className="font-mono text-2xl font-black text-white tracking-widest">{formatCountdown(cooldownMs)}</div>
-            <p className="text-xs text-[#9B7EA8] mt-1">Come back tomorrow for another chance!</p>
+            <button 
+              onClick={() => {
+                localStorage.removeItem(SPIN_STORAGE_KEY);
+                setCooldownMs(0);
+                handleSpin();
+              }}
+              className="mt-3 text-xs bg-white/10 hover:bg-white/20 text-[#FAAE62] border border-[#FAAE62]/30 px-3 py-1.5 rounded-lg transition-colors font-bold"
+            >
+              🔄 Reset Cooldown & Spin Again
+            </button>
           </div>
         )}
 

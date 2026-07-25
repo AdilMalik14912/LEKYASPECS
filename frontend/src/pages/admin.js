@@ -886,13 +886,17 @@ export default function Admin() {
         .then(res => res.ok ? res.json() : [])
         .then(data => { setTeamUsers(Array.isArray(data) ? data : []); setTeamLoading(false); })
         .catch(err => { console.error(err); setTeamLoading(false); });
-    } else if (activeTab === 'delivery-otps') {
+    } else if (activeTab === 'delivery-otps' || activeTab === 'otps') {
       setDeliveryOtpsLoading(true);
-      fetch(`${API_BASE}/api/admin/delivery-otps`, {
+      fetch(`${API_BASE}/api/admin/otps`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.ok ? res.json() : [])
-        .then(data => { setDeliveryOtps(Array.isArray(data) ? data : []); setDeliveryOtpsLoading(false); })
+        .then(res => res.ok ? res.json() : { otps: [] })
+        .then(data => { 
+          const list = data && Array.isArray(data.otps) ? data.otps : (Array.isArray(data) ? data : []);
+          setDeliveryOtps(list); 
+          setDeliveryOtpsLoading(false); 
+        })
         .catch(err => { console.error(err); setDeliveryOtpsLoading(false); });
     } else if (activeTab === 'returns') {
       setReturnsLoading(true);

