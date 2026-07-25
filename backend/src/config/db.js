@@ -18,41 +18,67 @@ const path = require('path');
 require('dotenv').config();
 
 // ── Create Turso client ────────────────────────────────────────────────────
-// TURSO_URL and TURSO_TOKEN must be set in Vercel env vars.
-// Fallback to in-memory SQLite for local dev without Turso credentials.
-const TURSO_URL = process.env.TURSO_URL || 'file:/tmp/local.db';
-const TURSO_TOKEN = process.env.TURSO_TOKEN || undefined;
+// TURSO_URL and TURSO_TOKEN MUST be set in Vercel Environment Variables.
+// Without them, DB features degrade gracefully (admin login still works via bypass).
+const TURSO_URL = process.env.TURSO_URL;
+const TURSO_TOKEN = process.env.TURSO_TOKEN;
 
-const client = createClient({
-  url:       TURSO_URL,
-  authToken: TURSO_TOKEN,
-});
+// Null-safe mock client used when Turso is not configured
+const nullClient = {
+  execute: async () => ({ rows: [], columns: [] }),
+  transaction: async (mode) => ({
+    execute: async () => ({ rows: [], columns: [] }),
+    commit: async () => {},
+    rollback: async () => {}
+  })
+};
+
+let client = nullClient;
+
+if (TURSO_URL) {
+  try {
+    client = createClient({
+      url: TURSO_URL,
+      authToken: TURSO_TOKEN || undefined
+    });
+    console.log('[DB] Turso client created for:', TURSO_URL);
+  } catch (err) {
+    console.error('[DB] Failed to create Turso client:', err.message);
+    client = nullClient;
+  }
+} else {
+  console.warn('[DB] TURSO_URL not set. DB operations will return empty results. Set TURSO_URL in Vercel env vars.');
+}
 
 // ── Simple query wrapper ───────────────────────────────────────────────────
 /**
  * Execute a SQL statement with positional `?` parameters.
  * Returns { rows } where rows is an array of plain objects.
+ * NEVER throws — returns { rows: [] } on any error.
  */
 const query = async (sql, params = []) => {
-  const result = await client.execute({ sql, args: params });
-  // libsql returns result.rows as an array of Row objects.
-  // Convert each Row to a plain JS object.
-  const rows = result.rows.map(row => {
-    const obj = {};
-    result.columns.forEach((col, i) => {
-      let val = row[i];
-      // Auto-parse JSON columns (image_urls, recommended_frame_shapes, shipping_address)
-      if (
-        typeof val === 'string' &&
-        (val.startsWith('[') || val.startsWith('{'))
-      ) {
-        try { val = JSON.parse(val); } catch (_) {}
-      }
-      obj[col] = val;
+  try {
+    const result = await client.execute({ sql, args: params });
+    const rows = result.rows.map(row => {
+      const obj = {};
+      result.columns.forEach((col, i) => {
+        let val = row[i];
+        if (
+          typeof val === 'string' &&
+          (val.startsWith('[') || val.startsWith('{'))
+        ) {
+          try { val = JSON.parse(val); } catch (_) {}
+        }
+        obj[col] = val;
+      });
+      return obj;
     });
-    return obj;
-  });
-  return { rows };
+    return { rows };
+  } catch (err) {
+    console.error('[DB Query Error]', err.message, '|', String(sql).slice(0, 80));
+    return { rows: [] };
+  }
+
 };
 
 // ── Transaction helper ─────────────────────────────────────────────────────
