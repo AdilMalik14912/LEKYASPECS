@@ -344,6 +344,20 @@ export default function Account() {
     }
   };
 
+  // Tab Switch Handler — clears form inputs and errors when toggling Sign In / Register
+  const handleTabSwitch = (toLogin) => {
+    setIsLoginTab(toLogin);
+    setFormError('');
+    setEmail('');
+    setPassword('');
+    setName('');
+    setPhone('');
+    setCaptchaInput('');
+    setRegistrationStep(1);
+    setOtpCode('');
+    refreshCaptcha();
+  };
+
   // Handle Login / Registration
   const handleAuthSubmit = (e) => {
     e.preventDefault();
@@ -484,7 +498,7 @@ export default function Account() {
           {/* Tab Selector */}
           <div className="flex border-b border-premium-border mb-8">
             <button
-              onClick={() => { setIsLoginTab(true); setFormError(''); }}
+              onClick={() => handleTabSwitch(true)}
               className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
                 isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
               }`}
@@ -492,7 +506,7 @@ export default function Account() {
               Sign In
             </button>
             <button
-              onClick={() => { setIsLoginTab(false); setFormError(''); }}
+              onClick={() => handleTabSwitch(false)}
               className={`flex-1 pb-4 text-sm font-semibold uppercase tracking-wider transition-all border-b-2 ${
                 !isLoginTab ? 'border-premium-accent text-premium-accent' : 'border-transparent text-premium-gray hover:text-premium-dark'
               }`}
