@@ -775,7 +775,9 @@ const getDatabaseHealth = async (req, res) => {
       status: 'Healthy',
       engine: 'SQLite/Turso',
       latency_ms: latency,
-      records: tableStats
+      records: tableStats,
+      debug_env_url: process.env.TURSO_URL || 'not set',
+      debug_env_token: process.env.TURSO_TOKEN ? process.env.TURSO_TOKEN.slice(0, 20) + '...' : 'not set'
     });
   } catch (err) {
     console.error('Get database health error:', err);
