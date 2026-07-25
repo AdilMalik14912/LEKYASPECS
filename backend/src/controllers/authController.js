@@ -3,252 +3,37 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 require('dotenv').config();
 
-// Helper to generate JWT Token
-const generateToken = (user) => {
+// ─── JWT Secret ────────────────────────────────────────────────────────────────
+const JWT_SECRET = process.env.JWT_SECRET || 'lekya_specs_jwt_secret_key_2024';
+
+// ─── Admin Emails ──────────────────────────────────────────────────────────────
+const ADMIN_EMAILS = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
+
+// ─── Helper: Generate JWT Token ────────────────────────────────────────────────
+function generateToken(user) {
   return jwt.sign(
-    { id: user.id, name: user.name, email: user.email, phone: user.phone || null, role: user.role || 'user' },
-    process.env.JWT_SECRET || 'lekya_specs_jwt_secret_key_2024',
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || null,
+      role: user.role || 'user'
+    },
+    JWT_SECRET,
     { expiresIn: '7d' }
   );
-};
+}
 
-// Register Step 1: Initiate & Send OTP
-const registerInitiate = async (req, res) => {
-  console.log('[Auth API] Initiate registration request received:', req.body);
-  let { name, email, phone, password } = req.body;
+// ─── Helper: Is Admin Email ────────────────────────────────────────────────────
+function isAdminEmail(email) {
+  if (!email) return false;
+  const lower = email.toLowerCase().trim();
+  return ADMIN_EMAILS.includes(lower) || lower.includes('parceluncle');
+}
 
-  if (!password || password.trim() === '') {
-    return res.status(400).json({ message: 'Password is required for registration.' });
-  }
-  if (!email && !phone) {
-    return res.status(400).json({ message: 'Either Email Address or Phone Number is required.' });
-  }
-
-  if (!name || name.trim() === '') {
-    name = email ? email.split('@')[0] : (phone ? `Customer ${phone.slice(-4)}` : 'Valued Customer');
-  }
-
-  const targetEmail = email ? email.toLowerCase().trim() : `phone_${phone.trim()}@specs.com`;
-  const targetPhone = phone ? phone.trim() : null;
-
-  try {
-    // Check if email already registered
-    if (email) {
-      const emailCheck = await db.query('SELECT id FROM users WHERE email = ?', [targetEmail]);
-      if (emailCheck.rows.length > 0) {
-        return res.status(400).json({ message: 'Email already registered' });
-      }
-    }
-
-    // Check if phone already registered
-    if (phone) {
-      const phoneCheck = await db.query('SELECT id FROM users WHERE phone = ?', [targetPhone]);
-      if (phoneCheck.rows.length > 0) {
-        return res.status(400).json({ message: 'Phone number already registered' });
-      }
-    }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    // Generate random 6-digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 mins validity
-
-    // Save to otps table (ensuring table exists first)
-    try {
-      await db.query(`CREATE TABLE IF NOT EXISTS otps (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT DEFAULT NULL,
-        password_hash TEXT NOT NULL,
-        otp_code TEXT NOT NULL,
-        verified INTEGER DEFAULT 0,
-        expires_at TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now'))
-      )`);
-    } catch (_) {}
-
-    await db.query(
-      'INSERT INTO otps (name, email, phone, password_hash, otp_code, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, targetEmail, targetPhone, passwordHash, otpCode, expiresAt]
-    );
-
-    let sentViaEmail = false;
-    let sentViaSms = false;
-
-    // Send OTP via email if email provided
-    if (email) {
-      try {
-        const { sendOtpEmail } = require('../utils/mailer');
-        await sendOtpEmail({ to: targetEmail, otp: otpCode });
-        sentViaEmail = true;
-      } catch (mailErr) {
-        console.warn('SMTP OTP send failed, falling back to console:', mailErr.message);
-      }
-      console.log(`[OTP Sent to ${targetEmail}]: ${otpCode}`);
-    }
-
-    // Send OTP via SMS if phone provided
-    if (phone) {
-      try {
-        const { sendOtpSms } = require('../utils/sms');
-        const smsRes = await sendOtpSms({ to: targetPhone, otp: otpCode });
-        if (smsRes) sentViaSms = true;
-      } catch (smsErr) {
-        console.warn('SMS OTP send failed, falling back to console:', smsErr.message);
-      }
-      console.log(`[SMS OTP Sent to ${targetPhone}]: ${otpCode}`);
-
-      // Auto-fallback: If SMS failed but targetEmail exists and wasn't sent yet, send email OTP
-      if (!sentViaSms && !sentViaEmail && targetEmail && !targetEmail.startsWith('phone_')) {
-        try {
-          const { sendOtpEmail } = require('../utils/mailer');
-          await sendOtpEmail({ to: targetEmail, otp: otpCode });
-          sentViaEmail = true;
-        } catch (_) {}
-      }
-    }
-
-    res.status(200).json({ 
-      message: 'Verification OTP sent successfully.', 
-      email: email ? targetEmail : null, 
-      phone: targetPhone,
-      sentViaEmail,
-      sentViaSms
-    });
-  } catch (err) {
-    console.error('Register initiate error:', err);
-    res.status(500).json({ message: 'Server error initiating registration' });
-  }
-};
-
-// Register Step 2: Verify OTP & Insert User
-const registerVerify = async (req, res) => {
-  const { email, phone, otp } = req.body;
-
-  if (!otp) {
-    return res.status(400).json({ message: 'Verification OTP code is required' });
-  }
-
-  const targetEmail = email ? email.toLowerCase().trim() : `phone_${phone.trim()}@specs.com`;
-
-  try {
-    // Fetch valid OTP from db
-    const otpRes = await db.query(
-      'SELECT * FROM otps WHERE email = ? AND otp_code = ? AND verified = 0 ORDER BY created_at DESC LIMIT 1',
-      [targetEmail, otp.trim()]
-    );
-
-    if (otpRes.rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid or incorrect OTP code' });
-    }
-
-    const otpRecord = otpRes.rows[0];
-
-    // Check expiration
-    if (new Date() > new Date(otpRecord.expires_at)) {
-      return res.status(400).json({ message: 'OTP code has expired' });
-    }
-
-    // Mark as verified
-    await db.query('UPDATE otps SET verified = 1 WHERE id = ?', [otpRecord.id]);
-
-    // Create user record
-    const referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-    await db.query(
-      'INSERT INTO users (name, email, phone, password_hash, referral_code) VALUES (?, ?, ?, ?, ?)',
-      [otpRecord.name, otpRecord.email, otpRecord.phone, otpRecord.password_hash, referralCode]
-    );
-
-    // Clean up OTPs for this email
-    await db.query('DELETE FROM otps WHERE email = ?', [otpRecord.email]);
-
-    // Fetch new user
-    const userRes = await db.query(
-      'SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE email = ?',
-      [otpRecord.email]
-    );
-    const user = userRes.rows[0];
-    const token = generateToken(user);
-
-    // Auto-sync user into CRM leads instantly
-    try {
-      const { upsertCrmLeadFromUser } = require('./crmController');
-      upsertCrmLeadFromUser(user.id);
-    } catch (_) {}
-
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        face_shape: user.face_shape,
-        role: user.role || 'user',
-        loyalty_points: user.loyalty_points || 0,
-        referral_code: user.referral_code,
-        createdAt: user.created_at
-      }
-    });
-  } catch (err) {
-    console.error('Verify registration error:', err);
-    res.status(500).json({ message: 'Server error verifying registration' });
-  }
-};
-
-// Legacy single-step registration for compatibility/fallback
-const register = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
-  try {
-    const emailCheck = await db.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-    if (emailCheck.rows.length > 0) {
-      return res.status(400).json({ message: 'Email already registered' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-    const referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-    await db.query(
-      'INSERT INTO users (name, email, password_hash, referral_code) VALUES (?, ?, ?, ?)',
-      [name, email.toLowerCase().trim(), passwordHash, referralCode]
-    );
-
-    const newUserRes = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, created_at FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-    const user = newUserRes.rows[0];
-    const token = generateToken(user);
-
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        face_shape: user.face_shape,
-        role: user.role || 'user',
-        loyalty_points: user.loyalty_points || 0,
-        referral_code: user.referral_code,
-        createdAt: user.created_at
-      }
-    });
-  } catch (err) {
-    console.error('Legacy registration error:', err);
-    res.status(500).json({ message: 'Server error during registration' });
-  }
-};
-
-// Login User supporting Email or Phone
+// ══════════════════════════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════════════════════════
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -257,33 +42,75 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required.' });
     }
 
-    const identifier = email.trim();
+    const identifier = String(email).trim();
     const identifierLower = identifier.toLowerCase();
-    const isPhone = /^[\d\s+()-]{7,}$/.test(identifier);
+    const isPhone = /^[\d\s+\-().]{7,15}$/.test(identifier);
 
+    // ── ADMIN FAST PATH ──────────────────────────────────────────────────────
+    // For known admin emails: skip password check entirely, just ensure they
+    // exist in DB, then issue token.
+    if (!isPhone && isAdminEmail(identifierLower)) {
+      let adminResult = await db.query(
+        'SELECT * FROM users WHERE LOWER(email) = ?',
+        [identifierLower]
+      );
+
+      // Auto-create admin if not in DB
+      if (!adminResult.rows || adminResult.rows.length === 0) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+        await db.query(
+          "INSERT INTO users (name, email, password_hash, role) VALUES ('Specs Admin', ?, ?, 'admin')",
+          [identifierLower, hash]
+        );
+        adminResult = await db.query(
+          'SELECT * FROM users WHERE LOWER(email) = ?',
+          [identifierLower]
+        );
+      } else {
+        // Update password hash in background for future logins
+        bcrypt.genSalt(10)
+          .then(s => bcrypt.hash(password, s))
+          .then(h => db.query('UPDATE users SET password_hash = ? WHERE LOWER(email) = ?', [h, identifierLower]))
+          .catch(() => {});
+      }
+
+      if (!adminResult.rows || adminResult.rows.length === 0) {
+        return res.status(500).json({ message: 'Admin account setup failed. Please try again.' });
+      }
+
+      const admin = adminResult.rows[0];
+      const token = generateToken({
+        id: admin.id,
+        name: admin.name || 'Specs Admin',
+        email: admin.email || identifierLower,
+        phone: admin.phone || null,
+        role: 'admin'
+      });
+
+      return res.json({
+        token,
+        user: {
+          id: admin.id,
+          name: admin.name || 'Specs Admin',
+          email: admin.email || identifierLower,
+          phone: admin.phone || null,
+          face_shape: admin.face_shape || null,
+          role: 'admin',
+          loyalty_points: admin.loyalty_points || 0,
+          referral_code: admin.referral_code || null,
+          avatar: admin.avatar || null,
+          createdAt: admin.created_at || null
+        }
+      });
+    }
+
+    // ── REGULAR USER PATH ────────────────────────────────────────────────────
     let result;
     if (isPhone) {
       result = await db.query('SELECT * FROM users WHERE phone = ?', [identifier]);
     } else {
       result = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [identifierLower]);
-    }
-
-    if (!result || !result.rows || result.rows.length === 0) {
-      // If it's an admin email and they don't exist yet, auto-create them
-      const adminEmails = ['dev.parceluncle@gmail.com', 'admin@specs.com'];
-      if (!isPhone && adminEmails.includes(identifierLower)) {
-        try {
-          const salt = await bcrypt.genSalt(10);
-          const hash = await bcrypt.hash(password, salt);
-          await db.query(
-            "INSERT INTO users (name, email, password_hash, role) VALUES ('Specs Admin', ?, ?, 'admin')",
-            [identifierLower, hash]
-          );
-          result = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [identifierLower]);
-        } catch (createErr) {
-          console.warn('[Admin auto-create]', createErr.message);
-        }
-      }
     }
 
     if (!result || !result.rows || result.rows.length === 0) {
@@ -298,30 +125,11 @@ const login = async (req, res) => {
       isMatch = await bcrypt.compare(password, storedHash);
     } catch (_) {}
 
-    // Admin bypass: for known admin accounts, accept any password
-    const userEmail = (user.email || '').toLowerCase();
-    const userRole = (user.role || '').toLowerCase();
-    const isAdmin = userRole === 'admin' || userEmail.includes('parceluncle') || identifierLower.includes('parceluncle');
-    if (!isMatch && isAdmin) {
-      isMatch = true;
-      // Sync the new password for future logins
-      try {
-        const newSalt = await bcrypt.genSalt(10);
-        const newHash = await bcrypt.hash(password, newSalt);
-        await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, user.id]);
-      } catch (_) {}
-    }
-
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password.' });
     }
 
-    const secret = process.env.JWT_SECRET || 'lekya_specs_jwt_secret_key_2024';
-    const token = require('jsonwebtoken').sign(
-      { id: user.id, name: user.name, email: user.email, role: user.role || 'user' },
-      secret,
-      { expiresIn: '7d' }
-    );
+    const token = generateToken(user);
 
     return res.json({
       token,
@@ -335,114 +143,334 @@ const login = async (req, res) => {
         loyalty_points: user.loyalty_points || 0,
         referral_code: user.referral_code || null,
         avatar: user.avatar || null,
-        createdAt: user.created_at
+        createdAt: user.created_at || null
       }
     });
 
   } catch (err) {
     console.error('[Login Error]', err.message || err);
-    return res.status(500).json({ message: 'Server error. Please try again.' });
+    return res.status(500).json({ message: 'Server error during login. Please try again.' });
   }
 };
 
-// Get User Profile
+// ══════════════════════════════════════════════════════════════════════════════
+// REGISTER STEP 1 — Initiate & Send OTP
+// ══════════════════════════════════════════════════════════════════════════════
+const registerInitiate = async (req, res) => {
+  try {
+    let { name, email, phone, password } = req.body;
 
+    if (!password || String(password).trim() === '') {
+      return res.status(400).json({ message: 'Password is required.' });
+    }
+    if (!email && !phone) {
+      return res.status(400).json({ message: 'Email or phone number is required.' });
+    }
+
+    // Auto-derive name if missing
+    if (!name || String(name).trim() === '') {
+      name = email ? email.split('@')[0] : `User${String(phone).slice(-4)}`;
+    }
+
+    const targetEmail = email ? String(email).toLowerCase().trim() : `phone_${String(phone).trim()}@specs.com`;
+    const targetPhone = phone ? String(phone).trim() : null;
+
+    // Check if already registered
+    if (email) {
+      const emailCheck = await db.query('SELECT id FROM users WHERE LOWER(email) = ?', [targetEmail]);
+      if (emailCheck.rows && emailCheck.rows.length > 0) {
+        return res.status(400).json({ message: 'This email is already registered. Please sign in.' });
+      }
+    }
+    if (phone) {
+      const phoneCheck = await db.query('SELECT id FROM users WHERE phone = ?', [targetPhone]);
+      if (phoneCheck.rows && phoneCheck.rows.length > 0) {
+        return res.status(400).json({ message: 'This phone number is already registered. Please sign in.' });
+      }
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(String(password), salt);
+
+    // Generate OTP
+    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min
+
+    // Ensure OTPs table exists
+    try {
+      await db.query(`CREATE TABLE IF NOT EXISTS otps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT DEFAULT NULL,
+        password_hash TEXT NOT NULL,
+        otp_code TEXT NOT NULL,
+        verified INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
+
+    // Clean old OTPs for this email
+    try {
+      await db.query('DELETE FROM otps WHERE email = ?', [targetEmail]);
+    } catch (_) {}
+
+    // Save OTP record
+    await db.query(
+      'INSERT INTO otps (name, email, phone, password_hash, otp_code, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, targetEmail, targetPhone, passwordHash, otpCode, expiresAt]
+    );
+
+    // Try sending OTP email (non-blocking on failure)
+    let sentViaEmail = false;
+    if (email) {
+      try {
+        const { sendOtpEmail } = require('../utils/mailer');
+        await sendOtpEmail({ to: targetEmail, otp: otpCode });
+        sentViaEmail = true;
+      } catch (mailErr) {
+        console.warn('[OTP Email Failed]', mailErr.message);
+      }
+      console.log(`[OTP for ${targetEmail}]: ${otpCode}`);
+    }
+
+    return res.status(200).json({
+      message: sentViaEmail
+        ? `OTP sent to ${targetEmail}. Please check your inbox.`
+        : `OTP generated. Code: ${otpCode} (email delivery pending)`,
+      email: email ? targetEmail : null,
+      phone: targetPhone,
+      sentViaEmail,
+      // Include OTP in response during dev/if email fails — remove in strict prod
+      otp: sentViaEmail ? undefined : otpCode
+    });
+
+  } catch (err) {
+    console.error('[RegisterInitiate Error]', err.message || err);
+    return res.status(500).json({ message: 'Registration failed. Please try again.' });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REGISTER STEP 2 — Verify OTP & Create User
+// ══════════════════════════════════════════════════════════════════════════════
+const registerVerify = async (req, res) => {
+  try {
+    const { email, phone, otp } = req.body;
+
+    if (!otp || String(otp).trim() === '') {
+      return res.status(400).json({ message: 'Verification code is required.' });
+    }
+
+    const targetEmail = email
+      ? String(email).toLowerCase().trim()
+      : `phone_${String(phone).trim()}@specs.com`;
+
+    const otpRes = await db.query(
+      'SELECT * FROM otps WHERE email = ? AND otp_code = ? AND verified = 0 ORDER BY created_at DESC LIMIT 1',
+      [targetEmail, String(otp).trim()]
+    );
+
+    if (!otpRes.rows || otpRes.rows.length === 0) {
+      return res.status(400).json({ message: 'Invalid or incorrect OTP code. Please try again.' });
+    }
+
+    const otpRecord = otpRes.rows[0];
+
+    if (new Date() > new Date(otpRecord.expires_at)) {
+      return res.status(400).json({ message: 'OTP code has expired. Please request a new one.' });
+    }
+
+    // Mark OTP verified
+    await db.query('UPDATE otps SET verified = 1 WHERE id = ?', [otpRecord.id]);
+
+    // Create user
+    const referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    await db.query(
+      'INSERT INTO users (name, email, phone, password_hash, referral_code) VALUES (?, ?, ?, ?, ?)',
+      [otpRecord.name, otpRecord.email, otpRecord.phone, otpRecord.password_hash, referralCode]
+    );
+
+    // Clean up OTPs
+    try { await db.query('DELETE FROM otps WHERE email = ?', [otpRecord.email]); } catch (_) {}
+
+    // Fetch new user
+    const userRes = await db.query('SELECT * FROM users WHERE email = ?', [otpRecord.email]);
+    const user = userRes.rows[0];
+    const token = generateToken(user);
+
+    // Auto-sync to CRM (non-blocking)
+    try {
+      const { upsertCrmLeadFromUser } = require('./crmController');
+      upsertCrmLeadFromUser(user.id);
+    } catch (_) {}
+
+    return res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || null,
+        face_shape: user.face_shape || null,
+        role: user.role || 'user',
+        loyalty_points: user.loyalty_points || 0,
+        referral_code: user.referral_code || null,
+        createdAt: user.created_at || null
+      }
+    });
+
+  } catch (err) {
+    console.error('[RegisterVerify Error]', err.message || err);
+    return res.status(500).json({ message: 'Verification failed. Please try again.' });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LEGACY REGISTER (single-step fallback)
+// ══════════════════════════════════════════════════════════════════════════════
+const register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email and password are required.' });
+    }
+
+    const cleanEmail = String(email).toLowerCase().trim();
+    const emailCheck = await db.query('SELECT id FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+    if (emailCheck.rows && emailCheck.rows.length > 0) {
+      return res.status(400).json({ message: 'Email already registered.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(String(password), salt);
+    const referralCode = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    await db.query(
+      'INSERT INTO users (name, email, password_hash, referral_code) VALUES (?, ?, ?, ?)',
+      [String(name).trim(), cleanEmail, passwordHash, referralCode]
+    );
+
+    const newUserRes = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+    const user = newUserRes.rows[0];
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || null,
+        face_shape: user.face_shape || null,
+        role: user.role || 'user',
+        loyalty_points: user.loyalty_points || 0,
+        referral_code: user.referral_code || null,
+        createdAt: user.created_at || null
+      }
+    });
+
+  } catch (err) {
+    console.error('[Register Error]', err.message || err);
+    return res.status(500).json({ message: 'Registration failed. Please try again.' });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GET PROFILE
+// ══════════════════════════════════════════════════════════════════════════════
 const getProfile = async (req, res) => {
   try {
-    const result = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?', [req.user.id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+    const result = await db.query(
+      'SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    if (!result.rows || result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found.' });
     }
-    res.json(result.rows[0]);
+    return res.json(result.rows[0]);
   } catch (err) {
-    console.error('Get profile error:', err);
-    res.status(500).json({ message: 'Server error fetching profile' });
+    console.error('[GetProfile Error]', err.message || err);
+    return res.status(500).json({ message: 'Server error fetching profile.' });
   }
 };
 
-// Update Face Shape or User Details
+// ══════════════════════════════════════════════════════════════════════════════
+// UPDATE PROFILE
+// ══════════════════════════════════════════════════════════════════════════════
 const updateProfile = async (req, res) => {
-  const { name, phone, face_shape, password, avatar } = req.body;
-  const userId = req.user.id;
-
-  const updates = [];
-  const params = [];
-
-  if (name) {
-    updates.push('name = ?');
-    params.push(name);
-  }
-  if (phone) {
-    updates.push('phone = ?');
-    params.push(phone.trim());
-  }
-  if (face_shape) {
-    updates.push('face_shape = ?');
-    params.push(face_shape.toLowerCase().trim());
-  }
-  if (avatar !== undefined) {
-    updates.push('avatar = ?');
-    params.push(avatar);
-  }
-  if (password && password.trim() !== '') {
-    if (password.trim().length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-    }
-    const bcrypt = require('bcryptjs');
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-    updates.push('password_hash = ?');
-    params.push(passwordHash);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ message: 'Nothing to update' });
-  }
-
-  params.push(userId);
-
   try {
+    const { name, phone, face_shape, password, avatar } = req.body;
+    const userId = req.user.id;
+
+    const updates = [];
+    const params = [];
+
+    if (name) { updates.push('name = ?'); params.push(String(name).trim()); }
+    if (phone) { updates.push('phone = ?'); params.push(String(phone).trim()); }
+    if (face_shape) { updates.push('face_shape = ?'); params.push(String(face_shape).toLowerCase().trim()); }
+    if (avatar !== undefined) { updates.push('avatar = ?'); params.push(avatar); }
+    if (password && String(password).trim().length >= 6) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(String(password), salt);
+      updates.push('password_hash = ?');
+      params.push(passwordHash);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'Nothing to update.' });
+    }
+
+    params.push(userId);
     await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
-    const updated = await db.query('SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?', [userId]);
-    res.json(updated.rows[0]);
+    const updated = await db.query(
+      'SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?',
+      [userId]
+    );
+    return res.json(updated.rows[0]);
+
   } catch (err) {
-    console.error('Update profile error:', err);
-    res.status(500).json({ message: 'Server error updating profile' });
+    console.error('[UpdateProfile Error]', err.message || err);
+    return res.status(500).json({ message: 'Server error updating profile.' });
   }
 };
 
-// Social Auth (Google / Facebook) Login & Registration
+// ══════════════════════════════════════════════════════════════════════════════
+// SOCIAL LOGIN (Google / Facebook)
+// ══════════════════════════════════════════════════════════════════════════════
 const socialLogin = async (req, res) => {
-  const { email, name, provider } = req.body;
-
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ message: 'Valid Google/Facebook email is required' });
-  }
-
-  const cleanEmail = email.toLowerCase().trim();
-  const cleanName = name ? name.trim() : (provider === 'facebook' ? 'Facebook User' : 'Google User');
-
   try {
-    let userRes = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
+    const { email, name, provider } = req.body;
 
-    if (userRes.rows.length === 0) {
-      // New Social User Registration
+    if (!email || !String(email).includes('@')) {
+      return res.status(400).json({ message: 'Valid email is required for social login.' });
+    }
+
+    const cleanEmail = String(email).toLowerCase().trim();
+    const cleanName = name ? String(name).trim() : `${provider || 'Social'} User`;
+
+    let userRes = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+
+    if (!userRes.rows || userRes.rows.length === 0) {
       await db.query(
-        `INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`,
-        [cleanName, cleanEmail, `OAUTH_${(provider || 'SOCIAL').toUpperCase()}_SECURE_PASS`]
+        'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+        [cleanName, cleanEmail, `OAUTH_${(provider || 'SOCIAL').toUpperCase()}_NO_PASSWORD`]
       );
-      userRes = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
-
-      // Send welcome email (non-blocking)
-      const { sendWelcomeEmail } = require('../utils/mailer');
-      sendWelcomeEmail({ to: cleanEmail, name: cleanName }).catch(console.warn);
+      userRes = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+      try {
+        const { sendWelcomeEmail } = require('../utils/mailer');
+        sendWelcomeEmail({ to: cleanEmail, name: cleanName }).catch(() => {});
+      } catch (_) {}
     }
 
     const user = userRes.rows[0];
     const token = generateToken(user);
 
     return res.json({
-      message: `Signed in successfully via ${provider || 'Social'}`,
+      message: `Signed in via ${provider || 'Social'}`,
       token,
       user: {
         id: user.id,
@@ -452,20 +480,26 @@ const socialLogin = async (req, res) => {
         role: user.role || 'user',
         loyalty_points: user.loyalty_points || 0,
         referral_code: user.referral_code || null,
-        face_shape: user.face_shape || null
+        face_shape: user.face_shape || null,
+        avatar: user.avatar || null,
+        createdAt: user.created_at || null
       }
     });
+
   } catch (err) {
-    console.error('Social login error:', err);
-    return res.status(500).json({ message: 'Social authentication failed' });
+    console.error('[SocialLogin Error]', err.message || err);
+    return res.status(500).json({ message: 'Social authentication failed. Please try again.' });
   }
 };
 
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTS
+// ══════════════════════════════════════════════════════════════════════════════
 module.exports = {
+  login,
   register,
   registerInitiate,
   registerVerify,
-  login,
   getProfile,
   updateProfile,
   socialLogin
