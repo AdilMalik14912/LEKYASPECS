@@ -20,8 +20,14 @@ require('dotenv').config();
 // ── Create Turso client ────────────────────────────────────────────────────
 // TURSO_URL and TURSO_TOKEN MUST be set in Vercel Environment Variables.
 // Without them, DB features degrade gracefully (admin login still works via bypass).
-const TURSO_URL = process.env.TURSO_URL || 'libsql://lekya-specs-adilmalik.aws-ap-south-1.turso.io';
-const TURSO_TOKEN = process.env.TURSO_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI5Mzg4MTMsImlkIjoiMDE5ZjFmNmUtMjkwMS03YWY5LWFmMzctZjkyZTBlNzVmZjUyIiwia2lkIjoiaTJYZ0V6bkxqZWlYY1didUJXclUyRTFTYWpJNlNGa29wSVE2emtvYTVYTSIsInJpZCI6ImNkZWUzYmY3LTZhY2UtNGZlMS1iYTFlLTVlNTc1OWM3MGZiMyJ9.aIy89sILLvopzGdufh3l4GloxS4aQomoS_Qw0J9FUHEhrocRRrpa2mjzgua4l_IAwIhQ3baY3zFpIzYJO7ZUCw';
+let TURSO_URL = process.env.TURSO_URL;
+if (!TURSO_URL || !TURSO_URL.includes('turso.io')) {
+  TURSO_URL = 'libsql://lekya-specs-adilmalik.aws-ap-south-1.turso.io';
+}
+let TURSO_TOKEN = process.env.TURSO_TOKEN;
+if (!TURSO_TOKEN || TURSO_TOKEN.length < 20) {
+  TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI5Mzg4MTMsImlkIjoiMDE5ZjFmNmUtMjkwMS03YWY5LWFmMzctZjkyZTBlNzVmZjUyIiwia2lkIjoiaTJYZ0V6bkxqZWlYY1didUJXclUyRTFTYWpJNlNGa29wSVE2emtvYTVYTSIsInJpZCI6ImNkZWUzYmY3LTZhY2UtNGZlMS1iYTFlLTVlNTc1OWM3MGZiMyJ9.aIy89sILLvopzGdufh3l4GloxS4aQomoS_Qw0J9FUHEhrocRRrpa2mjzgua4l_IAwIhQ3baY3zFpIzYJO7ZUCw';
+}
 
 // Null-safe mock client used when Turso is not configured
 const nullClient = {
