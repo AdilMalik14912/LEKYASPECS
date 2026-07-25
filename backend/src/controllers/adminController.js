@@ -100,18 +100,18 @@ const getDashboardStats = async (req, res) => {
 
     res.json({
       metrics: {
-        total_sales:          parseFloat(revenueRes.rows[0].total_sales)               || 0,
-        total_orders:         parseInt(ordersCountRes.rows[0].total_orders)             || 0,
-        total_customers:      parseInt(usersCountRes.rows[0].total_customers)           || 0,
-        pending_orders:       parseInt(pendingOrdersRes.rows[0].pending_orders)         || 0,
-        out_of_stock:         parseInt(outOfStockRes.rows[0].out_of_stock)             || 0,
-        today_sales:          parseFloat(todaySalesRes.rows[0].today_sales)             || 0,
-        new_customers_today:  parseInt(newCustomersTodayRes.rows[0].new_customers)     || 0
+        total_sales:          parseFloat(revenueRes.rows[0]?.total_sales)               || 0,
+        total_orders:         parseInt(ordersCountRes.rows[0]?.total_orders)             || 0,
+        total_customers:      parseInt(usersCountRes.rows[0]?.total_customers)           || 0,
+        pending_orders:       parseInt(pendingOrdersRes.rows[0]?.pending_orders)         || 0,
+        out_of_stock:         parseInt(outOfStockRes.rows[0]?.out_of_stock)             || 0,
+        today_sales:          parseFloat(todaySalesRes.rows[0]?.today_sales)             || 0,
+        new_customers_today:  parseInt(newCustomersTodayRes.rows[0]?.new_customers)     || 0
       },
-      low_stock_alerts:      lowStockRes.rows,
-      category_distribution: categorySalesRes.rows,
-      top_products:          topProducts,
-      sales_trend:           salesTrendRes.rows
+      low_stock_products: lowStockRes.rows || [],
+      category_sales:     categorySalesRes.rows || [],
+      top_products:       topProducts || [],
+      sales_trend:        salesTrendRes.rows || []
     });
   } catch (err) {
     console.error('Get admin stats error:', err);

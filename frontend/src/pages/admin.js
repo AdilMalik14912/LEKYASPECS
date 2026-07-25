@@ -778,23 +778,23 @@ export default function Admin() {
       fetch(`${API_BASE}/api/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setAnalytics(data); setAnalyticsLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : {})
+        .then(data => { setAnalytics(data && data.metrics ? data : null); setAnalyticsLoading(false); })
+        .catch(err => { console.error(err); setAnalyticsLoading(false); });
     } else if (activeTab === 'products') {
       setProductsLoading(true);
       fetch(`${API_BASE}/api/products`)
-        .then(res => res.json())
-        .then(data => { setProducts(data); setProductsLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setProducts(Array.isArray(data) ? data : []); setProductsLoading(false); })
+        .catch(err => { console.error(err); setProductsLoading(false); });
     } else if (activeTab === 'orders') {
       setOrdersLoading(true);
       fetch(`${API_BASE}/api/admin/orders`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(data => { setOrders(data); setOrdersLoading(false); })
-        .catch(err => console.error(err));
+        .then(res => res.ok ? res.json() : [])
+        .then(data => { setOrders(Array.isArray(data) ? data : []); setOrdersLoading(false); })
+        .catch(err => { console.error(err); setOrdersLoading(false); });
 
       fetch(`${API_BASE}/api/seller/delivery-agents`, {
         headers: { 'Authorization': `Bearer ${token}` }
