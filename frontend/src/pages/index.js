@@ -123,13 +123,15 @@ export default function Home() {
   // Fetch featured products + store settings
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : [])
       .then(data => {
-        setFeaturedProducts(data.slice(0, 4));
+        const arr = Array.isArray(data) ? data : [];
+        setFeaturedProducts(arr.slice(0, 4));
         setLoading(false);
       })
       .catch(err => {
         console.error('Error fetching featured products:', err);
+        setFeaturedProducts([]);
         setLoading(false);
       });
 

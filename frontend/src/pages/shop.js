@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
@@ -76,11 +76,18 @@ export default function Shop() {
   // Load filter options on mount
   useEffect(() => {
     fetch(`${API_BASE}/api/products/filters`)
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : {})
       .then(data => {
-        setFilterOptions(data);
-        if (data.price_range) {
-          setPriceRange(parseFloat(data.price_range.max_price || 10000));
+        if (data && typeof data === 'object') {
+          setFilterOptions({
+            frame_shapes: Array.isArray(data.frame_shapes) ? data.frame_shapes : [],
+            categories: Array.isArray(data.categories) ? data.categories : [],
+            genders: Array.isArray(data.genders) ? data.genders : [],
+            price_range: data.price_range || { min_price: 0, max_price: 10000 }
+          });
+          if (data.price_range) {
+            setPriceRange(parseFloat(data.price_range.max_price || 10000));
+          }
         }
       })
       .catch(err => console.error('Error fetching filters:', err));
@@ -108,10 +115,10 @@ export default function Shop() {
     if (search) params.append('search', search);
 
     fetch(url + params.toString())
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : [])
       .then(data => {
-        // Apply frontend sorting
-        let sorted = [...data];
+        const arr = Array.isArray(data) ? data : [];
+        let sorted = [...arr];
         if (sortOption === 'price-low') {
           sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
         } else if (sortOption === 'price-high') {
@@ -126,6 +133,7 @@ export default function Shop() {
       })
       .catch(err => {
         console.error('Error fetching products:', err);
+        setProducts([]);
         setLoading(false);
       });
   }, [router.query, sortOption, router.isReady]);

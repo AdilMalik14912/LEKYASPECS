@@ -74,9 +74,10 @@ export default function ProductDetail() {
 
         // Fetch related products
         fetch(`${API_BASE}/api/products?category=${data.category}`)
-          .then(res => res.json())
+          .then(res => res.ok ? res.json() : [])
           .then(related => {
-            setRelatedProducts(related.filter(r => r.id !== data.id).slice(0, 4));
+            const arr = Array.isArray(related) ? related : [];
+            setRelatedProducts(arr.filter(r => r.id !== data.id).slice(0, 4));
           })
           .catch(err => console.error(err));
       })
