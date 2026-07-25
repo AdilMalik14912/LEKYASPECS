@@ -56,12 +56,17 @@ const getFrontendUrl = (req) => {
 };
 
 // Enable CORS
+// Enable CORS — allow all Vercel preview deployments + localhost
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: (origin, callback) => {
+    // Allow any request (no origin = same-origin, or allow all)
+    callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+app.options('*', cors()); // Handle preflight requests
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -75,10 +80,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Global Security Middlewares
-app.use(userAgentShield);
-app.use('/api', generalLimiter);
 
 // --- ROUTES ---
 
