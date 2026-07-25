@@ -55,7 +55,6 @@ const getFrontendUrl = (req) => {
   return 'http://localhost:3000';
 };
 
-// Enable CORS
 // Enable CORS — allow all Vercel preview deployments + localhost
 app.use(cors({
   origin: (origin, callback) => {
@@ -455,15 +454,15 @@ const cleanExpiredDatabaseRecords = async () => {
   }
 };
 
-// Initialize Database
+// Initialize Database — non-fatal in serverless
 const initDb = async () => {
   try {
     await db.initDb();
     console.log('[Specs Express API] Database initialized.');
     cleanExpiredDatabaseRecords();
   } catch (err) {
-    console.error('DB init error:', err.message);
-    process.exit(1);
+    // DO NOT call process.exit(1) in serverless — it kills all future requests
+    console.error('[DB Init Warning] Non-fatal — server will still handle requests:', err.message);
   }
 };
 

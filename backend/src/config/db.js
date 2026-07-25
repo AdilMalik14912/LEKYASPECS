@@ -18,9 +18,14 @@ const path = require('path');
 require('dotenv').config();
 
 // ── Create Turso client ────────────────────────────────────────────────────
+// TURSO_URL and TURSO_TOKEN must be set in Vercel env vars.
+// Fallback to in-memory SQLite for local dev without Turso credentials.
+const TURSO_URL = process.env.TURSO_URL || 'file:/tmp/local.db';
+const TURSO_TOKEN = process.env.TURSO_TOKEN || undefined;
+
 const client = createClient({
-  url:       process.env.TURSO_URL   || 'file:local.db', // fallback to local file
-  authToken: process.env.TURSO_TOKEN || undefined,
+  url:       TURSO_URL,
+  authToken: TURSO_TOKEN,
 });
 
 // ── Simple query wrapper ───────────────────────────────────────────────────
