@@ -69,13 +69,13 @@ async function sendOtpSms({ to, otp }) {
 }
 
 // ── 2. Order Status Update SMS ────────────────────────────────────────────────
-async function sendStatusUpdateSms({ to, customerName, orderId, status, note }) {
+async function sendStatusUpdateSms({ to, customerName, orderId, status, note, deliveryOtp = null }) {
   const statusMessages = {
     'Payment Confirmed': `Hi ${customerName}! Your Lekya Specs payment for Order #${orderId} is confirmed. We'll start processing shortly.`,
     'Processing':        `Hi ${customerName}! Order #${orderId} is now being processed at our warehouse. Sit tight!`,
     'Packed':            `Hi ${customerName}! Order #${orderId} is packed and ready to ship. It'll leave our warehouse soon.`,
     'Shipped':           `Hi ${customerName}! Your Order #${orderId} has been shipped and is on its way. Track it on our website.`,
-    'Out for Delivery':  `Hi ${customerName}! Your Order #${orderId} is out for delivery today! Keep your phone handy for the OTP.`,
+    'Out for Delivery':  `Hi ${customerName}! Your Order #${orderId} is out for delivery today! Your 6-digit Customer Delivery OTP is: ${deliveryOtp || '------'}. Please share this with the rider to verify.`,
     'Delivered':         `Hi ${customerName}! Your Order #${orderId} has been delivered. Thank you for shopping with Lekya Specs! 🕶️`,
     'Cancelled':         `Hi ${customerName}! Your Order #${orderId} has been cancelled. Refunds (if any) will process in 5-7 days.`,
     'Refunded':          `Hi ${customerName}! Refund for Order #${orderId} has been initiated. Please allow 5-7 business days.`,

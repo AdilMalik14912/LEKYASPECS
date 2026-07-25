@@ -163,7 +163,14 @@ const updateOrderStatus = async (req, res) => {
   }
 
   try {
-    await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+    let finalOtp = null;
+    if (status === 'Out for Delivery') {
+      finalOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      await db.query('UPDATE orders SET status = ?, delivery_otp = ? WHERE id = ?', [status, finalOtp, id]);
+    } else {
+      await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+    }
+
     const result = await db.query(
       `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone
        FROM orders o JOIN users u ON o.user_id = u.id
@@ -175,6 +182,10 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
     const order = result.rows[0];
+
+    if (status === 'Out for Delivery') {
+      finalOtp = order.delivery_otp || finalOtp;
+    }
 
     // Auto-initiate Razorpay Refund if status set to Refunded or Cancelled
     if ((status === 'Refunded' || status === 'Cancelled') && order.payment_id) {
@@ -200,7 +211,8 @@ const updateOrderStatus = async (req, res) => {
         customerName: order.user_name,
         orderId:      id,
         status,
-        note:         note || null
+        note:         note || null,
+        deliveryOtp:  finalOtp
       }).catch(err => console.warn('[Status SMS]', err.message));
     }
 
@@ -775,9 +787,7 @@ const getDatabaseHealth = async (req, res) => {
       status: 'Healthy',
       engine: 'SQLite/Turso',
       latency_ms: latency,
-      records: tableStats,
-      debug_env_url: process.env.TURSO_URL || 'not set',
-      debug_env_token: process.env.TURSO_TOKEN ? process.env.TURSO_TOKEN.slice(0, 20) + '...' : 'not set'
+      records: tableStats
     });
   } catch (err) {
     console.error('Get database health error:', err);

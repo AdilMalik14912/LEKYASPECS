@@ -204,7 +204,8 @@ const updateDeliveryStatus = async (req, res) => {
           to:           order.customer_phone,
           customerName: order.customer_name,
           orderId:      id,
-          status
+          status,
+          deliveryOtp:  finalOtp
         }).catch(err => console.warn('[Status SMS]', err.message));
       }
     }
