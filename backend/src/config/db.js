@@ -12,7 +12,7 @@
  * For INSERT/UPDATE/DELETE RETURNING rows are also in `rows`.
  */
 
-const { createClient } = require('@libsql/client');
+const { createClient } = require('@libsql/client/web');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
