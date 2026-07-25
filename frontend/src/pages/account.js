@@ -433,6 +433,9 @@ export default function Account() {
           })
           .then(data => {
             setFormLoading(false);
+            if (data.message) {
+              showToast(data.message, 'info');
+            }
             setOtpTarget({ email: data.email || '', phone: data.phone || '' });
             setRegistrationStep(2);
           })

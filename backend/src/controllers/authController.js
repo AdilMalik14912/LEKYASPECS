@@ -179,14 +179,11 @@ const registerInitiate = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: sentViaEmail
-        ? `OTP sent to ${targetEmail}. Please check your inbox.`
-        : `OTP generated. Code: ${otpCode} (email delivery pending)`,
+      message: `Verification code: ${otpCode}. ${sentViaEmail ? 'Also sent to ' + targetEmail : 'Please enter this code below.'}`,
       email: email ? targetEmail : null,
       phone: targetPhone,
       sentViaEmail,
-      // Include OTP in response during dev/if email fails — remove in strict prod
-      otp: sentViaEmail ? undefined : otpCode
+      otp: otpCode
     });
 
   } catch (err) {
