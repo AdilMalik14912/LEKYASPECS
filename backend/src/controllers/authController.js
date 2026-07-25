@@ -358,14 +358,35 @@ const register = async (req, res) => {
 // ══════════════════════════════════════════════════════════════════════════════
 const getProfile = async (req, res) => {
   try {
-    const result = await db.query(
-      'SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ?',
-      [req.user.id]
+    const userEmail = req.user?.email ? String(req.user.email).toLowerCase().trim() : '';
+    const userId = req.user?.id;
+
+    let result = await db.query(
+      'SELECT id, name, email, phone, face_shape, role, loyalty_points, referral_code, avatar, created_at FROM users WHERE id = ? OR LOWER(email) = ?',
+      [userId, userEmail]
     );
-    if (!result.rows || result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found.' });
+
+    if (result && result.rows && result.rows.length > 0) {
+      return res.json(result.rows[0]);
     }
-    return res.json(result.rows[0]);
+
+    // Admin/Token User Fallback — prevents 404 when admin profile is requested
+    if (req.user && (isAdminEmail(userEmail) || req.user.role === 'admin')) {
+      return res.json({
+        id: userId || 'admin-1',
+        name: req.user.name || 'Specs Admin',
+        email: userEmail || 'dev.parceluncle@gmail.com',
+        phone: null,
+        face_shape: null,
+        role: 'admin',
+        loyalty_points: 0,
+        referral_code: null,
+        avatar: null,
+        created_at: new Date().toISOString()
+      });
+    }
+
+    return res.status(404).json({ message: 'User profile not found.' });
   } catch (err) {
     console.error('[GetProfile Error]', err.message || err);
     return res.status(500).json({ message: 'Server error fetching profile.' });

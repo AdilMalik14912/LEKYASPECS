@@ -108,10 +108,12 @@ const getDashboardStats = async (req, res) => {
         today_sales:          parseFloat(todaySalesRes.rows[0]?.today_sales)             || 0,
         new_customers_today:  parseInt(newCustomersTodayRes.rows[0]?.new_customers)     || 0
       },
-      low_stock_products: lowStockRes.rows || [],
-      category_sales:     categorySalesRes.rows || [],
-      top_products:       topProducts || [],
-      sales_trend:        salesTrendRes.rows || []
+      low_stock_alerts:      lowStockRes.rows || [],
+      low_stock_products:    lowStockRes.rows || [],
+      category_distribution: categorySalesRes.rows || [],
+      category_sales:        categorySalesRes.rows || [],
+      top_products:          topProducts || [],
+      sales_trend:           salesTrendRes.rows || []
     });
   } catch (err) {
     console.error('Get admin stats error:', err);

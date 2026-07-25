@@ -1735,7 +1735,7 @@ export default function Admin() {
               </div>
             </div>
 
-            {analyticsLoading ? (
+            {analyticsLoading || !analytics ? (
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
             ) : (
               <div className="space-y-8">
@@ -1750,7 +1750,7 @@ export default function Admin() {
                   >
                     <div>
                       <span className="block text-[10px] uppercase font-bold text-[#FAAE62] tracking-wider mb-1">Pending Orders</span>
-                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.pending_orders}</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics?.pending_orders ?? 0}</span>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-[#FAAE62]/10 border border-[#FAAE62]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <ClipboardList className="w-6 h-6 text-[#FAAE62]" />
@@ -1766,7 +1766,7 @@ export default function Admin() {
                   >
                     <div>
                       <span className="block text-[10px] uppercase font-bold text-red-400 tracking-wider mb-1">Out of Stock</span>
-                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.out_of_stock}</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics?.out_of_stock ?? 0}</span>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <ShoppingBag className="w-6 h-6 text-red-400" />
@@ -1776,7 +1776,7 @@ export default function Admin() {
                   <div className="flex items-center justify-between p-5 bg-[#1A0024]/80 border border-emerald-500/30 rounded-2xl text-left admin-card-3d">
                     <div>
                       <span className="block text-[10px] uppercase font-bold text-emerald-400 tracking-wider mb-1">Today's Revenue</span>
-                      <span className="text-2xl font-extrabold text-white">₹{analytics.metrics.today_sales.toLocaleString('en-IN')}</span>
+                      <span className="text-2xl font-extrabold text-white">₹{(analytics.metrics?.today_sales ?? 0).toLocaleString('en-IN')}</span>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                       <Landmark className="w-6 h-6 text-emerald-400" />
@@ -1792,7 +1792,7 @@ export default function Admin() {
                   >
                     <div>
                       <span className="block text-[10px] uppercase font-bold text-sky-400 tracking-wider mb-1">New Users Today</span>
-                      <span className="text-3xl font-extrabold text-white">{analytics.metrics.new_customers_today}</span>
+                      <span className="text-3xl font-extrabold text-white">{analytics.metrics?.new_customers_today ?? 0}</span>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Users className="w-6 h-6 text-sky-400" />
@@ -1804,15 +1804,15 @@ export default function Admin() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
                     <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Total Sales Revenue</span>
-                    <span className="text-3xl font-bold text-white font-mono">₹{analytics.metrics.total_sales.toLocaleString('en-IN')}</span>
+                    <span className="text-3xl font-bold text-white font-mono">₹{(analytics.metrics?.total_sales ?? 0).toLocaleString('en-IN')}</span>
                   </div>
                   <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
                     <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Paid Orders</span>
-                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics.total_orders}</span>
+                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics?.total_orders ?? 0}</span>
                   </div>
                   <div className="bg-[#1A0024]/80 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-xl backdrop-blur-xl admin-card-3d">
                     <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-2">Registered Customers</span>
-                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics.total_customers}</span>
+                    <span className="text-3xl font-bold text-white font-mono">{analytics.metrics?.total_customers ?? 0}</span>
                   </div>
                 </div>
 
@@ -1824,7 +1824,7 @@ export default function Admin() {
                     </h3>
                     <span className="text-xs text-[#9B7EA8] font-semibold">Live Transaction Activity</span>
                   </div>
-                  <RevenueChart data={analytics.sales_trend} />
+                  <RevenueChart data={analytics.sales_trend || []} />
                 </div>
 
                 {/* Grid for top selling & low stock */}
@@ -1835,7 +1835,7 @@ export default function Admin() {
                       <Star className="w-5 h-5 text-[#FAAE62] fill-[#FAAE62]" /> Top 5 Best Sellers
                     </h3>
                     <div className="divide-y divide-white/10">
-                      {analytics.top_products.map((item, idx) => (
+                      {(analytics.top_products || []).map((item, idx) => (
                         <div key={item.id} className="py-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-xs text-[#FAAE62] w-4">{idx + 1}</span>
@@ -1846,7 +1846,7 @@ export default function Admin() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-sm block text-[#FAAE62]">₹{parseFloat(item.revenue).toLocaleString('en-IN')}</span>
+                            <span className="font-bold text-sm block text-[#FAAE62]">₹{parseFloat(item.revenue || 0).toLocaleString('en-IN')}</span>
                             <span className="text-[10px] text-[#9B7EA8] block">{item.units_sold} units sold</span>
                           </div>
                         </div>
@@ -1859,15 +1859,15 @@ export default function Admin() {
                     <h3 className="font-serif text-lg font-bold text-white mb-4 text-red-400 flex items-center gap-2">
                       <ShieldAlert className="w-5 h-5 text-red-400" /> Low Stock Alerts
                     </h3>
-                    {analytics.low_stock_alerts.length === 0 ? (
+                    {(!analytics.low_stock_alerts || analytics.low_stock_alerts.length === 0) && (!analytics.low_stock_products || analytics.low_stock_products.length === 0) ? (
                       <p className="text-sm text-[#9B7EA8] py-4 text-center">All product inventory columns healthy.</p>
                     ) : (
                       <div className="divide-y divide-white/10">
-                        {analytics.low_stock_alerts.map(item => (
+                        {(analytics.low_stock_alerts || analytics.low_stock_products || []).map(item => (
                           <div key={item.id} className="py-3 flex items-center justify-between">
                             <div>
                               <span className="font-semibold text-sm text-white block">{item.name}</span>
-                              <span className="text-xs text-[#9B7EA8]">Price: ₹{parseFloat(item.price).toLocaleString('en-IN')}</span>
+                              <span className="text-xs text-[#9B7EA8]">Price: ₹{parseFloat(item.price || 0).toLocaleString('en-IN')}</span>
                             </div>
                             <span className={`font-bold px-3 py-1 rounded-full text-xs ${
                               item.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
@@ -1885,14 +1885,15 @@ export default function Admin() {
                 <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
                   <h3 className="font-serif text-lg font-bold text-white mb-4">Category Distribution</h3>
                   <div className="grid grid-cols-2 gap-4 text-center">
-                    {analytics.category_distribution.map(cat => (
+                    {(analytics.category_distribution || analytics.category_sales || []).map(cat => (
                       <div key={cat.category} className="p-4 bg-[#0D0016]/80 border border-[#FAAE62]/20 rounded-xl">
                         <span className="block text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-1">{cat.category}</span>
-                        <span className="text-xl font-bold text-white font-mono">₹{parseFloat(cat.revenue).toLocaleString('en-IN')}</span>
+                        <span className="text-xl font-bold text-white font-mono">₹{parseFloat(cat.revenue || 0).toLocaleString('en-IN')}</span>
                         <span className="block text-[10px] text-[#FAAE62] uppercase font-bold mt-1">{cat.items_sold} sold</span>
                       </div>
                     ))}
                   </div>
+                </div>
                 </div>
 
               </div>
