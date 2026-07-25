@@ -302,12 +302,6 @@ const registerVerify = async (req, res) => {
   }
 };
 
-  } catch (err) {
-    console.error('[RegisterVerify Error]', err.message || err);
-    return res.status(500).json({ message: 'Verification failed. Please try again.' });
-  }
-};
-
 // ══════════════════════════════════════════════════════════════════════════════
 // LEGACY REGISTER (single-step fallback)
 // ══════════════════════════════════════════════════════════════════════════════
