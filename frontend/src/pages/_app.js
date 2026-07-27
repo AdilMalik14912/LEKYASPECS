@@ -307,10 +307,110 @@ export default function App({ Component, pageProps }) {
     <ToastContext.Provider value={{ showToast }}>
       <AuthContext.Provider value={{ user, token, login, logout, authLoading, updateProfileFaceShape, updateProfile }}>
         <Head>
-          <title>lekya.in — Premium Luxury Eyewear</title>
-          <meta name="description" content="lekya.in — Shop luxury eyeglasses and sunglasses. AI Face Shape Detection, Live AR Try-On, Custom Lens Configurator. India's premium eyewear destination." />
+          <title>Lekya Specs | Premium Luxury Eyewear & Optical Journal | lekya.in</title>
+          <meta name="description" content="lekya.in — Shop luxury eyeglasses and sunglasses in India. AI Face Shape Detection, Live 2D Virtual Try-On, Japanese Beta Titanium frames & Optical Journal." />
+          <meta name="keywords" content="lekya.in, Lekya Specs, Lekya Eyewear, Lekya Group, Luxury Eyeglasses India, Titanium Eyewear, Polarized Sunglasses" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="canonical" href="https://lekya.in" />
+          
+          {/* OpenGraph & Social Cards */}
+          <meta property="og:title" content="Lekya Specs | Premium Luxury Eyewear | lekya.in" />
+          <meta property="og:description" content="Shop handcrafted Beta Titanium & Italian Acetate frames with Live 2D Try-On Studio and Custom Prescription Lenses." />
+          <meta property="og:url" content="https://lekya.in" />
+          <meta property="og:site_name" content="Lekya Specs" />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+
+          {/* Favicon */}
           <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><path d='M5 30 C6 14,28 6,50 18 C72 6,94 14,95 30 C94 46,72 54,50 42 C28 54,6 46,5 30Z' fill='none' stroke='%23FAAE62' stroke-width='5'/><path d='M46 30 C47 26,53 26,54 30' fill='none' stroke='%23FAAE62' stroke-width='4'/></svg>" />
+
+          {/* Google Structured Data (JSON-LD) for Sitelinks Snippets */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify([
+                {
+                  "@context": "https://schema.org",
+                  "@type": "Organization",
+                  "name": "Lekya Specs",
+                  "alternateName": ["Lekya Eyewear", "Lekya Group Specs", "lekya.in"],
+                  "url": "https://lekya.in",
+                  "logo": "https://lekya.in/lekya_logo.png",
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+91-9654119262",
+                    "contactType": "customer service",
+                    "areaServed": "IN",
+                    "availableLanguage": ["English", "Hindi"]
+                  },
+                  "sameAs": [
+                    "https://instagram.com/lekya.in",
+                    "https://facebook.com/lekyaspecs",
+                    "https://twitter.com/lekyain"
+                  ]
+                },
+                {
+                  "@context": "https://schema.org",
+                  "@type": "WebSite",
+                  "name": "Lekya Specs",
+                  "url": "https://lekya.in",
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://lekya.in/shop?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@context": "https://schema.org",
+                  "@type": "ItemList",
+                  "itemListElement": [
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 1,
+                      "name": "About Us",
+                      "description": "Discover Lekya Specs craftsmanship, Japanese Beta Titanium & Group Vision.",
+                      "url": "https://lekya.in/about"
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 2,
+                      "name": "Eyewear Collections",
+                      "description": "Shop luxury prescription eyeglasses & polarized sunglasses.",
+                      "url": "https://lekya.in/shop"
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 3,
+                      "name": "2D Virtual Try-On Studio",
+                      "description": "Try on luxury frames live in your browser using interactive 2D Studio.",
+                      "url": "https://lekya.in/tryon"
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 4,
+                      "name": "Optical & Style Journal",
+                      "description": "Read expert articles on lens tech, blue shield, and face shape fitting.",
+                      "url": "https://lekya.in/blog"
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 5,
+                      "name": "Track Order Status",
+                      "description": "Track your eyewear dispatch & delivery live.",
+                      "url": "https://lekya.in/track"
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 6,
+                      "name": "Contact Us",
+                      "description": "Get in touch with Lekya Specs HQ in South Delhi, India.",
+                      "url": "https://lekya.in/contact"
+                    }
+                  ]
+                }
+              ])
+            }}
+          />
         </Head>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>

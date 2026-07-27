@@ -2,67 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lekya.in/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
     <loc>https://lekya.in/shop</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/blog</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://lekya.in/tryon</loc>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/compare</loc>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/face-shape</loc>
+    <loc>https://lekya.in/about</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lekya.in/skin-analysis</loc>
+    <loc>https://lekya.in/tryon</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/face-shape</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/lookbook</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://lekya.in/style-quiz</loc>
+    <loc>https://lekya.in/track</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/contact</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://lekya.in/account</loc>
-    <priority>0.70</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/contact</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>always</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://lekya.in/privacy</loc>
-    <priority>0.60</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/terms</loc>
-    <priority>0.60</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/sitemap</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.50</priority>
   </url>
   <url>
-    <loc>https://lekya.in/lookbook</loc>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/lens-guide</loc>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/track</loc>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://lekya.in/about</loc>
-    <priority>0.70</priority>
+    <loc>https://lekya.in/terms</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.50</priority>
   </url>
 </urlset>
-

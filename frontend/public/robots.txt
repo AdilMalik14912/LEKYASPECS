@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin-map
+Disallow: /api/
+
+Sitemap: https://lekya.in/sitemap.xml
