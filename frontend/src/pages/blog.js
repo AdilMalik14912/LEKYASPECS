@@ -2,7 +2,7 @@ const React = require('react');
 const { useState } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
-const { BookOpen, Sparkles, Clock, User, Tag, ArrowRight, Search, Share2, Eye, ShieldCheck, Bookmark } = require('lucide-react');
+const { BookOpen, Clock, User, ArrowRight, Search } = require('lucide-react');
 
 const BLOG_ARTICLES = [
   {
@@ -15,19 +15,7 @@ const BLOG_ARTICLES = [
     author: 'Dr. Aarav Mehta (Chief Optometrist)',
     image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
     summary: 'Discover precision fitting secrets for Oval, Square, Round, and Heart face shapes. Learn why frame proportions, bridge widths, and temple angles transform your posture and visual appeal.',
-    featured: true,
-    content: `
-      Finding the perfect frame isn't just about fashion—it is about geometry, facial ergonomics, and visual balance.
-      
-      ### 1. Oval Face Shapes
-      Oval faces are universally balanced. Angular geometric frames like oversized aviators, rectangular titanium specs, or bold cat-eye silhouettes accentuate your natural symmetry.
-
-      ### 2. Square & Strong Jawlines
-      To soften strong angles, choose round, oval, or teardrop frames. Deep rimmed frames add vertical length while ultra-light titanium reduces cheek pressure.
-
-      ### 3. Round Face Profiles
-      Rectangular, square, and wayfarer frames contrast rounder facial contours, instantly adding definition and vertical length.
-    `
+    featured: true
   },
   {
     id: '2',
@@ -39,12 +27,7 @@ const BLOG_ARTICLES = [
     author: 'Priya Sharma (Optical Engineer)',
     image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
     summary: 'Spent 8+ hours in front of screens? Understand how 420nm blue wavelength filtering reduces digital eye strain, prevents circadian rhythm disruption, and eliminates screen glare.',
-    featured: false,
-    content: `
-      Modern screens emit high-energy visible (HEV) blue light between 400nm and 450nm. Over time, screen exposure leads to dry eyes, headaches, and blurred focus.
-      
-      Lekya Vision BlueShield lenses use dual-layer nano-coatings that selectively block 98% of harmful 420nm rays while allowing beneficial green-amber spectrum wavelengths through.
-    `
+    featured: false
   },
   {
     id: '3',
@@ -56,12 +39,7 @@ const BLOG_ARTICLES = [
     author: 'Vikramaditya Roy (Head of Design)',
     image: 'https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=800&q=80',
     summary: 'Compare aerospace-grade Japanese Beta Titanium against hand-polished Mazzucchelli acetate. Discover why ultra-lightweight frames offer unmatched all-day comfort.',
-    featured: false,
-    content: `
-      Choosing between Beta Titanium and Organic Cotton Acetate comes down to weight vs texture.
-      
-      Beta Titanium weighs under 12 grams—virtually weightless on your nose bridge. Meanwhile, Italian Mazzucchelli Acetate provides deep lustrous colors and rich hand-sculpted bevels.
-    `
+    featured: false
   },
   {
     id: '4',
@@ -73,17 +51,13 @@ const BLOG_ARTICLES = [
     author: 'Dr. Aarav Mehta',
     image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
     summary: 'Not all dark lenses protect your retinas. Learn how true 100% UV400 filtering blocks harmful UVA/UVB rays while TAC polarization neutralizes blinding glare from roads & water.',
-    featured: false,
-    content: `
-      Dark lenses without UV protection cause your pupils to dilate, allowing MORE harmful ultraviolet light to enter your retinas. Always verify 100% UV400 optical certification.
-    `
+    featured: false
   }
 ];
 
 export default function BlogJournal() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedArticle, setSelectedArticle] = useState(null);
 
   const categories = ['All', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care'];
 
@@ -124,46 +98,12 @@ export default function BlogJournal() {
             </p>
           </div>
 
-          {/* ARTICLE READER MODAL */}
-          {selectedArticle && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fade-in">
-              <div className="bg-[#1A0024] border border-[#FAAE62]/30 rounded-3xl p-6 sm:p-10 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl space-y-6">
-                <button
-                  onClick={() => setSelectedArticle(null)}
-                  className="absolute top-5 right-5 text-white/70 hover:text-white bg-white/10 p-2 rounded-full transition-colors"
-                >
-                  ✕
-                </button>
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold uppercase text-[#FAAE62]" style={{background: 'rgba(250,174,98,0.15)'}}>{selectedArticle.category}</span>
-                  <span className="text-xs text-[#9B7EA8] flex items-center gap-1"><Clock size={13} /> {selectedArticle.readTime}</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">{selectedArticle.title}</h2>
-                <div className="flex items-center gap-2 text-xs text-[#9B7EA8] pb-4 border-b border-white/15">
-                  <User size={14} className="text-[#FAAE62]" />
-                  <span>{selectedArticle.author}</span>
-                  <span>•</span>
-                  <span>{selectedArticle.date}</span>
-                </div>
-                <img src={selectedArticle.image} alt={selectedArticle.title} className="w-full h-64 sm:h-80 object-cover rounded-2xl border border-white/15" />
-                <div className="space-y-4 text-white/90 text-sm leading-relaxed whitespace-pre-line font-light">
-                  {selectedArticle.content}
-                </div>
-                <div className="pt-6 border-t border-white/15 flex justify-between items-center">
-                  <button onClick={() => setSelectedArticle(null)} className="px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold uppercase hover:bg-white/90">
-                    Close Article
-                  </button>
-                  <Link href="/shop" className="px-6 py-2.5 rounded-full liquid-glass text-white text-xs font-bold uppercase hover:bg-white/15 flex items-center gap-2">
-                    Explore Frames <ArrowRight size={14} />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* FEATURED HERO ARTICLE */}
+          {/* FEATURED HERO ARTICLE (NAVIGATES TO FULL PAGE ROUTE /blog/[slug]) */}
           {featured && (
-            <div className="mb-14 liquid-glass rounded-3xl p-6 sm:p-10 border border-white/15 shadow-2xl backdrop-blur-xl group hover:border-[#FAAE62]/40 transition-all cursor-pointer" onClick={() => setSelectedArticle(featured)}>
+            <Link
+              href={`/blog/${featured.slug}`}
+              className="mb-14 liquid-glass rounded-3xl p-6 sm:p-10 border border-white/15 shadow-2xl backdrop-blur-xl group hover:border-[#FAAE62]/40 transition-all block text-left"
+            >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -193,7 +133,7 @@ export default function BlogJournal() {
                   <img src={featured.image} alt={featured.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               </div>
-            </div>
+            </Link>
           )}
 
           {/* SEARCH & CATEGORY FILTER BAR */}
@@ -231,13 +171,13 @@ export default function BlogJournal() {
 
           </div>
 
-          {/* ARTICLES GRID */}
+          {/* ARTICLES GRID — ALL LINK DIRECTLY TO FULL PAGE ROUTE /blog/[slug] */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArticles.map(article => (
-              <div
+              <Link
                 key={article.id}
-                onClick={() => setSelectedArticle(article)}
-                className="liquid-glass rounded-3xl overflow-hidden border border-white/15 shadow-xl hover:border-[#FAAE62]/40 transition-all group flex flex-col justify-between cursor-pointer"
+                href={`/blog/${article.slug}`}
+                className="liquid-glass rounded-3xl overflow-hidden border border-white/15 shadow-xl hover:border-[#FAAE62]/40 transition-all group flex flex-col justify-between block text-left"
               >
                 <div>
                   <div className="h-48 overflow-hidden relative">
@@ -263,10 +203,10 @@ export default function BlogJournal() {
                 <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-white/10 text-xs">
                   <span className="text-[#9B7EA8] font-semibold flex items-center gap-1"><User size={13} className="text-[#FAAE62]" /> {article.author.split(' ')[0]}</span>
                   <span className="text-[#FAAE62] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    Read <ArrowRight size={13} />
+                    Read Story <ArrowRight size={13} />
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 

@@ -839,7 +839,7 @@ export default function Home() {
               <ScrollReveal3D key={article.slug}>
                 <ThreeDTiltCard className="h-full">
                   <Link
-                    href="/blog"
+                    href={`/blog/${article.slug}`}
                     className="liquid-glass rounded-3xl overflow-hidden border border-white/15 shadow-xl hover:border-[#FAAE62]/40 transition-all group flex flex-col justify-between h-full block text-left"
                   >
                     <div>
