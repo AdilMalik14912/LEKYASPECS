@@ -300,7 +300,8 @@ export default function App({ Component, pageProps }) {
                        router.pathname.startsWith('/stylist') ||
                        router.pathname.startsWith('/ho-staff') ||
                        router.pathname.startsWith('/admin-map') ||
-                       router.pathname.startsWith('/delivery-map');
+                       router.pathname.startsWith('/delivery-map') ||
+                       (router.pathname === '/account' && !!user);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
