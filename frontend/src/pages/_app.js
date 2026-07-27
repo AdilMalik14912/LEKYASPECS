@@ -4,7 +4,7 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle, Sparkles } = require('lucide-react');
 const SpinWheel = require('../components/SpinWheel').default;
 const VisionEyeLogo = require('../components/VisionEyeLogo');
 
