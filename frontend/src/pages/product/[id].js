@@ -237,20 +237,25 @@ export default function ProductDetail() {
         />
       </Head>
 
-      <div className="bg-premium-light min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-[#0D0016] text-white min-h-screen pt-24 pb-20 relative overflow-hidden font-sans">
+        
+        {/* Background Ambient Glow Orbs */}
+        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#FAAE62]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#7B22A8]/15 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Navigation Breadcrumb */}
-        <div className="text-xs uppercase tracking-wider text-premium-gray font-semibold mb-6 flex gap-2">
-          <Link href="/shop" className="hover:text-premium-accent transition-colors">Shop</Link>
+        <div className="text-xs uppercase tracking-wider text-[#9B7EA8] font-semibold mb-6 flex items-center gap-2">
+          <Link href="/shop" className="hover:text-[#FAAE62] transition-colors">Shop</Link>
           <span>/</span>
-          <Link href={`/shop?category=${product.category}`} className="hover:text-premium-accent transition-colors">{product.category}</Link>
+          <Link href={`/shop?category=${product.category}`} className="hover:text-[#FAAE62] transition-colors">{product.category}</Link>
           <span>/</span>
-          <span className="text-premium-dark font-bold">{product.name}</span>
+          <span className="text-[#FAAE62] font-bold">{product.name}</span>
         </div>
 
         {/* Core Product Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 liquid-glass rounded-3xl p-6 sm:p-10 border border-white/15 shadow-2xl backdrop-blur-xl mb-12">
           
           {/* 1. Left Column: Image Gallery */}
           <div className="flex flex-col gap-4">
@@ -504,9 +509,9 @@ export default function ProductDetail() {
         </div>
 
         {/* --- Customer Reviews Section --- */}
-        <div className="bg-white border border-premium-border rounded p-6 sm:p-10 shadow-sm">
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-premium-black tracking-tight mb-8 flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-premium-accent" /> Customer Reviews & Ratings
+        <div className="liquid-glass rounded-3xl p-6 sm:p-10 border border-white/15 shadow-2xl backdrop-blur-xl">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight mb-8 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6 text-[#FAAE62]" /> Customer Reviews & Ratings
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
