@@ -2057,6 +2057,23 @@ export default function Admin() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
+                          setEditingBlog(b);
+                          setBlogTitle(b.title);
+                          setBlogCategory(b.category);
+                          setBlogAuthor(b.author);
+                          setBlogReadTime(b.readTime);
+                          setBlogImage(b.image);
+                          setBlogSummary(b.summary);
+                          setBlogFeatured(b.featured);
+                          setShowBlogModal(true);
+                        }}
+                        className="p-2 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 transition-colors"
+                        title="Edit Article Details"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
                           setAdminBlogs(adminBlogs.map(item => item.id === b.id ? { ...item, featured: !item.featured } : item));
                         }}
                         className={`p-2 rounded-lg text-xs font-bold transition-colors ${b.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-[#9B7EA8] hover:text-white'}`}
@@ -2066,7 +2083,9 @@ export default function Admin() {
                       </button>
                       <button
                         onClick={() => {
-                          setAdminBlogs(adminBlogs.filter(item => item.id !== b.id));
+                          if (window.confirm(`Delete article "${b.title}"?`)) {
+                            setAdminBlogs(adminBlogs.filter(item => item.id !== b.id));
+                          }
                         }}
                         className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
                         title="Delete Article"
@@ -2085,18 +2104,45 @@ export default function Admin() {
                 <div className="bg-[#1A0024] border border-[#FAAE62]/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl space-y-5 text-left">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-[#FAAE62]" /> Publish Article to lekya.in
+                      <BookOpen className="w-5 h-5 text-[#FAAE62]" /> {editingBlog ? 'Edit Journal Article' : 'Publish Article to lekya.in'}
                     </h3>
                     <button onClick={() => setShowBlogModal(false)} className="text-white/60 hover:text-white"><X size={20} /></button>
                   </div>
 
                   <form onSubmit={(e) => {
                     e.preventDefault();
-                    const newBlog = {
-                      id: Date.now().toString(),
-                      slug: blogTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-                      title: blogTitle,
-                      category: blogCategory,
+                    if (editingBlog) {
+                      setAdminBlogs(adminBlogs.map(b => b.id === editingBlog.id ? {
+                        ...b,
+                        title: blogTitle,
+                        category: blogCategory,
+                        author: blogAuthor,
+                        readTime: blogReadTime,
+                        image: blogImage,
+                        summary: blogSummary,
+                        featured: blogFeatured
+                      } : b));
+                      alert('✓ Article changes updated successfully!');
+                    } else {
+                      const newBlog = {
+                        id: Date.now().toString(),
+                        slug: blogTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+                        title: blogTitle,
+                        category: blogCategory,
+                        author: blogAuthor,
+                        readTime: blogReadTime,
+                        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                        image: blogImage || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
+                        summary: blogSummary,
+                        featured: blogFeatured,
+                        status: 'Published'
+                      };
+                      setAdminBlogs([newBlog, ...adminBlogs]);
+                      alert('✓ New article published successfully to lekya.in Journal!');
+                    }
+                    setShowBlogModal(false);
+                    setEditingBlog(null);
+                  }} className="space-y-4 text-xs font-semibold">
                       author: blogAuthor,
                       readTime: blogReadTime,
                       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
