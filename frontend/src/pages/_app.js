@@ -321,6 +321,11 @@ export default function App({ Component, pageProps }) {
           <meta property="og:type" content="website" />
           <meta name="twitter:card" content="summary_large_image" />
 
+          <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+          <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+          <meta name="google-site-verification" content="lekya-specs-google-indexing-verification" />
+          <meta name="msvalidate.01" content="lekya-specs-bing-indexing-verification" />
+
           {/* Favicon */}
           <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><path d='M5 30 C6 14,28 6,50 18 C72 6,94 14,95 30 C94 46,72 54,50 42 C28 54,6 46,5 30Z' fill='none' stroke='%23FAAE62' stroke-width='5'/><path d='M46 30 C47 26,53 26,54 30' fill='none' stroke='%23FAAE62' stroke-width='4'/></svg>" />
 
