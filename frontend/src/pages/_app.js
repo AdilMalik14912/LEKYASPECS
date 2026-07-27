@@ -883,60 +883,40 @@ export default function App({ Component, pageProps }) {
               </footer>
             )}
 
-            {/* Floating Spin Wheel + WhatsApp Widgets — Bottom RIGHT */}
-            <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
-
-              {/* Expandable WhatsApp Menu — 3 options */}
-              <div className="flex flex-col items-end gap-2 relative group/wa">
-                {/* Options — show on hover */}
-                <div className="flex flex-col items-end gap-2 transition-all duration-300 opacity-0 pointer-events-none translate-y-2 group-hover/wa:opacity-100 group-hover/wa:pointer-events-auto group-hover/wa:translate-y-0">
-                  {/* Option 1: Track Order */}
-                  <a
-                    href="https://wa.me/919654119262?text=Hello%20Lekya%20Specs!%20I%20would%20like%20to%20track%20my%20order.%20My%20Order%20ID%20is%3A"
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#0D0016] border border-[#25D366]/50 text-[#25D366] text-xs font-bold px-4 py-2.5 rounded-full shadow-xl hover:bg-[#25D366] hover:text-white transition-all whitespace-nowrap backdrop-blur-sm"
-                  >
-                    <span>📦</span> Track My Order
-                  </a>
-                  {/* Option 2: Frame Consultation */}
-                  <a
-                    href="https://wa.me/919654119262?text=Hello%20Lekya%20Specs!%20I%20need%20help%20choosing%20the%20right%20frame%20for%20my%20face%20shape.%20Can%20you%20help%3F"
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#0D0016] border border-[#25D366]/50 text-[#25D366] text-xs font-bold px-4 py-2.5 rounded-full shadow-xl hover:bg-[#25D366] hover:text-white transition-all whitespace-nowrap backdrop-blur-sm"
-                  >
-                    <span>👓</span> Frame Consultation
-                  </a>
-                  {/* Option 3: General Chat */}
-                  <a
-                    href="https://wa.me/919654119262?text=Hello%20Lekya%20Specs%20VIP%20Concierge%2C%20I%20need%20assistance"
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[#0D0016] border border-[#25D366]/50 text-[#25D366] text-xs font-bold px-4 py-2.5 rounded-full shadow-xl hover:bg-[#25D366] hover:text-white transition-all whitespace-nowrap backdrop-blur-sm"
-                  >
-                    <span>💬</span> General Chat
-                  </a>
-                </div>
-
-                {/* Main WhatsApp button */}
+            {/* Floating Glassmorphic VIP Concierge & Rewards Bar — Bottom RIGHT */}
+            <div className="fixed bottom-6 right-6 z-40">
+              <div 
+                className="flex items-center gap-2 p-1.5 rounded-full border shadow-2xl backdrop-blur-xl transition-all hover:border-[#FAAE62]/50"
+                style={{ 
+                  background: 'rgba(13,0,22,0.85)', 
+                  borderColor: 'rgba(250,174,98,0.3)',
+                  boxShadow: '0 12px 35px rgba(0,0,0,0.6)' 
+                }}
+              >
+                {/* 1. Spin & Win Rewards Button */}
                 <button
-                  className="group relative bg-[#25D366] text-white p-3.5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border border-white/30"
+                  onClick={() => setShowSpinWheel(true)}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold text-[#FAAE62] hover:bg-[#FAAE62]/15 transition-all group"
+                  title="Spin & Win Exclusive Rewards"
+                >
+                  <Gift className="w-4 h-4 text-[#FAAE62] group-hover:scale-110 transition-transform" />
+                  <span className="tracking-wider uppercase text-[11px] font-extrabold">Spin & Win 🎡</span>
+                </button>
+
+                <div className="w-[1px] h-4 bg-white/20" />
+
+                {/* 2. WhatsApp VIP Concierge Button */}
+                <a
+                  href="https://wa.me/919654119262?text=Hello%20Lekya%20Specs%20VIP%20Concierge%2C%20I%20need%20assistance"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-[#25D366] bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366] hover:text-[#0D0016] transition-all shadow-md"
                   title="Chat with Lekya VIP Concierge on WhatsApp"
                 >
-                  <MessageCircle className="w-5 h-5 fill-current" />
-                  <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#25D366] rounded-full animate-ping opacity-60" />
-                </button>
+                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <span className="tracking-wider uppercase text-[11px] font-extrabold">VIP Concierge</span>
+                </a>
               </div>
-
-              {/* Spin & Win Button */}
-              <button
-                onClick={() => setShowSpinWheel(true)}
-                className="group relative bg-gradient-to-r from-[#7B22A8] to-[#FAAE62] text-white p-3 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border border-[#FAAE62]/50 animate-bounce"
-                title="Spin & Win Rewards"
-              >
-                <Gift className="w-5 h-5 text-white" />
-                <span className="absolute right-14 bg-[#0D0016] text-[#FAAE62] border border-[#FAAE62]/40 font-bold text-xs px-3 py-1 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                  Spin & Win 🎡
-                </span>
-              </button>
             </div>
 
             {/* Spin & Win Modal */}
