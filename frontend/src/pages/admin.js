@@ -613,6 +613,32 @@ export default function Admin() {
       status: 'Published'
     },
     {
+      id: '6',
+      slug: 'lekya-group-companies-vision',
+      title: 'The Lekya Group Vision: Pioneering Healthcare, Solar Energy, Eyewear & Media Innovation',
+      category: 'Group Companies',
+      readTime: '6 min read',
+      date: 'July 22, 2026',
+      author: 'Lekya Corporate Board',
+      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+      summary: 'Explore the multi-industry legacy of Lekya Group across solar, specs, health, and media.',
+      featured: false,
+      status: 'Published'
+    },
+    {
+      id: '7',
+      slug: 'behind-the-frames-lekya-team-craftsmanship',
+      title: 'Behind the Frames: Meet the Master Craftsmen, Optometrists & Design Engineers of Lekya Specs',
+      category: 'Lekya Team',
+      readTime: '5 min read',
+      date: 'July 18, 2026',
+      author: 'Vikramaditya Roy (Head of Design)',
+      image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+      summary: 'Meet the optometrists and master frame artisans behind every pair of Lekya Specs.',
+      featured: false,
+      status: 'Published'
+    },
+    {
       id: '2',
       slug: 'blue-light-vs-anti-reflective-coating',
       title: 'Blue Light Shield vs. Anti-Reflective Coating: What Your Eyes Actually Need',
@@ -635,6 +661,32 @@ export default function Admin() {
       author: 'Vikramaditya Roy (Head of Design)',
       image: 'https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=800&q=80',
       summary: 'Compare aerospace-grade Japanese Beta Titanium against hand-polished Mazzucchelli acetate.',
+      featured: false,
+      status: 'Published'
+    },
+    {
+      id: '4',
+      slug: 'sunglasses-uv400-polarization-explained',
+      title: 'UV400 vs. Polarized Lenses: Protect Your Eyes From Glare & Sun Damage',
+      category: 'Eye Care',
+      readTime: '4 min read',
+      date: 'July 10, 2026',
+      author: 'Dr. Aarav Mehta',
+      image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
+      summary: 'Not all dark lenses protect your retinas. Learn how true 100% UV400 filtering blocks harmful UVA/UVB rays.',
+      featured: false,
+      status: 'Published'
+    },
+    {
+      id: '5',
+      slug: 'how-to-read-eye-prescription-sph-cyl-pd',
+      title: 'How to Read Your Eye Prescription: Decoding SPH, CYL, AXIS & Pupillary Distance',
+      category: 'Prescription Tips',
+      readTime: '5 min read',
+      date: 'July 05, 2026',
+      author: 'Dr. Aarav Mehta',
+      image: 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80',
+      summary: 'Master Sphere (SPH), Cylinder (CYL), Axis, and how to accurately measure your Pupillary Distance (PD).',
       featured: false,
       status: 'Published'
     }
