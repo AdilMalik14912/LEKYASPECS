@@ -1542,7 +1542,7 @@ export default function Admin() {
             <VisionEyeLogo size={32} showText={false} />
             {(sidebarHovered || sidebarPinned) && (
               <div className="whitespace-nowrap transition-opacity duration-300">
-                <span className="font-serif text-lg font-bold text-white block leading-tight">LEKYA SPECS</span>
+                <span className="font-serif text-lg font-bold text-white block leading-tight">lekya.in</span>
                 <span className="text-[9px] text-[#FAAE62] uppercase tracking-wider font-semibold">Admin Console</span>
               </div>
             )}

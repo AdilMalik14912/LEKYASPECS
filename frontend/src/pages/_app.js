@@ -388,6 +388,7 @@ export default function App({ Component, pageProps }) {
                         <Link href="/shop?category=Eyeglasses" className="hover:text-[#FAAE62] transition-colors py-1">Eyeglasses</Link>
                         <Link href="/shop?category=Sunglasses" className="hover:text-[#FAAE62] transition-colors py-1">Sunglasses</Link>
                         <Link href="/lookbook" className="hover:text-[#FAAE62] transition-colors py-1">Lookbook</Link>
+                        <Link href="/blog" className="hover:text-[#FAAE62] transition-colors py-1">Blog</Link>
                         
                         {/* About & Group Companies Dropdown */}
                         <div className="relative group py-2">
