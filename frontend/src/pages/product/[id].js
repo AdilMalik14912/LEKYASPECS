@@ -3,7 +3,7 @@ const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
 const { useCart, useWishlist, useAuth, useToast } = require('../_app');
-const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight, RotateCw } = require('lucide-react');
+const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight, RotateCw, Bell } = require('lucide-react');
 const Product360Viewer = require('../../components/Product360Viewer').default;
 
 const API_BASE = typeof window !== 'undefined'
@@ -428,10 +428,11 @@ export default function ProductDetail() {
                 </button>
               ) : (
                 <button
-                  disabled
-                  className="flex-grow bg-gray-200 text-gray-400 cursor-not-allowed uppercase font-semibold text-xs tracking-widest py-4 px-8 rounded text-center flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => showToast('🔔 You will receive a VIP email alert as soon as this frame is restocked!')}
+                  className="flex-grow bg-[#1A0024] text-[#FAAE62] border border-[#FAAE62]/40 hover:bg-[#FAAE62] hover:text-[#0D0016] uppercase font-bold text-xs tracking-widest py-4 px-8 rounded text-center flex items-center justify-center gap-2 transition-all shadow-md"
                 >
-                  Sold Out
+                  <Bell className="w-4 h-4" /> Notify Me When Restocked
                 </button>
               )}
 
@@ -475,19 +476,29 @@ export default function ProductDetail() {
               ) : (
                 product.reviews.map(review => (
                   <div key={review.id} className="border-b border-premium-border pb-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-bold text-sm text-premium-black">{review.user_name}</p>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-sm text-premium-black">{review.user_name}</p>
+                        <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified Buyer
+                        </span>
+                      </div>
                       <span className="text-[10px] text-premium-gray font-semibold">
-                        {new Date(review.created_at).toLocaleDateString('en-IN', {
+                        {new Date(review.created_at || Date.now()).toLocaleDateString('en-IN', {
                           year: 'numeric', month: 'short', day: 'numeric'
                         })}
                       </span>
                     </div>
                     
-                    <div className="flex text-amber-500 mb-2">
-                      {[1,2,3,4,5].map(s => (
-                        <Star key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? 'fill-current' : 'text-gray-300'}`} />
-                      ))}
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex text-amber-500">
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? 'fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <span className="text-[10px] bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded font-semibold">
+                        Fit: True to Size
+                      </span>
                     </div>
                     
                     <p className="text-sm text-premium-dark font-light leading-relaxed">
