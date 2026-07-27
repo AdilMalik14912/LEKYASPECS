@@ -186,31 +186,31 @@ export default function Home() {
     <div className="bg-premium-black min-h-screen">
 
       {/* ═══════════════════════════════════════════════════
-          1. HERO — Full Immersive Parallax 3D Showcase
+          1. HERO       {/* ═══════════════════════════════════════════════════
+          1. HERO — Full Immersive Liquid Glass & Background Video Showcase
       ═══════════════════════════════════════════════════ */}
       <section
-        className="relative min-h-[90vh] lg:h-screen flex items-center justify-center overflow-hidden"
-        style={{background: 'linear-gradient(135deg, #0D0016 0%, #1A0024 40%, #2A0440 70%, #1A0024 100%)'}}
+        className="relative w-full h-screen overflow-hidden flex items-center justify-center"
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
       >
-        {/* Deep background image */}
-        <div
-          style={{
-            backgroundImage: `url('${settings.hero_image}')`,
-            transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -12}px) scale(1.08)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-          className="absolute inset-0 bg-cover bg-center opacity-25"
+        {/* Background Looping HD Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_230229_7c9bc431-46cf-489a-948d-e8144d8eb5d4.mp4"
         />
 
-        {/* Multi-layer dark purple overlays */}
-        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(13,0,22,0.9) 0%, rgba(26,0,36,0.7) 50%, rgba(42,4,64,0.5) 100%)'}} />
-        <div className="absolute inset-0" style={{background: 'linear-gradient(to right, rgba(13,0,22,0.85), transparent)'}} />
+        {/* Multi-layer Dark Purple Overlay Gradients */}
+        <div className="absolute inset-0 z-1" style={{background: 'linear-gradient(180deg, rgba(13,0,22,0.8) 0%, rgba(13,0,22,0.45) 50%, rgba(13,0,22,0.95) 100%)'}} />
+        <div className="absolute inset-0 z-1" style={{background: 'radial-gradient(circle at 75% 30%, rgba(250,174,98,0.18) 0%, transparent 60%)'}} />
 
-        {/* Ambient ORANGE glow blobs — parallax reactive */}
+        {/* Ambient Parallax Glow Blobs */}
         <div
-          className="absolute animate-ambient-glow"
+          className="absolute animate-ambient-glow z-2 pointer-events-none"
           style={{
             top: '20%', left: '55%',
             width: 500, height: 500,
@@ -221,160 +221,99 @@ export default function Home() {
             transition: 'transform 0.15s ease-out',
           }}
         />
-        {/* Deep purple blob */}
-        <div
-          className="absolute animate-ambient-glow-slow"
-          style={{
-            bottom: '15%', right: '25%',
-            width: 350, height: 350,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(62,8,86,0.5) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-            transform: `translate(${mousePos.x * -30}px, ${mousePos.y * 20}px)`,
-            transition: 'transform 0.2s ease-out',
-          }}
-        />
-        {/* Secondary orange blob */}
-        <div
-          className="absolute animate-ambient-glow"
-          style={{
-            top: '60%', left: '20%',
-            width: 280, height: 280,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(212,137,63,0.12) 0%, transparent 70%)',
-            filter: 'blur(50px)',
-            transform: `translate(${mousePos.x * 20}px, ${mousePos.y * -15}px)`,
-            transition: 'transform 0.18s ease-out',
-          }}
-        />
 
-        {/* Floating ORANGE particles */}
-        {[
-          { top: '15%', left: '12%', size: 4, cls: 'particle-1' },
-          { top: '70%', left: '8%',  size: 3, cls: 'particle-2' },
-          { top: '30%', left: '85%', size: 5, cls: 'particle-3' },
-          { top: '80%', left: '75%', size: 3, cls: 'particle-4' },
-          { top: '50%', left: '48%', size: 2, cls: 'particle-5' },
-          { top: '10%', left: '60%', size: 4, cls: 'particle-6' },
-        ].map((p, i) => (
-          <div
-            key={i}
-            className={`particle ${p.cls} absolute rounded-full pointer-events-none`}
-            style={{
-              top: p.top, left: p.left,
-              width: p.size, height: p.size,
-              background: '#FAAE62',
-              boxShadow: `0 0 ${p.size * 4}px ${p.size * 2}px rgba(250,174,98,0.7)`,
-            }}
-          />
-        ))}
+        {/* Hero Content Grid */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 w-full py-12 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-        {/* Main content grid */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12 lg:py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-
-            {/* ── Left Copy ── */}
-            <div className="space-y-8">
-              {/* Hero badge pill - Orange */}
+            {/* Left Copy */}
+            <div className="space-y-6">
+              {/* Badge */}
               <div className="animate-slide-up">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.35)', color: '#FAAE62'}}>
+                <div className="liquid-glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase text-[#FAAE62]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Precision Fitting Included
+                  Liquid Glass Optical Collection
                 </div>
               </div>
 
-              <h1
-                className="animate-slide-up-delay-1 text-5xl sm:text-6xl lg:text-7xl font-serif font-bold tracking-tight leading-[1.05]"
-                style={{color: '#FEF6EE'}}
-                dangerouslySetInnerHTML={{ __html: settings.hero_title.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>') }}
-              />
+              <h1 className="animate-slide-up-delay-1 text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight tracking-tight">
+                Live Better, See Clearly Every Day
+              </h1>
 
-              <p className="animate-slide-up-delay-2 text-lg text-gray-400 leading-relaxed font-light max-w-lg">
-                {settings.hero_subtitle}
+              <p className="animate-slide-up-delay-2 text-white/70 text-sm sm:text-base leading-relaxed max-w-lg font-light">
+                Take charge of how you feel with a companion built for your journey—build routines, follow your growth, and unlock tailored optical insights for a steadier, more vibrant life each day.
               </p>
 
-              <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row gap-4">
-                {/* Primary CTA — Orange gradient */}
+              {/* Action Buttons Row */}
+              <div className="animate-slide-up-delay-3 flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   href="/shop"
-                  className="btn-3d group relative font-bold tracking-widest uppercase text-sm px-8 py-4 rounded-lg overflow-hidden flex items-center justify-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #FAAE62 0%, #D4893F 100%)', color: '#0D0016' }}
+                  className="bg-white text-black text-sm sm:text-base font-semibold px-7 py-3.5 rounded-full hover:bg-white/90 transition-colors shadow-lg flex items-center gap-2"
                 >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Explore All Frames
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </span>
+                  Start Today
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
-                {/* Secondary CTA — Purple outline */}
                 <Link
-                  href="/face-shape"
-                  className="btn-3d font-semibold tracking-wider uppercase text-sm px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 group"
-                  style={{ border: '1px solid rgba(250,174,98,0.3)', color: '#FAAE62' }}
+                  href="/tryon"
+                  className="liquid-glass text-white text-sm sm:text-base font-semibold px-7 py-3.5 rounded-full hover:bg-white/10 transition-colors flex items-center gap-2"
                 >
-                  Try Face Shape Analyzer
-                  <Sparkles className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Discover How
                 </Link>
               </div>
 
-              {/* Stats bar — orange accent numbers */}
-              <div className="animate-slide-up-delay-3 flex items-center gap-8 pt-4" style={{borderTop: '1px solid rgba(250,174,98,0.15)'}}>
+              {/* Stats Bar */}
+              <div className="animate-slide-up-delay-3 flex items-center gap-8 pt-6 border-t border-white/10">
                 {[
-                  { val: '10K+', label: 'Happy Customers' },
-                  { val: '500+', label: 'Frame Designs' },
+                  { val: '10K+', label: 'Happy Clients' },
+                  { val: '500+', label: 'Luxury Designs' },
                   { val: '4.9★', label: 'Avg Rating' },
                 ].map(({ val, label }) => (
                   <div key={label} className="text-left">
-                    <p className="text-xl font-bold font-mono" style={{color: '#FAAE62'}}>{val}</p>
-                    <p className="text-[11px] uppercase tracking-wider" style={{color: '#9B7EA8'}}>{label}</p>
+                    <p className="text-xl font-bold font-mono text-[#FAAE62]">{val}</p>
+                    <p className="text-[11px] uppercase tracking-wider text-[#9B7EA8]">{label}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* ── Right: Immersive 3D Showcase ── */}
+            {/* Right: Liquid Glass 3D Interactive Showcase */}
             <div
-              className="relative flex items-center justify-center overflow-hidden"
+              className="relative flex items-center justify-center"
               style={{
-                minHeight: 420,
+                minHeight: 400,
                 transform: `perspective(1200px) rotateY(${mousePos.x * -8}deg) rotateX(${mousePos.y * 5}deg)`,
                 transition: 'transform 0.12s ease-out',
               }}
             >
-              {/* Outer orbit ring 1 — Orange */}
-              <div
-                className="absolute animate-orbit"
-                style={{
-                  width: 360, height: 360,
-                  border: '1px solid rgba(250,174,98,0.08)',
-                  borderRadius: '50%',
-                  borderTopColor: 'rgba(250,174,98,0.4)',
-                }}
-              />
-              {/* Outer orbit ring 2 */}
-              <div
-                className="absolute animate-orbit-rev"
-                style={{
-                  width: 280, height: 280,
-                  border: '1px dashed rgba(250,174,98,0.12)',
-                  borderRadius: '50%',
-                  borderBottomColor: 'rgba(250,174,98,0.3)',
-                }}
-              />
-
-              {/* Orbit dot markers — Orange */}
-              <div className="absolute animate-orbit" style={{ width: 360, height: 360 }}>
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full" style={{background: 'rgba(250,174,98,0.9)', boxShadow: '0 0 10px 3px rgba(250,174,98,0.6)'}} />
+              {/* Central Liquid Glass Showcase Card */}
+              <div className="liquid-glass relative z-10 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center pb-3 border-b border-white/10">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#FAAE62]">Equilibrium Specs</span>
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-white font-mono">2026 Edition</span>
+                </div>
+                <div className="h-44 rounded-2xl bg-black/40 overflow-hidden relative flex items-center justify-center p-4">
+                  <img
+                    src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80"
+                    alt="Liquid Glass Frame"
+                    className="w-full h-full object-contain filter drop-shadow(0 10px 20px rgba(0,0,0,0.8))"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-base font-serif font-bold text-white">The Equilibrium Titanium</h4>
+                  <p className="text-xs text-[#9B7EA8]">Hand-polished ultra-light titanium with anti-glare blue shield.</p>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-sm font-bold text-[#FAAE62] font-mono">₹2,499</span>
+                  <Link href="/shop" className="px-4 py-2 rounded-full bg-white text-black text-xs font-bold uppercase hover:bg-white/90 transition-colors">
+                    Try On AR
+                  </Link>
+                </div>
               </div>
-              <div className="absolute animate-orbit-rev" style={{ width: 280, height: 280, animationDelay: '-6s' }}>
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full" style={{background: 'rgba(250,174,98,0.7)', boxShadow: '0 0 8px 2px rgba(250,174,98,0.5)'}} />
-              </div>
+            </div>
 
-              {/* Central showcase card — Ultra Luxury 3D Glassmorphism */}
-              <div
-                className="relative z-10 rounded-3xl shadow-premium-3d overflow-hidden"
-                style={{
-                  width: 320, height: 380,
-                  background: 'linear-gradient(145deg, rgba(62,8,86,0.45) 0%, rgba(30,0,48,0.75) 50%, rgba(13,0,22,0.95) 100%)',
+          </div>
+        </div>
+      </section>) 50%, rgba(13,0,22,0.95) 100%)',
                   backdropFilter: 'blur(24px)',
                   border: '1.5px solid rgba(250,174,98,0.3)',
                   boxShadow: '0 30px 80px rgba(13,0,22,0.9), 0 0 45px rgba(250,174,98,0.2)'
