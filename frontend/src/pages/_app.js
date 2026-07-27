@@ -329,9 +329,9 @@ export default function App({ Component, pageProps }) {
                 </div>
                 <div className="flex flex-col items-center justify-center space-y-8 max-w-sm px-6 text-center relative z-10">
                   
-                  {/* Lekya.in Logo — glasses + brand name */}
-                  <div className="flex items-center justify-center" style={{ minWidth: 220 }}>
-                    <VisionEyeLogo size={32} showText={true} showTagline={false} animated={true} />
+                  {/* Lekya.in Logo — actual transparent glasses PNG */}
+                  <div className="flex items-center justify-center" style={{ minWidth: 240 }}>
+                    <VisionEyeLogo size={48} showText={true} showTagline={false} animated={true} />
                   </div>
 
                   {/* Tagline */}
