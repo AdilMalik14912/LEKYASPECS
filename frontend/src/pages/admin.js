@@ -2143,18 +2143,6 @@ export default function Admin() {
                     setShowBlogModal(false);
                     setEditingBlog(null);
                   }} className="space-y-4 text-xs font-semibold">
-                      author: blogAuthor,
-                      readTime: blogReadTime,
-                      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-                      image: blogImage || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
-                      summary: blogSummary,
-                      featured: blogFeatured,
-                      status: 'Published'
-                    };
-                    setAdminBlogs([newBlog, ...adminBlogs]);
-                    setShowBlogModal(false);
-                    alert('✓ Article successfully published to lekya.in Journal!');
-                  }} className="space-y-4 text-xs font-semibold">
                     <div>
                       <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Article Title</label>
                       <input
