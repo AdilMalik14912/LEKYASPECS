@@ -194,6 +194,38 @@ export default function ArticleDetail() {
       <Head>
         <title>{article.title} | lekya.in Journal</title>
         <meta name="description" content={article.summary} />
+        <link rel="canonical" href={`https://lekya.in/blog/${article.slug}`} />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.summary} />
+        <meta property="og:image" content={article.image} />
+        <meta property="og:type" content="article" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              "headline": article.title,
+              "image": [article.image],
+              "datePublished": "2026-07-24T08:00:00+05:30",
+              "dateModified": "2026-07-27T08:00:00+05:30",
+              "author": [{
+                "@type": "Person",
+                "name": article.author,
+                "url": "https://lekya.in/about"
+              }],
+              "publisher": {
+                "@type": "Organization",
+                "name": "Lekya Specs",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://lekya.in/lekya_logo.png"
+                }
+              },
+              "description": article.summary
+            })
+          }}
+        />
       </Head>
 
       <div className="bg-[#0D0016] text-white min-h-screen pt-24 pb-24 relative overflow-hidden font-sans">

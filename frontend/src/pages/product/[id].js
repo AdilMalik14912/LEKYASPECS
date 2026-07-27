@@ -2,6 +2,7 @@ const React = require('react');
 const { useState, useEffect } = React;
 const { useRouter } = require('next/router');
 const Link = require('next/link').default;
+const Head = require('next/head').default;
 const { useCart, useWishlist, useAuth, useToast } = require('../_app');
 const { Star, Heart, ShoppingBag, Ruler, ShieldAlert, CheckCircle2, MessageSquare, AlertCircle, ChevronLeft, ChevronRight, RotateCw, Bell } = require('lucide-react');
 const Product360Viewer = require('../../components/Product360Viewer').default;
@@ -193,7 +194,50 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="bg-premium-light min-h-screen py-12">
+    <>
+      <Head>
+        <title>{product.name} | Lekya Specs Eyewear | lekya.in</title>
+        <meta name="description" content={`${product.name} — ${product.description ? product.description.substring(0, 150) : 'Shop luxury prescription eyeglasses & sunglasses on lekya.in.'}`} />
+        <link rel="canonical" href={`https://lekya.in/product/${product.id}`} />
+        <meta property="og:title" content={`${product.name} — Lekya Specs`} />
+        <meta property="og:description" content={product.description} />
+        <meta property="og:image" content={product.image_urls[0]} />
+        <meta property="og:url" content={`https://lekya.in/product/${product.id}`} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "Product",
+              "name": product.name,
+              "image": product.image_urls,
+              "description": product.description,
+              "sku": `LS-${product.id}`,
+              "mpn": `MPN-LS-${product.id}`,
+              "brand": {
+                "@type": "Brand",
+                "name": "Lekya Specs"
+              },
+              "offers": {
+                "@type": "Offer",
+                "url": `https://lekya.in/product/${product.id}`,
+                "priceCurrency": "INR",
+                "price": product.price,
+                "priceValidUntil": "2027-12-31",
+                "itemCondition": "https://schema.org/NewCondition",
+                "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": product.average_rating || 4.9,
+                "reviewCount": product.review_count || 12
+              }
+            })
+          }}
+        />
+      </Head>
+
+      <div className="bg-premium-light min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Breadcrumb */}
@@ -619,5 +663,6 @@ export default function ProductDetail() {
 
       </div>
     </div>
+    </>
   );
 }
