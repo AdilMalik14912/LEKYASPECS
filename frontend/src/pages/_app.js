@@ -309,7 +309,7 @@ export default function App({ Component, pageProps }) {
           <title>lekya.in — Premium Luxury Eyewear</title>
           <meta name="description" content="lekya.in — Shop luxury eyeglasses and sunglasses. AI Face Shape Detection, Live AR Try-On, Custom Lens Configurator. India's premium eyewear destination." />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/lekya-logo.png" />
+          <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'><path d='M5 30 C6 14,28 6,50 18 C72 6,94 14,95 30 C94 46,72 54,50 42 C28 54,6 46,5 30Z' fill='none' stroke='%23FAAE62' stroke-width='5'/><path d='M46 30 C47 26,53 26,54 30' fill='none' stroke='%23FAAE62' stroke-width='4'/></svg>" />
         </Head>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
@@ -329,17 +329,14 @@ export default function App({ Component, pageProps }) {
                 </div>
                 <div className="flex flex-col items-center justify-center space-y-8 max-w-sm px-6 text-center relative z-10">
                   
-                  {/* Rotating 3D Logo wireframe — Vision Eye */}
-                  <div className="w-24 h-24 flex items-center justify-center">
-                    <VisionEyeLogo size={68} showText={false} animated={true} />
+                  {/* Lekya.in Logo — glasses + brand name */}
+                  <div className="flex items-center justify-center" style={{ minWidth: 220 }}>
+                    <VisionEyeLogo size={32} showText={true} showTagline={false} animated={true} />
                   </div>
 
-                  {/* Brand name — Orange shimmer */}
+                  {/* Tagline */}
                   <div className="flex flex-col items-center">
-                    <h1 className="font-serif text-3xl font-bold tracking-widest shimmer-orange-text" style={{letterSpacing: '0.12em'}}>
-                      lekya<span style={{color:'#FAAE62'}}>.in</span>
-                    </h1>
-                    <span className="text-[10px] font-bold tracking-[0.35em] text-[#FAAE62] uppercase mt-1">
+                    <span className="text-[10px] font-bold tracking-[0.35em] text-[#FAAE62] uppercase">
                       See Beyond. Deliver More.
                     </span>
                   </div>

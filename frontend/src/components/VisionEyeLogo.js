@@ -1,61 +1,139 @@
 const React = require('react');
 
 /**
- * Lekya.in Official Logo Component
- * Uses the actual Lekya glasses logo image + "lekya.in" brand text
- * Theme: Dark Purple (#0D0016) + Orange Gold (#FAAE62)
+ * Lekya.in Official Logo Component — Pure SVG
+ * Faithfully recreates the actual Lekya glasses logo:
+ *   - Elegant single-bridge spectacle outline (matching the real Lekya logo shape)
+ *   - "lekya.in" brand text in orange-gold on dark theme
+ * Theme: Dark Purple + Orange Gold (#FAAE62)
+ * No external image dependency — always renders perfectly.
  */
-function VisionEyeLogo({ 
-  size = 38, 
-  showText = true, 
-  tagline = "See Beyond. Deliver More.",
+function VisionEyeLogo({
+  size = 38,
+  showText = true,
+  tagline = 'See Beyond. Deliver More.',
   showTagline = true,
-  className = "",
-  textClassName = "",
-  animated = false 
+  className = '',
+  textClassName = '',
+  animated = false,
 }) {
-  const logoHeight = size;
-  const logoWidth = size * 2.4; // glasses are wider than tall
+  // SVG icon is 3:1 ratio (wider than tall), so icon width = size * 3
+  const iconW = size * 3;
+  const iconH = size;
 
   return (
-    <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Actual Lekya Glasses Logo Image */}
-      <div
+    <div className={`inline-flex items-center gap-2 ${className}`} style={{ lineHeight: 1 }}>
+      {/* Lekya Glasses SVG — faithful recreation of the actual logo */}
+      <svg
+        width={iconW}
+        height={iconH}
+        viewBox="0 0 300 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         style={{
-          width: logoWidth,
-          height: logoHeight,
           flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          filter: 'drop-shadow(0 0 8px rgba(250,174,98,0.35))',
+          ...(animated ? { animation: 'pulse 2.5s ease-in-out infinite' } : {}),
         }}
       >
-        <img
-          src="/lekya-logo.png"
-          alt="Lekya Specs Logo"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            // Invert white bg to dark + tint orange: makes dark logo white, teal "LEKYA" becomes orange-warm
-            filter: 'brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(10deg) brightness(1.1)',
-            transition: 'filter 0.3s ease',
-            ...(animated ? { animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' } : {}),
-          }}
+        <defs>
+          <linearGradient id="lgFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FCC48A" />
+            <stop offset="50%" stopColor="#FAAE62" />
+            <stop offset="100%" stopColor="#D4893F" />
+          </linearGradient>
+        </defs>
+
+        {/*
+          Spectacle shape — matching the actual Lekya logo:
+          Two lens frames connected by a bridge in the middle,
+          with sweeping arms/temples on the outside.
+          The bottom curves downward in two arches (like the letter W).
+        */}
+
+        {/* === LEFT LENS FRAME === */}
+        {/* Top arc of left lens */}
+        <path
+          d="M 8 48 C 10 20, 45 10, 108 26 C 118 28, 128 32, 132 38"
+          stroke="url(#lgFrame)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
         />
-      </div>
+        {/* Bottom sweep of left lens (downward arch — the "W" dip) */}
+        <path
+          d="M 8 48 C 20 80, 60 90, 108 72 C 122 67, 130 58, 132 48"
+          stroke="url(#lgFrame)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
+        />
+
+        {/* === BRIDGE (nose piece connecting both lenses) === */}
+        <path
+          d="M 132 43 C 140 38, 160 38, 168 43"
+          stroke="url(#lgFrame)"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+
+        {/* === RIGHT LENS FRAME === */}
+        {/* Top arc of right lens */}
+        <path
+          d="M 168 38 C 172 30, 200 10, 255 26 C 272 32, 285 42, 292 52"
+          stroke="url(#lgFrame)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* Bottom sweep of right lens */}
+        <path
+          d="M 168 48 C 175 70, 215 90, 258 74 C 278 66, 290 58, 292 52"
+          stroke="url(#lgFrame)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
+        />
+
+        {/* === LEFT TEMPLE ARM (sweeping out to the left) === */}
+        <path
+          d="M 8 48 C 0 44, -2 42, 2 40"
+          stroke="url(#lgFrame)"
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+        />
+
+        {/* === RIGHT TEMPLE ARM (sweeping out to the right) === */}
+        <path
+          d="M 292 52 C 300 50, 302 46, 298 44"
+          stroke="url(#lgFrame)"
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
 
       {/* Brand Typography */}
       {showText && (
-        <div className={`flex flex-col leading-none ${textClassName}`}>
-          <div className="flex items-baseline font-serif font-black tracking-[0.10em] uppercase" style={{ fontSize: size * 0.55 }}>
+        <div className={`flex flex-col leading-none ${textClassName}`} style={{ marginLeft: 4 }}>
+          <div
+            className="font-serif font-black tracking-wider"
+            style={{ fontSize: size * 0.58, letterSpacing: '0.06em' }}
+          >
             <span style={{ color: '#FEF6EE' }}>lekya</span>
-            <span style={{ color: '#FAAE62' }}>.in</span>
+            <span style={{ color: '#FAAE62', fontStyle: 'italic' }}>.in</span>
           </div>
-          {showTagline && (
+          {showTagline && tagline && (
             <span
-              className="font-bold uppercase tracking-[0.30em]"
-              style={{ fontSize: size * 0.22, color: '#9B7EA8', marginTop: 2 }}
+              className="font-semibold uppercase"
+              style={{
+                fontSize: size * 0.2,
+                color: '#9B7EA8',
+                letterSpacing: '0.28em',
+                marginTop: 3,
+              }}
             >
               {tagline}
             </span>
