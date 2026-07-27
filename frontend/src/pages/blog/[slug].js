@@ -2,7 +2,7 @@ const React = require('react');
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { useRouter } = require('next/router');
-const { ArrowLeft, Clock, User, Calendar, Tag, Share2, Sparkles, ArrowRight, BookOpen, ShieldCheck, CheckCircle2 } = require('lucide-react');
+const { ArrowLeft, Clock, User, Calendar, Sparkles, ArrowRight } = require('lucide-react');
 
 const BLOG_ARTICLES_DATA = {
   'face-shape-eyewear-guide-2026': {
@@ -102,6 +102,30 @@ const BLOG_ARTICLES_DATA = {
       {
         heading: 'The Polarized TAC Advantage',
         text: 'Polarized TAC lenses contain a special vertical filter that blocks horizontal reflected light glare from asphalt, snow, and water surfaces. The result is crystal-clear color contrast and zero squinting.'
+      }
+    ]
+  },
+  'how-to-read-eye-prescription-sph-cyl-pd': {
+    slug: 'how-to-read-eye-prescription-sph-cyl-pd',
+    title: 'How to Read Your Eye Prescription: Decoding SPH, CYL, AXIS & Pupillary Distance',
+    category: 'Prescription Tips',
+    readTime: '5 min read',
+    date: 'July 05, 2026',
+    author: 'Dr. Aarav Mehta',
+    image: 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=1200&q=80',
+    summary: 'Confused by numbers on your doctor’s slip? Master Sphere (SPH), Cylinder (CYL), Axis, and how to accurately measure your Pupillary Distance (PD) at home.',
+    contentSections: [
+      {
+        heading: 'Understanding Your Prescription Card (OD vs OS)',
+        text: 'OD stands for Oculus Dexter (Right Eye) and OS stands for Oculus Sinister (Left Eye). SPH (Sphere) indicates nearsightedness (minus sign -) or farsightedness (plus sign +).'
+      },
+      {
+        heading: 'What Is Cylinder (CYL) & AXIS for Astigmatism?',
+        text: 'CYL measures the amount of lens power needed to correct astigmatism (irregularly curved cornea). AXIS (from 1 to 180 degrees) specifies the exact angle orientation where the astigmatism correction is placed.'
+      },
+      {
+        heading: 'Why Pupillary Distance (PD) Is Crucial for Online Ordering',
+        text: 'Pupillary Distance (PD) is the distance in millimeters between the centers of your two pupils. Accurate PD ensures the optical center of your custom prescription lenses lines up exactly with your pupil line for zero distortion.'
       }
     ]
   }

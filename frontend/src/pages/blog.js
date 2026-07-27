@@ -52,6 +52,18 @@ const BLOG_ARTICLES = [
     image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
     summary: 'Not all dark lenses protect your retinas. Learn how true 100% UV400 filtering blocks harmful UVA/UVB rays while TAC polarization neutralizes blinding glare from roads & water.',
     featured: false
+  },
+  {
+    id: '5',
+    slug: 'how-to-read-eye-prescription-sph-cyl-pd',
+    title: 'How to Read Your Eye Prescription: Decoding SPH, CYL, AXIS & Pupillary Distance',
+    category: 'Prescription Tips',
+    readTime: '5 min read',
+    date: 'July 05, 2026',
+    author: 'Dr. Aarav Mehta',
+    image: 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=800&q=80',
+    summary: 'Confused by numbers on your doctor’s slip? Master Sphere (SPH), Cylinder (CYL), Axis, and how to accurately measure your Pupillary Distance (PD) at home.',
+    featured: false
   }
 ];
 
@@ -59,7 +71,7 @@ export default function BlogJournal() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = ['All', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care'];
+  const categories = ['All', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care', 'Prescription Tips'];
 
   const filteredArticles = BLOG_ARTICLES.filter(art => {
     const matchesCat = activeCategory === 'All' || art.category === activeCategory;
