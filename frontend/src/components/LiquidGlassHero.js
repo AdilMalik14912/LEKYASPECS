@@ -1,14 +1,13 @@
 const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
-const { ArrowRight, Play, Pause } = require('lucide-react');
+const { ArrowRight } = require('lucide-react');
 
 const DEFAULT_VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_230229_7c9bc431-46cf-489a-948d-e8144d8eb5d4.mp4';
 
 function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
   const videoRef = useRef(null);
   const heroRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0, rawX: 0, rawY: 0 });
 
   // 1. HLS.js Support & Video Stream Loader
@@ -67,23 +66,12 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
     setMousePos({ x: 0, y: 0, rawX: 0, rawY: 0 });
   };
 
-  const togglePlayPause = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play();
-      setIsPlaying(true);
-    }
-  };
-
   return (
     <div
       ref={heroRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full min-h-[90vh] lg:h-[92vh] overflow-hidden text-white font-sans flex flex-col justify-end"
+      className="relative w-full min-h-[92vh] lg:h-[95vh] overflow-hidden text-white font-sans flex flex-col justify-end"
     >
       {/* ── FULL-SCREEN HLS / MP4 VIDEO BACKGROUND ── */}
       <video
@@ -99,7 +87,7 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
       />
 
       {/* ── DARK GRADIENT OVERLAY (Bottom-Heavy for Perfect Readability) ── */}
-      <div className="absolute inset-0 z-1 bg-gradient-to-t from-black/95 via-black/45 to-black/60 pointer-events-none" />
+      <div className="absolute inset-0 z-1 bg-gradient-to-t from-black/95 via-black/40 to-black/60 pointer-events-none" />
 
       {/* ── DYNAMIC CURSOR SPOTLIGHT LIGHT ORB ── */}
       <div
@@ -107,18 +95,18 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
         style={{
           left: mousePos.rawX - 225,
           top: mousePos.rawY - 225,
-          background: 'radial-gradient(circle, rgba(250,174,98,0.22) 0%, rgba(123,34,168,0.1) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(250,174,98,0.2) 0%, rgba(123,34,168,0.08) 50%, transparent 70%)',
           filter: 'blur(45px)',
           opacity: mousePos.rawX ? 1 : 0,
         }}
       />
 
-      {/* ── HERO CONTENT POSITIONED IN BOTTOM-LEFT CORNER WITH PERFECT BOTTOM SPACING ── */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 sm:px-12 pb-24 sm:pb-32 pt-16 mt-auto">
+      {/* ── HERO CONTENT POSITIONED IN BOTTOM-LEFT CORNER WITH COMFORTABLE TOP MARGIN & PADDING (SS #2 FIX) ── */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 sm:px-12 pt-32 sm:pt-40 lg:pt-48 pb-24 sm:pb-32 mt-auto">
         <div className="max-w-xl text-left space-y-6">
 
-          {/* Hero Headline (Clean - Badge Removed per Screenshot 2) */}
-          <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-[1.1] tracking-tight drop-shadow-2xl">
+          {/* Hero Headline (Positioned comfortably lower below top header) */}
+          <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-[1.12] tracking-tight drop-shadow-2xl">
             Live Better, See Clearly Every Day
           </h1>
 
@@ -144,7 +132,7 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
             </Link>
           </div>
 
-          {/* Live Stats Bar — Perfectly Aligned & Uncut (per Screenshot 1) */}
+          {/* Live Stats Bar — Perfectly Aligned & Uncut */}
           <div className="flex items-center gap-8 sm:gap-12 pt-6 border-t border-white/20 max-w-md">
             {[
               { val: '10K+', label: 'Happy Clients' },
@@ -160,16 +148,6 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
 
         </div>
       </div>
-
-      {/* Video Motion Toggle (Bottom Right Corner) */}
-      <button
-        onClick={togglePlayPause}
-        className="absolute bottom-8 right-6 z-30 liquid-glass p-3 rounded-full text-white/80 hover:text-white transition-all shadow-lg border border-white/15 flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:bg-white/10"
-        title={isPlaying ? 'Pause Motion' : 'Play Motion'}
-      >
-        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-        <span className="hidden sm:inline">{isPlaying ? 'Motion Active' : 'Play Motion'}</span>
-      </button>
 
     </div>
   );

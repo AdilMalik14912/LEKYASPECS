@@ -824,47 +824,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Newsletter Signup Banner — Orange Premium */}
-      <section className="py-16 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #D4893F 0%, #FAAE62 40%, #FCC48A 60%, #FAAE62 80%, #D4893F 100%)'}}>
-        <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(circle at 30% 50%, rgba(62,8,86,0.2) 0%, transparent 60%)'}} />
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4" style={{background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(0,0,0,0.2)', color: '#0D0016'}}>
-            <Mail className="w-3.5 h-3.5" /> Exclusive Members Club
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4" style={{color: '#0D0016'}}>
-            Get 15% Off Your First Order
-          </h2>
-          <p className="text-sm mb-8 font-light leading-relaxed" style={{color: 'rgba(13,0,22,0.7)'}}>
-            Join thousands of style-forward Lekya Specs members. Subscribe for early access to new collections, exclusive coupons, and personalized eyewear recommendations.
-          </p>
-          {newsletterDone ? (
-            <div className="inline-block rounded-xl p-4" style={{background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.2)'}}>
-              <p className="font-bold text-sm" style={{color: '#0D0016'}}>✓ You're subscribed! Use code <strong>WELCOME10</strong> for 10% off.</p>
+      {/* 7. Newsletter Signup Banner — Dark Luxury Glassmorphism Theme (SS #1 Fix) */}
+      <section className="py-20 relative overflow-hidden" style={{background: 'linear-gradient(180deg, #0D0016 0%, #1A0024 100%)'}}>
+        <div className="absolute inset-0 pointer-events-none opacity-20" style={{background: 'radial-gradient(circle at 50% 50%, #FAAE62 0%, transparent 60%)'}} />
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="liquid-glass rounded-3xl p-8 sm:p-12 border border-white/15 shadow-2xl backdrop-blur-xl text-center relative overflow-hidden" style={{background: 'rgba(30, 0, 48, 0.65)'}}>
+            
+            {/* Ambient inner glow */}
+            <div className="absolute -top-20 -right-20 w-48 h-48 bg-[#FAAE62]/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.3)', color: '#FAAE62'}}>
+              <Mail className="w-3.5 h-3.5" /> Exclusive Members Club
             </div>
-          ) : (
-            <form
-              onSubmit={(e) => { e.preventDefault(); setNewsletterDone(true); }}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                required
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="Your email address"
-                className="flex-grow px-4 py-3 rounded-xl text-sm font-medium focus:outline-none"
-                style={{background: '#FEF6EE', color: '#0D0016', border: '2px solid transparent'}}
-              />
-              <button
-                type="submit"
-                className="font-bold text-xs tracking-widest uppercase px-8 py-3 rounded-xl transition-all hover:scale-105"
-                style={{background: '#0D0016', color: '#FAAE62'}}
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4 text-white">
+              Get 15% Off Your First Order
+            </h2>
+            <p className="text-sm sm:text-base mb-8 font-light leading-relaxed max-w-xl mx-auto text-[#D4C8DC]">
+              Join thousands of style-forward Lekya Specs members. Subscribe for early access to new collections, exclusive coupons, and personalized eyewear recommendations.
+            </p>
+            {newsletterDone ? (
+              <div className="inline-block rounded-xl px-6 py-4" style={{background: 'rgba(250,174,98,0.15)', border: '1px solid rgba(250,174,98,0.35)'}}>
+                <p className="font-bold text-sm text-[#FAAE62]">✓ You're subscribed! Use code <strong>WELCOME10</strong> for 10% off at checkout.</p>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => { e.preventDefault(); setNewsletterDone(true); }}
+                className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
               >
-                Subscribe
-              </button>
-            </form>
-          )}
-          <p className="text-[10px] mt-4" style={{color: 'rgba(13,0,22,0.45)'}}>No spam. Unsubscribe anytime. Your privacy is respected.</p>
+                <input
+                  type="email"
+                  required
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Your email address"
+                  className="flex-grow px-5 py-3.5 rounded-xl text-sm font-medium focus:outline-none placeholder-[#9B7EA8] text-white"
+                  style={{background: 'rgba(13,0,22,0.8)', border: '1px solid rgba(74,18,104,0.8)'}}
+                />
+                <button
+                  type="submit"
+                  className="font-bold text-xs tracking-widest uppercase px-8 py-3.5 rounded-xl transition-all hover:scale-105 shadow-lg"
+                  style={{background: 'linear-gradient(135deg, #FAAE62 0%, #D4893F 100%)', color: '#0D0016'}}
+                >
+                  Subscribe
+                </button>
+              </form>
+            )}
+            <p className="text-[11px] mt-4 text-[#9B7EA8]">No spam. Unsubscribe anytime. Your privacy is respected.</p>
+          </div>
         </div>
       </section>
 
