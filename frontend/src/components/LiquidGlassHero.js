@@ -1,19 +1,17 @@
 const React = require('react');
 const { useState, useEffect, useRef } = React;
 const Link = require('next/link').default;
-const VisionEyeLogo = require('./VisionEyeLogo');
-const { Sparkles, ArrowRight, ChevronDown, Menu, X, Play, Pause } = require('lucide-react');
+const { ArrowRight, Play, Pause } = require('lucide-react');
 
 const DEFAULT_VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_230229_7c9bc431-46cf-489a-948d-e8144d8eb5d4.mp4';
 
-function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false }) {
+function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
   const videoRef = useRef(null);
   const heroRef = useRef(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0, rawX: 0, rawY: 0 });
 
-  // 1. HLS.js Support & Video Initialization
+  // 1. HLS.js Support & Video Stream Loader
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -21,7 +19,6 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
     let hlsInstance = null;
 
     if (videoUrl.endsWith('.m3u8')) {
-      // If HLS stream (.m3u8) is provided, dynamically load hls.js
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
       script.async = true;
@@ -43,7 +40,6 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
       };
       document.body.appendChild(script);
     } else {
-      // Standard MP4 Fallback
       video.src = videoUrl;
       video.play().catch(() => {});
     }
@@ -55,7 +51,7 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
     };
   }, [videoUrl]);
 
-  // 2. Interactive Parallax & Cursor Spotlight
+  // 2. Interactive Parallax & Cursor Light Orb
   const handleMouseMove = (e) => {
     if (!heroRef.current) return;
     const rect = heroRef.current.getBoundingClientRect();
@@ -82,20 +78,12 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
     }
   };
 
-  const navLinks = [
-    { label: 'Eyeglasses', href: '/shop?category=Eyeglasses' },
-    { label: 'Sunglasses', href: '/shop?category=Sunglasses' },
-    { label: 'Lookbook', href: '/lookbook' },
-    { label: 'AR Try-On', href: '/tryon' },
-    { label: 'Our Team', href: '/about' },
-  ];
-
   return (
     <div
       ref={heroRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-screen overflow-hidden text-white font-sans flex flex-col justify-between"
+      className="relative w-full min-h-[90vh] lg:h-[92vh] overflow-hidden text-white font-sans flex flex-col justify-end"
     >
       {/* ── FULL-SCREEN HLS / MP4 VIDEO BACKGROUND ── */}
       <video
@@ -110,10 +98,10 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
         }}
       />
 
-      {/* ── DARK GRADIENT OVERLAY (Bottom-Heavy for Contrast) ── */}
-      <div className="absolute inset-0 z-1 bg-gradient-to-t from-black/95 via-black/45 to-black/70 pointer-events-none" />
+      {/* ── DARK GRADIENT OVERLAY (Bottom-Heavy for Perfect Readability) ── */}
+      <div className="absolute inset-0 z-1 bg-gradient-to-t from-black/95 via-black/45 to-black/60 pointer-events-none" />
 
-      {/* ── CURSOR SPOTLIGHT LIGHT ORB ── */}
+      {/* ── DYNAMIC CURSOR SPOTLIGHT LIGHT ORB ── */}
       <div
         className="absolute w-[450px] h-[450px] rounded-full pointer-events-none z-1 transition-opacity duration-300"
         style={{
@@ -125,88 +113,17 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
         }}
       />
 
-      {/* ── OPTIONAL GLASSMORTIC NAVIGATION HEADER (When Standalone) ── */}
-      {renderHeader && (
-        <header className="relative z-30 flex items-center justify-between px-6 sm:px-12 py-5 backdrop-blur-md bg-white/10 border-b border-white/10 shadow-2xl">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <VisionEyeLogo size={36} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
-          </Link>
+      {/* ── HERO CONTENT POSITIONED IN BOTTOM-LEFT CORNER WITH PERFECT BOTTOM SPACING ── */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 sm:px-12 pb-24 sm:pb-32 pt-16 mt-auto">
+        <div className="max-w-xl text-left space-y-6">
 
-          <nav className="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-wider text-white/90">
-            {navLinks.map((link) => (
-              <Link key={link.label} href={link.href} className="hover:text-[#FAAE62] transition-colors py-1">
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/account"
-              className="liquid-glass text-white text-xs uppercase font-bold tracking-wider px-5 py-2.5 rounded-full hover:bg-white/10 transition-all border border-white/15"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/shop"
-              className="bg-white text-black text-xs uppercase font-bold tracking-wider px-5 py-2.5 rounded-full hover:bg-white/90 transition-all shadow-lg font-bold"
-            >
-              Begin Now
-            </Link>
-          </div>
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden liquid-glass text-white p-2.5 rounded-xl flex items-center justify-center border border-white/15"
-          >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </header>
-      )}
-
-      {/* MOBILE MENU DRAWER */}
-      {renderHeader && menuOpen && (
-        <div className="absolute top-20 left-4 right-4 z-40 md:hidden backdrop-blur-xl bg-black/80 border border-white/15 rounded-2xl p-5 flex flex-col gap-3 shadow-2xl">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="text-xs uppercase font-bold tracking-wider text-white py-2 border-b border-white/10"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="flex gap-3 pt-2">
-            <Link href="/account" className="flex-1 text-center liquid-glass text-white text-xs font-bold uppercase py-2.5 rounded-xl border border-white/15">
-              Log in
-            </Link>
-            <Link href="/shop" className="flex-1 text-center bg-white text-black text-xs font-bold uppercase py-2.5 rounded-xl font-bold">
-              Begin Now
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* ── HERO CONTENT POSITIONED IN BOTTOM-LEFT CORNER ── */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 sm:px-12 pb-12 sm:pb-16 pt-20 mt-auto">
-        <div className="max-w-xl text-left space-y-5">
-          
-          {/* Glassmorphic Badge Pill */}
-          <div className="inline-flex">
-            <div className="liquid-glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase text-[#FAAE62] shadow-xl border border-white/15">
-              <Sparkles className="w-3.5 h-3.5" />
-              Liquid Glass Optical Collection
-            </div>
-          </div>
-
-          {/* Hero Headline */}
+          {/* Hero Headline (Clean - Badge Removed per Screenshot 2) */}
           <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-[1.1] tracking-tight drop-shadow-2xl">
             Live Better, See Clearly Every Day
           </h1>
 
           {/* Subtitle / Paragraph */}
-          <p className="text-white/80 text-sm sm:text-base leading-relaxed font-light max-w-lg drop-shadow-md">
+          <p className="text-white/85 text-sm sm:text-base leading-relaxed font-light max-w-lg drop-shadow-md">
             Take charge of how you feel with a companion built for your journey—build routines, follow your growth, and unlock tailored optical insights for a steadier, more vibrant life each day.
           </p>
 
@@ -227,16 +144,16 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
             </Link>
           </div>
 
-          {/* Live Stats Bar */}
-          <div className="flex items-center gap-8 sm:gap-10 pt-6 border-t border-white/15 max-w-md">
+          {/* Live Stats Bar — Perfectly Aligned & Uncut (per Screenshot 1) */}
+          <div className="flex items-center gap-8 sm:gap-12 pt-6 border-t border-white/20 max-w-md">
             {[
               { val: '10K+', label: 'Happy Clients' },
               { val: '500+', label: 'Luxury Designs' },
               { val: '4.9★', label: 'Avg Rating' },
             ].map(({ val, label }) => (
               <div key={label} className="text-left">
-                <p className="text-xl font-bold font-mono text-[#FAAE62]">{val}</p>
-                <p className="text-[10px] uppercase tracking-wider text-[#9B7EA8] mt-0.5">{label}</p>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-[#FAAE62]">{val}</p>
+                <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-white/70 mt-1">{label}</p>
               </div>
             ))}
           </div>
@@ -247,7 +164,7 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL, renderHeader = false })
       {/* Video Motion Toggle (Bottom Right Corner) */}
       <button
         onClick={togglePlayPause}
-        className="absolute bottom-6 right-6 z-30 liquid-glass p-3 rounded-full text-white/80 hover:text-white transition-all shadow-lg border border-white/15 flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:bg-white/10"
+        className="absolute bottom-8 right-6 z-30 liquid-glass p-3 rounded-full text-white/80 hover:text-white transition-all shadow-lg border border-white/15 flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:bg-white/10"
         title={isPlaying ? 'Pause Motion' : 'Play Motion'}
       >
         {isPlaying ? <Pause size={14} /> : <Play size={14} />}

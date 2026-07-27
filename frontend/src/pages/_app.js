@@ -359,9 +359,9 @@ export default function App({ Component, pageProps }) {
               </div>
             )}
             
-            {/* --- Premium Navigation Header (Hidden on home page where LiquidGlassHero renders floating glassmorphic header) --- */}
-            {!isStaffRoute && router.pathname !== '/' && (
-              <header className="sticky top-0 z-50 border-b backdrop-blur-md bg-black/40 border-white/10 shadow-2xl transition-all">
+            {/* --- Premium Navigation Header --- */}
+            {!isStaffRoute && (
+              <header className="sticky top-0 z-50 border-b backdrop-blur-xl bg-[#0D0016]/80 border-white/10 shadow-2xl transition-all">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex items-center justify-between h-16 sm:h-20 relative">
                     
@@ -376,18 +376,18 @@ export default function App({ Component, pageProps }) {
                     </div>
 
                     {/* Logo — Vision Eye Concept 10 */}
-                    <div className="flex-shrink-0 flex items-center absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:transform-none lg:mr-10 xl:mr-16">
+                    <div className="flex-shrink-0 flex items-center absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:transform-none lg:mr-8 xl:mr-12">
                       <Link href="/" className="flex items-center hover:opacity-90 transition-opacity group">
                         <VisionEyeLogo size={40} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
                       </Link>
                     </div>
 
-                    {/* Desktop Navigation Links — Liquid Glass Pill Container */}
+                    {/* Desktop Navigation Links — Unclipped Glassmorphic Pill Container */}
                     {!isStaffRoute ? (
-                      <nav className="hidden lg:flex liquid-glass items-center space-x-3 xl:space-x-4 text-xs font-bold uppercase tracking-wider text-[#FEF6EE] px-4 py-2 rounded-2xl shadow-xl border border-white/10 mr-4">
-                        <Link href="/shop?category=Eyeglasses" className="hover:text-[#FAAE62] transition-colors py-2">Eyeglasses</Link>
-                        <Link href="/shop?category=Sunglasses" className="hover:text-[#FAAE62] transition-colors py-2">Sunglasses</Link>
-                        <Link href="/lookbook" className="hover:text-[#FAAE62] transition-colors py-2">Lookbook</Link>
+                      <nav className="hidden lg:flex items-center space-x-5 text-xs font-bold uppercase tracking-wider text-[#FEF6EE] px-6 py-2.5 rounded-full shadow-2xl border border-white/15 backdrop-blur-xl bg-white/5 mr-4">
+                        <Link href="/shop?category=Eyeglasses" className="hover:text-[#FAAE62] transition-colors py-1">Eyeglasses</Link>
+                        <Link href="/shop?category=Sunglasses" className="hover:text-[#FAAE62] transition-colors py-1">Sunglasses</Link>
+                        <Link href="/lookbook" className="hover:text-[#FAAE62] transition-colors py-1">Lookbook</Link>
                         
                         {/* About & Group Companies Dropdown */}
                         <div className="relative group py-2">
