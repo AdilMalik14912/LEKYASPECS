@@ -5,6 +5,58 @@ const { useRouter } = require('next/router');
 const { ArrowLeft, Clock, User, Calendar, Sparkles, ArrowRight } = require('lucide-react');
 
 const BLOG_ARTICLES_DATA = {
+  'lekya-group-companies-vision': {
+    slug: 'lekya-group-companies-vision',
+    title: 'The Lekya Group Vision: Pioneering Healthcare, Solar Energy, Eyewear & Media Innovation',
+    category: 'Group Companies',
+    readTime: '6 min read',
+    date: 'July 22, 2026',
+    author: 'Lekya Corporate Board',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    summary: 'Explore the multi-industry legacy of Lekya Group across sustainable solar power (Lekya Energy), advanced optical care (Lekya Specs & Lekya Vision), health innovations (Lekya Health), and creative media (Lekya Media).',
+    contentSections: [
+      {
+        heading: 'An Empire Built on Purpose, Innovation & Quality',
+        text: 'Lekya Group represents a modern Indian conglomerate founded on the conviction that high-technology and uncompromising quality should be accessible to all. Operating across sustainable infrastructure, optical healthcare, digital media, and healthtech, Lekya Group shapes the future of everyday living.'
+      },
+      {
+        heading: '1. Lekya Specs & Lekya Vision (Optical Excellence)',
+        text: 'Lekya Specs is redefining how India experiences eyewear. By integrating 3D/2D Virtual Try-On, AI face shape matching, aerospace-grade Beta Titanium, and Italian Mazzucchelli acetate, Lekya Specs brings optical precision directly to customers without traditional retail markups.'
+      },
+      {
+        heading: '2. Lekya Energy (Clean Power & Solar Parks)',
+        text: 'Lekya Energy engineers commercial and industrial solar power installations. From rooftop solar plants to mega megawatt solar parks, Lekya Energy leads India’s transition toward zero-carbon sustainable energy.'
+      },
+      {
+        heading: '3. Lekya Health & Lekya Media (Wellness & Creative Tech)',
+        text: 'Lekya Health focuses on accessible digital wellness solutions and diagnostic innovation, while Lekya Media crafts high-impact creative storytelling, branding, and multimedia productions.'
+      }
+    ]
+  },
+  'behind-the-frames-lekya-team-craftsmanship': {
+    slug: 'behind-the-frames-lekya-team-craftsmanship',
+    title: 'Behind the Frames: Meet the Master Craftsmen, Optometrists & Design Engineers of Lekya Specs',
+    category: 'Lekya Team',
+    readTime: '5 min read',
+    date: 'July 18, 2026',
+    author: 'Vikramaditya Roy (Head of Design)',
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=80',
+    summary: 'Meet the optometrists, optical designers, and master frame artisans behind every pair of Lekya Specs glasses. From 72-hour acetate polishing to precision custom lens edging.',
+    contentSections: [
+      {
+        heading: 'Craftsmanship Meets High Optical Science',
+        text: 'Every pair of glasses crafted at Lekya Specs undergoes a 48-step precision assembly process. Our optical engineers and master frame artisans combine traditional Japanese hand-beveling with computer-guided CNC lens cutting.'
+      },
+      {
+        heading: 'Our Dedicated Optometry Team',
+        text: 'Led by senior optometrists, our team ensures every prescription lens is double-verified for pupil alignment (PD), focal accuracy, and zero-distortion peripheral clarity before final dispatch.'
+      },
+      {
+        heading: 'Customer Concierge & Doorstep Care',
+        text: 'From personalized frame consultation via WhatsApp to self-service order tracking and doorstep returns, our customer care team works 6 days a week to provide VIP optical support.'
+      }
+    ]
+  },
   'face-shape-eyewear-guide-2026': {
     slug: 'face-shape-eyewear-guide-2026',
     title: 'The 2026 Eyewear Guide: How to Choose Frames Matched to Your Face Shape',

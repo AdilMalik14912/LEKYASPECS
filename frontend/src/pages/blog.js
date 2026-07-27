@@ -18,6 +18,30 @@ const BLOG_ARTICLES = [
     featured: true
   },
   {
+    id: '6',
+    slug: 'lekya-group-companies-vision',
+    title: 'The Lekya Group Vision: Pioneering Healthcare, Solar Energy, Eyewear & Media Innovation',
+    category: 'Group Companies',
+    readTime: '6 min read',
+    date: 'July 22, 2026',
+    author: 'Lekya Corporate Board',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+    summary: 'Explore the multi-industry legacy of Lekya Group across sustainable solar power (Lekya Energy), advanced optical care (Lekya Specs & Lekya Vision), health innovations (Lekya Health), and creative media (Lekya Media).',
+    featured: false
+  },
+  {
+    id: '7',
+    slug: 'behind-the-frames-lekya-team-craftsmanship',
+    title: 'Behind the Frames: Meet the Master Craftsmen, Optometrists & Design Engineers of Lekya Specs',
+    category: 'Lekya Team',
+    readTime: '5 min read',
+    date: 'July 18, 2026',
+    author: 'Vikramaditya Roy (Head of Design)',
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+    summary: 'Meet the optometrists, optical designers, and master frame artisans behind every pair of Lekya Specs glasses. From 72-hour acetate polishing to precision custom lens edging.',
+    featured: false
+  },
+  {
     id: '2',
     slug: 'blue-light-vs-anti-reflective-coating',
     title: 'Blue Light Shield vs. Anti-Reflective Coating: What Your Eyes Actually Need',
@@ -71,7 +95,7 @@ export default function BlogJournal() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = ['All', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care', 'Prescription Tips'];
+  const categories = ['All', 'Group Companies', 'Lekya Team', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care', 'Prescription Tips'];
 
   const filteredArticles = BLOG_ARTICLES.filter(art => {
     const matchesCat = activeCategory === 'All' || art.category === activeCategory;
@@ -85,8 +109,8 @@ export default function BlogJournal() {
   return (
     <>
       <Head>
-        <title>Optical Journal & Eyewear Style Guides | lekya.in</title>
-        <meta name="description" content="Explore expert optical articles, prescription guides, face shape fitting tips, and lens technology breakthroughs from lekya.in." />
+        <title>Optical Journal & Group Companies | lekya.in</title>
+        <meta name="description" content="Explore expert optical articles, Lekya Group companies, team stories, prescription guides, and lens technology breakthroughs." />
       </Head>
 
       <div className="bg-[#0D0016] text-white min-h-screen pt-24 pb-20 relative overflow-hidden font-sans">
@@ -100,13 +124,13 @@ export default function BlogJournal() {
           {/* PAGE HEADER */}
           <div className="text-center space-y-4 mb-14">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#FAAE62]" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.3)'}}>
-              <BookOpen className="w-3.5 h-3.5" /> lekya.in Journal
+              <BookOpen className="w-3.5 h-3.5" /> lekya.in Journal & Corporate Vision
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-              Optical Insight & Style Journal
+              Optical Insight & Group Legacy
             </h1>
             <p className="text-[#D4C8DC] text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
-              Curated articles on prescription optics, frame geometry, lens coatings, and modern eyewear trends.
+              Curated articles on prescription optics, Lekya Group companies, master team craftsmanship, and modern eyewear trends.
             </p>
           </div>
 
