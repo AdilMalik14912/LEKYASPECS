@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Camera, RefreshCw, Sparkles, Download, Video, Eye, Sliders } from 'lucide-react';
@@ -342,7 +342,7 @@ export default function ARTryOn() {
   return (
     <>
       <Head>
-        <title>Live AR Try-On — Lekya Specs</title>
+        <title>Live AR Try-On — lekya.in</title>
         <meta name="description" content="Try on premium eyewear in real-time using your webcam. AI-powered face landmark detection places frames perfectly on your face." />
       </Head>
 

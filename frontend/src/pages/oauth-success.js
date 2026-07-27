@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -65,7 +65,7 @@ export default function OAuthSuccess() {
   return (
     <>
       <Head>
-        <title>Signing In... — Lekya Specs</title>
+        <title>Signing In... — lekya.in</title>
       </Head>
       <div className="min-h-screen bg-[#0d0016] flex flex-col items-center justify-center gap-6 px-4 text-center">
         <div className="relative">

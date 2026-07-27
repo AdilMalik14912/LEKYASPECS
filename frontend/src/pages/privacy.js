@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -34,7 +34,7 @@ export default function PrivacyPolicy() {
   return (
     <>
       <Head>
-        <title>Privacy Policy — Lekya Specs Eyewear</title>
+        <title>Privacy Policy — lekya.in</title>
         <meta name="description" content="Read Lekya Specs Privacy Policy. We are committed to protecting your personal information and browser privacy." />
       </Head>
 

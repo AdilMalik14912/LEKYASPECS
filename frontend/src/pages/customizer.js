@@ -80,7 +80,7 @@ export default function FrameCustomizer() {
   return (
     <>
       <Head>
-        <title>Premium Frame Customizer — Lekya Specs</title>
+        <title>Premium Frame Customizer — lekya.in</title>
         <meta name="description" content="Design and customize your own premium eyewear. Choose frame shapes, polished metals, polarized lens tints, and add personal engravings with instant live preview." />
       </Head>
 

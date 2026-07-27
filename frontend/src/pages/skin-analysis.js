@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Upload, Sparkles, Palette, Sun, Moon, RefreshCw } from 'lucide-react';
@@ -194,7 +194,7 @@ export default function SkinToneAnalyzer() {
   return (
     <>
       <Head>
-        <title>Skin Tone Color Studio — Lekya Specs</title>
+        <title>Skin Tone Color Studio — lekya.in</title>
         <meta name="description" content="Upload your photo for precision skin tone and undertone analysis. Get personalized frame color recommendations based on your exact skin palette." />
       </Head>
 

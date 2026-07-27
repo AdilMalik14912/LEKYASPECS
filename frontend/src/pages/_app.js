@@ -306,10 +306,10 @@ export default function App({ Component, pageProps }) {
     <ToastContext.Provider value={{ showToast }}>
       <AuthContext.Provider value={{ user, token, login, logout, authLoading, updateProfileFaceShape, updateProfile }}>
         <Head>
-          <title>Lekya Specs — Premium Eyewear E-Commerce Store</title>
-          <meta name="description" content="Shop luxury eyeglasses and sunglasses designed with premium materials. Try our interactive webcam-based AI Face Shape suggestion widget." />
+          <title>lekya.in — Premium Luxury Eyewear</title>
+          <meta name="description" content="lekya.in — Shop luxury eyeglasses and sunglasses. AI Face Shape Detection, Live AR Try-On, Custom Lens Configurator. India's premium eyewear destination." />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👓</text></svg>" />
+          <link rel="icon" href="/lekya-logo.png" />
         </Head>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
@@ -336,8 +336,8 @@ export default function App({ Component, pageProps }) {
 
                   {/* Brand name — Orange shimmer */}
                   <div className="flex flex-col items-center">
-                    <h1 className="font-serif text-3xl font-bold tracking-widest uppercase shimmer-orange-text">
-                      LEKYASPECS
+                    <h1 className="font-serif text-3xl font-bold tracking-widest shimmer-orange-text" style={{letterSpacing: '0.12em'}}>
+                      lekya<span style={{color:'#FAAE62'}}>.in</span>
                     </h1>
                     <span className="text-[10px] font-bold tracking-[0.35em] text-[#FAAE62] uppercase mt-1">
                       See Beyond. Deliver More.
@@ -755,7 +755,7 @@ export default function App({ Component, pageProps }) {
                   </div>
 
                   <div className="mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs" style={{borderTop: '1px solid rgba(74,18,104,0.5)', color: '#6B4A80'}}>
-                    <p>© 2026 Lekya Specs Eyewear. All rights reserved.</p>
+                    <p>© 2026 <span style={{color:'#FAAE62', fontWeight:700}}>lekya.in</span> — Lekya Specs Eyewear. All rights reserved.</p>
                     <div className="flex space-x-6 mt-4 sm:mt-0">
                       <Link href="/privacy" className="hover:text-[#FAAE62] transition-colors">Privacy Policy</Link>
                       <Link href="/terms" className="hover:text-[#FAAE62] transition-colors">Terms of Service</Link>

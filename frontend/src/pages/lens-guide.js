@@ -243,7 +243,7 @@ export default function LensGuidePage() {
   return (
     <>
       <Head>
-        <title>Prescription Lens Studio — Lekya Specs</title>
+        <title>Prescription Lens Studio — lekya.in</title>
         <meta name="description" content="Precision lens customizer and 3D refraction simulator. Calculate lens thickness, test anti-reflective coatings, photochromic transitions, and screen filters." />
       </Head>
 

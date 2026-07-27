@@ -704,7 +704,7 @@ export default function TryOnStudio() {
   return (
     <>
       <Head>
-        <title>Virtual Try-On Studio — Lekya Specs</title>
+        <title>Virtual Try-On Studio — lekya.in</title>
         <meta name="description" content="Try on any eyewear frame instantly. Upload your photo or use live webcam. AI-powered face detection with real-time background removal." />
       </Head>
 

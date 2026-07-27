@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -24,7 +24,7 @@ export default function TermsOfService() {
   return (
     <>
       <Head>
-        <title>Terms of Service — Lekya Specs Eyewear</title>
+        <title>Terms of Service — lekya.in</title>
         <meta name="description" content="Read Lekya Specs Terms of Service. Learn about order cancellations, shipping timelines, prescription configurations, and return policies." />
       </Head>
 

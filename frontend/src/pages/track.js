@@ -29,7 +29,7 @@ const STATUS_DETAILS = {
   'Packed':            'Frames have been certified by our stylists, packaged, and handed over to courier dispatch.',
   'Shipped':           'The shipment has left our central hub. Courier tracking link updated.',
   'Out for Delivery':  'Our local agent is en route. Please keep your delivery OTP ready.',
-  'Delivered':         'Shipment handed over. Thank you for choosing Lekya Specs!'
+  'Delivered':         'Shipment handed over. Thank you for choosing lekya.in!'
 };
 
 export default function PublicTracker() {
@@ -390,7 +390,7 @@ export default function PublicTracker() {
       {/* Footer */}
       <footer className="border-t border-white/5 bg-black/60 py-8">
         <div className="max-w-5xl mx-auto px-4 text-center text-[10px] text-gray-600 uppercase tracking-widest font-bold">
-          © 2026 Lekya Specs. Secure Package Tracking Portal.
+          © 2026 <strong>lekya.in</strong> — Lekya Specs. Secure Package Tracking Portal.
         </div>
       </footer>
 

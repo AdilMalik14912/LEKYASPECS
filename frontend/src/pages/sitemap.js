@@ -46,7 +46,7 @@ export default function Sitemap() {
   return (
     <>
       <Head>
-        <title>Sitemap &amp; Directory — Lekya Specs Eyewear</title>
+        <title>Sitemap &amp; Directory — lekya.in</title>
         <meta name="description" content="View the complete visual sitemap directory for Lekya Specs. Access shopping catalogs, interactive visual modules, and support dashboards." />
       </Head>
 

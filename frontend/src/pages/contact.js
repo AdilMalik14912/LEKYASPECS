@@ -1,4 +1,4 @@
-const React = require('react');
+﻿const React = require('react');
 const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
@@ -96,7 +96,7 @@ export default function ContactPage() {
   return (
     <>
       <Head>
-        <title>Contact Us — Lekya Specs</title>
+        <title>Contact Us — lekya.in</title>
         <meta name="description" content="Get in touch with Lekya Specs. We're here to help with your eyewear needs, orders, and queries." />
       </Head>
 
