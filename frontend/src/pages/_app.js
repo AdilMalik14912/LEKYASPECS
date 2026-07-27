@@ -359,8 +359,8 @@ export default function App({ Component, pageProps }) {
               </div>
             )}
             
-            {/* --- Premium Navigation Header --- */}
-            {!isStaffRoute && (
+            {/* --- Premium Navigation Header (Hidden on home page where LiquidGlassHero renders floating glassmorphic header) --- */}
+            {!isStaffRoute && router.pathname !== '/' && (
               <header className="sticky top-0 z-50 border-b backdrop-blur-md bg-black/40 border-white/10 shadow-2xl transition-all">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex items-center justify-between h-16 sm:h-20 relative">

@@ -189,7 +189,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════
           1. HERO — Liquid Glass Video Showcase
       ═══════════════════════════════════════════════════ */}
-      <LiquidGlassHero />
+      <LiquidGlassHero renderHeader={true} />
 
       {/* 2. Brand Value Pillars */}
       <section className="border-y py-8" style={{background: "rgba(30,0,48,0.6)", borderColor: "rgba(74,18,104,0.5)"}}>
