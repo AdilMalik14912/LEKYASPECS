@@ -382,9 +382,9 @@ export default function App({ Component, pageProps }) {
                       </Link>
                     </div>
 
-                    {/* Desktop Navigation Links */}
+                    {/* Desktop Navigation Links — Liquid Glass Pill Container */}
                     {!isStaffRoute ? (
-                      <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-sm font-medium uppercase tracking-wider text-[#D4C8DC] mr-4">
+                      <nav className="hidden lg:flex liquid-glass items-center space-x-3 xl:space-x-4 text-xs font-bold uppercase tracking-wider text-[#FEF6EE] px-4 py-2 rounded-2xl shadow-xl border border-white/10 mr-4">
                         <Link href="/shop?category=Eyeglasses" className="hover:text-[#FAAE62] transition-colors py-2">Eyeglasses</Link>
                         <Link href="/shop?category=Sunglasses" className="hover:text-[#FAAE62] transition-colors py-2">Sunglasses</Link>
                         <Link href="/lookbook" className="hover:text-[#FAAE62] transition-colors py-2">Lookbook</Link>
