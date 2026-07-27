@@ -27,13 +27,13 @@ const STAGES = [
 ];
 
 const STAGE_COLORS = {
-  'New Lead':             { bg: '#3b82f6', light: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)' },
-  'Contacted':            { bg: '#8b5cf6', light: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)' },
-  'Qualified':            { bg: '#06b6d4', light: 'rgba(6,182,212,0.12)',  border: 'rgba(6,182,212,0.3)' },
+  'New Lead': { bg: '#3b82f6', light: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)' },
+  'Contacted': { bg: '#8b5cf6', light: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)' },
+  'Qualified': { bg: '#06b6d4', light: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.3)' },
   'Prescription Consult': { bg: '#f59e0b', light: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)' },
-  'Offer Sent':           { bg: '#ec4899', light: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.3)' },
-  'Converted Customer':   { bg: '#10b981', light: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)' },
-  'Lost':                 { bg: '#6b7280', light: 'rgba(107,114,128,0.12)',border: 'rgba(107,114,128,0.3)' },
+  'Offer Sent': { bg: '#ec4899', light: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.3)' },
+  'Converted Customer': { bg: '#10b981', light: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)' },
+  'Lost': { bg: '#6b7280', light: 'rgba(107,114,128,0.12)', border: 'rgba(107,114,128,0.3)' },
 };
 
 function ScoreBadge({ score }) {
@@ -59,28 +59,28 @@ export default function CrmPage() {
   const router = useRouter();
 
   // ── State ──────────────────────────────────────────────────────────────────
-  const [activeTab,        setActiveTab]        = useState('analytics'); // analytics | kanban | directory | tasks
-  const [stats,            setStats]            = useState(null);
-  const [leads,            setLeads]            = useState([]);
-  const [tasks,            setTasks]            = useState([]);
-  const [teamMembers,      setTeamMembers]      = useState([]);
-  const [loading,          setLoading]          = useState(true);
-  const [syncing,          setSyncing]          = useState(false);
-  const [searchQuery,      setSearchQuery]      = useState('');
-  const [stageFilter,      setStageFilter]      = useState('');
-  const [selectedLeadId,   setSelectedLeadId]   = useState(null);
-  const [leadDetail,       setLeadDetail]       = useState(null);
+  const [activeTab, setActiveTab] = useState('analytics'); // analytics | kanban | directory | tasks
+  const [stats, setStats] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [stageFilter, setStageFilter] = useState('');
+  const [selectedLeadId, setSelectedLeadId] = useState(null);
+  const [leadDetail, setLeadDetail] = useState(null);
 
   // Modals
-  const [showCreateLead,   setShowCreateLead]   = useState(false);
-  const [showCreateTask,   setShowCreateTask]   = useState(false);
-  const [showLogModal,     setShowLogModal]     = useState(false);
+  const [showCreateLead, setShowCreateLead] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
 
   // AI Automation States
-  const [runningAi,         setRunningAi]         = useState(false);
-  const [aiInsights,        setAiInsights]        = useState(null);
-  const [showAiEmailModal,  setShowAiEmailModal]  = useState(false);
-  const [aiEmailDraft,      setAiEmailDraft]      = useState(null);
+  const [runningAi, setRunningAi] = useState(false);
+  const [aiInsights, setAiInsights] = useState(null);
+  const [showAiEmailModal, setShowAiEmailModal] = useState(false);
+  const [aiEmailDraft, setAiEmailDraft] = useState(null);
   const [generatingAiEmail, setGeneratingAiEmail] = useState(false);
 
   // Create Lead Form
@@ -93,8 +93,8 @@ export default function CrmPage() {
   // ── Access Protection ──────────────────────────────────────────────────────
   useEffect(() => {
     if (user === null) { router.push('/account'); return; }
-    if (user && !['admin','seller','delivery','stylist'].includes(user.role) &&
-        !['dev.parceluncle@gmail.com','admin@specs.com'].includes(user.email)) {
+    if (user && !['admin', 'seller', 'delivery', 'stylist'].includes(user.role) &&
+      !['dev.parceluncle@gmail.com', 'admin@specs.com'].includes(user.email)) {
       router.push('/');
     }
   }, [user]);
@@ -345,9 +345,9 @@ export default function CrmPage() {
         }}>
           {[
             { key: 'analytics', label: '📊 Executive Dashboard', count: null },
-            { key: 'kanban',    label: '🎯 Sales Pipeline (Kanban)', count: leads.length },
+            { key: 'kanban', label: '🎯 Sales Pipeline (Kanban)', count: leads.length },
             { key: 'directory', label: '👥 Customer Directory', count: filteredLeads.length },
-            { key: 'tasks',     label: '⏰ Follow-up Tasks', count: tasks.filter(t => t.status === 'Pending').length },
+            { key: 'tasks', label: '⏰ Follow-up Tasks', count: tasks.filter(t => t.status === 'Pending').length },
           ].map(tab => (
             <button key={tab.key}
               className={`crm-tab ${activeTab === tab.key ? 'active' : ''}`}

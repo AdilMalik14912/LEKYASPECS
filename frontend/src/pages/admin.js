@@ -4,8 +4,8 @@ const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const { useAuth } = require('./_app');
 const VisionEyeLogo = require('../components/VisionEyeLogo');
-const { 
-  BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck, 
+const {
+  BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck,
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
   Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation,
   Settings, Cpu, Webhook, Radio, Lock, Zap, Copy, Check, Eye, EyeOff, ChevronLeft, ChevronRight, Server, Globe, Terminal
@@ -57,7 +57,7 @@ function RevenueChart({ data }) {
     for (let i = 0; i <= yTicks; i++) {
       const yVal = minSales + ((maxSales - minSales) * i) / yTicks;
       const yPos = margin.top + chartHeight - (i * chartHeight) / yTicks;
-      
+
       ctx.beginPath();
       ctx.moveTo(margin.left, yPos);
       ctx.lineTo(margin.left + chartWidth, yPos);
@@ -892,10 +892,10 @@ export default function Admin() {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.ok ? res.json() : { otps: [] })
-        .then(data => { 
+        .then(data => {
           const list = data && Array.isArray(data.otps) ? data.otps : (Array.isArray(data) ? data : []);
-          setDeliveryOtps(list); 
-          setDeliveryOtpsLoading(false); 
+          setDeliveryOtps(list);
+          setDeliveryOtpsLoading(false);
         })
         .catch(err => { console.error(err); setDeliveryOtpsLoading(false); });
     } else if (activeTab === 'returns') {
@@ -952,8 +952,8 @@ export default function Admin() {
     e.preventDefault();
     setCrudError('');
 
-    const url = editingProduct 
-      ? `${API_BASE}/api/admin/products/${editingProduct.id}` 
+    const url = editingProduct
+      ? `${API_BASE}/api/admin/products/${editingProduct.id}`
       : `${API_BASE}/api/admin/products`;
     const method = editingProduct ? 'PUT' : 'POST';
 
@@ -1297,8 +1297,8 @@ export default function Admin() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ 
-        subject: broadcastSubject, 
+      body: JSON.stringify({
+        subject: broadcastSubject,
         bodyHtml: processedBody,
         targetEmail: broadcastMode === 'specific' ? broadcastTargetEmail : null
       })
@@ -1524,18 +1524,17 @@ export default function Admin() {
 
   return (
     <div className="bg-[#0D0016] text-white min-h-screen flex flex-col md:flex-row relative overflow-hidden">
-      
+
       {/* Background ambient gradient orbs */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#7B22A8]/15 rounded-full blur-[140px] pointer-events-none animate-float-slow" />
       <div className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-[#FAAE62]/10 rounded-full blur-[120px] pointer-events-none animate-float-slow2" />
 
       {/* --- ANIMATED HOVER-EXPANDABLE LEFT SIDEBAR --- */}
-      <aside 
+      <aside
         onMouseEnter={() => setSidebarHovered(true)}
         onMouseLeave={() => setSidebarHovered(false)}
-        className={`bg-[#1A0024]/95 backdrop-blur-2xl text-white shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-30 transition-all duration-300 ease-in-out ${
-          sidebarHovered || sidebarPinned ? 'w-full md:w-72 p-6' : 'w-full md:w-20 p-4'
-        }`}
+        className={`bg-[#1A0024]/95 backdrop-blur-2xl text-white shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-30 transition-all duration-300 ease-in-out ${sidebarHovered || sidebarPinned ? 'w-full md:w-72 p-6' : 'w-full md:w-20 p-4'
+          }`}
       >
         {/* Brand Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -1548,7 +1547,7 @@ export default function Admin() {
               </div>
             )}
           </Link>
-          
+
           {/* Pin/Lock Sidebar Button (Desktop) */}
           <button
             onClick={() => setSidebarPinned(!sidebarPinned)}
@@ -1587,13 +1586,11 @@ export default function Admin() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 title={!isExpanded ? item.label : ''}
-                className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all duration-200 ${
-                  isExpanded ? 'px-4 text-left justify-start' : 'px-0 justify-center'
-                } ${
-                  isActive
+                className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all duration-200 ${isExpanded ? 'px-4 text-left justify-start' : 'px-0 justify-center'
+                  } ${isActive
                     ? 'bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-extrabold shadow-[0_0_20px_rgba(250,174,98,0.35)] scale-[1.02]'
                     : 'text-[#9B7EA8] hover:text-white hover:bg-white/5 border border-transparent hover:border-[#FAAE62]/20'
-                }`}
+                  }`}
               >
                 <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#0D0016]' : 'text-[#FAAE62]'}`} />
                 {isExpanded && (
@@ -1608,9 +1605,8 @@ export default function Admin() {
             <Link
               href="/stylist"
               title="Brand Stylist Hub"
-              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-[#FAAE62] hover:text-white hover:bg-[#FAAE62]/10 font-semibold text-xs tracking-wider border border-[#FAAE62]/30 ${
-                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
-              }`}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-[#FAAE62] hover:text-white hover:bg-[#FAAE62]/10 font-semibold text-xs tracking-wider border border-[#FAAE62]/30 ${(sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+                }`}
               style={{ textDecoration: 'none' }}
             >
               <Sparkles className="w-4 h-4 text-[#FAAE62] shrink-0" />
@@ -1620,9 +1616,8 @@ export default function Admin() {
             <Link
               href="/admin-map"
               title="Live Rider Map"
-              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-sky-400 hover:text-white hover:bg-sky-500/10 font-semibold text-xs tracking-wider border border-sky-500/30 ${
-                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
-              }`}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-sky-400 hover:text-white hover:bg-sky-500/10 font-semibold text-xs tracking-wider border border-sky-500/30 ${(sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+                }`}
               style={{ textDecoration: 'none' }}
             >
               <Navigation className="w-4 h-4 text-sky-400 shrink-0" />
@@ -1632,9 +1627,8 @@ export default function Admin() {
             <Link
               href="/crm"
               title="CRM Platform"
-              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-emerald-400 hover:text-white hover:bg-emerald-500/10 font-semibold text-xs tracking-wider border border-emerald-500/30 ${
-                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
-              }`}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-emerald-400 hover:text-white hover:bg-emerald-500/10 font-semibold text-xs tracking-wider border border-emerald-500/30 ${(sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+                }`}
               style={{ textDecoration: 'none' }}
             >
               <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -1644,9 +1638,8 @@ export default function Admin() {
             <Link
               href="/chat"
               title="Team Chat"
-              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-amber-400 hover:text-white hover:bg-amber-500/10 font-semibold text-xs tracking-wider border border-amber-500/30 ${
-                (sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
-              }`}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl transition-all text-left text-amber-400 hover:text-white hover:bg-amber-500/10 font-semibold text-xs tracking-wider border border-amber-500/30 ${(sidebarHovered || sidebarPinned) ? 'px-4 justify-start' : 'px-0 justify-center'
+                }`}
               style={{ textDecoration: 'none' }}
             >
               <Mail className="w-4 h-4 text-amber-400 shrink-0" />
@@ -1691,7 +1684,7 @@ export default function Admin() {
 
       {/* Main Panel Content Area */}
       <main className="flex-grow p-4 sm:p-8 max-w-7xl overflow-x-hidden relative z-10">
-        
+
         {/* --- TOP RIGHT HEADER CONTROL BAR --- */}
         <header className="flex items-center justify-between mb-6 pb-4 border-b border-[#FAAE62]/20">
           <div className="flex items-center gap-3">
@@ -1725,7 +1718,7 @@ export default function Admin() {
             </button>
           </div>
         </header>
-        
+
         {/* --- TAB 1: ANALYTICS OVERVIEW --- */}
         {activeTab === 'stats' && (
           <div>
@@ -1747,7 +1740,7 @@ export default function Admin() {
               <div className="space-y-8">
                 {/* Quick-Action Power Widgets */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <button 
+                  <button
                     onClick={() => {
                       setOrderStatusFilter('Pending');
                       setActiveTab('orders');
@@ -1763,7 +1756,7 @@ export default function Admin() {
                     </div>
                   </button>
 
-                  <button 
+                  <button
                     onClick={() => {
                       setProductSearch('');
                       setActiveTab('products');
@@ -1789,7 +1782,7 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => {
                       setCustomerSearch('');
                       setActiveTab('customers');
@@ -1875,9 +1868,8 @@ export default function Admin() {
                               <span className="font-semibold text-sm text-white block">{item.name}</span>
                               <span className="text-xs text-[#9B7EA8]">Price: ₹{parseFloat(item.price || 0).toLocaleString('en-IN')}</span>
                             </div>
-                            <span className={`font-bold px-3 py-1 rounded-full text-xs ${
-                              item.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                            }`}>
+                            <span className={`font-bold px-3 py-1 rounded-full text-xs ${item.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                              }`}>
                               {item.stock} left
                             </span>
                           </div>
@@ -1975,10 +1967,9 @@ export default function Admin() {
                           <td className="px-6 py-4">{prod.frame_shape}</td>
                           <td className="px-6 py-4 font-bold text-[#FAAE62]">₹{parseFloat(prod.price).toLocaleString('en-IN')}</td>
                           <td className="px-6 py-4">
-                            <span className={`font-bold px-2.5 py-1 rounded-full text-xs ${
-                              prod.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' :
-                              prod.stock <= 5 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                            }`}>
+                            <span className={`font-bold px-2.5 py-1 rounded-full text-xs ${prod.stock === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/40' :
+                                prod.stock <= 5 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                              }`}>
                               {prod.stock} units
                             </span>
                           </td>
@@ -2039,10 +2030,10 @@ export default function Admin() {
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <div className="space-y-6">
-                
+
                 {/* --- ADVANCED MULTI-FILTER BAR --- */}
                 <div className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-xl">
-                  
+
                   {/* Top Bar: Search + Quick Stats */}
                   <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="relative w-full md:w-96">
@@ -2068,7 +2059,7 @@ export default function Admin() {
 
                   {/* Filter Pills & Select Options Row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-white/10">
-                    
+
                     {/* Filter 1: Fulfillment Status */}
                     <div>
                       <label className="text-[10px] uppercase font-bold text-[#FAAE62] block mb-1">Status Filter</label>
@@ -2142,8 +2133,8 @@ export default function Admin() {
                   const phone = order.shipping_address?.phone || '';
                   const awb = order.parcel_uncle_tracking_id || order.tracking_id || '';
                   const searchLower = orderSearch.toLowerCase();
-                  
-                  const matchesSearch = 
+
+                  const matchesSearch =
                     order.user_name.toLowerCase().includes(searchLower) ||
                     order.user_email.toLowerCase().includes(searchLower) ||
                     phone.toLowerCase().includes(searchLower) ||
@@ -2152,16 +2143,16 @@ export default function Admin() {
 
                   const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
 
-                  const matchesCourier = 
+                  const matchesCourier =
                     orderCourierFilter === 'ALL' ? true :
-                    orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
-                    orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
-                    orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
+                      orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
+                        orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
+                          orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
 
-                  const matchesPrescription = 
+                  const matchesPrescription =
                     orderPrescriptionFilter === 'ALL' ? true :
-                    orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
-                    orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
+                      orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
+                        orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
 
                   return matchesSearch && matchesStatus && matchesCourier && matchesPrescription;
                 }).length === 0 ? (
@@ -2188,8 +2179,8 @@ export default function Admin() {
                           const phone = order.shipping_address?.phone || '';
                           const awb = order.parcel_uncle_tracking_id || order.tracking_id || '';
                           const searchLower = orderSearch.toLowerCase();
-                          
-                          const matchesSearch = 
+
+                          const matchesSearch =
                             order.user_name.toLowerCase().includes(searchLower) ||
                             order.user_email.toLowerCase().includes(searchLower) ||
                             phone.toLowerCase().includes(searchLower) ||
@@ -2198,16 +2189,16 @@ export default function Admin() {
 
                           const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
 
-                          const matchesCourier = 
+                          const matchesCourier =
                             orderCourierFilter === 'ALL' ? true :
-                            orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
-                            orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
-                            orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
+                              orderCourierFilter === 'PARCEL_UNCLE' ? !!order.parcel_uncle_tracking_id :
+                                orderCourierFilter === 'LOCAL_RIDER' ? !!order.assigned_delivery_agent_id :
+                                  orderCourierFilter === 'UNASSIGNED' ? (!order.parcel_uncle_tracking_id && !order.assigned_delivery_agent_id) : true;
 
-                          const matchesPrescription = 
+                          const matchesPrescription =
                             orderPrescriptionFilter === 'ALL' ? true :
-                            orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
-                            orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
+                              orderPrescriptionFilter === 'WITH_RX' ? !!order.shipping_address?.prescription :
+                                orderPrescriptionFilter === 'NO_RX' ? !order.shipping_address?.prescription : true;
 
                           return matchesSearch && matchesStatus && matchesCourier && matchesPrescription;
                         }).sort((a, b) => {
@@ -2218,7 +2209,7 @@ export default function Admin() {
                           return 0;
                         }).map(order => (
                           <tr key={order.id} className="hover:bg-[#2A0440]/60 transition-colors">
-                            
+
                             {/* Column 1: Order & Tracking ID */}
                             <td className="px-5 py-3.5">
                               <span className="font-bold text-[#FAAE62] block text-xs">#{order.id}</span>
@@ -2262,11 +2253,10 @@ export default function Admin() {
 
                             {/* Column 4: Fulfillment Status */}
                             <td className="px-5 py-3.5">
-                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                                order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-400' :
-                                order.status === 'Processing' || order.status === 'Packed' ? 'bg-amber-500/15 border border-amber-500/40 text-amber-400' :
-                                order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-sky-500/15 border border-sky-500/40 text-sky-400' : 'bg-white/10 border border-white/20 text-gray-300'
-                              }`}>
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${order.status === 'Paid' || order.status === 'Payment Confirmed' || order.status === 'Delivered' ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-400' :
+                                  order.status === 'Processing' || order.status === 'Packed' ? 'bg-amber-500/15 border border-amber-500/40 text-amber-400' :
+                                    order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-sky-500/15 border border-sky-500/40 text-sky-400' : 'bg-white/10 border border-white/20 text-gray-300'
+                                }`}>
                                 {order.status}
                               </span>
                             </td>
@@ -2419,7 +2409,7 @@ export default function Admin() {
                           onChange={e => setReturnStatusMap(prev => ({ ...prev, [ret.id]: e.target.value }))}
                           className="text-xs border border-[#FAAE62]/40 rounded-xl px-3 py-2 bg-[#1A0024] text-white focus:outline-none focus:border-[#FAAE62]"
                         >
-                          {['Requested','Approved','Pickup Booked','Received','Inspected','Refunded','Exchanged','Rejected','Cancelled'].map(s => (
+                          {['Requested', 'Approved', 'Pickup Booked', 'Received', 'Inspected', 'Refunded', 'Exchanged', 'Rejected', 'Cancelled'].map(s => (
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
@@ -2553,7 +2543,7 @@ export default function Admin() {
                           <tr key={cust.id} className="hover:bg-[#2A0440]/60 transition-colors">
                             <td className="px-6 py-4 text-xs font-bold text-[#FAAE62]">#{cust.id}</td>
                             <td className="px-6 py-4">
-                              <button 
+                              <button
                                 onClick={() => handleInspectCustomer(cust.id)}
                                 className="font-bold text-white hover:text-[#FAAE62] hover:underline transition-colors text-left"
                               >
@@ -2603,7 +2593,7 @@ export default function Admin() {
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#FAAE62] animate-spin mx-auto" /></div>
             ) : (
               <form onSubmit={handleSettingsSubmit} className="bg-[#1A0024]/90 border border-[#FAAE62]/30 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl space-y-6 max-w-2xl admin-card-3d">
-                
+
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-[#FAAE62] font-bold mb-2">Homepage Hero Title</label>
                   <textarea
@@ -2815,9 +2805,8 @@ export default function Admin() {
                               {cp.times_used} / {cp.max_uses || '∞'}
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
-                                cp.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                              }`}>
+                              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${cp.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                }`}>
                                 {cp.is_active ? 'Active' : 'Inactive'}
                               </span>
                             </td>
@@ -2904,7 +2893,7 @@ export default function Admin() {
                       />
                       {broadcastSearchQuery && (
                         <div className="absolute left-0 right-0 mt-1 bg-white border border-premium-border rounded shadow-lg max-h-40 overflow-y-auto z-50">
-                          {customers.filter(c => 
+                          {customers.filter(c =>
                             c.name.toLowerCase().includes(broadcastSearchQuery.toLowerCase()) ||
                             c.email.toLowerCase().includes(broadcastSearchQuery.toLowerCase())
                           ).slice(0, 5).map(cust => (
@@ -2921,12 +2910,12 @@ export default function Admin() {
                               <span className="text-[10px] text-premium-gray font-mono">{cust.email}</span>
                             </button>
                           ))}
-                          {customers.filter(c => 
+                          {customers.filter(c =>
                             c.name.toLowerCase().includes(broadcastSearchQuery.toLowerCase()) ||
                             c.email.toLowerCase().includes(broadcastSearchQuery.toLowerCase())
                           ).length === 0 && (
-                            <div className="p-3 text-[10px] text-premium-gray text-center">No customers found.</div>
-                          )}
+                              <div className="p-3 text-[10px] text-premium-gray text-center">No customers found.</div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -3094,7 +3083,7 @@ export default function Admin() {
                           <span>Submitted on: {new Date(msg.created_at).toLocaleDateString('en-IN')}</span>
                         </div>
                       </div>
-                      
+
                       <div>
                         <p className="font-semibold text-xs text-premium-accent uppercase tracking-wider mb-1">Subject: {msg.subject}</p>
                         <p className="text-sm text-premium-dark bg-premium-light/50 p-3 rounded italic font-medium leading-relaxed">
@@ -3104,7 +3093,7 @@ export default function Admin() {
 
                       {msg.reply_message ? (
                         <div className="p-3.5 bg-green-50 border border-green-200 rounded text-xs text-green-800 leading-relaxed">
-                          <strong>✓ Replied on {new Date(msg.replied_at).toLocaleDateString('en-IN')}:</strong><br/>
+                          <strong>✓ Replied on {new Date(msg.replied_at).toLocaleDateString('en-IN')}:</strong><br />
                           <span className="italic">"{msg.reply_message}"</span>
                         </div>
                       ) : (
@@ -3148,10 +3137,10 @@ export default function Admin() {
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
             ) : dbHealth ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
+
                 {/* Left col: Stats cards */}
                 <div className="md:col-span-2 space-y-6">
-                  
+
                   {/* Status metrics grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
@@ -3223,7 +3212,7 @@ export default function Admin() {
               <div className="text-center py-20"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
             ) : activeSessionsData ? (
               <div className="space-y-6">
-                
+
                 {/* Metrics boxes */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-white border border-premium-border p-5 rounded-lg shadow-sm">
@@ -3337,10 +3326,10 @@ export default function Admin() {
             {/* Role legend */}
             <div className="flex flex-wrap gap-3 mb-6">
               {[
-                { role: 'admin',    label: 'Admin',          color: 'bg-red-100 text-red-800 border-red-200' },
-                { role: 'seller',   label: 'Seller',         color: 'bg-amber-100 text-amber-800 border-amber-200' },
+                { role: 'admin', label: 'Admin', color: 'bg-red-100 text-red-800 border-red-200' },
+                { role: 'seller', label: 'Seller', color: 'bg-amber-100 text-amber-800 border-amber-200' },
                 { role: 'delivery', label: 'Delivery Agent', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-                { role: 'user',     label: 'Customer',       color: 'bg-gray-100 text-gray-700 border-gray-200' },
+                { role: 'user', label: 'Customer', color: 'bg-gray-100 text-gray-700 border-gray-200' },
               ].map(r => (
                 <span key={r.role} className={`text-[10px] font-bold px-3 py-1.5 rounded border tracking-widest uppercase ${r.color}`}>{r.label}</span>
               ))}
@@ -3385,18 +3374,18 @@ export default function Admin() {
                     {teamUsers
                       .filter(u => {
                         const q = teamSearch.toLowerCase();
-                        const matchSearch = !q || (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+                        const matchSearch = !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
                         const matchRole = teamRoleFilter === 'All' || u.role === teamRoleFilter;
                         return matchSearch && matchRole;
                       })
                       .map((u, idx) => {
                         const roleColors = {
-                          admin:    'bg-red-100 text-red-800 border border-red-200',
-                          seller:   'bg-amber-100 text-amber-800 border border-amber-200',
+                          admin: 'bg-red-100 text-red-800 border border-red-200',
+                          seller: 'bg-amber-100 text-amber-800 border border-amber-200',
                           delivery: 'bg-indigo-100 text-indigo-800 border border-indigo-200',
-                          stylist:  'bg-purple-100 text-purple-800 border border-purple-200',
-                          ho_staff:  'bg-emerald-100 text-emerald-800 border border-emerald-200',
-                          user:     'bg-gray-100 text-gray-700 border border-gray-200',
+                          stylist: 'bg-purple-100 text-purple-800 border border-purple-200',
+                          ho_staff: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                          user: 'bg-gray-100 text-gray-700 border border-gray-200',
                         };
                         const rc = roleColors[u.role] || roleColors['user'];
                         return (
@@ -3477,12 +3466,12 @@ export default function Admin() {
                 </table>
                 {teamUsers.filter(u => {
                   const q = teamSearch.toLowerCase();
-                  const matchSearch = !q || (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+                  const matchSearch = !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
                   const matchRole = teamRoleFilter === 'All' || u.role === teamRoleFilter;
                   return matchSearch && matchRole;
                 }).length === 0 && (
-                  <div className="text-center py-12 text-premium-gray text-sm">No users found.</div>
-                )}
+                    <div className="text-center py-12 text-premium-gray text-sm">No users found.</div>
+                  )}
               </div>
             )}
           </div>
@@ -3495,7 +3484,7 @@ export default function Admin() {
               🔐 Delivery OTP Monitor
             </h2>
             <p className="text-sm text-premium-gray mb-6">
-              Real-time view of all active delivery OTPs for orders currently "Out for Delivery". 
+              Real-time view of all active delivery OTPs for orders currently "Out for Delivery".
               These OTPs are sent to customers via email when a rider marks an order as Out for Delivery.
             </p>
 
@@ -3641,11 +3630,10 @@ export default function Admin() {
                               </span>
                             </td>
                             <td className="px-5 py-4">
-                              <span className={`text-[10px] uppercase font-extrabold px-3 py-1 rounded tracking-wider ${
-                                isVerified ? 'bg-green-100 text-green-800 border border-green-300' :
-                                isExpired ? 'bg-red-100 text-red-800 border border-red-300' :
-                                'bg-amber-100 text-amber-900 border border-amber-400 animate-pulse'
-                              }`}>
+                              <span className={`text-[10px] uppercase font-extrabold px-3 py-1 rounded tracking-wider ${isVerified ? 'bg-green-100 text-green-800 border border-green-300' :
+                                  isExpired ? 'bg-red-100 text-red-800 border border-red-300' :
+                                    'bg-amber-100 text-amber-900 border border-amber-400 animate-pulse'
+                                }`}>
                                 {isVerified ? '✓ Verified' : isExpired ? 'Expired' : '⚡ Active OTP'}
                               </span>
                             </td>
@@ -3992,7 +3980,7 @@ export default function Admin() {
       {showCustomerInspectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white border border-premium-border rounded-lg max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-8 text-premium-dark">
-            <button 
+            <button
               onClick={() => setShowCustomerInspectModal(false)}
               className="absolute top-4 right-4 text-premium-gray hover:text-premium-black transition-colors"
             >
@@ -4007,12 +3995,12 @@ export default function Admin() {
               <div className="text-center py-10"><Loader2 className="w-10 h-10 text-premium-accent animate-spin mx-auto" /></div>
             ) : inspectedCustomer ? (
               <div className="space-y-6 text-sm">
-                
+
                 {/* Profile Details & Credentials Editor */}
                 {isEditingCredentials ? (
                   <form onSubmit={handleUpdateCustomerCredentials} className="bg-premium-light border border-premium-border rounded p-4 space-y-4">
                     <h4 className="font-semibold text-xs uppercase tracking-wider text-premium-accent mb-2">Edit Customer Credentials</h4>
-                    
+
                     <div>
                       <label className="block text-[10px] uppercase tracking-wider text-premium-gray font-semibold mb-1">Name</label>
                       <input
@@ -4138,7 +4126,7 @@ export default function Admin() {
                       <span className="text-premium-gray font-semibold">Registered On:</span>
                       <span>{new Date(inspectedCustomer.profile.created_at).toLocaleDateString('en-IN')}</span>
                     </div>
-                    
+
                     <button
                       onClick={() => setIsEditingCredentials(true)}
                       className="w-full text-center border border-premium-accent hover:bg-premium-accent hover:text-premium-black text-premium-accent font-semibold text-xs tracking-wider uppercase py-2.5 rounded transition-all mt-2 flex items-center justify-center gap-1.5"
@@ -4164,9 +4152,8 @@ export default function Admin() {
                           </div>
                           <div className="text-right">
                             <span className="font-bold block text-premium-accent">₹{parseFloat(ord.total_amount).toLocaleString('en-IN')}</span>
-                            <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
-                              ord.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                            }`}>{ord.status}</span>
+                            <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${ord.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                              }`}>{ord.status}</span>
                           </div>
                         </div>
                       ))}
@@ -4186,7 +4173,7 @@ export default function Admin() {
       {showTrackingModal && selectedTrackingOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white border border-premium-border rounded-lg max-w-md w-full p-6 sm:p-8 shadow-2xl relative my-8 text-premium-dark">
-            <button 
+            <button
               onClick={() => setShowTrackingModal(false)}
               className="absolute top-4 right-4 text-premium-gray hover:text-premium-black transition-colors"
             >
@@ -4414,7 +4401,7 @@ export default function Admin() {
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-scaleUp" onClick={() => setShowSettingsModal(false)}>
           <div className="bg-[#1A0024]/95 border border-[#FAAE62]/40 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden backdrop-blur-2xl my-8 text-white admin-custom-scrollbar max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            
+
             {/* Modal Header */}
             <div className="p-6 border-b border-white/10 bg-[#0D0016]/90 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -4452,11 +4439,10 @@ export default function Admin() {
                 <button
                   key={t.id}
                   onClick={() => setSettingsTab(t.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${
-                    settingsTab === t.id
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${settingsTab === t.id
                       ? 'bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] shadow-md shadow-[#FAAE62]/20'
                       : 'text-[#9B7EA8] hover:text-white hover:bg-white/5 border border-transparent'
-                  }`}
+                    }`}
                 >
                   {t.label}
                 </button>
@@ -4844,7 +4830,7 @@ export default function Admin() {
       {showOrderDetailsModal && selectedOrderDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-scaleUp" onClick={() => setShowOrderDetailsModal(false)}>
           <div className="bg-[#1A0024]/95 border border-[#FAAE62]/40 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden backdrop-blur-2xl my-6 text-white admin-custom-scrollbar max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            
+
             {/* Modal Header */}
             <div className="p-5 sm:p-6 border-b border-white/10 bg-[#0D0016]/90 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -4877,10 +4863,10 @@ export default function Admin() {
             {/* Modal Body Grid */}
             <div className="p-6 space-y-6 overflow-y-auto flex-grow admin-custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 {/* --- LEFT COLUMN: CUSTOMER, ADDRESS & PRESCRIPTION --- */}
                 <div className="space-y-4">
-                  
+
                   {/* Customer Information Card */}
                   <div className="p-5 bg-[#0D0016]/80 border border-[#FAAE62]/30 rounded-2xl space-y-3 admin-card-3d">
                     <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">

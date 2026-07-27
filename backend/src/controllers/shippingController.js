@@ -384,7 +384,7 @@ const downloadLabel = async (req, res) => {
 
     let parsedAddr = {};
     if (orderData && orderData.shipping_address) {
-      try { parsedAddr = typeof orderData.shipping_address === 'string' ? JSON.parse(orderData.shipping_address) : orderData.shipping_address; } catch (_) {}
+      try { parsedAddr = typeof orderData.shipping_address === 'string' ? JSON.parse(orderData.shipping_address) : orderData.shipping_address; } catch (_) { }
     }
 
     const recipientName = orderData?.customer_name || parsedAddr?.name || 'Valued Customer';

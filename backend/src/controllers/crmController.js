@@ -71,9 +71,9 @@ const getDashboardStats = async (req, res) => {
        FROM crm_tasks`
     );
     const tasksStats = {
-      total:     parseInt(taskRes.rows[0]?.total_tasks) || 0,
-      pending:   parseInt(taskRes.rows[0]?.pending_tasks) || 0,
-      overdue:   parseInt(taskRes.rows[0]?.overdue_tasks) || 0,
+      total: parseInt(taskRes.rows[0]?.total_tasks) || 0,
+      pending: parseInt(taskRes.rows[0]?.pending_tasks) || 0,
+      overdue: parseInt(taskRes.rows[0]?.overdue_tasks) || 0,
       completed: parseInt(taskRes.rows[0]?.completed_tasks) || 0,
     };
 
@@ -164,7 +164,7 @@ const getLeads = async (req, res) => {
     const leads = result.rows.map(row => {
       let parsedTags = [];
       if (row.tags) {
-        try { parsedTags = typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags; } catch (_) {}
+        try { parsedTags = typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags; } catch (_) { }
       }
       return { ...row, tags: parsedTags };
     });
@@ -293,11 +293,11 @@ const updateLead = async (req, res) => {
 
     const newStage = stage || prev.stage;
     const newScore = lead_score !== undefined ? parseInt(lead_score) : prev.lead_score;
-    const newVal   = estimated_value !== undefined ? parseFloat(estimated_value) : prev.estimated_value;
+    const newVal = estimated_value !== undefined ? parseFloat(estimated_value) : prev.estimated_value;
     const newAgent = assigned_to !== undefined ? (assigned_to ? parseInt(assigned_to) : null) : prev.assigned_to;
-    const newTags  = tags ? JSON.stringify(Array.isArray(tags) ? tags : []) : prev.tags;
+    const newTags = tags ? JSON.stringify(Array.isArray(tags) ? tags : []) : prev.tags;
     const newNotes = notes !== undefined ? notes : prev.notes;
-    const newName  = name || prev.name;
+    const newName = name || prev.name;
     const newEmail = email !== undefined ? email : prev.email;
     const newPhone = phone !== undefined ? phone : prev.phone;
 
@@ -428,10 +428,10 @@ const updateTask = async (req, res) => {
     if (existing.rows.length === 0) return res.status(404).json({ message: 'Task not found' });
     const prev = existing.rows[0];
 
-    const newStatus   = status || prev.status;
-    const newTitle    = title || prev.title;
-    const newDesc     = description !== undefined ? description : prev.description;
-    const newDueDate  = due_date || prev.due_date;
+    const newStatus = status || prev.status;
+    const newTitle = title || prev.title;
+    const newDesc = description !== undefined ? description : prev.description;
+    const newDueDate = due_date || prev.due_date;
     const newPriority = priority || prev.priority;
     const newAssigned = assigned_to !== undefined ? (assigned_to ? parseInt(assigned_to) : null) : prev.assigned_to;
 
@@ -611,7 +611,7 @@ const autoRunAiEngine = async (req, res) => {
       autoTasksCreated,
       aiInsights: {
         totalAnalyzed: usersRes.rows.length,
-        highIntentProspects: usersRes.rows.filter(r => (parseFloat(r.total_spend)||0) > 2000 || parseInt(r.paid_orders) > 0).length,
+        highIntentProspects: usersRes.rows.filter(r => (parseFloat(r.total_spend) || 0) > 2000 || parseInt(r.paid_orders) > 0).length,
         recommendedAction: 'Focus optometrist outreach on 80+ AI score leads with uploaded prescription details for maximum revenue conversion.'
       }
     });
