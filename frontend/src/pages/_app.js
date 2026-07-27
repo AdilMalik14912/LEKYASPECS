@@ -698,64 +698,76 @@ export default function App({ Component, pageProps }) {
 
             {/* --- Premium Footer --- */}
             {!isStaffRoute && (
-              <footer className="py-12 sm:py-16" style={{background: 'linear-gradient(180deg, #0D0016 0%, #1A0024 50%, #0D0016 100%)', borderTop: '1px solid rgba(250,174,98,0.15)'}}>
+              <footer className="py-12 sm:py-16" style={{background: 'linear-gradient(180deg, #0D0016 0%, #1A0024 50%, #0D0016 100%)', borderTop: '1px solid rgba(250,174,98,0.2)'}}>
                 {/* Footer ambient glow */}
                 <div className="relative">
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute bottom-0 left-1/3 w-96 h-48 rounded-full" style={{background: 'radial-gradient(circle, rgba(62,8,86,0.3) 0%, transparent 70%)'}} />
-                    <div className="absolute bottom-0 right-1/4 w-64 h-32 rounded-full" style={{background: 'radial-gradient(circle, rgba(250,174,98,0.05) 0%, transparent 70%)'}} />
+                    <div className="absolute bottom-0 left-1/3 w-96 h-48 rounded-full" style={{background: 'radial-gradient(circle, rgba(62,8,86,0.35) 0%, transparent 70%)'}} />
+                    <div className="absolute bottom-0 right-1/4 w-64 h-32 rounded-full" style={{background: 'radial-gradient(circle, rgba(250,174,98,0.08) 0%, transparent 70%)'}} />
                   </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12">
                     
-                    {/* Brand column */}
-                    <div className="md:col-span-2">
-                      <Link href="/" className="inline-block mb-4 hover:opacity-90 transition-opacity">
+                    {/* Column 1: Brand & Vision */}
+                    <div className="md:col-span-1 space-y-4">
+                      <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
                         <VisionEyeLogo size={44} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
                       </Link>
-                      <p className="text-sm leading-relaxed mb-6 max-w-sm" style={{color: '#9B7EA8'}}>
-                        Designed with hand-polished premium materials and engineered for visual clarity. We believe in high-fashion, high-function eyewear without the luxury markup.
+                      <p className="text-xs leading-relaxed" style={{color: '#9B7EA8'}}>
+                        Hand-crafted Japanese Beta Titanium & Mazzucchelli Acetate frames. High-fashion, high-function eyewear without luxury markups.
                       </p>
-                      <div className="flex space-x-4 text-xs tracking-widest font-semibold uppercase" style={{color: '#FAAE62'}}>
-                        <span>Classic</span>
-                        <span>•</span>
-                        <span>Premium</span>
-                        <span>•</span>
-                        <span>Smart Fitting</span>
+                      <div className="flex flex-wrap gap-2 text-[10px] tracking-wider font-semibold uppercase text-[#FAAE62]">
+                        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">Classic</span>
+                        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">Beta Titanium</span>
+                        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">Smart Fitting</span>
                       </div>
                     </div>
 
-                    {/* Customer Service */}
+                    {/* Column 2: Collections & Interactive Tools */}
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Help & FAQ</h3>
-                      <ul className="space-y-2 text-sm" style={{color: '#9B7EA8'}}>
-                        <li><Link href="/shop" className="hover:text-[#FEF6EE] transition-colors">Shop Catalog</Link></li>
-                        <li><Link href="/face-shape" className="hover:text-[#FEF6EE] transition-colors">Face Shape Tool</Link></li>
-                        <li><Link href="/cart" className="hover:text-[#FEF6EE] transition-colors">Shopping Bag</Link></li>
-                        <li><Link href="/account" className="hover:text-[#FEF6EE] transition-colors">My Profile</Link></li>
-                        <li><Link href="/track" className="font-bold transition-colors" style={{color:'#FAAE62'}}>Track Order 🔍</Link></li>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Collections & Tools</h3>
+                      <ul className="space-y-2.5 text-xs font-medium" style={{color: '#9B7EA8'}}>
+                        <li><Link href="/shop?category=Eyeglasses" className="hover:text-[#FEF6EE] transition-colors">Prescription Eyeglasses</Link></li>
+                        <li><Link href="/shop?category=Sunglasses" className="hover:text-[#FEF6EE] transition-colors">Polarized Sunglasses</Link></li>
+                        <li><Link href="/lookbook" className="hover:text-[#FEF6EE] transition-colors">2026 Style Lookbook</Link></li>
+                        <li><Link href="/tryon" className="hover:text-[#FEF6EE] transition-colors flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FAAE62]" /> 2D Virtual Try-On Studio</Link></li>
+                        <li><Link href="/face-shape" className="hover:text-[#FEF6EE] transition-colors">Face Shape Frame Matcher</Link></li>
                       </ul>
                     </div>
 
-                    {/* Contact */}
+                    {/* Column 3: Journal, Account & Order Tracking */}
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Contact Specs</h3>
-                      <p className="text-sm leading-relaxed mb-2" style={{color: '#9B7EA8'}}>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Journal & Self-Service</h3>
+                      <ul className="space-y-2.5 text-xs font-medium" style={{color: '#9B7EA8'}}>
+                        <li><Link href="/blog" className="hover:text-[#FEF6EE] transition-colors flex items-center gap-1.5 text-[#FAAE62] font-bold">📰 Optical & Style Journal</Link></li>
+                        <li><Link href="/about" className="hover:text-[#FEF6EE] transition-colors">About Us & Group Vision</Link></li>
+                        <li><Link href="/account" className="hover:text-[#FEF6EE] transition-colors">My VIP Profile & Orders</Link></li>
+                        <li><Link href="/track" className="font-bold transition-colors text-[#FAAE62] hover:underline flex items-center gap-1">Track Order Status 🔍</Link></li>
+                        <li><Link href="/cart" className="hover:text-[#FEF6EE] transition-colors">Shopping Bag & Checkout</Link></li>
+                      </ul>
+                    </div>
+
+                    {/* Column 4: Contact & Corporate HQ */}
+                    <div>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Corporate HQ</h3>
+                      <p className="text-xs leading-relaxed mb-3" style={{color: '#9B7EA8'}}>
                         102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014
                       </p>
-                      <p className="text-sm font-medium" style={{color: '#FAAE62'}}>
-                        support@lekyaspecs.in
+                      <p className="text-xs font-bold text-[#FAAE62]">
+                        📧 support@lekyaspecs.in
                       </p>
-                      <p className="text-sm mt-2" style={{color: '#9B7EA8'}}>
-                        +91 96541 19262
+                      <p className="text-xs mt-1 font-semibold text-white">
+                        📞 +91 96541 19262
                       </p>
+                      <p className="text-[10px] mt-2 text-[#9B7EA8]">Mon - Sat: 9:30 AM - 7:30 PM IST</p>
                     </div>
 
                   </div>
 
+                  {/* Footer Copyright & Legal */}
                   <div className="mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs" style={{borderTop: '1px solid rgba(74,18,104,0.5)', color: '#6B4A80'}}>
                     <p>© 2026 <span style={{color:'#FAAE62', fontWeight:700}}>lekya.in</span> — Lekya Specs Eyewear. All rights reserved.</p>
-                    <div className="flex space-x-6 mt-4 sm:mt-0">
+                    <div className="flex space-x-6 mt-4 sm:mt-0 font-medium">
                       <Link href="/privacy" className="hover:text-[#FAAE62] transition-colors">Privacy Policy</Link>
                       <Link href="/terms" className="hover:text-[#FAAE62] transition-colors">Terms of Service</Link>
                       <Link href="/sitemap" className="hover:text-[#FAAE62] transition-colors">Sitemap</Link>

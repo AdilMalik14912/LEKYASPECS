@@ -7,7 +7,7 @@ const VisionEyeLogo = require('../components/VisionEyeLogo');
 const {
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck,
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
-  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation,
+  Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation, BookOpen,
   Settings, Cpu, Webhook, Radio, Lock, Zap, Copy, Check, Eye, EyeOff, ChevronLeft, ChevronRight, Server, Globe, Terminal
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
@@ -596,6 +596,58 @@ export default function Admin() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+
+  // Blogs CRUD State
+  const [adminBlogs, setAdminBlogs] = useState([
+    {
+      id: '1',
+      slug: 'face-shape-eyewear-guide-2026',
+      title: 'The 2026 Eyewear Guide: How to Choose Frames Matched to Your Face Shape',
+      category: 'Optical Guide',
+      readTime: '5 min read',
+      date: 'July 24, 2026',
+      author: 'Dr. Aarav Mehta (Chief Optometrist)',
+      image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
+      summary: 'Discover precision fitting secrets for Oval, Square, Round, and Heart face shapes.',
+      featured: true,
+      status: 'Published'
+    },
+    {
+      id: '2',
+      slug: 'blue-light-vs-anti-reflective-coating',
+      title: 'Blue Light Shield vs. Anti-Reflective Coating: What Your Eyes Actually Need',
+      category: 'Lens Tech',
+      readTime: '4 min read',
+      date: 'July 20, 2026',
+      author: 'Priya Sharma (Optical Engineer)',
+      image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
+      summary: 'Spent 8+ hours in front of screens? Understand how 420nm blue wavelength filtering reduces digital eye strain.',
+      featured: false,
+      status: 'Published'
+    },
+    {
+      id: '3',
+      slug: 'titanium-vs-acetate-frame-materials',
+      title: 'Titanium vs. Japanese Acetate: The Ultimate Frame Material Showdown',
+      category: 'Material Science',
+      readTime: '6 min read',
+      date: 'July 15, 2026',
+      author: 'Vikramaditya Roy (Head of Design)',
+      image: 'https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=800&q=80',
+      summary: 'Compare aerospace-grade Japanese Beta Titanium against hand-polished Mazzucchelli acetate.',
+      featured: false,
+      status: 'Published'
+    }
+  ]);
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [editingBlog, setEditingBlog] = useState(null);
+  const [blogTitle, setBlogTitle] = useState('');
+  const [blogCategory, setBlogCategory] = useState('Optical Guide');
+  const [blogAuthor, setBlogAuthor] = useState('lekya.in Optical Team');
+  const [blogReadTime, setBlogReadTime] = useState('5 min read');
+  const [blogImage, setBlogImage] = useState('');
+  const [blogSummary, setBlogSummary] = useState('');
+  const [blogFeatured, setBlogFeatured] = useState(false);
 
   // Add/Edit Product Form state
   const [prodName, setProdName] = useState('');
@@ -1563,6 +1615,7 @@ export default function Admin() {
           {[
             { id: 'stats', label: 'Dashboard Analytics', icon: BarChart3 },
             { id: 'products', label: 'Manage Products', icon: ShoppingBag },
+            { id: 'blogs', label: 'Manage Blogs & Articles', icon: BookOpen },
             { id: 'orders', label: 'Customer Orders', icon: ClipboardList },
             { id: 'returns', label: 'Returns & Exchanges', icon: RefreshCw },
             { id: 'customers', label: 'View Customers', icon: Users },
@@ -1893,6 +1946,211 @@ export default function Admin() {
                   </div>
                 </div>
 
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- TAB: BLOGS & OPTICAL ARTICLES PUBLISHER --- */}
+        {activeTab === 'blogs' && (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 border-b border-[#FAAE62]/20 pb-4">
+              <div>
+                <h2 className="font-serif text-3xl font-bold text-white mb-1 flex items-center gap-2">
+                  <BookOpen className="w-8 h-8 text-[#FAAE62]" /> Optical Journal & Blog Publisher
+                </h2>
+                <p className="text-xs text-[#9B7EA8]">Write, edit, publish, and pin articles to the live lekya.in journal.</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingBlog(null);
+                  setBlogTitle('');
+                  setBlogCategory('Optical Guide');
+                  setBlogAuthor('Dr. Aarav Mehta (Chief Optometrist)');
+                  setBlogReadTime('5 min read');
+                  setBlogImage('https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80');
+                  setBlogSummary('');
+                  setBlogFeatured(false);
+                  setShowBlogModal(true);
+                }}
+                className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] text-xs uppercase font-extrabold tracking-widest px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-all flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Create New Article
+              </button>
+            </div>
+
+            {/* Articles Table Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminBlogs.map((b) => (
+                <div key={b.id} className="bg-[#1A0024]/90 border border-[#FAAE62]/20 rounded-2xl p-5 shadow-xl backdrop-blur-xl flex flex-col justify-between hover:border-[#FAAE62]/50 transition-all">
+                  <div>
+                    <div className="h-40 rounded-xl overflow-hidden mb-4 border border-white/10 relative">
+                      <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
+                      <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase text-black bg-[#FAAE62]">
+                        {b.category}
+                      </span>
+                      {b.featured && (
+                        <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase text-white bg-purple-600 border border-white/20">
+                          ★ Featured
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-[#9B7EA8] uppercase font-bold block mb-1">{b.date} • {b.readTime}</span>
+                    <h3 className="font-serif font-bold text-white text-base leading-snug mb-2 line-clamp-2">{b.title}</h3>
+                    <p className="text-xs text-[#9B7EA8] line-clamp-2 font-light mb-4">{b.summary}</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[10px] text-[#FAAE62] font-semibold truncate max-w-[120px]">{b.author}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setAdminBlogs(adminBlogs.map(item => item.id === b.id ? { ...item, featured: !item.featured } : item));
+                        }}
+                        className={`p-2 rounded-lg text-xs font-bold transition-colors ${b.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-[#9B7EA8] hover:text-white'}`}
+                        title="Toggle Featured on Homepage"
+                      >
+                        <Star className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setAdminBlogs(adminBlogs.filter(item => item.id !== b.id));
+                        }}
+                        className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                        title="Delete Article"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Create / Edit Article Modal */}
+            {showBlogModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+                <div className="bg-[#1A0024] border border-[#FAAE62]/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl space-y-5 text-left">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-[#FAAE62]" /> Publish Article to lekya.in
+                    </h3>
+                    <button onClick={() => setShowBlogModal(false)} className="text-white/60 hover:text-white"><X size={20} /></button>
+                  </div>
+
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const newBlog = {
+                      id: Date.now().toString(),
+                      slug: blogTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+                      title: blogTitle,
+                      category: blogCategory,
+                      author: blogAuthor,
+                      readTime: blogReadTime,
+                      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                      image: blogImage || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
+                      summary: blogSummary,
+                      featured: blogFeatured,
+                      status: 'Published'
+                    };
+                    setAdminBlogs([newBlog, ...adminBlogs]);
+                    setShowBlogModal(false);
+                    alert('✓ Article successfully published to lekya.in Journal!');
+                  }} className="space-y-4 text-xs font-semibold">
+                    <div>
+                      <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Article Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={blogTitle}
+                        onChange={(e) => setBlogTitle(e.target.value)}
+                        placeholder="e.g. How to Choose Prescription Frames for Digital Screen Work"
+                        className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Category</label>
+                        <select
+                          value={blogCategory}
+                          onChange={(e) => setBlogCategory(e.target.value)}
+                          className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                        >
+                          <option value="Optical Guide">Optical Guide</option>
+                          <option value="Lens Tech">Lens Tech</option>
+                          <option value="Material Science">Material Science</option>
+                          <option value="Eye Care">Eye Care</option>
+                          <option value="Style Trends">Style Trends</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Estimated Read Time</label>
+                        <input
+                          type="text"
+                          value={blogReadTime}
+                          onChange={(e) => setBlogReadTime(e.target.value)}
+                          placeholder="e.g. 5 min read"
+                          className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Author Name & Role</label>
+                      <input
+                        type="text"
+                        value={blogAuthor}
+                        onChange={(e) => setBlogAuthor(e.target.value)}
+                        placeholder="e.g. Dr. Aarav Mehta (Chief Optometrist)"
+                        className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Cover Image URL</label>
+                      <input
+                        type="text"
+                        value={blogImage}
+                        onChange={(e) => setBlogImage(e.target.value)}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[#9B7EA8] uppercase tracking-wider mb-1">Article Short Summary</label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={blogSummary}
+                        onChange={(e) => setBlogSummary(e.target.value)}
+                        placeholder="Brief 2-line article preview for readers..."
+                        className="w-full bg-[#0D0016] border border-white/15 rounded-xl p-3 text-white focus:outline-none focus:border-[#FAAE62]"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2">
+                      <input
+                        type="checkbox"
+                        id="feat_check"
+                        checked={blogFeatured}
+                        onChange={(e) => setBlogFeatured(e.target.checked)}
+                        className="w-4 h-4 rounded text-[#FAAE62] focus:ring-0"
+                      />
+                      <label htmlFor="feat_check" className="text-white text-xs cursor-pointer">Pin as Featured Story on Blog & Homepage</label>
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
+                      <button type="button" onClick={() => setShowBlogModal(false)} className="px-5 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20">
+                        Cancel
+                      </button>
+                      <button type="submit" className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] font-extrabold uppercase tracking-wider hover:scale-105 transition-all">
+                        Publish Now
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
           </div>
