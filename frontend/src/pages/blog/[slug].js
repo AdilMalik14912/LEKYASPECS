@@ -1,4 +1,5 @@
 const React = require('react');
+const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { useRouter } = require('next/router');
@@ -187,7 +188,36 @@ export default function ArticleDetail() {
   const router = useRouter();
   const { slug } = router.query;
 
-  const article = BLOG_ARTICLES_DATA[slug] || BLOG_ARTICLES_DATA['face-shape-eyewear-guide-2026'];
+  const defaultArticle = BLOG_ARTICLES_DATA[slug] || BLOG_ARTICLES_DATA['face-shape-eyewear-guide-2026'];
+  const [article, setArticle] = useState(defaultArticle);
+
+  useEffect(() => {
+    if (slug) {
+      const base = BLOG_ARTICLES_DATA[slug] || BLOG_ARTICLES_DATA['face-shape-eyewear-guide-2026'];
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('lekya_blogs_v1');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            const found = parsed.find(b => b.slug === slug || b.id === slug);
+            if (found) {
+              setArticle({
+                ...base,
+                title: found.title || base.title,
+                category: found.category || base.category,
+                author: found.author || base.author,
+                readTime: found.readTime || base.readTime,
+                image: found.image || base.image,
+                summary: found.summary || base.summary
+              });
+              return;
+            }
+          } catch (_) {}
+        }
+      }
+      setArticle(base);
+    }
+  }, [slug]);
 
   return (
     <>

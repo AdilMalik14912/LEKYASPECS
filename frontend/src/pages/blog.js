@@ -1,5 +1,5 @@
 const React = require('react');
-const { useState } = React;
+const { useState, useEffect } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { BookOpen, Clock, User, ArrowRight, Search } = require('lucide-react');
@@ -92,19 +92,43 @@ const BLOG_ARTICLES = [
 ];
 
 export default function BlogJournal() {
+  const [articles, setArticles] = useState(BLOG_ARTICLES);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    const loadSavedArticles = () => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('lekya_blogs_v1');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setArticles(parsed);
+            }
+          } catch (_) {}
+        }
+      }
+    };
+
+    loadSavedArticles();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('lekya_blogs_updated', loadSavedArticles);
+      return () => window.removeEventListener('lekya_blogs_updated', loadSavedArticles);
+    }
+  }, []);
+
   const categories = ['All', 'Group Companies', 'Lekya Team', 'Optical Guide', 'Lens Tech', 'Material Science', 'Eye Care', 'Prescription Tips'];
 
-  const filteredArticles = BLOG_ARTICLES.filter(art => {
+  const filteredArticles = articles.filter(art => {
     const matchesCat = activeCategory === 'All' || art.category === activeCategory;
     const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          art.summary.toLowerCase().includes(searchQuery.toLowerCase());
+                          art.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          art.author.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
-  const featured = BLOG_ARTICLES.find(art => art.featured) || BLOG_ARTICLES[0];
+  const featured = articles.find(art => art.featured) || articles[0];
 
   return (
     <>

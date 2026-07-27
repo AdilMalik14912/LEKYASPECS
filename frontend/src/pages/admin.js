@@ -701,6 +701,31 @@ export default function Admin() {
   const [blogSummary, setBlogSummary] = useState('');
   const [blogFeatured, setBlogFeatured] = useState(false);
 
+  // Sync adminBlogs with localStorage on mount & helper to persist updates
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lekya_blogs_v1');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAdminBlogs(parsed);
+          }
+        } catch (_) {}
+      } else {
+        localStorage.setItem('lekya_blogs_v1', JSON.stringify(adminBlogs));
+      }
+    }
+  }, []);
+
+  const saveAdminBlogs = (updatedBlogs) => {
+    setAdminBlogs(updatedBlogs);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lekya_blogs_v1', JSON.stringify(updatedBlogs));
+      window.dispatchEvent(new Event('lekya_blogs_updated'));
+    }
+  };
+
   // Add/Edit Product Form state
   const [prodName, setProdName] = useState('');
   const [prodDescription, setProdDescription] = useState('');
@@ -2074,7 +2099,7 @@ export default function Admin() {
                       </button>
                       <button
                         onClick={() => {
-                          setAdminBlogs(adminBlogs.map(item => item.id === b.id ? { ...item, featured: !item.featured } : item));
+                          saveAdminBlogs(adminBlogs.map(item => item.id === b.id ? { ...item, featured: !item.featured } : item));
                         }}
                         className={`p-2 rounded-lg text-xs font-bold transition-colors ${b.featured ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-[#9B7EA8] hover:text-white'}`}
                         title="Toggle Featured on Homepage"
@@ -2084,7 +2109,7 @@ export default function Admin() {
                       <button
                         onClick={() => {
                           if (window.confirm(`Delete article "${b.title}"?`)) {
-                            setAdminBlogs(adminBlogs.filter(item => item.id !== b.id));
+                            saveAdminBlogs(adminBlogs.filter(item => item.id !== b.id));
                           }
                         }}
                         className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
@@ -2112,7 +2137,7 @@ export default function Admin() {
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     if (editingBlog) {
-                      setAdminBlogs(adminBlogs.map(b => b.id === editingBlog.id ? {
+                      const updated = adminBlogs.map(b => b.id === editingBlog.id ? {
                         ...b,
                         title: blogTitle,
                         category: blogCategory,
@@ -2121,7 +2146,8 @@ export default function Admin() {
                         image: blogImage,
                         summary: blogSummary,
                         featured: blogFeatured
-                      } : b));
+                      } : b);
+                      saveAdminBlogs(updated);
                       alert('✓ Article changes updated successfully!');
                     } else {
                       const newBlog = {
@@ -2137,7 +2163,7 @@ export default function Admin() {
                         featured: blogFeatured,
                         status: 'Published'
                       };
-                      setAdminBlogs([newBlog, ...adminBlogs]);
+                      saveAdminBlogs([newBlog, ...adminBlogs]);
                       alert('✓ New article published successfully to lekya.in Journal!');
                     }
                     setShowBlogModal(false);
