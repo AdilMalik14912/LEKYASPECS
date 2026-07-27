@@ -1,51 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://lekyaspecs.vercel.app/</loc>
+    <loc>https://lekya.in/</loc>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/shop</loc>
+    <loc>https://lekya.in/shop</loc>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/tryon</loc>
+    <loc>https://lekya.in/tryon</loc>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/compare</loc>
+    <loc>https://lekya.in/compare</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/face-shape</loc>
+    <loc>https://lekya.in/face-shape</loc>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/skin-analysis</loc>
+    <loc>https://lekya.in/skin-analysis</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/style-quiz</loc>
+    <loc>https://lekya.in/style-quiz</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/account</loc>
+    <loc>https://lekya.in/account</loc>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/contact</loc>
+    <loc>https://lekya.in/contact</loc>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/privacy</loc>
+    <loc>https://lekya.in/privacy</loc>
     <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/terms</loc>
+    <loc>https://lekya.in/terms</loc>
     <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://lekyaspecs.vercel.app/sitemap</loc>
+    <loc>https://lekya.in/sitemap</loc>
     <priority>0.50</priority>
   </url>
+  <url>
+    <loc>https://lekya.in/lookbook</loc>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/lens-guide</loc>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/track</loc>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lekya.in/about</loc>
+    <priority>0.70</priority>
+  </url>
 </urlset>
+

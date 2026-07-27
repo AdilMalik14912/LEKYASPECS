@@ -657,7 +657,7 @@ Explore your personalized recommendations online at Specs or schedule a prescrip
 
 Warmest regards,
 Specs Executive Stylist & Concierge Team
-https://lekyaspecs.vercel.app`;
+https://lekya.in`;
 
     res.json({
       leadId,

@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -159,7 +159,7 @@ export default function TermsOfService() {
             <section className="policy-section" data-policy-section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">10. Contact Information</h3>
               <p>
-                For questions regarding prescription compliance, shipping delays, or system policies, please open a contact query or email us at <a href="mailto:support@lekyaspecs.com" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.com</a>.
+                For questions regarding prescription compliance, shipping delays, or system policies, please open a contact query or email us at <a href="mailto:support@lekyaspecs.in" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.in</a>.
               </p>
             </section>
 

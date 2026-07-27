@@ -745,7 +745,7 @@ export default function App({ Component, pageProps }) {
                         102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014
                       </p>
                       <p className="text-sm font-medium" style={{color: '#FAAE62'}}>
-                        support@lekyaspecs.com
+                        support@lekyaspecs.in
                       </p>
                       <p className="text-sm mt-2" style={{color: '#9B7EA8'}}>
                         +91 96541 19262

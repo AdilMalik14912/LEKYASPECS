@@ -654,7 +654,7 @@ export default function CrmPage() {
                                     <button onClick={() => {
                                       const clean = l.phone.replace(/[^0-9]/g, '');
                                       const num = clean.length === 10 ? `91${clean}` : clean;
-                                      const msg = `Hello ${l.name.split(' ')[0]}, greetings from Lekya Specs Eyewear Concierge! Explore your personalized offers: https://lekyaspecs.vercel.app`;
+                                      const msg = `Hello ${l.name.split(' ')[0]}, greetings from Lekya Specs Eyewear Concierge! Explore your personalized offers: https://lekya.in`;
                                       window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
                                     }} title="Chat on WhatsApp" style={{
                                       padding: '5px 10px', background: 'rgba(34,197,94,0.15)',

@@ -4230,7 +4230,7 @@ export default function Admin() {
                   <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.03em', color: '#1a1a1a' }}>LEKYA SPECS</div>
                   <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Premium Optical & Eyewear Concierge</div>
                   <div style={{ fontSize: 11, color: '#6b7280' }}>GSTIN: 27AAAPL1234F1ZL</div>
-                  <div style={{ fontSize: 11, color: '#6b7280' }}>support@lekyaspecs.in | lekyaspecs.vercel.app</div>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>support@lekyaspecs.in | lekya.in</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 22, fontWeight: 800, color: '#b8912a', letterSpacing: 2 }}>TAX INVOICE</div>
@@ -4606,7 +4606,7 @@ export default function Admin() {
                       </div>
                       <div className="bg-[#1A0024] p-4 rounded-xl border border-white/10">
                         <span className="text-[10px] text-[#9B7EA8] uppercase block mb-1">CORS Origin Policy</span>
-                        <span className="text-xs font-bold text-[#FAAE62] truncate block">lekyaspecs.vercel.app</span>
+                        <span className="text-xs font-bold text-[#FAAE62] truncate block">lekya.in</span>
                       </div>
                     </div>
                   </div>
@@ -4650,7 +4650,7 @@ export default function Admin() {
                                   entry: [{ changes: [{ value: { messages: [{ from: '919876543210', text: { body: 'Track order #1042' } }] } }] }]
                                 },
                                 autoReplyTriggered: 'track_order',
-                                botResponse: 'Your order #1042 status: SHIPPED. AWB: PU-982341. Live Tracking: https://lekyaspecs.vercel.app/account'
+                                botResponse: 'Your order #1042 status: SHIPPED. AWB: PU-982341. Live Tracking: https://lekya.in/account'
                               });
                             } else if (sandboxEvent === 'parcel_uncle_sync') {
                               setSandboxResponse({

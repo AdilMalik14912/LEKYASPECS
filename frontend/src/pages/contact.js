@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
@@ -121,7 +121,7 @@ export default function ContactPage() {
             {
               icon: <Mail className="w-5 h-5" />,
               title: 'Email Us',
-              lines: ['support@lekyaspecs.com', 'We reply within 24 hours'],
+              lines: ['support@lekyaspecs.in', 'We reply within 24 hours'],
               color: 'text-blue-500',
               bg: 'bg-blue-50'
             },

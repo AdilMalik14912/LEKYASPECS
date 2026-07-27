@@ -504,7 +504,7 @@ const downloadLabel = async (req, res) => {
 const registerWebhookHandler = async (req, res) => {
   try {
     const { webhookUrl } = req.body || {};
-    const urlToRegister = webhookUrl || 'https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook';
+    const urlToRegister = webhookUrl || 'https://lekya.in/api/shipping/parcel-uncle/webhook';
     const result = await parcelUncle.registerWebhook(urlToRegister);
     res.json({ success: true, result });
   } catch (err) {

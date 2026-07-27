@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useEffect, useRef } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -157,7 +157,7 @@ export default function PrivacyPolicy() {
             <section>
               <h3 className="font-serif text-lg font-bold text-premium-black mb-3">6. Customer Rights &amp; Access Controls</h3>
               <p>
-                You hold absolute rights to inspect, update, or purge your profile logs. You can change profile details directly from the Account Dashboard or contact our privacy team at <a href="mailto:support@lekyaspecs.com" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.com</a> to request absolute record deletion.
+                You hold absolute rights to inspect, update, or purge your profile logs. You can change profile details directly from the Account Dashboard or contact our privacy team at <a href="mailto:support@lekyaspecs.in" className="text-premium-accent font-semibold hover:underline">support@lekyaspecs.in</a> to request absolute record deletion.
               </p>
             </section>
 

@@ -76,21 +76,24 @@ Whenever commits are pushed to the `main` branch:
 
 ## 🌐 Live URLs (Production)
 
+> **Primary Domain:** `https://lekya.in` (GoDaddy → Vercel DNS)
+> **Fallback Vercel URL:** `https://lekyaspecs.vercel.app` (still active)
+
 | Service | URL |
 |---------|-----|
-| **Main Store** | `https://lekyaspecs.vercel.app` |
-| **About Us & Ecosystem** | `https://lekyaspecs.vercel.app/about` |
-| **Admin Panel** | `https://lekyaspecs.vercel.app/admin` |
-| **Admin Live Map** | `https://lekyaspecs.vercel.app/admin-map` |
-| **Seller Panel** | `https://lekyaspecs.vercel.app/seller` |
-| **Delivery Panel** | `https://lekyaspecs.vercel.app/delivery` |
-| **Delivery Route Map** | `https://lekyaspecs.vercel.app/delivery-map` |
-| **HO Staff Panel** | `https://lekyaspecs.vercel.app/ho-staff` |
-| **Team Chat** | `https://lekyaspecs.vercel.app/chat` |
-| **Specs CRM Platform** | `https://lekyaspecs.vercel.app/crm` |
-| **WhatsApp Business API Webhook** | `https://lekyaspecs.vercel.app/api/webhooks/whatsapp` |
-| **Parcel Uncle Live Webhook** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook` |
-| **Printable Label PDF Endpoint** | `https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/label/:waybill` |
+| **Main Store** | `https://lekya.in` |
+| **About Us & Ecosystem** | `https://lekya.in/about` |
+| **Admin Panel** | `https://lekya.in/admin` |
+| **Admin Live Map** | `https://lekya.in/admin-map` |
+| **Seller Panel** | `https://lekya.in/seller` |
+| **Delivery Panel** | `https://lekya.in/delivery` |
+| **Delivery Route Map** | `https://lekya.in/delivery-map` |
+| **HO Staff Panel** | `https://lekya.in/ho-staff` |
+| **Team Chat** | `https://lekya.in/chat` |
+| **Specs CRM Platform** | `https://lekya.in/crm` |
+| **WhatsApp Business API Webhook** | `https://lekya.in/api/webhooks/whatsapp` |
+| **Parcel Uncle Live Webhook** | `https://lekya.in/api/shipping/parcel-uncle/webhook` |
+| **Printable Label PDF Endpoint** | `https://lekya.in/api/shipping/parcel-uncle/label/:waybill` |
 
 > **Note:** Obsolete preview URLs like `lekyaspecs-800x4yrhk-lekya.vercel.app` are old preview deployments — always use the main production URL above.
 
@@ -100,13 +103,13 @@ Whenever commits are pushed to the `main` branch:
 
 | Date | Commit | What Was Deployed |
 |------|--------|--------------------|
+| 2026-07-27 | `cb0577b` | 🌐 Custom domain `lekya.in` connected via GoDaddy DNS → Vercel. Updated all domain references in sitemap, webhooks, CRM, Tax Invoice from `lekyaspecs.vercel.app` → `lekya.in`. |
 | 2026-07-24 | `df9c77b` | Fix Next.js static prerender TDZ `ReferenceError: Cannot access G before initialization` in `checkout.js`. |
 | 2026-07-24 | `c163201` | Fix missing `Check` and `Sparkles` icon imports in `account.js` for Vercel compilation. |
 | 2026-07-24 | `4ee649d` | Customer Self-Service Return, Exchange & Refund Hub in `/account` with Parcel Uncle reverse pickup integration. |
 | 2026-07-24 | `9f5226c` | Segmented 6-box OTP entry UI, auto-advance, error shake animation & 3D celebratory confetti modal overlay. |
 | 2026-07-24 | `d4871d1` | Meta WhatsApp Business Cloud API webhook & 9-intent auto-reply engine (`/api/webhooks/whatsapp`). |
 | 2026-07-24 | `c49e129` | 3D CSS/SVG Glassmorphism animated SVG hero lookbook, right-side floating widgets with expandable WhatsApp menu, and 24-hr SpinWheel daily limit. |
-| 2026-07-23 | `3766756` | Complete AI wording removal across 15+ pages, Tax Invoice HTML download & iframe print fix, HO staff & staff dashboard auth gate fixes. |
 
 
 ---

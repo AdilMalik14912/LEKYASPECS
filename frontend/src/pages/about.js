@@ -141,7 +141,7 @@ export default function About() {
       logo: LekyaSpecsLogo,
       stats: '50K+ Customers · 99.4% CSAT',
       link: '/shop',
-      domain: 'lekyaspecs.com',
+      domain: 'lekya.in',
       btnColor: 'bg-amber-500 hover:bg-amber-400 text-black',
       isInternal: true
     },

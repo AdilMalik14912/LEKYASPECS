@@ -353,7 +353,7 @@ async function getShippingLabel(trackingNumber) {
 /**
  * 7. Register Webhook URL (PUT /webhook/)
  */
-async function registerWebhook(webhookUrl = 'https://lekyaspecs.vercel.app/api/shipping/parcel-uncle/webhook') {
+async function registerWebhook(webhookUrl = 'https://lekya.in/api/shipping/parcel-uncle/webhook') {
   try {
     const response = await fetch(`${BASE_URL}/webhook/`, {
       method: 'PUT',
