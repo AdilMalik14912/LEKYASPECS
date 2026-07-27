@@ -107,28 +107,28 @@ function LiquidGlassHero({ videoUrl = DEFAULT_VIDEO_URL }) {
 
           {/* Hero Headline (Positioned comfortably lower below top header) */}
           <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-[1.12] tracking-tight drop-shadow-2xl">
-            Live Better, See Clearly Every Day
+            Frame Your Identity
           </h1>
 
           {/* Subtitle / Paragraph */}
           <p className="text-white/85 text-sm sm:text-base leading-relaxed font-light max-w-lg drop-shadow-md">
-            Take charge of how you feel with a companion built for your journey—build routines, follow your growth, and unlock tailored optical insights for a steadier, more vibrant life each day.
+            Eyewear isn't just about vision—it's your signature statement. Hand-crafted precision optics delivered straight to your doorstep without luxury markups.
           </p>
 
           {/* Action Buttons Row */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link
-              href="/shop"
-              className="bg-white text-black text-sm sm:text-base font-bold px-8 py-3.5 rounded-full hover:bg-white/90 transition-all shadow-2xl flex items-center gap-2 hover:scale-105 active:scale-95"
+              href="/face-shape"
+              className="bg-gradient-to-r from-[#D4893F] to-[#FAAE62] text-[#0D0016] text-xs sm:text-sm font-extrabold uppercase tracking-widest px-8 py-3.5 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 border border-[#FAAE62]/40"
             >
-              Start Today
+              Discover Your Fit
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/tryon"
-              className="liquid-glass text-white text-sm sm:text-base font-semibold px-8 py-3.5 rounded-full hover:bg-white/15 transition-all border border-white/15 flex items-center gap-2 hover:scale-105"
+              href="/blog"
+              className="liquid-glass text-white text-xs sm:text-sm font-bold uppercase tracking-widest px-8 py-3.5 rounded-full hover:bg-white/15 transition-all border border-white/20 hover:border-[#FAAE62]/50 flex items-center gap-2 hover:scale-105"
             >
-              Discover How
+              <span>📰</span> Optical Style Guide
             </Link>
           </div>
 
