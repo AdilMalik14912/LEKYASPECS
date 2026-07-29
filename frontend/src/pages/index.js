@@ -217,7 +217,7 @@ export default function Home() {
         <meta name="ICBM" content="28.6139, 77.2090" />
 
         {/* Google Search Console Verification */}
-        <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE" />
+        <meta name="google-site-verification" content="google3c5ff4dba0dffc70" />
       </Head>
 
       {/* JSON-LD Structured Data — LocalBusiness + WebSite (for Google Rich Results) */}
