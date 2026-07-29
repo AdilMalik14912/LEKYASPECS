@@ -5,7 +5,7 @@ const { sendStatusUpdateEmail } = require('../utils/mailer');
 const { sendStatusUpdateSms } = require('../utils/sms');
 require('dotenv').config();
 
-// Initialize Razorpay Client
+// Initialize Production Razorpay Client (Live Gateway)
 const isDummyKey = process.env.RAZORPAY_KEY_ID === 'rzp_test_dummykey123' || !process.env.RAZORPAY_KEY_ID;
 
 let razorpay = null;
