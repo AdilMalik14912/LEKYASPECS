@@ -8,7 +8,7 @@ const {
   BarChart3, ShoppingBag, ClipboardList, Users, ShieldCheck,
   Trash2, Edit, Plus, Star, Landmark, ShieldAlert, CheckCircle2, RotateCcw, AlertTriangle, Loader2, Sliders,
   Tag, Mail, ScrollText, Download, HelpCircle, Activity, X, Sparkles, Key, RefreshCw, PackageX, ArrowLeftRight, LogOut, Navigation, BookOpen,
-  Settings, Cpu, Webhook, Radio, Lock, Zap, Copy, Check, Eye, EyeOff, ChevronLeft, ChevronRight, Server, Globe, Terminal
+  Settings, Cpu, Webhook, Radio, Lock, Zap, Copy, Check, Eye, EyeOff, ChevronLeft, ChevronRight, Server, Globe, Terminal, Clock
 } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -5642,8 +5642,8 @@ export default function Admin() {
 
                         {
                           title: 'Payment Confirmed',
-                          time: new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
-                          desc: `Payment verified (${selectedOrderDetails.payment_id || 'Razorpay Prepaid'})`,
+                          time: selectedOrderDetails?.created_at ? new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Payment Verified',
+                          desc: `Payment verified (${selectedOrderDetails?.payment_id || 'Razorpay Prepaid'})`,
                           actor: 'Payment Gateway',
                           color: 'bg-emerald-500 text-black border-emerald-400',
                           icon: '💳'
@@ -5651,7 +5651,7 @@ export default function Admin() {
 
                         {
                           title: 'Shipment Created',
-                          time: new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+                          time: selectedOrderDetails?.created_at ? new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Initial Order',
                           desc: 'Order placed & registered in Lekya Specs Core Engine',
                           actor: 'System Engine',
                           color: 'bg-[#FAAE62] text-black border-[#FAAE62]',
