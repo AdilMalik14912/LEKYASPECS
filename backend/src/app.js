@@ -263,6 +263,18 @@ app.put('/api/admin/orders/:id/tracking', authenticateToken, isAdmin, adminContr
 // Real-time Active Sessions list & Live Signup OTP Feed
 app.get('/api/admin/active-sessions', authenticateToken, isAdmin, adminController.getActiveSessions);
 
+// ── Parcel Uncle Official Merchant Carrier Integration API (v1) ─────────────
+app.post('/api/shipping/parcel-uncle/dispatch', authenticateToken, shippingController.dispatchParcelUncle);
+app.get('/api/shipping/parcel-uncle/track/:waybill', shippingController.trackParcelUncle);
+app.get('/api/shipping/parcel-uncle/label/:waybillOrOrderId', shippingController.downloadLabel);
+app.get('/api/admin/orders/:waybillOrOrderId/label', shippingController.downloadLabel);
+app.post('/api/shipping/parcel-uncle/cancel/:waybill', authenticateToken, shippingController.cancelParcelUncle);
+app.get('/api/shipping/parcel-uncle/serviceability/:pincode', shippingController.checkServiceabilityHandler);
+app.post('/api/shipping/parcel-uncle/rate-quote', shippingController.getRateQuoteHandler);
+app.post('/api/shipping/parcel-uncle/webhook', shippingController.handleWebhook);
+app.get('/api/shipping/parcel-uncle/ndr', authenticateToken, shippingController.getNdrListHandler);
+app.post('/api/shipping/parcel-uncle/ndr/action', authenticateToken, shippingController.takeNdrActionHandler);
+
 
 // 8. Seller Panel API (seller + admin access)
 app.get('/api/seller/stats', authenticateToken, isSeller, sellerController.getSellerStats);

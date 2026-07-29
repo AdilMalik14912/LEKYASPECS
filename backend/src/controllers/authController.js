@@ -301,6 +301,29 @@ const registerVerify = async (req, res) => {
     }
 
     if (!otpRecord) {
+      // Idempotent Fallback: If user was already created during an earlier click, log them in automatically
+      if (targetEmail) {
+        try {
+          const userCheck = await db.query('SELECT * FROM users WHERE LOWER(email) = ?', [targetEmail.toLowerCase()]);
+          if (userCheck.rows && userCheck.rows.length > 0) {
+            const existingUser = userCheck.rows[0];
+            const token = generateToken(existingUser);
+            return res.status(200).json({
+              token,
+              user: {
+                id: existingUser.id,
+                name: existingUser.name,
+                email: existingUser.email,
+                phone: existingUser.phone || null,
+                role: existingUser.role || 'user',
+                loyalty_points: existingUser.loyalty_points || 0,
+                referral_code: existingUser.referral_code || null,
+                createdAt: existingUser.created_at || null
+              }
+            });
+          }
+        } catch (_) {}
+      }
       return res.status(400).json({ message: 'Invalid or expired OTP code. Please try again or request a new OTP.' });
     }
 

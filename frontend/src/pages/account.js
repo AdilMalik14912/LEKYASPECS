@@ -514,8 +514,8 @@ export default function Account() {
           .then(data => {
             setFormLoading(false);
             if (data && data.token) {
-              setOtpSuccessData(data);
-              setShowOtpSuccessModal(true);
+              login(data.token, data.user);
+              showToast('🎉 Account created & verified successfully! Welcome to Lekya Specs.', 'success');
             }
           })
           .catch(err => {

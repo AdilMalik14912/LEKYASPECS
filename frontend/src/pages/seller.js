@@ -576,16 +576,38 @@ export default function SellerPanel() {
                               <Eye className="w-3 h-3" /> Manage
                             </button>
                             {order.parcel_uncle_tracking_id ? (
-                              <div className="text-[9px] bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded text-orange-300 font-mono font-bold flex items-center gap-1" title={`Status: ${order.parcel_uncle_status || 'MANIFESTED'}`}>
-                                <span>📦 PU: {order.parcel_uncle_tracking_id}</span>
+                              <div className="flex items-center gap-1">
+                                <div className="text-[9px] bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded text-orange-300 font-mono font-bold flex items-center gap-1" title={`Status: ${order.parcel_uncle_status || 'MANIFESTED'}`}>
+                                  <span>📦 PU: {order.parcel_uncle_tracking_id}</span>
+                                </div>
+                                <a
+                                  href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[9px] bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-extrabold px-2 py-0.5 rounded border border-emerald-500/40 transition-all uppercase tracking-wider flex items-center gap-1"
+                                  title="Print 4x6 Shipping Label"
+                                >
+                                  🏷️ Label
+                                </a>
                               </div>
                             ) : (
-                              <button
-                                onClick={() => handleDispatchParcelUncle(order.id)}
-                                className="text-[9px] bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black font-extrabold px-2 py-0.5 rounded border border-amber-500/40 transition-all uppercase tracking-wider flex items-center gap-1"
-                              >
-                                🚚 Parcel Uncle
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleDispatchParcelUncle(order.id)}
+                                  className="text-[9px] bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black font-extrabold px-2 py-0.5 rounded border border-amber-500/40 transition-all uppercase tracking-wider flex items-center gap-1"
+                                >
+                                  🚚 Parcel Uncle
+                                </button>
+                                <a
+                                  href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[9px] bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-extrabold px-2 py-0.5 rounded border border-emerald-500/40 transition-all uppercase tracking-wider flex items-center gap-1"
+                                  title="Print 4x6 Shipping Label"
+                                >
+                                  🏷️ Label
+                                </a>
+                              </div>
                             )}
                             {!order.assigned_delivery_agent_id && (
                               <button

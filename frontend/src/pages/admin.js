@@ -2677,8 +2677,17 @@ export default function Admin() {
                               })}
                             </td>
 
-                            {/* Column 7: Master Inspection Button */}
-                            <td className="px-5 py-3.5 text-right">
+                            {/* Column 7: Master Inspection & Shipping Label Button */}
+                            <td className="px-5 py-3.5 text-right flex items-center justify-end gap-2">
+                              <a
+                                href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-lg transition-all inline-flex items-center gap-1"
+                                title="Print Parcel Uncle 4x6 Thermal Shipping Label"
+                              >
+                                <span>🏷️ Label</span>
+                              </a>
                               <button
                                 onClick={() => {
                                   setSelectedOrderDetails(order);
@@ -5430,16 +5439,26 @@ export default function Admin() {
                         </div>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => {
-                          handleDispatchParcelUncle(selectedOrderDetails.id);
-                          setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_status: 'MANIFESTED' });
-                        }}
-                        disabled={dispatchingOrder === selectedOrderDetails.id}
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-                      >
-                        {dispatchingOrder === selectedOrderDetails.id ? <Loader2 className="w-4 h-4 animate-spin" /> : '🚚 Ship via Parcel Uncle Express API'}
-                      </button>
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => {
+                            handleDispatchParcelUncle(selectedOrderDetails.id);
+                            setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_status: 'MANIFESTED' });
+                          }}
+                          disabled={dispatchingOrder === selectedOrderDetails.id}
+                          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                        >
+                          {dispatchingOrder === selectedOrderDetails.id ? <Loader2 className="w-4 h-4 animate-spin" /> : '🚚 Ship via Parcel Uncle Express API'}
+                        </button>
+                        <a
+                          href={`${API_BASE}/api/shipping/parcel-uncle/label/${selectedOrderDetails.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs py-3 px-4 rounded-xl transition-all uppercase tracking-wider shadow-lg"
+                        >
+                          <ScrollText className="w-4 h-4" /> 🏷️ Print Parcel Uncle 4x6 Shipping Label
+                        </a>
+                      </div>
                     )}
                   </div>
 
