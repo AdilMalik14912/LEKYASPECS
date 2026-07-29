@@ -4,8 +4,12 @@
 
 const db = require('../config/db');
 const parcelUncle = require('../utils/parcelUncle');
+const courierUncle = require('../utils/courierUncle');
 const { sendStatusUpdateEmail } = require('../utils/mailer');
 const { sendStatusUpdateSms } = require('../utils/sms');
+
+// Delhi NCR Pincode Prefixes for Local Hyperlocal Delivery
+const DELHI_NCR_PINCODE_PREFIXES = ['110', '121', '122', '201', '140'];
 
 // Helper to map Parcel Uncle status codes to Lekya Specs Order Statuses
 function mapParcelUncleToSpecsStatus(puStatus) {
@@ -560,8 +564,110 @@ const getRateQuoteHandler = async (req, res) => {
   }
 };
 
+// 13. Dispatch Pan-India Shipment via Courier Uncle Aggregator (Delhivery/Bluedart)
+const dispatchCourierUncle = async (req, res) => {
+  const { orderId, courierCode } = req.body;
+  if (!orderId) return res.status(400).json({ message: 'Order ID is required' });
+
+  try {
+    const orderRes = await db.query(
+      `SELECT o.*, u.email as customer_email, u.name as customer_name, u.phone as customer_phone
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.id = ?`,
+      [orderId]
+    );
+
+    if (orderRes.rows.length === 0) return res.status(404).json({ message: 'Order not found' });
+    const order = orderRes.rows[0];
+
+    const dbItems = await db.query(
+      `SELECT oi.*, p.name as product_name
+       FROM order_items oi
+       LEFT JOIN products p ON oi.product_id = p.id
+       WHERE oi.order_id = ?`,
+      [orderId]
+    );
+
+    const cuResult = await courierUncle.createPanIndiaShipment({
+      orderId: order.id,
+      customerName: order.customer_name,
+      customerPhone: order.customer_phone,
+      customerEmail: order.customer_email,
+      shippingAddress: order.shipping_address,
+      items: dbItems.rows,
+      totalAmount: order.total_amount,
+      isCod: order.status === 'COD',
+      courierCode
+    });
+
+    const waybill = cuResult.waybill || cuResult.tracking_number;
+    const comments = `Pan-India Shipped via Courier Uncle (${cuResult.courier || 'Express'}) — AWB: ${waybill}`;
+
+    await db.query(
+      `UPDATE orders 
+       SET status = 'Shipped',
+           parcel_uncle_tracking_id = ?,
+           parcel_uncle_status = ?,
+           parcel_uncle_response = ?,
+           courier_partner = ?,
+           tracking_comments = ?
+       WHERE id = ?`,
+      [
+        waybill,
+        cuResult.status || 'CREATED',
+        JSON.stringify(cuResult.rawResponse || cuResult),
+        cuResult.courier || 'Courier Uncle Pan-India Express',
+        comments,
+        orderId
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: `Order #${orderId} successfully dispatched via Courier Uncle Pan-India Aggregator`,
+      waybill,
+      courier: cuResult.courier,
+      shipment: cuResult
+    });
+  } catch (err) {
+    console.error('Dispatch Courier Uncle error:', err);
+    res.status(500).json({ message: 'Server error dispatching shipment via Courier Uncle' });
+  }
+};
+
+// 14. Smart Auto-Routing Dispatch (Delhi NCR -> Parcel Uncle, Pan-India -> Courier Uncle)
+const dispatchSmartShipment = async (req, res) => {
+  const { orderId, forceCarrier } = req.body;
+  if (!orderId) return res.status(400).json({ message: 'Order ID is required' });
+
+  try {
+    const orderRes = await db.query('SELECT shipping_address FROM orders WHERE id = ?', [orderId]);
+    if (orderRes.rows.length === 0) return res.status(404).json({ message: 'Order not found' });
+
+    let parsedAddr = orderRes.rows[0].shipping_address;
+    if (typeof parsedAddr === 'string') {
+      try { parsedAddr = JSON.parse(parsedAddr); } catch (_) { parsedAddr = {}; }
+    }
+
+    const pincode = String(parsedAddr?.pincode || parsedAddr?.zip || '110014').trim();
+    const isDelhiNcr = DELHI_NCR_PINCODE_PREFIXES.some(prefix => pincode.startsWith(prefix));
+
+    if (forceCarrier === 'COURIER_UNCLE' || (!isDelhiNcr && forceCarrier !== 'PARCEL_UNCLE')) {
+      return dispatchCourierUncle(req, res);
+    } else {
+      return dispatchParcelUncle(req, res);
+    }
+  } catch (err) {
+    console.error('Smart dispatch error:', err);
+    res.status(500).json({ message: 'Server error in smart auto-routing dispatch' });
+  }
+};
+
 module.exports = {
   dispatchParcelUncle,
+  dispatchCourierUncle,
+  dispatchSmartShipment,
   trackParcelUncle,
   syncParcelUncleStatus,
   syncParcelUncleHandler,
@@ -575,3 +681,4 @@ module.exports = {
   getRateQuoteHandler,
   getConfig
 };
+

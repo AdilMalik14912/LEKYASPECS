@@ -5442,14 +5442,56 @@ export default function Admin() {
                       <div className="space-y-2">
                         <button
                           onClick={() => {
-                            handleDispatchParcelUncle(selectedOrderDetails.id);
-                            setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_status: 'MANIFESTED' });
+                            fetch(`${API_BASE}/api/shipping/smart-dispatch`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                              body: JSON.stringify({ orderId: selectedOrderDetails.id })
+                            })
+                              .then(res => res.json())
+                              .then(data => {
+                                alert(`Success: ${data.message}`);
+                                setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_tracking_id: data.waybill, parcel_uncle_status: 'CREATED', courier_partner: data.courier });
+                              })
+                              .catch(err => alert(err.message));
                           }}
                           disabled={dispatchingOrder === selectedOrderDetails.id}
-                          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-105 text-black font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                          className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-teal-500 hover:scale-105 text-black font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
                         >
-                          {dispatchingOrder === selectedOrderDetails.id ? <Loader2 className="w-4 h-4 animate-spin" /> : '🚚 Ship via Parcel Uncle Express API'}
+                          ⚡ Smart Auto-Ship (Local NCR / Pan-India)
                         </button>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => {
+                              handleDispatchParcelUncle(selectedOrderDetails.id);
+                              setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_status: 'MANIFESTED', courier_partner: 'Parcel Uncle Express' });
+                            }}
+                            disabled={dispatchingOrder === selectedOrderDetails.id}
+                            className="bg-white/10 hover:bg-amber-500 hover:text-black text-amber-300 font-bold text-[11px] uppercase tracking-wider py-2 rounded-xl border border-amber-500/30 transition-all flex items-center justify-center gap-1"
+                          >
+                            🚚 Parcel Uncle (NCR)
+                          </button>
+                          <button
+                            onClick={() => {
+                              fetch(`${API_BASE}/api/shipping/courier-uncle/dispatch`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({ orderId: selectedOrderDetails.id })
+                              })
+                                .then(res => res.json())
+                                .then(data => {
+                                  alert(`Pan-India Dispatched via Courier Uncle! AWB: ${data.waybill}`);
+                                  setSelectedOrderDetails({ ...selectedOrderDetails, parcel_uncle_tracking_id: data.waybill, parcel_uncle_status: 'CREATED', courier_partner: data.courier });
+                                })
+                                .catch(err => alert(err.message));
+                            }}
+                            disabled={dispatchingOrder === selectedOrderDetails.id}
+                            className="bg-white/10 hover:bg-teal-500 hover:text-black text-teal-300 font-bold text-[11px] uppercase tracking-wider py-2 rounded-xl border border-teal-500/30 transition-all flex items-center justify-center gap-1"
+                          >
+                            📦 Courier Uncle (Pan-India)
+                          </button>
+                        </div>
+
                         <a
                           href={`${API_BASE}/api/shipping/parcel-uncle/label/${selectedOrderDetails.id}`}
                           target="_blank"

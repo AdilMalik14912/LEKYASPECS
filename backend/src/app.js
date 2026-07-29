@@ -273,7 +273,9 @@ app.get('/api/shipping/parcel-uncle/serviceability/:pincode', shippingController
 app.post('/api/shipping/parcel-uncle/rate-quote', shippingController.getRateQuoteHandler);
 app.post('/api/shipping/parcel-uncle/webhook', shippingController.handleWebhook);
 app.get('/api/shipping/parcel-uncle/ndr', authenticateToken, shippingController.getNdrListHandler);
-app.post('/api/shipping/parcel-uncle/ndr/action', authenticateToken, shippingController.takeNdrActionHandler);
+// ── Courier Uncle Pan-India Aggregator API & Smart Auto-Router ──────────────
+app.post('/api/shipping/courier-uncle/dispatch', authenticateToken, shippingController.dispatchCourierUncle);
+app.post('/api/shipping/smart-dispatch', authenticateToken, shippingController.dispatchSmartShipment);
 
 
 // 8. Seller Panel API (seller + admin access)
