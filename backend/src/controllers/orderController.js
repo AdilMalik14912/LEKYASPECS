@@ -297,9 +297,10 @@ const verifyPayment = async (req, res) => {
 
     console.log(`[ORDER] Confirmation notifications sent for Order ${orderId}`);
 
-    // ── Auto-Dispatch & Register Shipment with Parcel Uncle API ──────────────────
+    // ── Smart Auto-Dispatch: Delhi NCR -> Parcel Uncle | Rest of India -> Courier Uncle ──────
     try {
       const { createShipment } = require('../utils/parcelUncle');
+      const { createPanIndiaShipment } = require('../utils/courierUncle');
       const userRow = userRes.rows[0];
 
       // Fetch full order items with product names & SKUs
@@ -312,36 +313,62 @@ const verifyPayment = async (req, res) => {
       );
       const richItems = orderItemsRes.rows.length > 0 ? orderItemsRes.rows : items;
 
-      const parcelResult = await createShipment({
-        orderId,
-        customerName: userRow?.name || shipping_address?.name,
-        customerPhone: userRow?.phone || shipping_address?.phone,
-        customerEmail: userRow?.email,
-        shippingAddress: shipping_address,
-        items: richItems,
-        totalAmount: finalTotalAmount,
-        isUrgent: req.body.is_urgent || false
-      });
+      const pincodeStr = String(shipping_address?.pincode || shipping_address?.zip || '').trim().replace(/\D/g, '');
+      const DELHI_NCR_PINCODE_PREFIXES = ['110', '121', '122', '201', '140'];
+      const isDelhiNcr = DELHI_NCR_PINCODE_PREFIXES.some(prefix => pincodeStr.startsWith(prefix));
 
-      if (parcelResult && parcelResult.waybill) {
+      let shipmentResult;
+      let courierPartnerName = '';
+
+      if (isDelhiNcr) {
+        console.log(`[SMART AUTO-ROUTER] Order #${orderId} Pincode '${pincodeStr}' is DELHI NCR. Auto-Routing to Parcel Uncle API...`);
+        courierPartnerName = 'Parcel Uncle Express (Delhi NCR Local)';
+        shipmentResult = await createShipment({
+          orderId,
+          customerName: userRow?.name || shipping_address?.name,
+          customerPhone: userRow?.phone || shipping_address?.phone,
+          customerEmail: userRow?.email,
+          shippingAddress: shipping_address,
+          items: richItems,
+          totalAmount: finalTotalAmount,
+          isUrgent: req.body.is_urgent || false
+        });
+      } else {
+        console.log(`[SMART AUTO-ROUTER] Order #${orderId} Pincode '${pincodeStr}' is PAN-INDIA (Outside NCR). Auto-Routing to Courier Uncle API...`);
+        courierPartnerName = 'Courier Uncle Pan-India Express (Delhivery/Bluedart)';
+        shipmentResult = await createPanIndiaShipment({
+          orderId,
+          customerName: userRow?.name || shipping_address?.name,
+          customerPhone: userRow?.phone || shipping_address?.phone,
+          customerEmail: userRow?.email,
+          shippingAddress: shipping_address,
+          items: richItems,
+          totalAmount: finalTotalAmount,
+          isCod: false
+        });
+      }
+
+      if (shipmentResult && (shipmentResult.waybill || shipmentResult.tracking_number)) {
+        const waybill = shipmentResult.waybill || shipmentResult.tracking_number;
         await db.query(
           `UPDATE orders 
            SET parcel_uncle_tracking_id = ?,
                parcel_uncle_status = ?,
                parcel_uncle_response = ?,
-               courier_partner = 'Parcel Uncle Express'
+               courier_partner = ?
            WHERE id = ?`,
           [
-            parcelResult.waybill,
-            parcelResult.status,
-            JSON.stringify(parcelResult.rawResponse || parcelResult),
+            waybill,
+            shipmentResult.status || 'CREATED',
+            JSON.stringify(shipmentResult.rawResponse || shipmentResult),
+            shipmentResult.courier || courierPartnerName,
             orderId
           ]
         );
-        console.log(`[PARCEL UNCLE] Shipment created automatically for Order #${orderId}. Waybill: ${parcelResult.waybill}`);
+        console.log(`[AUTO-SHIPMENT SUCCESS] Order #${orderId} automatically routed via ${courierPartnerName}. AWB: ${waybill}`);
       }
-    } catch (puErr) {
-      console.warn('[PARCEL UNCLE AUTO-SHIPMENT WARNING]', puErr.message);
+    } catch (shippingErr) {
+      console.warn('[AUTO-SHIPMENT WARNING]', shippingErr.message);
     }
 
     // Auto-update customer metrics in CRM
