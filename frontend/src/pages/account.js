@@ -1185,19 +1185,83 @@ export default function Account() {
                           </div>
                         )}
 
-                        {/* Order Items */}
-                        <div className="space-y-2 pt-2 border-t border-white/5">
-                          {order.items && order.items.map(item => (
-                            <div key={item.id} className="flex justify-between items-center text-xs">
-                              <div className="flex items-center gap-3">
-                                {item.image && (
-                                  <img src={item.image} alt={item.name} className="w-8 h-8 object-cover rounded-lg border border-white/10" />
-                                )}
-                                <span className="text-white font-bold">{item.name} <span className="text-[#9B7EA8] font-normal">x{item.quantity}</span></span>
+                        {/* ── REAL-TIME VERTICAL SHIPMENT TIMELINE (CUSTOMER VIEW) ── */}
+                        <div className="p-4 rounded-2xl bg-[#0D0016]/90 border border-[#FAAE62]/20 space-y-3 mt-3">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#FAAE62] flex items-center gap-1.5">
+                              <Truck className="w-3.5 h-3.5 text-[#FAAE62]" /> Live Shipment Timeline
+                            </span>
+                            {order.courier_partner && (
+                              <span className="text-[10px] font-mono font-bold text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/30">
+                                {order.courier_partner}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="relative pl-2 space-y-4 before:absolute before:left-[15px] before:top-2.5 before:bottom-2.5 before:w-[2px] before:bg-[#FAAE62]/25">
+                            {[
+                              ...(order.status === 'Delivered' ? [{
+                                title: 'Delivered',
+                                time: order.updated_at ? new Date(order.updated_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Delivered',
+                                desc: 'Shipment delivered to your address successfully',
+                                color: 'bg-emerald-500 text-black border-emerald-400',
+                                icon: '✓'
+                              }] : []),
+
+                              ...(['Out for Delivery', 'Delivered'].includes(order.status) ? [{
+                                title: 'Out for Delivery',
+                                time: 'In Progress',
+                                desc: 'Delivery agent is out for final delivery attempt',
+                                color: 'bg-amber-500 text-black border-amber-400',
+                                icon: '🚚'
+                              }] : []),
+
+                              ...(order.parcel_uncle_tracking_id ? [{
+                                title: 'Manifested & Handed to Courier',
+                                time: 'In Transit',
+                                desc: `Handed to ${order.courier_partner || 'Courier Partner'} (AWB: ${order.parcel_uncle_tracking_id})`,
+                                color: 'bg-teal-500 text-black border-teal-400',
+                                icon: '🤝'
+                              }] : []),
+
+                              ...(['Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? [{
+                                title: 'Picked Up',
+                                time: 'Dispatched',
+                                desc: 'Collected from Lekya Ashram Hub & dispatched to courier network',
+                                color: 'bg-purple-500 text-white border-purple-400',
+                                icon: '📦'
+                              }] : []),
+
+                              {
+                                title: 'Payment Confirmed',
+                                time: new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+                                desc: `Payment verified (${order.payment_id || 'Prepaid Online'})`,
+                                color: 'bg-emerald-500 text-black border-emerald-400',
+                                icon: '💳'
+                              },
+
+                              {
+                                title: 'Shipment Created',
+                                time: new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+                                desc: 'Order received & registered in Lekya Specs Engine',
+                                color: 'bg-[#FAAE62] text-black border-[#FAAE62]',
+                                icon: '📦'
+                              }
+                            ].map((ev, idx) => (
+                              <div key={idx} className="relative flex items-start gap-3 z-10">
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] border shadow-md shrink-0 ${ev.color}`}>
+                                  {ev.icon}
+                                </div>
+                                <div className="flex-1 bg-[#1A0024] border border-white/5 rounded-xl p-2.5 space-y-0.5">
+                                  <div className="flex items-center justify-between flex-wrap gap-1">
+                                    <span className="font-bold text-white text-xs">{ev.title}</span>
+                                    <span className="text-[9px] text-[#FAAE62] font-mono">{ev.time}</span>
+                                  </div>
+                                  <p className="text-[10px] text-[#9B7EA8] leading-tight">{ev.desc}</p>
+                                </div>
                               </div>
-                              <span className="text-[#FAAE62] font-bold font-mono">₹{((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1)).toLocaleString('en-IN')}</span>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
 
                         {/* Footer Controls */}

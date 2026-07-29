@@ -5563,6 +5563,101 @@ export default function Admin() {
                     </button>
                   </div>
 
+                  {/* ── REAL-TIME VERTICAL SHIPMENT TIMELINE ── */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-[#FAAE62]/30 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <h4 className="font-bold text-xs uppercase tracking-wider text-[#FAAE62] flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-[#FAAE62]" /> Real-Time Shipment Tracking Timeline
+                      </h4>
+                      <span className="text-[10px] text-[#9B7EA8] font-mono">Live Milestone History</span>
+                    </div>
+
+                    <div className="relative pl-3 space-y-6 before:absolute before:left-[19px] before:top-3 before:bottom-3 before:w-[2px] before:bg-[#FAAE62]/30">
+                      {[
+                        ...(selectedOrderDetails.status === 'Delivered' ? [{
+                          title: 'Delivered',
+                          time: selectedOrderDetails.updated_at ? new Date(selectedOrderDetails.updated_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Live Verified',
+                          desc: `Shipment delivered successfully to customer. Verified via OTP / Signature.`,
+                          actor: 'Delivery Agent',
+                          color: 'bg-emerald-500 text-black border-emerald-400',
+                          icon: '✓'
+                        }] : []),
+
+                        ...(['Out for Delivery', 'Delivered'].includes(selectedOrderDetails.status) ? [{
+                          title: 'Out for Delivery',
+                          time: 'Live Update',
+                          desc: selectedOrderDetails.assigned_delivery_agent_id ? `Out for delivery with Rider (${deliveryAgents.find(a => a.id === selectedOrderDetails.assigned_delivery_agent_id)?.name || 'Assigned Agent'})` : 'Out for final delivery attempt',
+                          actor: 'Delivery Courier',
+                          color: 'bg-amber-500 text-black border-amber-400',
+                          icon: '🚚'
+                        }] : []),
+
+                        ...(selectedOrderDetails.parcel_uncle_tracking_id ? [{
+                          title: 'Manifested & Accepted by Courier',
+                          time: 'Logistics Manifest',
+                          desc: `Assigned & Manifested via ${selectedOrderDetails.courier_partner || 'Carrier API'} (AWB: ${selectedOrderDetails.parcel_uncle_tracking_id})`,
+                          actor: selectedOrderDetails.courier_partner || 'Carrier Logistics Engine',
+                          color: 'bg-teal-500 text-black border-teal-400',
+                          icon: '🤝'
+                        }] : []),
+
+                        ...(['Shipped', 'Out for Delivery', 'Delivered'].includes(selectedOrderDetails.status) ? [{
+                          title: 'Picked Up',
+                          time: 'Hub Dispatch',
+                          desc: `Package collected from Lekya Ashram Hub & dispatched to courier network`,
+                          actor: 'Hub Dispatcher',
+                          color: 'bg-purple-500 text-white border-purple-400',
+                          icon: '📦'
+                        }] : []),
+
+                        ...(selectedOrderDetails.assigned_delivery_agent_id || selectedOrderDetails.parcel_uncle_tracking_id ? [{
+                          title: 'Assigned to Courier Partner / Rider',
+                          time: 'Assigned Milestone',
+                          desc: selectedOrderDetails.tracking_comments || 'Status updated by admin / logistics engine',
+                          actor: 'Logistics Operations',
+                          color: 'bg-sky-500 text-black border-sky-400',
+                          icon: '👤'
+                        }] : []),
+
+                        {
+                          title: 'Payment Confirmed',
+                          time: new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+                          desc: `Payment verified (${selectedOrderDetails.payment_id || 'Razorpay Prepaid'})`,
+                          actor: 'Payment Gateway',
+                          color: 'bg-emerald-500 text-black border-emerald-400',
+                          icon: '💳'
+                        },
+
+                        {
+                          title: 'Shipment Created',
+                          time: new Date(selectedOrderDetails.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+                          desc: 'Order placed & registered in Lekya Specs Core Engine',
+                          actor: 'System Engine',
+                          color: 'bg-[#FAAE62] text-black border-[#FAAE62]',
+                          icon: '📦'
+                        }
+                      ].map((ev, idx) => (
+                        <div key={idx} className="relative flex items-start gap-4 z-10 group">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs border shadow-lg shrink-0 ${ev.color}`}>
+                            {ev.icon}
+                          </div>
+                          <div className="flex-1 bg-[#1A0024] border border-white/10 rounded-xl p-3.5 space-y-1 hover:border-[#FAAE62]/50 transition-all">
+                            <div className="flex items-center justify-between flex-wrap gap-1">
+                              <span className="font-bold text-white text-xs">{ev.title}</span>
+                              <span className="text-[10px] text-[#FAAE62] font-mono">{ev.time}</span>
+                            </div>
+                            <p className="text-[11px] text-[#9B7EA8] leading-relaxed">{ev.desc}</p>
+                            {ev.actor && (
+                              <span className="text-[9px] text-gray-400 block font-mono pt-1 border-t border-white/5">
+                                By: {ev.actor}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
 
               </div>

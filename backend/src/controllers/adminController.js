@@ -615,6 +615,7 @@ const exportOrdersCSV = async (req, res) => {
       'Prescription Specs Summary',
       'Assigned Rider Name',
       'Tracking Dispatch Notes',
+      'Full Tracking Timeline History',
       'Order Date & Time (IST)'
     ];
 
@@ -638,9 +639,9 @@ const exportOrdersCSV = async (req, res) => {
       const paymentMode = isCod ? 'CASH ON DELIVERY (COD)' : 'PREPAID ONLINE (Razorpay)';
       
       const awb = order.parcel_uncle_tracking_id || order.tracking_id || 'N/A';
-      const logisticsPartner = order.parcel_uncle_tracking_id 
-        ? 'Parcel Uncle Express (Delhivery Surface)' 
-        : (order.assigned_delivery_agent_id ? `Local Rider (${order.rider_name || 'Assigned'})` : 'Direct Store Delivery');
+      const logisticsPartner = order.courier_partner || (order.parcel_uncle_tracking_id 
+        ? 'Parcel Uncle Express (Delhi NCR Local)' 
+        : (order.assigned_delivery_agent_id ? `Local Rider (${order.rider_name || 'Assigned'})` : 'Direct Store Delivery'));
 
       const rx = addrObj.prescription;
       const rxApplied = rx ? 'YES' : 'NO';
@@ -650,6 +651,16 @@ const exportOrdersCSV = async (req, res) => {
       }
 
       const orderDate = new Date(order.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+      // Construct Full Timeline Summary for CSV Report
+      const timelineHistory = [
+        `[${orderDate}] Created & Registered`,
+        `[${orderDate}] Payment Confirmed (${paymentMode})`,
+        awb !== 'N/A' ? `[AWB: ${awb}] Manifested via ${logisticsPartner}` : null,
+        order.parcel_uncle_status ? `[Status: ${order.parcel_uncle_status}] Live Carrier Update` : null,
+        order.tracking_comments ? `[Notes: ${order.tracking_comments}]` : null,
+        `[Current: ${order.status.toUpperCase()}] Last Milestone Status`
+      ].filter(Boolean).join(' ➔ ');
 
       const row = [
         index + 1,
@@ -674,6 +685,7 @@ const exportOrdersCSV = async (req, res) => {
         rxSummary,
         order.rider_name || 'Unassigned',
         order.tracking_comments || 'N/A',
+        timelineHistory,
         orderDate
       ];
 
