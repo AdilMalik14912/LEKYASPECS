@@ -692,13 +692,311 @@ const exportOrdersCSV = async (req, res) => {
       csvContent += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
-    const filename = `LekyaSpecs_Master_Logistics_Audit_${new Date().toISOString().slice(0, 10)}.csv`;
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+// --- EXPORT MASTER LOGISTICS EXCEL REPORT (WITH DARK NAVY HEADERS, AUTOFILTERS & STATUS COLORING) ---
+const exportOrdersExcel = async (req, res) => {
+  try {
+    const ordersRes = await db.query(
+      `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone,
+              r.name as rider_name, r.phone as rider_phone
+       FROM orders o
+       JOIN users u ON o.user_id = u.id
+       LEFT JOIN users r ON o.assigned_delivery_agent_id = r.id
+       ORDER BY o.created_at DESC`
+    );
+
+    const headers = [
+      'S.N',
+      'Tracking Number',
+      'Merchant',
+      'Current Status',
+      'Payment Mode',
+      'Order Amount',
+      'COD Amount',
+      'Shipping Charge',
+      'Sender Name',
+      'Sender Phone',
+      'Pickup Address',
+      'Pickup City',
+      'Pickup State',
+      'Pickup Pincode',
+      'Recipient Name',
+      'Recipient Phone',
+      'Recipient Email',
+      'Delivery Address',
+      'Delivery City',
+      'Delivered By',
+      'Delivered Via',
+      'Failed Reason',
+      'Attempts',
+      'Assigned Rider',
+      'Rider Phone',
+      'Assigned At',
+      'Out For Delivery At',
+      'Failed At',
+      'Full Tracking Timeline History',
+      'Order Date & Time (IST)'
+    ];
+
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--[if gte mso 9]>
+<xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>All Orders Logistics</x:Name>
+    <x:WorksheetOptions>
+     <x:Selected/>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:EnableSelection>UnlockedCells</x:EnableSelection>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+ </x:ExcelWorkbook>
+</xml>
+<![endif]-->
+<style>
+  table { border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; }
+  th { background-color: #102A43; color: #FFFFFF; font-weight: bold; border: 1px solid #00172D; padding: 10px 14px; text-align: left; }
+  td { border: 1px solid #D9E2EC; padding: 8px 12px; }
+  .status-delivered { background-color: #D4EDDA; color: #155724; font-weight: bold; }
+  .status-returned { background-color: #F8D7DA; color: #721C24; font-weight: bold; }
+  .status-pickedup { background-color: #CCE5FF; color: #004085; font-weight: bold; }
+  .status-outfordelivery { background-color: #E2D9F3; color: #383D41; font-weight: bold; }
+  .status-attempted { background-color: #FFF3CD; color: #856404; font-weight: bold; }
+  .status-created { background-color: #FFFFFF; color: #102A43; }
+</style>
+</head>
+<body>
+<table x:str border="1">
+<thead>
+<tr style="background-color: #102A43; color: #FFFFFF; font-weight: bold;">
+${headers.map(h => `<th style="background-color: #102A43; color: #FFFFFF; font-weight: bold; border: 1px solid #00172D; padding: 10px;" mso-element:auto-filter="true">${h}</th>`).join('')}
+</tr>
+</thead>
+<tbody>`;
+
+    ordersRes.rows.forEach((order, index) => {
+      let addrObj = {};
+      if (typeof order.shipping_address === 'string') {
+        try { addrObj = JSON.parse(order.shipping_address); } catch (_) { addrObj = { address: order.shipping_address }; }
+      } else if (order.shipping_address) {
+        addrObj = order.shipping_address;
+      }
+
+      const totalAmt = parseFloat(order.total_amount) || 0;
+      const isCod = (order.payment_id || '').toLowerCase().includes('cod');
+      const codAmt = isCod ? totalAmt.toFixed(2) : '0.00';
+      const paymentMode = isCod ? 'COD' : 'CREDIT';
+      
+      const awb = order.parcel_uncle_tracking_id || order.tracking_id || 'N/A';
+      const statusRaw = (order.status || 'CREATED').toUpperCase().replace(/\s+/g, '_');
+      
+      let statusClass = 'status-created';
+      if (statusRaw.includes('DELIVERED')) statusClass = 'status-delivered';
+      else if (statusRaw.includes('RETURN') || statusRaw.includes('FAIL') || statusRaw.includes('RTO')) statusClass = 'status-returned';
+      else if (statusRaw.includes('PICK') || statusRaw.includes('TRANSIT')) statusClass = 'status-pickedup';
+      else if (statusRaw.includes('OUT_FOR')) statusClass = 'status-outfordelivery';
+      else if (statusRaw.includes('ATTEMPT') || statusRaw.includes('ACCEPT') || statusRaw.includes('ASSIGN')) statusClass = 'status-attempted';
+
+      const orderDate = new Date(order.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+      const timelineHistory = [
+        `[${orderDate}] Created & Registered`,
+        `[${orderDate}] Payment Confirmed (${paymentMode})`,
+        awb !== 'N/A' ? `[AWB: ${awb}] Manifested via ${order.courier_partner || 'Parcel Uncle'}` : null,
+        order.parcel_uncle_status ? `[Status: ${order.parcel_uncle_status}] Live Update` : null,
+        order.tracking_comments ? `[Notes: ${order.tracking_comments}]` : null,
+        `[Current: ${statusRaw}] Last Milestone`
+      ].filter(Boolean).join(' ➔ ');
+
+      html += `<tr>
+  <td>${index + 1}</td>
+  <td style="font-family: monospace; font-weight: bold;">${awb}</td>
+  <td>Lekya Specs Store</td>
+  <td class="${statusClass}">${statusRaw}</td>
+  <td>${paymentMode}</td>
+  <td>₹${totalAmt.toFixed(2)}</td>
+  <td>₹${codAmt}</td>
+  <td>₹0.00</td>
+  <td>Lekya Hub Ops</td>
+  <td>9654119262</td>
+  <td>102-J Hari Nagar Ashram</td>
+  <td>NEW DELHI</td>
+  <td>NEW DELHI</td>
+  <td>110014</td>
+  <td>${order.user_name || 'Valued Customer'}</td>
+  <td>${addrObj.phone || order.user_phone || 'N/A'}</td>
+  <td>${order.user_email || 'N/A'}</td>
+  <td>${addrObj.address || 'N/A'}</td>
+  <td>${addrObj.city || 'NEW DELHI'}</td>
+  <td>${order.rider_name || order.courier_partner || 'Carrier Agent'}</td>
+  <td>${order.courier_partner || 'Direct Courier'}</td>
+  <td>${order.tracking_comments || 'None'}</td>
+  <td>1</td>
+  <td>${order.rider_name || 'Unassigned'}</td>
+  <td>${order.rider_phone || 'N/A'}</td>
+  <td>${orderDate}</td>
+  <td>${order.status === 'Out for Delivery' || order.status === 'Delivered' ? orderDate : ''}</td>
+  <td>${statusRaw.includes('FAIL') ? orderDate : ''}</td>
+  <td>${timelineHistory}</td>
+  <td>${orderDate}</td>
+</tr>`;
+    });
+
+    html += `</tbody></table></body></html>`;
+
+    const filename = `LekyaSpecs_Logistics_Master_Audit_${new Date().toISOString().slice(0, 10)}.xls`;
+    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.status(200).send(csvContent);
+    res.status(200).send(html);
   } catch (err) {
-    console.error('Export orders CSV error:', err);
-    res.status(500).json({ message: 'Server error exporting orders data' });
+    console.error('Export orders Excel error:', err);
+    res.status(500).json({ message: 'Server error exporting Excel report' });
+  }
+};
+
+// --- DEDICATED EXECUTIVE LOGISTICS AUDIT SUMMARY REPORT (EXACT MATCH TO SCREENSHOT 4) ---
+const exportExecutiveAuditSummary = async (req, res) => {
+  try {
+    const ordersRes = await db.query('SELECT status, total_amount, payment_id FROM orders');
+    const totalOrders = ordersRes.rows.length;
+
+    // Aggregate Status Counts & COD Values
+    const statusCounts = {};
+    let totalCodVal = 0;
+    let codDeliveredVal = 0;
+    let codPendingVal = 0;
+    let totalDelivered = 0;
+
+    const ALL_STATUSES = [
+      'DELIVERED', 'CREATED', 'RETURNED', 'PAID', 'CANCELLED',
+      'PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERY_ATTEMPTED', 'RTO_IN_TRANSIT',
+      'LOST', 'RETURNED_TO_HUB', 'FAILED', 'ACCEPTED', 'ASSIGNED',
+      'ARRIVED_AT_HUB', 'WAITING_PICKUP', 'IN_TRANSIT', 'RTO_INITIATED'
+    ];
+
+    ALL_STATUSES.forEach(s => { statusCounts[s] = 0; });
+
+    ordersRes.rows.forEach(o => {
+      const sRaw = (o.status || 'CREATED').toUpperCase().replace(/\s+/g, '_');
+      const amt = parseFloat(o.total_amount) || 0;
+      const isCod = (o.payment_id || '').toLowerCase().includes('cod');
+
+      if (statusCounts[sRaw] !== undefined) {
+        statusCounts[sRaw]++;
+      } else {
+        statusCounts[sRaw] = 1;
+      }
+
+      if (sRaw === 'DELIVERED') totalDelivered++;
+
+      if (isCod) {
+        totalCodVal += amt;
+        if (sRaw === 'DELIVERED') codDeliveredVal += amt;
+        else codPendingVal += amt;
+      }
+    });
+
+    const deliveryRateStr = totalOrders > 0 ? ((totalDelivered / totalOrders) * 100).toFixed(1) + '%' : '0.0%';
+    const nowFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--[if gte mso 9]>
+<xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Audit Report Summary</x:Name>
+    <x:WorksheetOptions>
+     <x:Selected/>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+ </x:ExcelWorkbook>
+</xml>
+<![endif]-->
+<style>
+  table { border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; }
+  td, th { border: 1px solid #D0D7DE; padding: 6px 12px; }
+  .title-hdr { font-size: 16pt; font-weight: bold; color: #102A43; }
+  .sub-hdr { font-size: 10pt; color: #486581; }
+  .tbl-hdr { background-color: #F0F4F8; font-weight: bold; }
+  
+  .st-delivered { background-color: #D4EDDA; color: #155724; font-weight: bold; }
+  .st-created { background-color: #FFFFFF; color: #102A43; }
+  .st-returned { background-color: #F8D7DA; color: #721C24; font-weight: bold; }
+  .st-paid { background-color: #E6F4EA; color: #137333; }
+  .st-cancelled { background-color: #E2E3E5; color: #383D41; }
+  .st-pickedup { background-color: #CCE5FF; color: #004085; }
+  .st-outfordelivery { background-color: #E2D9F3; color: #383D41; }
+  .st-attempted { background-color: #FFF3CD; color: #856404; }
+  .st-hub { background-color: #E2E3E5; color: #383D41; }
+</style>
+</head>
+<body>
+<table>
+  <tr><td colspan="3" class="title-hdr">PARCEL UNCLE / LEKYA SPECS - Audit Report</td></tr>
+  <tr><td colspan="3" class="sub-hdr">Generated: ${nowFormatted}</td></tr>
+  <tr><td colspan="3" class="sub-hdr">Total Orders: <b>${totalOrders}</b></td></tr>
+  <tr><td colspan="3"></td></tr>
+  <tr class="tbl-hdr">
+    <td><b>Status</b></td>
+    <td><b>Count</b></td>
+    <td><b>%</b></td>
+  </tr>`;
+
+    Object.keys(statusCounts).forEach(st => {
+      const count = statusCounts[st];
+      const pct = totalOrders > 0 ? ((count / totalOrders) * 100).toFixed(1) + '%' : '0.0%';
+      
+      let cls = 'st-created';
+      if (st === 'DELIVERED') cls = 'st-delivered';
+      else if (st.includes('RETURN') || st.includes('RTO') || st.includes('FAIL')) cls = 'st-returned';
+      else if (st === 'PAID') cls = 'st-paid';
+      else if (st === 'CANCELLED' || st === 'LOST') cls = 'st-cancelled';
+      else if (st.includes('PICK') || st.includes('TRANSIT') || st.includes('HUB')) cls = 'st-pickedup';
+      else if (st.includes('OUT_FOR')) cls = 'st-outfordelivery';
+      else if (st.includes('ATTEMPT') || st.includes('ACCEPT') || st.includes('ASSIGN')) cls = 'st-attempted';
+
+      html += `<tr>
+  <td class="${cls}">${st}</td>
+  <td align="right">${count}</td>
+  <td align="right">${pct}</td>
+</tr>`;
+    });
+
+    html += `<tr><td colspan="3"></td></tr>
+  <tr>
+    <td><b>Delivery Rate</b></td>
+    <td colspan="2" align="right"><b>${deliveryRateStr}</b></td>
+  </tr>
+  <tr>
+    <td><b>Total COD Value</b></td>
+    <td colspan="2" align="right">₹${totalCodVal.toFixed(2)}</td>
+  </tr>
+  <tr>
+    <td><b>COD Delivered</b></td>
+    <td colspan="2" align="right">₹${codDeliveredVal.toFixed(2)}</td>
+  </tr>
+  <tr>
+    <td><b>COD Pending</b></td>
+    <td colspan="2" align="right">₹${codPendingVal.toFixed(2)}</td>
+  </tr>
+</table>
+</body>
+</html>`;
+
+    const filename = `LekyaSpecs_Executive_Logistics_Audit_Summary_${new Date().toISOString().slice(0, 10)}.xls`;
+    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(html);
+  } catch (err) {
+    console.error('Export executive summary error:', err);
+    res.status(500).json({ message: 'Server error exporting executive summary report' });
   }
 };
 
@@ -1212,6 +1510,8 @@ module.exports = {
   deleteCoupon,
   broadcastEmail,
   exportOrdersCSV,
+  exportOrdersExcel,
+  exportExecutiveAuditSummary,
   exportCustomersCSV,
   getActivityLogs,
   getDatabaseHealth,

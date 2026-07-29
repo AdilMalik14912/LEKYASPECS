@@ -228,8 +228,10 @@ app.delete('/api/admin/coupons/:id', authenticateToken, isAdmin, adminController
 // Email Broadcast
 app.post('/api/admin/broadcast', authenticateToken, isAdmin, adminController.broadcastEmail);
 
-// CSV Data Export
+// Excel & Executive Audit Summary Data Exports
 app.get('/api/admin/export/orders', authenticateToken, isAdmin, adminController.exportOrdersCSV);
+app.get('/api/admin/export/orders-excel', authenticateToken, isAdmin, adminController.exportOrdersExcel);
+app.get('/api/admin/export/audit-summary', authenticateToken, isAdmin, adminController.exportExecutiveAuditSummary);
 app.get('/api/admin/export/customers', authenticateToken, isAdmin, adminController.exportCustomersCSV);
 
 // Admin Activity Log

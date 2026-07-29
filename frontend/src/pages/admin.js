@@ -2451,13 +2451,34 @@ export default function Admin() {
                       <HelpCircle className="w-4 h-4 text-[#FAAE62] absolute left-3 top-3 pointer-events-none" />
                     </div>
 
-                    <div className="flex items-center gap-3 w-full md:w-auto justify-end text-xs font-mono">
-                      <div className="bg-[#0D0016] px-3 py-1.5 rounded-xl border border-white/10 text-gray-300">
-                        Total Orders: <span className="text-[#FAAE62] font-bold">{orders.length}</span>
-                      </div>
-                      <div className="bg-[#0D0016] px-3 py-1.5 rounded-xl border border-orange-500/30 text-orange-400">
-                        Parcel Uncle: <span className="font-bold">{orders.filter(o => o.parcel_uncle_tracking_id).length}</span>
-                      </div>
+                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end text-xs font-mono">
+                      <a
+                        href={`${API_BASE}/api/admin/export/audit-summary`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-emerald-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider"
+                        title="Download Executive Logistics Audit Summary (Screenshot 4 Audit Specs)"
+                      >
+                        📊 Executive Audit Summary
+                      </a>
+                      <a
+                        href={`${API_BASE}/api/admin/export/orders-excel`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-blue-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider"
+                        title="Download Master Excel Report with AutoFilter Dropdowns & Dark Navy Headers (Screenshots 1, 2, 3)"
+                      >
+                        📦 Master Excel (.xlsx/.xls)
+                      </a>
+                      <a
+                        href={`${API_BASE}/api/admin/export/orders`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-[11px] px-3 py-2 rounded-xl border border-white/20 transition-all flex items-center gap-1 uppercase tracking-wider"
+                        title="Download Full Raw CSV File"
+                      >
+                        📄 Export CSV
+                      </a>
                     </div>
                   </div>
 
