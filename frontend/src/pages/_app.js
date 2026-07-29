@@ -591,11 +591,21 @@ export default function App({ Component, pageProps }) {
                           "highPrice": "4999",
                           "offerCount": "50"
                         }
+                      },
+                      {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lekya.in" },
+                          { "@type": "ListItem", "position": 2, "name": "Eyewear Catalog", "item": "https://lekya.in/shop" },
+                          { "@type": "ListItem", "position": 3, "name": "3D AR Try-On", "item": "https://lekya.in/ar-tryon" },
+                          { "@type": "ListItem", "position": 4, "name": "Prescription Studio", "item": "https://lekya.in/lens-guide" }
+                        ]
                       }
                     ]
                   })
                 }}
               />
+              <link rel="manifest" href="/manifest.json" />
             </Head>
             
             {/* Top route change loader bar */}

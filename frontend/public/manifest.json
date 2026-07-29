@@ -1,0 +1,16 @@
+{
+  "name": "Lekya Specs | Luxury Eyewear & 3D AR Try-On",
+  "short_name": "Lekya Specs",
+  "description": "India's premier luxury optical eyewear destination. Hand-crafted acetate frames & 3D AR try-on.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0016",
+  "theme_color": "#0D0016",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
