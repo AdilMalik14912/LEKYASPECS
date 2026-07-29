@@ -187,10 +187,105 @@ export default function Home() {
   return (
     <div className="bg-premium-black min-h-screen">
       <Head>
-        <title>Lekya Specs | Luxury Eyewear, Prescription Glasses &amp; 3D AR Try-On</title>
-        <meta name="description" content="Official website for Lekya Specs Eyewear. Shop hand-crafted acetate glasses, 3D AR virtual try-on, 4-hour express delivery in Delhi NCR, and Pan-India shipping." />
-        <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
+        <title>Lekya Specs | Buy Glasses Online India — Prescription Eyeglasses, Sunglasses & 3D AR Try-On</title>
+        <meta name="description" content="Buy premium prescription glasses & sunglasses online at Lekya Specs. Hand-crafted acetate frames, 3D virtual AR try-on, free 4-hour delivery in Delhi NCR. Order eyeglasses online India — lekya.in" />
+        <meta name="keywords" content="buy glasses online India, prescription eyeglasses online, sunglasses India, lekya specs, lekya.in, eyewear Delhi NCR, spectacles online shopping, best glasses shop Delhi, acetate frames India, 3D AR try on glasses, same day glasses delivery Delhi, cheap eyeglasses online India, optical shop Delhi, frames for round face, frames for square face, rimless glasses India, anti-glare glasses, blue light glasses India, optical store near me Delhi, branded sunglasses India" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Lekya Specs" />
+        <link rel="canonical" href="https://lekya.in" />
+
+        {/* Open Graph for WhatsApp / Facebook sharing */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://lekya.in" />
+        <meta property="og:title" content="Lekya Specs | Buy Prescription Glasses & Sunglasses Online India" />
+        <meta property="og:description" content="Premium eyewear from Lekya Specs. Shop acetate glasses, prescription frames, and sunglasses with 3D AR try-on. 4-hour delivery in Delhi NCR. Pan-India shipping." />
+        <meta property="og:image" content="https://lekya.in/og-image.jpg" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="Lekya Specs" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@lekyaspecs" />
+        <meta name="twitter:title" content="Lekya Specs | Buy Glasses Online India" />
+        <meta name="twitter:description" content="Shop premium prescription glasses & sunglasses with 3D AR try-on. Fast delivery Delhi NCR & Pan-India." />
+        <meta name="twitter:image" content="https://lekya.in/og-image.jpg" />
+
+        {/* Geo Targeting for Local SEO */}
+        <meta name="geo.region" content="IN-DL" />
+        <meta name="geo.placename" content="Delhi NCR, India" />
+        <meta name="geo.position" content="28.6139;77.2090" />
+        <meta name="ICBM" content="28.6139, 77.2090" />
+
+        {/* Google Search Console Verification */}
+        <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE" />
       </Head>
+
+      {/* JSON-LD Structured Data — LocalBusiness + WebSite (for Google Rich Results) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://lekya.in/#website",
+              "url": "https://lekya.in",
+              "name": "Lekya Specs",
+              "description": "Premium prescription glasses & sunglasses online — 3D AR try-on, same-day Delhi NCR delivery, Pan-India shipping.",
+              "publisher": { "@id": "https://lekya.in/#organization" },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": { "@type": "EntryPoint", "urlTemplate": "https://lekya.in/shop?q={search_term_string}" },
+                "query-input": "required name=search_term_string"
+              }
+            },
+            {
+              "@type": ["LocalBusiness", "Store", "OpticalStore"],
+              "@id": "https://lekya.in/#organization",
+              "name": "Lekya Specs",
+              "alternateName": "Lekya Eyewear",
+              "url": "https://lekya.in",
+              "logo": "https://lekya.in/logo.png",
+              "image": "https://lekya.in/og-image.jpg",
+              "description": "Lekya Specs is India's premium luxury eyewear brand offering hand-crafted acetate prescription glasses, sunglasses, and 3D AR virtual try-on with same-day delivery in Delhi NCR.",
+              "telephone": "+91-XXXXXXXXXX",
+              "email": "support@lekya.in",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Delhi NCR",
+                "addressLocality": "Delhi",
+                "addressRegion": "Delhi",
+                "postalCode": "110001",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 28.6139,
+                "longitude": 77.2090
+              },
+              "areaServed": [
+                { "@type": "Country", "name": "India" },
+                { "@type": "City", "name": "Delhi" },
+                { "@type": "City", "name": "Noida" },
+                { "@type": "City", "name": "Gurgaon" },
+                { "@type": "City", "name": "Faridabad" },
+                { "@type": "City", "name": "Mumbai" },
+                { "@type": "City", "name": "Bangalore" },
+                { "@type": "City", "name": "Hyderabad" },
+                { "@type": "City", "name": "Chennai" }
+              ],
+              "priceRange": "₹₹",
+              "currenciesAccepted": "INR",
+              "paymentAccepted": "Cash, Credit Card, Debit Card, UPI, Net Banking",
+              "openingHours": "Mo-Su 10:00-20:00",
+              "sameAs": [
+                "https://www.instagram.com/lekyaspecs",
+                "https://www.facebook.com/lekyaspecs"
+              ]
+            }
+          ]
+        })}}
+      />
 
       {/* ═══════════════════════════════════════════════════
           1. HERO — Liquid Glass Video Showcase

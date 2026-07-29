@@ -207,8 +207,10 @@ export default function About() {
   return (
     <div className="bg-white min-h-screen">
       <Head>
-        <title>About Us & Lekya Group Ecosystem | Lekya Specs</title>
-        <meta name="description" content="Discover the legacy of Lekya Group — pioneering excellence across luxury eyewear (Lekya Specs), logistics, shipping, advisory, and clean solar energy (Lekya Energy)." />
+        <title>About Lekya Group | Luxury Eyewear, Logistics & Clean Energy | lekya.in</title>
+        <meta name="description" content="Discover the Lekya Group corporate ecosystem — Lekya Specs luxury eyewear, Lekya Logistics pan-India freight, Parcel Uncle hyperlocal delivery, Infinior Advisors, and Lekya Energy solar." />
+        <meta name="keywords" content="Lekya Group, Lekya Specs, Lekya Logistics, Parcel Uncle, Lekya Energy, Infinior Advisors, luxury eyewear India, about lekya, lekya.in" />
+        <link rel="canonical" href="https://lekya.in/about" />
       </Head>
 
       {/* 1. Hero Header */}

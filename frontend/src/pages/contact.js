@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect } = React;
 const Head = require('next/head').default;
 const Link = require('next/link').default;
@@ -96,8 +96,10 @@ export default function ContactPage() {
   return (
     <>
       <Head>
-        <title>Contact Us — lekya.in</title>
-        <meta name="description" content="Get in touch with Lekya Specs. We're here to help with your eyewear needs, orders, and queries." />
+        <title>Contact Lekya Specs | Customer Support for Eyeglasses Orders | lekya.in</title>
+        <meta name="description" content="Contact Lekya Specs for eyeglasses order support, prescription queries, frame adjustments, and return assistance. Serving Delhi NCR and all India. Call, WhatsApp, or email us today." />
+        <meta name="keywords" content="Contact Lekya Specs, eyewear customer support, glasses order help, spectacles Delhi, lekya.in contact, WhatsApp eyewear support India" />
+        <link rel="canonical" href="https://lekya.in/contact" />
       </Head>
 
       {/* Hero Banner */}

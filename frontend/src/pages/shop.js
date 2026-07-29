@@ -1,6 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
+const Head = require('next/head').default;
 const { useRouter } = require('next/router');
 const { useAuth, useCart, useWishlist } = require('./_app');
 const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale } = require('lucide-react');
@@ -192,6 +193,12 @@ export default function Shop() {
 
   return (
     <div className="bg-premium-black min-h-screen py-8 sm:py-12">
+      <Head>
+        <title>Buy Glasses Online India | Prescription Eyeglasses & Sunglasses | Lekya Specs</title>
+        <meta name="description" content="Shop Lekya Specs luxury eyewear catalog. Browse acetate spectacle frames, prescription glasses, and sunglasses. Free delivery in Delhi NCR & Pan-India shipping." />
+        <meta name="keywords" content="Buy glasses online India, prescription eyeglasses, sunglasses India, spectacle frames, acetate glasses, Delhi NCR same day glasses, lekya specs shop" />
+        <link rel="canonical" href="https://lekya.in/shop" />
+      </Head>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Page Title & Breadcrumbs */}

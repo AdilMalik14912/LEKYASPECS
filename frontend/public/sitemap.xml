@@ -1,60 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Homepage — Priority 1.0 -->
   <url>
     <loc>https://lekya.in/</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://lekya.in/og-image.jpg</image:loc>
+      <image:title>Lekya Specs — Buy Glasses Online India</image:title>
+    </image:image>
   </url>
+
+  <!-- Shop / Product Catalog — Priority 0.95 -->
   <url>
     <loc>https://lekya.in/shop</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.95</priority>
   </url>
-  <url>
-    <loc>https://lekya.in/account</loc>
-    <lastmod>2026-07-29</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.9</priority>
-  </url>
+
+  <!-- 3D AR Virtual Try-On — Priority 0.9 -->
   <url>
     <loc>https://lekya.in/ar-tryon</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
+
+  <!-- Lens Guide — Priority 0.85 -->
   <url>
     <loc>https://lekya.in/lens-guide</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
+
+  <!-- Lookbook — Priority 0.85 -->
   <url>
     <loc>https://lekya.in/lookbook</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
+
+  <!-- Face Shape Finder — Priority 0.85 -->
   <url>
     <loc>https://lekya.in/face-shape</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Account / Login — Priority 0.7 -->
+  <url>
+    <loc>https://lekya.in/account</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- About — Priority 0.75 -->
   <url>
     <loc>https://lekya.in/about</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.75</priority>
   </url>
+
+  <!-- Contact — Priority 0.8 -->
   <url>
     <loc>https://lekya.in/contact</loc>
     <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Cart — Priority 0.6 -->
+  <url>
+    <loc>https://lekya.in/cart</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>always</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- Wishlist — Priority 0.6 -->
+  <url>
+    <loc>https://lekya.in/wishlist</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

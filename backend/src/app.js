@@ -67,25 +67,38 @@ app.use(cors({
 }));
 app.options('*', cors()); // Handle preflight requests
 
-// Enterprise Security Headers Middleware
+// Enterprise Security Headers Middleware (OWASP Hardened)
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://res.cloudinary.com https://nominatim.openstreetmap.org",
+    "connect-src 'self' https://checkout.razorpay.com https://merchant.courieruncle.com https://parceluncle.com",
+    "frame-src 'none'"
+  ].join('; '));
   next();
 });
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Global API rate limiter — 100 req/min per IP (DDoS & abuse protection)
+app.use('/api', generalLimiter);
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Session (required for Passport OAuth)
 app.use(session({
   secret: process.env.JWT_SECRET || 'session_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 10 * 60 * 1000 } // 10 min — just for OAuth handshake
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 10 * 60 * 1000 } // 10 min — just for OAuth handshake
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -108,15 +121,15 @@ app.get('/api/auth/captcha', (req, res) => {
   res.json(getCaptchaPayload());
 });
 
-// 2. Authentication API
-app.post('/api/auth/register', authController.register);
-app.post('/api/auth/register/initiate', authController.registerInitiate);
-app.post('/api/auth/register/verify', authController.registerVerify);
-app.post('/api/auth/login', authController.login);
+// 2. Authentication API — Strict rate limiting (15 req/min) for brute-force protection
+app.post('/api/auth/register', strictLimiter, authController.register);
+app.post('/api/auth/register/initiate', strictLimiter, authController.registerInitiate);
+app.post('/api/auth/register/verify', strictLimiter, authController.registerVerify);
+app.post('/api/auth/login', strictLimiter, authController.login);
 app.get('/api/auth/profile', authenticateToken, authController.getProfile);
 app.put('/api/auth/profile', authenticateToken, authController.updateProfile);
 
-app.post('/api/auth/social-login', authController.socialLogin);
+app.post('/api/auth/social-login', strictLimiter, authController.socialLogin);
 
 // 2b. Google OAuth
 app.get('/api/auth/google', async (req, res, next) => {
