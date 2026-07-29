@@ -533,8 +533,8 @@ export default function Account() {
   if (!user) {
     return (
       <>
-      <div className="min-h-screen bg-premium-black py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white border border-premium-border rounded p-8 shadow-xl">
+      <div className="min-h-[75vh] bg-premium-black py-8 sm:py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-md w-full bg-[#1A0024] border border-premium-border rounded-2xl p-5 sm:p-8 shadow-2xl">
           
           {/* Header tabs */}
           <div className="flex border-b border-premium-border mb-8">

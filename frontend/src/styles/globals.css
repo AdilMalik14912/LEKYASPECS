@@ -834,7 +834,7 @@ h1, h2, h3, h4, .font-serif {
 .bg-white:not(.keep-white),
 .bg-premium-light:not(.keep-white),
 .bg-[#F8F9FA]:not(.keep-white) {
-  background: rgba(26, 0, 36, 0.88) !important;
+  background: #1A0024 !important;
   color: #FEF6EE !important;
   border-color: rgba(74, 18, 104, 0.6) !important;
   box-shadow: 0 15px 40px rgba(13, 0, 22, 0.7) !important;
@@ -1160,8 +1160,7 @@ tr:hover td span.text-amber-400 {
   }
 
   /* ── Modals — full screen on mobile ── */
-  .modal-content-mobile,
-  div[class*="max-w-"][class*="rounded"] {
+  .modal-content-mobile {
     max-width: 100vw !important;
     width: 100vw !important;
     border-radius: 1.25rem 1.25rem 0 0 !important;

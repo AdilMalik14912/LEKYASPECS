@@ -24,22 +24,26 @@ function VisionEyeLogo({
       className={`inline-flex items-center gap-2 ${className}`}
       style={{ lineHeight: 1 }}
     >
-      {/* Actual Lekya Logo — transparent PNG, dark glasses + teal LEKYA text */}
-      <img
-        src="/lekya-logo.png"
-        alt="Lekya"
+      {/* Premium Vector Glasses Logo — 100% Transparent, sharp on any theme background */}
+      <svg
+        width={imgW}
+        height={imgH}
+        viewBox="0 0 100 60"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         style={{
-          width: imgW,
-          height: imgH,
-          objectFit: 'contain',
           flexShrink: 0,
-          // Drop shadow to help visibility on any background
-          filter: 'drop-shadow(0 1px 6px rgba(0,188,212,0.25)) drop-shadow(0 0 12px rgba(250,174,98,0.2))',
-          ...(animated
-            ? { animation: 'pulse 2.5s ease-in-out infinite' }
-            : {}),
+          filter: 'drop-shadow(0 2px 8px rgba(250,174,98,0.3))',
+          ...(animated ? { animation: 'pulse 2.5s ease-in-out infinite' } : {})
         }}
-      />
+      >
+        <path d="M 12 30 C 14 14, 42 14, 45 30 C 42 46, 14 46, 12 30 Z" fill="rgba(42,4,64,0.6)" stroke="#FAAE62" strokeWidth="4.5" />
+        <path d="M 55 30 C 58 14, 86 14, 88 30 C 86 46, 58 46, 55 30 Z" fill="rgba(42,4,64,0.6)" stroke="#FAAE62" strokeWidth="4.5" />
+        <path d="M 45 28 C 47 23, 53 23, 55 28" fill="none" stroke="#FAAE62" strokeWidth="3.5" strokeLinecap="round" />
+        <path d="M 12 28 C 8 26, 4 22, 2 18" fill="none" stroke="#FAAE62" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 88 28 C 92 26, 96 22, 98 18" fill="none" stroke="#FAAE62" strokeWidth="3" strokeLinecap="round" />
+        <text x="50" y="34" textAnchor="middle" fill="#2DD4BF" fontSize="10" fontWeight="900" fontFamily="Inter, sans-serif" letterSpacing="1.2">LEKYA</text>
+      </svg>
 
       {/* ".in" brand suffix + optional tagline */}
       {showText && (
