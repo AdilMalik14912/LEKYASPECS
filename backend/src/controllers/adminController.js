@@ -692,6 +692,16 @@ const exportOrdersCSV = async (req, res) => {
       csvContent += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
+    const filename = `LekyaSpecs_Master_Logistics_Audit_${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(csvContent);
+  } catch (err) {
+    console.error('Export orders CSV error:', err);
+    res.status(500).json({ message: 'Server error exporting orders data' });
+  }
+};
+
 // --- EXPORT MASTER LOGISTICS EXCEL REPORT (WITH DARK NAVY HEADERS, AUTOFILTERS & STATUS COLORING) ---
 const exportOrdersExcel = async (req, res) => {
   try {
