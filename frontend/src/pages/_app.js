@@ -420,6 +420,123 @@ export default function App({ Component, pageProps }) {
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateCartQuantity, clearCart }}>
         <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
           <div className="flex flex-col min-h-screen">
+
+            {/* --- GOOGLE RICH SEARCH SCHEMAS & SEO METADATA --- */}
+            <Head>
+              <title>Lekya Specs | Luxury Eyewear, Prescription Glasses &amp; 3D AR Try-On</title>
+              <meta name="description" content="Lekya Specs is India's premier luxury optical eyewear destination. Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom prescription lenses." />
+              <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+              <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+              <link rel="canonical" href="https://lekyaspecs.com" />
+
+              {/* Open Graph / Social Media */}
+              <meta property="og:type" content="website" />
+              <meta property="og:url" content="https://lekyaspecs.com" />
+              <meta property="og:title" content="Lekya Specs | Luxury Eyewear &amp; 3D AR Try-On" />
+              <meta property="og:description" content="Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom optical lenses." />
+              <meta property="og:site_name" content="Lekya Specs" />
+
+              {/* Geo Location Tags for Google Map & Local Pack */}
+              <meta name="geo.region" content="IN-DL" />
+              <meta name="geo.placename" content="New Delhi" />
+              <meta name="geo.position" content="28.5701;77.2573" />
+              <meta name="ICBM" content="28.5701, 77.2573" />
+
+              {/* Google Structured Data (JSON-LD) for Sitelinks & Local Business */}
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@graph": [
+                      {
+                        "@type": "Organization",
+                        "@id": "https://lekyaspecs.com/#organization",
+                        "name": "Lekya Specs",
+                        "legalName": "Lekya Specs Private Limited",
+                        "url": "https://lekyaspecs.com",
+                        "logo": "https://lekyaspecs.com/logo.png",
+                        "sameAs": [
+                          "https://lekyalogistics.com",
+                          "https://parceluncle.com",
+                          "https://infinioradvisors.com",
+                          "https://lekyaenergy.com"
+                        ],
+                        "contactPoint": {
+                          "@type": "ContactPoint",
+                          "telephone": "+91-9654119262",
+                          "contactType": "customer service",
+                          "areaServed": "IN",
+                          "availableLanguage": ["English", "Hindi"]
+                        }
+                      },
+                      {
+                        "@type": "WebSite",
+                        "@id": "https://lekyaspecs.com/#website",
+                        "url": "https://lekyaspecs.com",
+                        "name": "Lekya Specs",
+                        "description": "Luxury Eyewear & 3D AR Try-On Portal",
+                        "publisher": { "@id": "https://lekyaspecs.com/#organization" },
+                        "potentialAction": {
+                          "@type": "SearchAction",
+                          "target": "https://lekyaspecs.com/shop?search={search_term_string}",
+                          "query-input": "required name=search_term_string"
+                        }
+                      },
+                      {
+                        "@type": "SiteNavigationElement",
+                        "name": [
+                          "Track Order & Shipments",
+                          "Browse Eyewear Catalog",
+                          "Live 3D Virtual AR Try-On",
+                          "Optical Refraction Studio",
+                          "3D Interactive Lookbook",
+                          "AI Face Shape Analyzer",
+                          "Support & Contact"
+                        ],
+                        "url": [
+                          "https://lekyaspecs.com/account",
+                          "https://lekyaspecs.com/shop",
+                          "https://lekyaspecs.com/ar-tryon",
+                          "https://lekyaspecs.com/lens-guide",
+                          "https://lekyaspecs.com/lookbook",
+                          "https://lekyaspecs.com/face-shape",
+                          "https://lekyaspecs.com/contact"
+                        ]
+                      },
+                      {
+                        "@type": ["Optician", "LocalBusiness"],
+                        "@id": "https://lekyaspecs.com/#store",
+                        "name": "Lekya Specs Flagship Store & Experience Center",
+                        "telephone": "+91-9654119262",
+                        "email": "dev.parceluncle@gmail.com",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "streetAddress": "102-J, Hari Nagar Ashram, South Delhi",
+                          "addressLocality": "New Delhi",
+                          "addressRegion": "Delhi",
+                          "postalCode": "110014",
+                          "addressCountry": "IN"
+                        },
+                        "geo": {
+                          "@type": "GeoCoordinates",
+                          "latitude": 28.5701,
+                          "longitude": 77.2573
+                        },
+                        "openingHoursSpecification": {
+                          "@type": "OpeningHoursSpecification",
+                          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+                          "opens": "10:00",
+                          "closes": "21:00"
+                        },
+                        "priceRange": "₹₹"
+                      }
+                    ]
+                  })
+                }}
+              />
+            </Head>
             
             {/* Top route change loader bar */}
             {routeChanging && <div className="top-route-progress" />}

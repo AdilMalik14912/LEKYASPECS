@@ -1,6 +1,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 const Link = require('next/link').default;
+const Head = require('next/head').default;
 const LiquidGlassHero = require('../components/LiquidGlassHero');
 const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass, ExternalLink, Zap, Package, Building2 } = require('lucide-react');
 const { useAuth } = require('./_app');
@@ -185,6 +186,11 @@ export default function Home() {
 
   return (
     <div className="bg-premium-black min-h-screen">
+      <Head>
+        <title>Lekya Specs | Luxury Eyewear, Prescription Glasses &amp; 3D AR Try-On</title>
+        <meta name="description" content="Official website for Lekya Specs Eyewear. Shop hand-crafted acetate glasses, 3D AR virtual try-on, 4-hour express delivery in Delhi NCR, and Pan-India shipping." />
+        <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
+      </Head>
 
       {/* ═══════════════════════════════════════════════════
           1. HERO — Liquid Glass Video Showcase

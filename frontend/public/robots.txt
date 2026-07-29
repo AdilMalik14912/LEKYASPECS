@@ -1,7 +1,14 @@
+# Robots.txt for Lekya Specs Search Indexing Engine
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin-map
+Disallow: /seller
+Disallow: /delivery
+Disallow: /delivery-map
+Disallow: /ho-staff
+Disallow: /crm
+Disallow: /chat
 Disallow: /api/
 
-Sitemap: https://lekya.in/sitemap.xml
+Sitemap: https://lekyaspecs.com/sitemap.xml
