@@ -83,11 +83,23 @@ All API endpoints are defined in [app.js](file:///C:/Users/Admin/Specs/backend/s
 
 ### 4. Orders & Razorpay (`/api/orders`)
 - `POST /create` → Creates Razorpay order, stores prescription/lens details.
-- `POST /verify` → Verifies Razorpay signature, marks order PAID.
+- `POST /verify` → Verifies Razorpay signature, marks order PAID, triggers **Smart Pincode Auto-Router**:
+  - **Delhi NCR Pincodes** (`110xxx`, `121xxx`, `122xxx`, `201xxx`, `140xxx`) ➔ Dispatches via **Parcel Uncle API** (Local Hyperlocal Express).
+  - **Rest of India Pincodes** ➔ Dispatches via **Courier Uncle Aggregator API** (Delhivery / BlueDart Pan-India Air/Surface).
 - `POST /webhook` → HMAC-SHA256 Razorpay webhook handler.
 - `GET /history` → Returns user's order history.
 - `POST /review` → Submit a product review.
 - `GET /track/:trackingId` → Public tracking lookup.
+
+### 5. Hybrid Logistics & Carrier API Suite (`/api/shipping`)
+- `POST /parcel-uncle/dispatch` → Manual dispatch via Parcel Uncle Local Fleet (NCR).
+- `POST /courier-uncle/dispatch` → Manual dispatch via Courier Uncle Pan-India Aggregator (Delhivery / BlueDart / XpressBees).
+- `POST /smart-dispatch` → Auto-selects Parcel Uncle (Delhi NCR) vs Courier Uncle (Pan-India) based on recipient pincode.
+- `GET /parcel-uncle/track/:waybill` → Fetches live carrier status timeline.
+- `GET /parcel-uncle/label/:waybillOrOrderId` → Streams 4x6 thermal printable shipping label PDF.
+- `GET /admin/export/orders-excel` → Generates Master Excel Report (`.xls`/`.xlsx`) with dark navy headers (`#102A43`), column AutoFilters, and status color highlights (Delivered in Green, RTO/Returned in Pink, Picked Up in Blue).
+- `GET /admin/export/audit-summary` → Generates Executive Logistics Audit Summary Report (status count table with percentages, delivery rate %, total COD value, delivered COD, pending COD).
+- `GET /admin/export/orders` → Master CSV Audit Export with full timeline history summary.
 
 ---
 

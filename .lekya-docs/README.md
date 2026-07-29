@@ -2,7 +2,7 @@
 
 Welcome to the comprehensive Lekya Specs repository context guide. This documentation serves as a complete reference for any developer or AI assistant working on this repository.
 
-**Last Updated:** 2026-07-24 (Release v1.0.4)
+**Last Updated:** 2026-07-29 (Release v1.0.6 — Hybrid Multi-Carrier Logistics & Excel Audit Engine)
 
 ---
 
@@ -11,10 +11,10 @@ Welcome to the comprehensive Lekya Specs repository context guide. This document
 ```
 LEKYASPECS/
 ├── vercel.json               # Vercel multi-service routing config
-├── .lekya-docs/              # ← THIS FOLDER — Project context docs
-│   ├── README.md             # Project overview (this file)
-│   ├── backend.md            # Backend API, DB schema, WhatsApp, returns, credentials
-│   ├── frontend.md           # All pages, 3D Lookbook, Return portal, SpinWheel, themes
+├── .lekya-docs/              # ← THIS FOLDER — Full Project Documentation
+│   ├── README.md             # Project overview & ecosystem map (this file)
+│   ├── backend.md            # Backend API, Hybrid Logistics, Excel/CSV Exporters, DB schema
+│   ├── frontend.md           # All pages, Shipment Timelines, Return portal, SpinWheel, UI
 │   └── deployment.md         # Vercel + GitHub deployment & env variables guide
 ├── backend/                  # Node.js + Express + Turso Backend
 │   ├── src/
@@ -25,46 +25,48 @@ LEKYASPECS/
 │   │   │   ├── seed.sql      # SQL base schema
 │   │   │   └── schema.sql    # Additional schema definitions (inc. whatsapp_messages, order_returns)
 │   │   ├── controllers/
-│   │   │   ├── adminController.js           # All admin API handlers & refunds
-│   │   │   ├── authController.js            # Register, login, profile, 6-digit OTP verification
-│   │   │   ├── orderController.js           # Orders, Razorpay HMAC webhooks, reviews, coupons
+│   │   │   ├── adminController.js           # Admin API handlers, Master Excel & Executive Audit Exporters
+│   │   │   ├── authController.js            # Register, login, profile, 6-digit OTP verification (idempotent)
+│   │   │   ├── orderController.js           # Orders checkout, Smart Pincode Auto-Router, Razorpay HMAC webhooks
 │   │   │   ├── productController.js         # Product catalog queries
 │   │   │   ├── sellerController.js          # Seller panel API handlers
-│   │   │   ├── deliveryController.js        # Delivery agent API handlers
-│   │   │   ├── shippingController.js        # Parcel Uncle logistics API suite (v1.0.3)
+      │   │   ├── deliveryController.js        # Delivery agent API handlers
+│   │   │   ├── shippingController.js        # Hybrid Logistics Engine (Parcel Uncle + Courier Uncle)
 │   │   │   ├── returnController.js          # Customer Self-Service Return & Exchange API
 │   │   │   ├── whatsappWebhookController.js # WhatsApp Business API Webhook & 9-Intent Auto-Reply Engine
 │   │   │   ├── chatController.js            # Team Chat API handlers
 │   │   │   └── crmController.js             # CRM sales pipeline & lead sync
 │   │   ├── middleware/
-│   │   │   └── auth.js       # JWT + isAdmin + isSeller + isDelivery + isTeamMember gates
+│   │   │   └── auth.js       # JWT + Authorization header & ?token= query parameter gates
 │   │   └── utils/
 │   │       ├── jwt.js        # Sign/verify JWT tokens
 │   │       ├── mailer.js     # Nodemailer Gmail SMTP helpers
 │   │       ├── sms.js        # Fast2SMS OTP & SMS notification gateway
 │   │       ├── whatsapp.js   # WhatsApp Notification Client
-│   │       └── parcelUncle.js# Official Parcel Uncle Merchant API integration
+│   │       ├── parcelUncle.js# Parcel Uncle Merchant API helper (Local NCR Hyperlocal)
+│   │       └── courierUncle.js# Courier Uncle Pan-India Merchant API helper (v1 Specs)
 │   ├── package.json
 │   └── .env                  # Local environment variables
 │
 └── frontend/                 # Next.js + React Frontend
     ├── src/
     │   ├── components/
+    │   │   ├── VisionEyeLogo.js # 100% Transparent Vector SVG Eyewear Logo
     │   │   └── SpinWheel.js     # 24-Hour Cooldown Lucky Reward Wheel with Countdown Timer
     │   ├── pages/
-    │   │   ├── _app.js          # Layout, Auth/Cart/Wishlist/Toast contexts, Expandable WhatsApp & Spin Widgets (Bottom-Right)
+    │   │   ├── _app.js          # Layout, Auth/Cart/Wishlist/Toast contexts, Expandable Widgets
     │   │   ├── index.js         # Homepage & Group Ecosystem showcase
     │   │   ├── about.js         # Corporate About Us & Group Companies Ecosystem
     │   │   ├── shop.js          # Catalog with filters + comparison tray
-    │   │   ├── admin.js         # Full admin dashboard & Tax Invoice HTML generator
+    │   │   ├── admin.js         # Admin dashboard, Master Excel & Executive Audit Report Exporters, Vertical Shipment Timeline
     │   │   ├── admin-map.js     # Admin live rider tracking map
-    │   │   ├── seller.js        # Seller panel dashboard
+    │   │   ├── seller.js        # Seller panel dashboard with dynamic courier partner badges
     │   │   ├── delivery.js      # Delivery agent panel
     │   │   ├── delivery-map.js  # Rider route optimizer map
     │   │   ├── ho-staff.js      # HO Staff EOD reporting & task hub
     │   │   ├── crm.js           # Enterprise CRM & Sales Intelligence studio
     │   │   ├── chat.js          # Fullscreen Team Messaging & Chat panel
-    │   │   ├── account.js       # User dashboard, 6-box OTP entry, 3D Celebration, Return/Exchange portal
+    │   │   ├── account.js       # Customer portal, Vertical Shipment Tracking Timeline, 6-digit OTP entry, Return portal
     │   │   ├── checkout.js      # Razorpay + prescription wizard + coupons + Order Confirmation
     │   │   ├── ar-tryon.js      # Live AR webcam try-on
     │   │   ├── face-shape.js    # Face Shape Analyzer
@@ -76,7 +78,7 @@ LEKYASPECS/
     │   │   └── product/
     │   │       └── [id].js      # Product detail + prescription configurator
     │   └── styles/
-    │       └── globals.css      # Full Vanilla CSS design system, 3D glassRotate & shake keyframes
+    │       └── globals.css      # Vanilla CSS design system, mobile responsive breakpoints
     ├── package.json
     └── .env.local               # Frontend environment config
 ```

@@ -133,46 +133,21 @@ The entire storefront UI was redesigned from a **Gold/Cream** theme to a **Dark 
 - **Prescription Lens Configurator** — full lens selector with live dynamic price update.
 
 ### 11. 👤 Account Dashboard ([account.js](file:///C:/Users/Admin/Specs/frontend/src/pages/account.js))
+- **Real-Time Vertical Shipment Tracking Timeline**: Interactive vertical milestone timeline matching logistics design (`Delivered`, `Out for Delivery`, `Manifested & Handed to Courier`, `Picked Up`, `Payment Confirmed`, `Created`) with Lucide icons, exact timestamps, node colors, vertical connecting line, and courier partner badge.
 - **Luxury 6-Box Segmented OTP Entry**: 6 separate digit input boxes with auto-focus advance, paste support, and active box gold glow. Includes horizontal shake animation on invalid OTP input.
 - **3D Celebratory Verification Modal**: Celebratory modal overlay with animated 3D checkmark badge, floating confetti (`✨ 🎉 🌟 💫`), and automatic dashboard redirect on successful verification.
 - **Self-Service Return & Exchange Hub**: "Request Return / Exchange" button on order cards opening a modal overlay to request Frame Exchanges or Full Refunds with doorstep reverse pickup.
 - **Download Tax Invoice**: Direct one-click button generating standalone `.html` tax invoice files (`LekyaSpecs_Invoice_INV-000XXX.html`).
 - **Specs Rewards Club**: Displays loyalty points balance, tier (Bronze/Silver/Gold), and referral link copy button.
-- **Order Tracking Notes**: Shows admin-added dispatch notes per order.
 
-### 12. 📖 3D Glassmorphism Lookbook ([lookbook.js](file:///C:/Users/Admin/Specs/frontend/src/pages/lookbook.js))
-- Pure CSS/SVG 3D interactive spectacle visualization with perspective tilt (`glassRotate` keyframes), floating particle effects, and animated ambient gradient orbs per collection:
-  - 💼 **The Boardroom Edit** (Deep Navy/Gold theme)
-  - ☀️ **Golden Hour** (Amber/Warm Glow theme)
-  - 🌃 **Midnight City** (Neon Purple/Ultraviolet theme)
-  - 🪞 **Weekend Minimalist** (Sky Blue/Slate theme)
-
-### 13. 🎡 24-Hour Cooldown Spin & Win Wheel ([SpinWheel.js](file:///C:/Users/Admin/Specs/frontend/src/components/SpinWheel.js))
-- Lucky reward wheel with 6 discount rewards.
-- `localStorage` daily limit enforcement (`lekya_last_spin` timestamp).
-- Displays live countdown timer until next available spin when on 24-hour cooldown.
-- Displays active won reward & code copy button during cooldown.
-
-### 14. 📲 Expandable Bottom-Right WhatsApp Concierge ([_app.js](file:///C:/Users/Admin/Specs/frontend/src/pages/_app.js))
-- Floating widget stack anchored at bottom-right of viewport.
-- Hover-expandable WhatsApp options menu with 3 pre-filled deep links:
-  - 📦 **Track My Order**
-  - 👓 **Frame Consultation**
-  - 💬 **General Chat**
-- Green ping badge animation on WhatsApp button.
-
-
-### 12. 🏢 HO Staff Hub ([ho-staff.js](file:///C:/Users/Admin/Specs/frontend/src/pages/ho-staff.js)) ← NEW (2026-07-16)
-Access: `/ho-staff` — HO staff and Admin accounts.
-- **EOD Work Reporting**: Submit completed tasks, pending tasks, and operational issues.
-- **Report History**: View past submitted EOD reports with date timestamps.
-- **Team Chat Integration**: Direct launcher for `/chat`.
-- **Profile Management**: Update staff name, phone, password, and avatar.
-
-### 13. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
+### 12. 🛡️ Admin Panel ([admin.js](file:///C:/Users/Admin/Specs/frontend/src/pages/admin.js))
 Access: `/admin` — only users with `role: admin` or email `dev.parceluncle@gmail.com` can enter.
 
 **Key Features:**
+- **Real-Time Vertical Shipment Tracking Timeline**: Inspection modal features vertical milestone timeline (`✓ Delivered`, `🚚 Out for Delivery`, `🤝 Manifested`, `📦 Picked Up`, `👤 Assigned`, `💳 Payment Confirmed`, `📦 Created`) with timestamps and actor descriptions.
+- **Executive Logistics Audit Summary Exporter (Screenshot 4 Audit Specs)**: Generates color-coded audit summary report (`.xls`) with status counts, percentage distribution, delivery rate %, total COD value, delivered COD, and pending COD.
+- **Master Excel Exporter (.xlsx / .xls)**: Generates multi-tab Excel spreadsheet with Dark Navy headers (`#102A43`), pre-enabled column AutoFilter dropdowns (`A1:AD1`), and status color highlights (Green, Pink, Blue, Purple, Yellow).
+- **Dynamic Courier Partner Badges**: Table and inspection modal dynamically render exact sub-courier brand badges e.g. `📦 Courier Uncle (Delhivery)` vs `🚚 Parcel Uncle Express (Delhi NCR Local)`.
 - **Standalone Tax Invoice HTML Generator & Printer**: Generates downloadable `.html` invoices and direct iframe `@media print` printing.
 - **Instant Razorpay Refunds**: Refund API integration for cancelled orders.
 - **All Core Operations**: Orders, inventory, customer inspection, email broadcasts, CMS settings, team management, DB optimizer.
