@@ -255,30 +255,13 @@ const registerVerify = async (req, res) => {
     const inputOtp = String(otp).trim();
     let otpRecord = null;
 
-    // Search memory map by email or phone key
-    for (const [key, record] of memoryOtps.entries()) {
-      if (
-        record &&
-        record.otp_code === inputOtp &&
-        (
-          (rawEmail && record.email && record.email.toLowerCase() === rawEmail) ||
-          (rawPhone && record.phone && String(record.phone).replace(/\D/g, '') === rawPhone) ||
-          (targetEmail && record.email === targetEmail) ||
-          (key === targetEmail)
-        )
-      ) {
-        otpRecord = record;
-        memoryOtps.delete(key);
-        break;
-      }
-    }
-
-    // Fallback: check Turso DB flexibly
-    if (!otpRecord) {
+    // ── Step 1: Check Turso DB FIRST — required for Vercel serverless where memory is wiped per cold-start
+    try {
       const otpRes = await db.query(
         `SELECT * FROM otps 
          WHERE otp_code = ? 
            AND verified = 0 
+           AND expires_at > datetime('now')
            AND (
              LOWER(email) = ? 
              OR email = ? 
@@ -289,11 +272,36 @@ const registerVerify = async (req, res) => {
       );
       if (otpRes.rows && otpRes.rows.length > 0) {
         otpRecord = otpRes.rows[0];
+        // Invalidate so OTP cannot be reused (prevent replay attacks)
+        await db.query('UPDATE otps SET verified = 1 WHERE id = ?', [otpRecord.id]);
+      }
+    } catch (dbErr) {
+      console.error('[RegisterVerify DB Error]', dbErr.message);
+    }
+
+    // ── Step 2: Fallback to in-memory map (works when same process handles both requests locally)
+    if (!otpRecord) {
+      for (const [key, record] of memoryOtps.entries()) {
+        if (
+          record &&
+          record.otp_code === inputOtp &&
+          record.expires_at > Date.now() &&
+          (
+            (rawEmail && record.email && record.email.toLowerCase() === rawEmail) ||
+            (rawPhone && record.phone && String(record.phone).replace(/\D/g, '') === rawPhone) ||
+            (targetEmail && record.email === targetEmail) ||
+            (key === targetEmail)
+          )
+        ) {
+          otpRecord = record;
+          memoryOtps.delete(key);
+          break;
+        }
       }
     }
 
     if (!otpRecord) {
-      return res.status(400).json({ message: 'Invalid or incorrect OTP code. Please try again.' });
+      return res.status(400).json({ message: 'Invalid or expired OTP code. Please try again or request a new OTP.' });
     }
 
     // Create user in DB
@@ -324,6 +332,12 @@ const registerVerify = async (req, res) => {
     }
 
     const token = generateToken(user);
+
+    // Send welcome email (non-blocking)
+    try {
+      const { sendWelcomeEmail } = require('../utils/mailer');
+      sendWelcomeEmail({ to: user.email, name: user.name }).catch(() => {});
+    } catch (_) {}
 
     // Auto-sync to CRM (non-blocking)
     try {

@@ -496,7 +496,7 @@ export default function Account() {
           return;
         }
 
-        fetch(`${API_BASE}/api/auth/register/verify-otp`, {
+        fetch(`${API_BASE}/api/auth/register/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

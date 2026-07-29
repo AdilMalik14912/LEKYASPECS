@@ -1017,12 +1017,12 @@ export default function Admin() {
         .catch(err => { console.error(err); setTeamLoading(false); });
     } else if (activeTab === 'delivery-otps' || activeTab === 'otps') {
       setDeliveryOtpsLoading(true);
-      fetch(`${API_BASE}/api/admin/otps`, {
+      fetch(`${API_BASE}/api/admin/delivery-otps`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.ok ? res.json() : { otps: [] })
+        .then(res => res.ok ? res.json() : [])
         .then(data => {
-          const list = data && Array.isArray(data.otps) ? data.otps : (Array.isArray(data) ? data : []);
+          const list = Array.isArray(data) ? data : [];
           setDeliveryOtps(list);
           setDeliveryOtpsLoading(false);
         })
