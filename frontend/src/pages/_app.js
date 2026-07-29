@@ -425,14 +425,14 @@ export default function App({ Component, pageProps }) {
             <Head>
               <title>Lekya Specs | Luxury Eyewear, Prescription Glasses &amp; 3D AR Try-On</title>
               <meta name="description" content="Lekya Specs is India's premier luxury optical eyewear destination. Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom prescription lenses." />
-              <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
+              <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Lekya, lekya.in, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
               <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
               <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-              <link rel="canonical" href="https://lekyaspecs.com" />
+              <link rel="canonical" href="https://lekya.in" />
 
               {/* Open Graph / Social Media */}
               <meta property="og:type" content="website" />
-              <meta property="og:url" content="https://lekyaspecs.com" />
+              <meta property="og:url" content="https://lekya.in" />
               <meta property="og:title" content="Lekya Specs | Luxury Eyewear &amp; 3D AR Try-On" />
               <meta property="og:description" content="Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom optical lenses." />
               <meta property="og:site_name" content="Lekya Specs" />
@@ -452,11 +452,11 @@ export default function App({ Component, pageProps }) {
                     "@graph": [
                       {
                         "@type": "Organization",
-                        "@id": "https://lekyaspecs.com/#organization",
+                        "@id": "https://lekya.in/#organization",
                         "name": "Lekya Specs",
                         "legalName": "Lekya Specs Private Limited",
-                        "url": "https://lekyaspecs.com",
-                        "logo": "https://lekyaspecs.com/logo.png",
+                        "url": "https://lekya.in",
+                        "logo": "https://lekya.in/logo.png",
                         "sameAs": [
                           "https://lekyalogistics.com",
                           "https://parceluncle.com",
@@ -473,14 +473,14 @@ export default function App({ Component, pageProps }) {
                       },
                       {
                         "@type": "WebSite",
-                        "@id": "https://lekyaspecs.com/#website",
-                        "url": "https://lekyaspecs.com",
+                        "@id": "https://lekya.in/#website",
+                        "url": "https://lekya.in",
                         "name": "Lekya Specs",
                         "description": "Luxury Eyewear & 3D AR Try-On Portal",
-                        "publisher": { "@id": "https://lekyaspecs.com/#organization" },
+                        "publisher": { "@id": "https://lekya.in/#organization" },
                         "potentialAction": {
                           "@type": "SearchAction",
-                          "target": "https://lekyaspecs.com/shop?search={search_term_string}",
+                          "target": "https://lekya.in/shop?search={search_term_string}",
                           "query-input": "required name=search_term_string"
                         }
                       },
@@ -496,18 +496,18 @@ export default function App({ Component, pageProps }) {
                           "Support & Contact"
                         ],
                         "url": [
-                          "https://lekyaspecs.com/account",
-                          "https://lekyaspecs.com/shop",
-                          "https://lekyaspecs.com/ar-tryon",
-                          "https://lekyaspecs.com/lens-guide",
-                          "https://lekyaspecs.com/lookbook",
-                          "https://lekyaspecs.com/face-shape",
-                          "https://lekyaspecs.com/contact"
+                          "https://lekya.in/account",
+                          "https://lekya.in/shop",
+                          "https://lekya.in/ar-tryon",
+                          "https://lekya.in/lens-guide",
+                          "https://lekya.in/lookbook",
+                          "https://lekya.in/face-shape",
+                          "https://lekya.in/contact"
                         ]
                       },
                       {
                         "@type": ["Optician", "LocalBusiness"],
-                        "@id": "https://lekyaspecs.com/#store",
+                        "@id": "https://lekya.in/#store",
                         "name": "Lekya Specs Flagship Store & Experience Center",
                         "telephone": "+91-9654119262",
                         "email": "dev.parceluncle@gmail.com",
