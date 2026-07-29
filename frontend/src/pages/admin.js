@@ -2452,33 +2452,83 @@ export default function Admin() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end text-xs font-mono">
-                      <a
-                        href={`${API_BASE}/api/admin/export/audit-summary`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-emerald-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider"
+                      <button
+                        onClick={() => {
+                          const downloadUrl = `${API_BASE}/api/admin/export/audit-summary?token=${token}`;
+                          fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${token}` } })
+                            .then(res => {
+                              if (!res.ok) throw new Error('Failed to download report');
+                              return res.blob();
+                            })
+                            .then(blob => {
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `LekyaSpecs_Executive_Logistics_Audit_Summary_${new Date().toISOString().slice(0, 10)}.xls`;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(url);
+                              a.remove();
+                            })
+                            .catch(() => window.open(downloadUrl, '_blank'));
+                        }}
+                        className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-emerald-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider cursor-pointer"
                         title="Download Executive Logistics Audit Summary (Screenshot 4 Audit Specs)"
                       >
                         📊 Executive Audit Summary
-                      </a>
-                      <a
-                        href={`${API_BASE}/api/admin/export/orders-excel`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-blue-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider"
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const downloadUrl = `${API_BASE}/api/admin/export/orders-excel?token=${token}`;
+                          fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${token}` } })
+                            .then(res => {
+                              if (!res.ok) throw new Error('Failed to download report');
+                              return res.blob();
+                            })
+                            .then(blob => {
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `LekyaSpecs_Logistics_Master_Audit_${new Date().toISOString().slice(0, 10)}.xls`;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(url);
+                              a.remove();
+                            })
+                            .catch(() => window.open(downloadUrl, '_blank'));
+                        }}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 text-white font-extrabold text-[11px] px-3 py-2 rounded-xl border border-blue-400/40 transition-all flex items-center gap-1.5 shadow-md uppercase tracking-wider cursor-pointer"
                         title="Download Master Excel Report with AutoFilter Dropdowns & Dark Navy Headers (Screenshots 1, 2, 3)"
                       >
                         📦 Master Excel (.xlsx/.xls)
-                      </a>
-                      <a
-                        href={`${API_BASE}/api/admin/export/orders`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-[11px] px-3 py-2 rounded-xl border border-white/20 transition-all flex items-center gap-1 uppercase tracking-wider"
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const downloadUrl = `${API_BASE}/api/admin/export/orders?token=${token}`;
+                          fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${token}` } })
+                            .then(res => {
+                              if (!res.ok) throw new Error('Failed to download report');
+                              return res.blob();
+                            })
+                            .then(blob => {
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `LekyaSpecs_Master_Logistics_Audit_${new Date().toISOString().slice(0, 10)}.csv`;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(url);
+                              a.remove();
+                            })
+                            .catch(() => window.open(downloadUrl, '_blank'));
+                        }}
+                        className="bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-[11px] px-3 py-2 rounded-xl border border-white/20 transition-all flex items-center gap-1 uppercase tracking-wider cursor-pointer"
                         title="Download Full Raw CSV File"
                       >
                         📄 Export CSV
-                      </a>
+                      </button>
                     </div>
                   </div>
 
