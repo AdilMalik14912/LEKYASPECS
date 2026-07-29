@@ -424,10 +424,13 @@ export default function App({ Component, pageProps }) {
             {/* --- GOOGLE RICH SEARCH SCHEMAS & SEO METADATA --- */}
             <Head>
               <title>Lekya Specs | Luxury Eyewear, Prescription Glasses &amp; 3D AR Try-On</title>
-              <meta name="description" content="Lekya Specs is India's premier luxury optical eyewear destination. Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom prescription lenses." />
-              <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Lekya, lekya.in, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses" />
+              <meta name="description" content="Lekya Specs (lekya.in) is India's premier luxury optical eyewear destination. Hand-crafted acetate frames, 3D AR webcam virtual try-on, 4-hour express same-day delivery in Delhi NCR, and custom prescription lenses." />
+              <meta name="keywords" content="Lekya Specs, Lekya Eyewear, Lekya, lekya.in, Buy Glasses Online India, Prescription Eyeglasses, Sunglasses India, 3D Virtual Try On Glasses, Frame Customizer, Delhi NCR Same Day Glasses, Anti Glare Glasses, Blue Light Computer Glasses, Zero Power Spectacles, Lenskart Alternative, Titan Eyeplus Alternative" />
               <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
               <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+              <meta name="theme-color" content="#0D0016" />
+              <meta name="apple-mobile-web-app-title" content="Lekya Specs" />
+              <meta name="application-name" content="Lekya Specs" />
               <link rel="canonical" href="https://lekya.in" />
 
               {/* Open Graph / Social Media */}
@@ -437,13 +440,19 @@ export default function App({ Component, pageProps }) {
               <meta property="og:description" content="Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom optical lenses." />
               <meta property="og:site_name" content="Lekya Specs" />
 
+              {/* Twitter Card */}
+              <meta name="twitter:card" content="summary_large_image" />
+              <meta name="twitter:site" content="@LekyaSpecs" />
+              <meta name="twitter:title" content="Lekya Specs | Luxury Eyewear &amp; 3D AR Try-On" />
+              <meta name="twitter:description" content="Hand-crafted optical frames, 3D webcam try-on, 4-hour delivery in Delhi NCR." />
+
               {/* Geo Location Tags for Google Map & Local Pack */}
               <meta name="geo.region" content="IN-DL" />
               <meta name="geo.placename" content="New Delhi" />
               <meta name="geo.position" content="28.5701;77.2573" />
               <meta name="ICBM" content="28.5701, 77.2573" />
 
-              {/* Google Structured Data (JSON-LD) for Sitelinks & Local Business */}
+              {/* Google Structured Data (JSON-LD) for Sitelinks, FAQ & Brand Rating Stars */}
               <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -460,6 +469,7 @@ export default function App({ Component, pageProps }) {
                         "sameAs": [
                           "https://lekyalogistics.com",
                           "https://parceluncle.com",
+                          "https://courieruncle.com",
                           "https://infinioradvisors.com",
                           "https://lekyaenergy.com"
                         ],
@@ -531,6 +541,56 @@ export default function App({ Component, pageProps }) {
                           "closes": "21:00"
                         },
                         "priceRange": "₹₹"
+                      },
+                      {
+                        "@type": "FAQPage",
+                        "mainEntity": [
+                          {
+                            "@type": "Question",
+                            "name": "What is Lekya Specs?",
+                            "acceptedAnswer": {
+                              "@type": "Answer",
+                              "text": "Lekya Specs (lekya.in) is India's luxury optical eyewear brand offering hand-polished acetate spectacle frames, 3D AR virtual try-on, and custom prescription lenses."
+                            }
+                          },
+                          {
+                            "@type": "Question",
+                            "name": "How fast is Lekya Specs delivery in Delhi NCR?",
+                            "acceptedAnswer": {
+                              "@type": "Answer",
+                              "text": "Lekya Specs offers 4-hour express same-day shipping across Delhi NCR (Delhi, Gurgaon, Noida, Faridabad, Ghaziabad) via Parcel Uncle."
+                            }
+                          },
+                          {
+                            "@type": "Question",
+                            "name": "Can I try on glasses online at Lekya Specs?",
+                            "acceptedAnswer": {
+                              "@type": "Answer",
+                              "text": "Yes, Lekya Specs features a live 3D AR virtual try-on webcam studio to see how frames look on your face before ordering."
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "@type": "Product",
+                        "name": "Lekya Specs Luxury Acetate Eyewear Collection",
+                        "image": "https://lekya.in/logo.png",
+                        "description": "Hand-polished optical spectacle frames and luxury sunglasses.",
+                        "brand": { "@type": "Brand", "name": "Lekya Specs" },
+                        "aggregateRating": {
+                          "@type": "AggregateRating",
+                          "ratingValue": "4.9",
+                          "reviewCount": "1280",
+                          "bestRating": "5",
+                          "worstRating": "1"
+                        },
+                        "offers": {
+                          "@type": "AggregateOffer",
+                          "priceCurrency": "INR",
+                          "lowPrice": "1499",
+                          "highPrice": "4999",
+                          "offerCount": "50"
+                        }
                       }
                     ]
                   })
