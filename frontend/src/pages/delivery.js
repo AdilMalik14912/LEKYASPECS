@@ -448,21 +448,21 @@ export default function DeliveryPanel() {
           </div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto">
+        {/* Tab Bar — mobile horizontal scroll */}
+        <div className="panel-mobile-tabs md:max-w-5xl md:mx-auto md:px-6 md:flex md:gap-1 md:bg-transparent md:border-0 md:overflow-x-auto">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
+                className={`panel-mobile-tab-btn md:flex md:items-center md:gap-2 md:px-4 md:py-3 md:text-xs md:font-bold md:uppercase md:tracking-widest md:border-b-2 md:transition-all md:whitespace-nowrap md:rounded-none md:border-0 ${
                   activeTab === tab.id
-                    ? 'border-orange-400 text-orange-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                    ? 'active md:border-orange-400 md:text-orange-400 md:bg-transparent'
+                    : 'md:border-transparent md:text-gray-500 md:hover:text-gray-300'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 hidden md:inline" />
                 {tab.label}
                 {tab.id === 'my-orders' && activeOrders.length > 0 && (
                   <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 rounded-full">

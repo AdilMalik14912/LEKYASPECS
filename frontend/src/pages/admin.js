@@ -1652,17 +1652,51 @@ export default function Admin() {
   }
 
   return (
-    <div className="bg-[#0D0016] text-white min-h-screen flex flex-col md:flex-row relative overflow-hidden">
+    <div className="bg-[#0D0016] text-white min-h-screen flex flex-col relative overflow-hidden">
 
       {/* Background ambient gradient orbs */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#7B22A8]/15 rounded-full blur-[140px] pointer-events-none animate-float-slow" />
       <div className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-[#FAAE62]/10 rounded-full blur-[120px] pointer-events-none animate-float-slow2" />
 
-      {/* --- ANIMATED HOVER-EXPANDABLE LEFT SIDEBAR --- */}
+      {/* ── Mobile-only top tab strip (hidden on md+) ── */}
+      <div className="panel-mobile-tabs md:hidden">
+        {[
+          { id: 'stats', label: '📊 Dashboard', icon: BarChart3 },
+          { id: 'orders', label: '📦 Orders', icon: ClipboardList },
+          { id: 'products', label: '🛍 Products', icon: ShoppingBag },
+          { id: 'customers', label: '👥 Customers', icon: Users },
+          { id: 'returns', label: '↩ Returns', icon: RefreshCw },
+          { id: 'coupons', label: '🏷 Promos', icon: Tag },
+          { id: 'broadcast', label: '📧 Broadcast', icon: Mail },
+          { id: 'helpdesk', label: '🆘 Helpdesk', icon: HelpCircle },
+          { id: 'logs', label: '📜 Logs', icon: ScrollText },
+          { id: 'signup-otps', label: '🔑 Live OTPs', icon: Key },
+          { id: 'delivery-otps', label: '🚚 Del. OTPs', icon: ShieldAlert },
+          { id: 'team', label: '👔 Team', icon: Users },
+          { id: 'db', label: '⚡ DB', icon: Activity },
+          { id: 'customizer', label: '🎨 CMS', icon: Sliders },
+          { id: 'blogs', label: '📝 Blog', icon: BookOpen },
+          { id: 'sessions', label: '👁 Monitor', icon: Users },
+          { id: 'admins', label: '🛡 Admins', icon: ShieldCheck },
+        ].map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`panel-mobile-tab-btn${activeTab === item.id ? ' active' : ''}`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Main layout row (sidebar + content) ── */}
+      <div className="flex flex-row flex-1">
+
+      {/* --- ANIMATED HOVER-EXPANDABLE LEFT SIDEBAR (hidden on mobile) --- */}
       <aside
         onMouseEnter={() => setSidebarHovered(true)}
         onMouseLeave={() => setSidebarHovered(false)}
-        className={`bg-[#1A0024]/95 backdrop-blur-2xl text-white shrink-0 flex flex-col border-r border-[#FAAE62]/20 relative z-30 transition-all duration-300 ease-in-out ${sidebarHovered || sidebarPinned ? 'w-full md:w-72 p-6' : 'w-full md:w-20 p-4'
+        className={`hidden md:flex bg-[#1A0024]/95 backdrop-blur-2xl text-white shrink-0 flex-col border-r border-[#FAAE62]/20 relative z-30 transition-all duration-300 ease-in-out ${sidebarHovered || sidebarPinned ? 'md:w-72 p-6' : 'md:w-20 p-4'
           }`}
       >
         {/* Brand Header */}
@@ -1813,7 +1847,7 @@ export default function Admin() {
       </aside>
 
       {/* Main Panel Content Area */}
-      <main className="flex-grow p-4 sm:p-8 max-w-7xl overflow-x-hidden relative z-10">
+      <main className="flex-grow p-3 sm:p-8 w-full overflow-x-hidden relative z-10">
 
         {/* --- TOP RIGHT HEADER CONTROL BAR --- */}
         <header className="flex items-center justify-between mb-6 pb-4 border-b border-[#FAAE62]/20">
@@ -5474,6 +5508,7 @@ export default function Admin() {
         </div>
       )}
 
+      </div>{/* end flex row wrapper */}
     </div>
   );
 }

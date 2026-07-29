@@ -302,21 +302,21 @@ export default function SellerPanel() {
           </div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 pb-0 overflow-x-auto">
+        {/* Tab Bar — mobile horizontal scroll */}
+        <div className="panel-mobile-tabs md:max-w-7xl md:mx-auto md:px-6 md:flex md:gap-1 md:pb-0 md:bg-transparent md:border-0 md:position-static md:overflow-x-auto">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
+                className={`panel-mobile-tab-btn md:flex md:items-center md:gap-2 md:px-4 md:py-3 md:text-xs md:font-bold md:uppercase md:tracking-widest md:border-b-2 md:transition-all md:whitespace-nowrap md:rounded-none md:border-0 ${
                   activeTab === tab.id
-                    ? 'border-amber-400 text-amber-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                    ? 'active md:border-amber-400 md:text-amber-400 md:bg-transparent md:border-b-2'
+                    : 'md:border-transparent md:text-gray-500 md:hover:text-gray-300'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 hidden md:inline" />
                 {tab.label}
               </button>
             );
