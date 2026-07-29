@@ -313,7 +313,12 @@ const verifyPayment = async (req, res) => {
       );
       const richItems = orderItemsRes.rows.length > 0 ? orderItemsRes.rows : items;
 
-      const pincodeStr = String(shipping_address?.pincode || shipping_address?.zip || '').trim().replace(/\D/g, '');
+      let parsedAddr = shipping_address;
+      if (typeof shipping_address === 'string') {
+        try { parsedAddr = JSON.parse(shipping_address); } catch (_) { parsedAddr = {}; }
+      }
+
+      const pincodeStr = String(parsedAddr?.pincode || parsedAddr?.zip || '').trim().replace(/\D/g, '');
       const DELHI_NCR_PINCODE_PREFIXES = ['110', '121', '122', '201', '140'];
       const isDelhiNcr = DELHI_NCR_PINCODE_PREFIXES.some(prefix => pincodeStr.startsWith(prefix));
 
