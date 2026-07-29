@@ -355,6 +355,11 @@ const verifyPayment = async (req, res) => {
 
       if (shipmentResult && (shipmentResult.waybill || shipmentResult.tracking_number)) {
         const waybill = shipmentResult.waybill || shipmentResult.tracking_number;
+        const subCourier = shipmentResult.courier || (isDelhiNcr ? 'Parcel Uncle Express' : 'Delhivery');
+        const formattedPartner = subCourier.includes('Parcel Uncle') || subCourier.includes('Courier Uncle')
+          ? subCourier
+          : `Courier Uncle (${subCourier})`;
+
         await db.query(
           `UPDATE orders 
            SET parcel_uncle_tracking_id = ?,
@@ -366,11 +371,11 @@ const verifyPayment = async (req, res) => {
             waybill,
             shipmentResult.status || 'CREATED',
             JSON.stringify(shipmentResult.rawResponse || shipmentResult),
-            shipmentResult.courier || courierPartnerName,
+            formattedPartner,
             orderId
           ]
         );
-        console.log(`[AUTO-SHIPMENT SUCCESS] Order #${orderId} automatically routed via ${courierPartnerName}. AWB: ${waybill}`);
+        console.log(`[AUTO-SHIPMENT SUCCESS] Order #${orderId} automatically routed via ${formattedPartner}. AWB: ${waybill}`);
       }
     } catch (shippingErr) {
       console.warn('[AUTO-SHIPMENT WARNING]', shippingErr.message);

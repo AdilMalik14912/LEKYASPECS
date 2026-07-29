@@ -577,8 +577,12 @@ export default function SellerPanel() {
                             </button>
                             {order.parcel_uncle_tracking_id ? (
                               <div className="flex items-center gap-1">
-                                <div className="text-[9px] bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded text-orange-300 font-mono font-bold flex items-center gap-1" title={`Status: ${order.parcel_uncle_status || 'MANIFESTED'}`}>
-                                  <span>📦 PU: {order.parcel_uncle_tracking_id}</span>
+                                <div className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold flex items-center gap-1 border ${
+                                  order.courier_partner?.includes('Courier Uncle') || order.courier_partner?.includes('Delhivery')
+                                    ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
+                                    : 'bg-orange-500/10 border-orange-500/30 text-orange-300'
+                                }`} title={`Status: ${order.parcel_uncle_status || 'MANIFESTED'}`}>
+                                  <span>{order.courier_partner?.includes('Courier Uncle') ? '📦 ' : '🚚 '}{order.courier_partner || `AWB: ${order.parcel_uncle_tracking_id}`}</span>
                                 </div>
                                 <a
                                   href={`${API_BASE}/api/shipping/parcel-uncle/label/${order.id}`}

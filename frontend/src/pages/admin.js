@@ -2640,9 +2640,18 @@ export default function Admin() {
 
                             {/* Column 3: Assigned Logistics Courier */}
                             <td className="px-5 py-3.5">
-                              {order.parcel_uncle_tracking_id ? (
+                              {order.courier_partner ? (
+                                <span className={`inline-flex items-center gap-1.5 font-bold text-[10px] px-2.5 py-1 rounded-lg border ${
+                                  order.courier_partner.includes('Courier Uncle') || order.courier_partner.includes('Delhivery') || order.courier_partner.includes('BlueDart')
+                                    ? 'bg-teal-500/15 border-teal-500/40 text-teal-300'
+                                    : 'bg-orange-500/15 border-orange-500/40 text-orange-300'
+                                }`}>
+                                  {order.courier_partner.includes('Courier Uncle') ? '📦 ' : '🚚 '}
+                                  {order.courier_partner}
+                                </span>
+                              ) : order.parcel_uncle_tracking_id ? (
                                 <span className="inline-flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 font-semibold text-[10px] px-2.5 py-1 rounded-lg">
-                                  📦 Parcel Uncle Express
+                                  🚚 Parcel Uncle Express
                                 </span>
                               ) : order.assigned_delivery_agent_id ? (
                                 <span className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold text-[10px] px-2.5 py-1 rounded-lg">
@@ -5399,21 +5408,25 @@ export default function Admin() {
                     </select>
                   </div>
 
-                  {/* Courier Partner & Parcel Uncle Logistics */}
-                  <div className="p-5 bg-[#0D0016]/90 border border-orange-500/40 rounded-2xl space-y-4">
+                  {/* Courier Partner & Logistics Details */}
+                  <div className="p-5 bg-[#0D0016]/90 border border-teal-500/40 rounded-2xl space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-xs uppercase tracking-wider text-orange-400 flex items-center gap-2">
-                        <PackageX className="w-4 h-4 text-orange-400" /> Logistics &amp; Courier Partner
+                      <h4 className="font-bold text-xs uppercase tracking-wider text-teal-300 flex items-center gap-2">
+                        <PackageX className="w-4 h-4 text-teal-300" /> Logistics &amp; Courier Partner
                       </h4>
-                      <span className="text-[10px] font-bold font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                        {selectedOrderDetails.parcel_uncle_tracking_id ? 'PARCEL UNCLE ACTIVE' : 'DIRECT SHIPMENT'}
+                      <span className="text-[10px] font-bold font-mono text-teal-300 bg-teal-500/10 px-2.5 py-0.5 rounded-full border border-teal-500/30">
+                        {selectedOrderDetails.courier_partner || (selectedOrderDetails.parcel_uncle_tracking_id ? 'CARRIER ACTIVE' : 'DIRECT SHIPMENT')}
                       </span>
                     </div>
 
                     {selectedOrderDetails.parcel_uncle_tracking_id ? (
-                      <div className="bg-[#1A0024] p-4 rounded-xl border border-orange-500/30 font-mono text-xs space-y-3">
+                      <div className="bg-[#1A0024] p-4 rounded-xl border border-teal-500/30 font-mono text-xs space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-[#9B7EA8] text-[10px] uppercase">Parcel Uncle AWB:</span>
+                          <span className="text-[#9B7EA8] text-[10px] uppercase">Carrier Partner:</span>
+                          <span className="font-bold text-teal-300 text-xs">{selectedOrderDetails.courier_partner || 'Parcel Uncle Express'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#9B7EA8] text-[10px] uppercase">Tracking AWB:</span>
                           <span className="font-bold text-white text-sm">{selectedOrderDetails.parcel_uncle_tracking_id}</span>
                         </div>
                         <div className="flex items-center justify-between text-[11px]">
