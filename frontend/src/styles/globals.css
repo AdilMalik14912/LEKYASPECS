@@ -1017,6 +1017,7 @@ tr:hover td span.text-amber-400 {
 /* ============================================================
    LIQUID GLASS AESTHETIC SYSTEM
    ============================================================ */
+.liquid-glass {
   background: rgba(255, 255, 255, 0.04);
   background-blend-mode: luminosity;
   backdrop-filter: blur(14px) saturate(180%);
