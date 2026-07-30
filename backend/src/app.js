@@ -193,6 +193,7 @@ app.post('/api/orders/verify', authenticateToken, orderController.verifyPayment)
 app.post('/api/orders/webhook', orderController.handleRazorpayWebhook);
 app.get('/api/orders/history', authenticateToken, orderController.getOrders);
 app.get('/api/orders/track/:trackingId', orderController.trackOrderByTrackingId);
+app.post('/api/orders/:id/cancel', authenticateToken, orderController.cancelMyOrder);
 
 // 5. Reviews API
 app.post('/api/orders/review', authenticateToken, orderController.addReview);

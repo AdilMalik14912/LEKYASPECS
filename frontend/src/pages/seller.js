@@ -774,13 +774,36 @@ export default function SellerPanel() {
               <div>
                 <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2">Update Status</p>
                 <div className="flex flex-wrap gap-2">
-                  {['Pending', 'Processing', 'Shipped', 'Paid'].map(s => {
-                    const sc = STATUS_COLORS[s];
+                  {['Pending', 'Processing', 'Shipped', 'Paid', 'Cancelled'].map(s => {
+                    const sc = STATUS_COLORS[s] || { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/30' };
                     return (
                       <button
                         key={s}
                         disabled={updatingStatus === selectedOrder.id}
-                        onClick={() => handleStatusUpdate(selectedOrder.id, s)}
+                        onClick={() => {
+                          if (s === 'Cancelled') {
+                            const reason = prompt(`Cancel Order #${selectedOrder.id}? Enter reason:`, 'Cancelled by Seller');
+                            if (!reason) return;
+                            fetch(`${API_BASE}/api/orders/${selectedOrder.id}/cancel`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                              body: JSON.stringify({ reason })
+                            })
+                              .then(res => res.json())
+                              .then(data => {
+                                if (data.success) {
+                                  toast('Order cancelled successfully!');
+                                  setSelectedOrder({ ...selectedOrder, status: 'Cancelled' });
+                                  fetchOrders();
+                                } else {
+                                  toast(data.message || 'Failed to cancel');
+                                }
+                              })
+                              .catch(err => toast(err.message));
+                          } else {
+                            handleStatusUpdate(selectedOrder.id, s);
+                          }
+                        }}
                         className={`text-[10px] font-bold px-3 py-1.5 rounded border transition-all ${
                           selectedOrder.status === s
                             ? `${sc.bg} ${sc.text} ${sc.border}`

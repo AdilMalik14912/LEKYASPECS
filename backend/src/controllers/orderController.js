@@ -696,6 +696,82 @@ const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+// Customer Cancel Order Controller
+const cancelMyOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const userId = req.user.id;
+  const { reason } = req.body || {};
+
+  try {
+    // 1. Fetch order
+    const orderRes = await db.query(
+      `SELECT * FROM orders WHERE id = ?`,
+      [orderId]
+    );
+
+    if (orderRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const order = orderRes.rows[0];
+
+    // Check ownership unless admin/staff
+    if (order.user_id !== userId && req.user.role !== 'admin' && req.user.role !== 'seller') {
+      return res.status(403).json({ message: 'Unauthorized to cancel this order' });
+    }
+
+    if (order.status === 'Delivered') {
+      return res.status(400).json({ message: 'Delivered orders cannot be cancelled.' });
+    }
+
+    if (order.status === 'Cancelled') {
+      return res.status(400).json({ message: 'Order is already cancelled.' });
+    }
+
+    const waybill = order.parcel_uncle_tracking_id;
+    const carrier = order.courier_partner || '';
+    const cancelReason = reason || 'Cancelled by customer';
+    let carrierResult = { success: true };
+
+    // 2. Call Carrier Cancel API if waybill exists
+    if (waybill) {
+      try {
+        const courierUncle = require('../utils/courierUncle');
+        const parcelUncle = require('../utils/parcelUncle');
+        if (carrier.toLowerCase().includes('courier uncle') || carrier.toLowerCase().includes('delhivery') || carrier.toLowerCase().includes('bluedart')) {
+          carrierResult = await courierUncle.cancelShipment(waybill, cancelReason);
+        } else {
+          carrierResult = await parcelUncle.cancelShipment(waybill, cancelReason);
+        }
+      } catch (cErr) {
+        console.warn(`[CARRIER CANCEL] Error for order #${orderId}:`, cErr.message);
+      }
+    }
+
+    // 3. Update DB
+    await db.query(
+      `UPDATE orders
+       SET status = 'Cancelled',
+           parcel_uncle_status = 'CANCELLED',
+           tracking_comments = ?
+       WHERE id = ?`,
+      [`Order cancelled. Reason: ${cancelReason}${waybill ? `. Carrier AWB: ${waybill}` : ''}`, orderId]
+    );
+
+    console.log(`[ORDER CANCEL] Order #${orderId} cancelled by user #${userId}.`);
+
+    res.json({
+      success: true,
+      message: `Order #${orderId} has been cancelled successfully.`,
+      orderId,
+      carrierResult
+    });
+  } catch (err) {
+    console.error('Cancel order error:', err);
+    res.status(500).json({ message: 'Server error cancelling order' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
@@ -704,5 +780,6 @@ module.exports = {
   validateCouponCode,
   trackOrderByTrackingId,
   processRazorpayRefund,
-  handleRazorpayWebhook
+  handleRazorpayWebhook,
+  cancelMyOrder
 };

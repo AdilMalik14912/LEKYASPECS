@@ -1271,6 +1271,36 @@ export default function Account() {
                             <strong className="text-[#FAAE62] text-sm font-mono">₹{parseFloat(order.total_amount).toLocaleString('en-IN')}</strong>
                           </div>
                           <div className="flex items-center gap-2">
+                            {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
+                              <button
+                                onClick={() => {
+                                  const reason = prompt(`Cancel Order #${order.id}? Enter optional cancellation reason:`, 'Changed my mind');
+                                  if (reason === null) return; // user hit cancel on prompt
+
+                                  fetch(`${API_BASE}/api/orders/${order.id}/cancel`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ reason })
+                                  })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                      if (data.success) {
+                                        showToast(`Order #${order.id} cancelled successfully.`, 'success');
+                                        fetchUserOrders();
+                                      } else {
+                                        showToast(data.message || 'Failed to cancel order.', 'error');
+                                      }
+                                    })
+                                    .catch(err => showToast(`Error: ${err.message}`, 'error'));
+                                }}
+                                className="px-3 py-1.5 rounded-xl border border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500 hover:text-white font-bold text-[11px] flex items-center gap-1.5 transition-all"
+                              >
+                                🛑 Cancel Order
+                              </button>
+                            )}
                             {order.status !== 'Cancelled' && (
                               <button
                                 onClick={() => handleOpenReturnModal(order)}

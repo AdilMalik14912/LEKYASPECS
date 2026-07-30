@@ -5586,6 +5586,44 @@ export default function Admin() {
                         </a>
                       </div>
                     )}
+
+                    {/* Admin Cancel Order Action */}
+                    {selectedOrderDetails.status !== 'Cancelled' && (
+                      <button
+                        onClick={() => {
+                          const reason = prompt(`Enter cancellation reason for Order #${selectedOrderDetails.id}:`, 'Cancelled by Admin');
+                          if (!reason) return;
+
+                          fetch(`${API_BASE}/api/admin/orders/${selectedOrderDetails.id}/cancel`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ reason })
+                          })
+                            .then(res => res.json())
+                            .then(data => {
+                              if (data.success) {
+                                alert(`Order #${selectedOrderDetails.id} successfully cancelled! Carrier AWB revoked.`);
+                                setSelectedOrderDetails({
+                                  ...selectedOrderDetails,
+                                  status: 'Cancelled',
+                                  parcel_uncle_status: 'CANCELLED',
+                                  tracking_comments: `Admin cancelled: ${reason}`
+                                });
+                                fetchOrders();
+                              } else {
+                                alert(`Failed to cancel order: ${data.message}`);
+                              }
+                            })
+                            .catch(err => alert(`Error cancelling order: ${err.message}`));
+                        }}
+                        className="w-full mt-3 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white font-extrabold text-xs py-3 px-4 rounded-xl border border-red-500/40 transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        🛑 Cancel Order &amp; Revoke Carrier Shipment
+                      </button>
+                    )}
                   </div>
 
                   {/* Rider Assignment */}
