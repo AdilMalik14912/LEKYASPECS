@@ -278,33 +278,41 @@ const handleWebhook = async (req, res) => {
 
 // 5. Cancel Parcel Uncle Shipment
 const cancelParcelUncle = async (req, res) => {
-  const { orderId } = req.params;
+  const { waybill, orderId } = req.params;
+  const targetId = waybill || orderId;
+  const { reason } = req.body || {};
 
   try {
     const orderRes = await db.query(
-      `SELECT parcel_uncle_tracking_id FROM orders WHERE id = ?`,
-      [orderId]
+      `SELECT id, parcel_uncle_tracking_id FROM orders WHERE id = ? OR parcel_uncle_tracking_id = ?`,
+      [targetId, targetId]
     );
 
-    if (orderRes.rows.length === 0) {
-      return res.status(404).json({ message: `Order #${orderId} not found` });
+    let waybillToCancel = targetId;
+    let foundOrderId = targetId;
+
+    if (orderRes.rows.length > 0) {
+      waybillToCancel = orderRes.rows[0].parcel_uncle_tracking_id || targetId;
+      foundOrderId = orderRes.rows[0].id;
     }
 
-    const waybill = orderRes.rows[0].parcel_uncle_tracking_id;
     let cancelResult = { success: true };
-
-    if (waybill) {
-      cancelResult = await parcelUncle.cancelShipment(waybill);
+    if (waybillToCancel) {
+      cancelResult = await parcelUncle.cancelShipment(waybillToCancel, reason || 'Cancelled by admin');
     }
 
     await db.query(
-      `UPDATE orders SET parcel_uncle_status = 'CANCELLED' WHERE id = ?`,
-      [orderId]
+      `UPDATE orders 
+       SET status = 'Cancelled',
+           parcel_uncle_status = 'CANCELLED',
+           tracking_comments = ? 
+       WHERE id = ? OR parcel_uncle_tracking_id = ?`,
+      [`Cancelled via Parcel Uncle API. Reason: ${reason || 'Admin cancellation'}`, foundOrderId, targetId]
     );
 
     res.json({
       success: true,
-      message: `Parcel Uncle shipment for Order #${orderId} cancelled`,
+      message: `Parcel Uncle shipment ${targetId} cancelled successfully`,
       cancelResult
     });
   } catch (err) {
@@ -501,33 +509,6 @@ const downloadLabel = async (req, res) => {
   } catch (err) {
     console.error('Download shipping label error:', err);
     res.status(500).json({ message: 'Server error generating shipping label' });
-  }
-};
-
-// 8b. Cancel Parcel Uncle Shipment (Delhi NCR)
-const cancelParcelUncle = async (req, res) => {
-  const { waybill } = req.params;
-  const { reason } = req.body || {};
-  if (!waybill) return res.status(400).json({ message: 'Waybill/AWB is required' });
-
-  try {
-    // 1. Call Parcel Uncle cancel API
-    const cancelResult = await parcelUncle.cancelShipment(waybill, reason || 'Cancelled by admin');
-
-    // 2. Update order status in DB
-    await db.query(
-      `UPDATE orders
-       SET status = 'Cancelled',
-           parcel_uncle_status = 'CANCELLED',
-           tracking_comments = ?
-       WHERE parcel_uncle_tracking_id = ?`,
-      [`Shipment cancelled via Parcel Uncle API. Reason: ${reason || 'Admin cancellation'}`, waybill]
-    );
-
-    res.json({ success: true, message: `Shipment ${waybill} cancelled on Parcel Uncle`, result: cancelResult });
-  } catch (err) {
-    console.error('Cancel Parcel Uncle error:', err);
-    res.status(500).json({ message: 'Server error cancelling Parcel Uncle shipment' });
   }
 };
 
