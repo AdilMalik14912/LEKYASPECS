@@ -504,7 +504,131 @@ const downloadLabel = async (req, res) => {
   }
 };
 
-// 8. Register Merchant Webhook URL with Parcel Uncle Network
+};
+
+// 8b. Cancel Parcel Uncle Shipment (Delhi NCR)
+const cancelParcelUncle = async (req, res) => {
+  const { waybill } = req.params;
+  const { reason } = req.body || {};
+  if (!waybill) return res.status(400).json({ message: 'Waybill/AWB is required' });
+
+  try {
+    // 1. Call Parcel Uncle cancel API
+    const cancelResult = await parcelUncle.cancelShipment(waybill, reason || 'Cancelled by admin');
+
+    // 2. Update order status in DB
+    await db.query(
+      `UPDATE orders
+       SET status = 'Cancelled',
+           parcel_uncle_status = 'CANCELLED',
+           tracking_comments = ?
+       WHERE parcel_uncle_tracking_id = ?`,
+      [`Shipment cancelled via Parcel Uncle API. Reason: ${reason || 'Admin cancellation'}`, waybill]
+    );
+
+    res.json({ success: true, message: `Shipment ${waybill} cancelled on Parcel Uncle`, result: cancelResult });
+  } catch (err) {
+    console.error('Cancel Parcel Uncle error:', err);
+    res.status(500).json({ message: 'Server error cancelling Parcel Uncle shipment' });
+  }
+};
+
+// 8c. Cancel Courier Uncle Shipment (Pan-India)
+const cancelCourierUncle = async (req, res) => {
+  const { waybill } = req.params;
+  const { reason } = req.body || {};
+  if (!waybill) return res.status(400).json({ message: 'Waybill/AWB is required' });
+
+  try {
+    // 1. Call Courier Uncle cancel API
+    const cancelResult = await courierUncle.cancelShipment(waybill, reason || 'Cancelled by admin');
+
+    // 2. Update order status in DB (search by order ID or tracking ID)
+    const updateResult = await db.query(
+      `UPDATE orders
+       SET status = 'Cancelled',
+           parcel_uncle_status = 'CANCELLED',
+           tracking_comments = ?
+       WHERE id = ? OR parcel_uncle_tracking_id = ?`,
+      [`Shipment cancelled via Courier Uncle API. Reason: ${reason || 'Admin cancellation'}`, waybill, waybill]
+    );
+
+    res.json({
+      success: true,
+      message: `Shipment ${waybill} cancelled on Courier Uncle Pan-India Network`,
+      rowsUpdated: updateResult.rowsAffected || updateResult.affectedRows || 0,
+      result: cancelResult
+    });
+  } catch (err) {
+    console.error('Cancel Courier Uncle error:', err);
+    res.status(500).json({ message: 'Server error cancelling Courier Uncle shipment' });
+  }
+};
+
+// 8d. Admin: Cancel any order by Order ID (cancels on carrier + updates DB)
+const cancelOrderAdmin = async (req, res) => {
+  const { orderId } = req.params;
+  const { reason } = req.body || {};
+  if (!orderId) return res.status(400).json({ message: 'Order ID is required' });
+
+  try {
+    // Fetch order
+    const orderRes = await db.query(
+      `SELECT * FROM orders WHERE id = ?`,
+      [orderId]
+    );
+    if (orderRes.rows.length === 0) {
+      return res.status(404).json({ message: `Order ${orderId} not found in database` });
+    }
+    const order = orderRes.rows[0];
+    const waybill = order.parcel_uncle_tracking_id;
+    const carrier = order.courier_partner || '';
+    const cancelReason = reason || 'Cancelled by admin';
+
+    let carrierResult = { success: true, message: 'No carrier AWB found — only DB updated' };
+
+    // Try to cancel on carrier API if AWB exists
+    if (waybill) {
+      try {
+        if (carrier.toLowerCase().includes('courier uncle') || carrier.toLowerCase().includes('delhivery') ||
+            carrier.toLowerCase().includes('bluedart') || carrier.toLowerCase().includes('xpressbees')) {
+          carrierResult = await courierUncle.cancelShipment(waybill, cancelReason);
+        } else {
+          carrierResult = await parcelUncle.cancelShipment(waybill, cancelReason);
+        }
+      } catch (carrierErr) {
+        console.warn(`[CANCEL] Carrier API error for ${waybill}:`, carrierErr.message);
+        carrierResult = { success: false, message: carrierErr.message };
+      }
+    }
+
+    // Always update DB regardless of carrier API result
+    await db.query(
+      `UPDATE orders
+       SET status = 'Cancelled',
+           parcel_uncle_status = 'CANCELLED',
+           tracking_comments = ?
+       WHERE id = ?`,
+      [`Admin cancelled. Reason: ${cancelReason}${waybill ? `. Carrier AWB: ${waybill}` : ''}`, orderId]
+    );
+
+    console.log(`[ADMIN CANCEL] Order ${orderId} cancelled. Waybill: ${waybill || 'N/A'}. Carrier: ${carrier || 'N/A'}`);
+
+    res.json({
+      success: true,
+      message: `Order ${orderId} cancelled successfully`,
+      orderId,
+      waybill: waybill || null,
+      carrier: carrier || null,
+      carrierCancelResult: carrierResult
+    });
+  } catch (err) {
+    console.error('Cancel order admin error:', err);
+    res.status(500).json({ message: `Server error cancelling order ${orderId}` });
+  }
+};
+
+// 9. Register Merchant Webhook URL with Parcel Uncle Network
 const registerWebhookHandler = async (req, res) => {
   try {
     const { webhookUrl } = req.body || {};
@@ -673,6 +797,8 @@ module.exports = {
   syncParcelUncleHandler,
   handleWebhook,
   cancelParcelUncle,
+  cancelCourierUncle,
+  cancelOrderAdmin,
   downloadLabel,
   registerWebhookHandler,
   getNdrListHandler,

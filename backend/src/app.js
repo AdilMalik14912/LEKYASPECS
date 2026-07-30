@@ -290,7 +290,11 @@ app.post('/api/shipping/parcel-uncle/webhook', shippingController.handleWebhook)
 app.get('/api/shipping/parcel-uncle/ndr', authenticateToken, shippingController.getNdrListHandler);
 // ── Courier Uncle Pan-India Aggregator API & Smart Auto-Router ──────────────
 app.post('/api/shipping/courier-uncle/dispatch', authenticateToken, shippingController.dispatchCourierUncle);
+app.post('/api/shipping/courier-uncle/cancel/:waybill', authenticateToken, shippingController.cancelCourierUncle);
 app.post('/api/shipping/smart-dispatch', authenticateToken, shippingController.dispatchSmartShipment);
+
+// Admin: Cancel any order (works for both Parcel Uncle & Courier Uncle)
+app.post('/api/admin/orders/:orderId/cancel', authenticateToken, isAdmin, shippingController.cancelOrderAdmin);
 
 
 // 8. Seller Panel API (seller + admin access)
