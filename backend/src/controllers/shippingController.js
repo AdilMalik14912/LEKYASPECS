@@ -504,8 +504,6 @@ const downloadLabel = async (req, res) => {
   }
 };
 
-};
-
 // 8b. Cancel Parcel Uncle Shipment (Delhi NCR)
 const cancelParcelUncle = async (req, res) => {
   const { waybill } = req.params;
