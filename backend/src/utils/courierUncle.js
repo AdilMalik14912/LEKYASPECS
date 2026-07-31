@@ -7,7 +7,9 @@
 
 require('dotenv').config();
 
-const API_KEY = process.env.COURIER_UNCLE_API_KEY || 'cu_live_9bd0f8c83d18c1c581630360cda373807bb10a41dc499621';
+const API_KEY = process.env.COURIER_UNCLE_API_KEY;
+if (!API_KEY) throw new Error('COURIER_UNCLE_API_KEY environment variable is not set');
+
 const RAW_BASE_URL = process.env.COURIER_UNCLE_API_URL || 'https://merchant.courieruncle.com/api/ext/v1';
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, ''); // Strip trailing slash
 
