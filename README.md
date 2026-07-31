@@ -1,129 +1,110 @@
-# Lekya Specs — Premium Luxury Eyewear Platform
+<div align="center">
 
-> **🌐 Live at [lekya.in](https://lekya.in)**
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&pause=1000&color=F7A523&center=true&vCenter=true&width=700&lines=lekya.in+%F0%9F%91%93;Premium+Eyewear+E-Commerce+Platform;Built+with+Next.js+%2B+Node.js+%2B+MySQL" alt="Lekya Specs" />
 
-A full-stack luxury eyewear e-commerce platform with live AR try-on, AI face shape analysis, multi-role dashboards, Parcel Uncle logistics, WhatsApp Business Cloud API, and a comprehensive team CRM.
+<br/>
 
-Part of the **Lekya Group** corporate ecosystem:
-👓 Lekya Specs · 🚚 Lekya Logistics · 📦 Parcel Uncle · ⚖️ Infinior Advisors · ☀️ Lekya Energy
+[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-lekya.in-F7A523?style=for-the-badge)](https://lekya.in)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![MySQL](https://img.shields.io/badge/MySQL-Database-005C84?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 
----
-
-## ✨ Key Features
-
-- 👓 **3D Glassmorphism Lookbook** — Pure CSS/SVG animated spectacle visualizations
-- 🤖 **AI Face Shape Detector** — face-api.js TinyFaceDetector + 68 landmark analysis
-- 🥽 **Live AR Virtual Try-On** — Webcam overlay with 8 frame shapes & 10 colors
-- 🛒 **Razorpay Checkout** — Prescription wizard, lens configurator, coupon codes
-- 📦 **Parcel Uncle Logistics** — 1-Click dispatch, 4x6 PDF labels, NDR management, reverse pickup
-- 💬 **WhatsApp Business Cloud API** — 9-intent auto-reply engine
-- 🔄 **Self-Service Return & Exchange Hub** — Doorstep pickup integration
-- 🏪 **Seller Panel** — Auto-assign, urgent orders, stale order alerts, agent leaderboard
-- 🚚 **Delivery Panel & Route Map** — GPS tracking, delivery OTP, Leaflet.js route optimizer
-- 🛡️ **Admin Panel** — Tax invoice generator, Razorpay refunds, DB optimizer, live webhook sandbox
-- 💬 **Team Chat** — DMs, group channels, Cloudinary file uploads, emoji reactions, pinning
-- 📈 **Specs CRM** — Kanban pipeline, lead scoring, AI email pitch generator, auto-sync
-- 🎡 **Spin & Win Wheel** — 24-hour cooldown daily reward system
-- 📍 **Live Admin Rider Map** — Real-time GPS tracking via Leaflet.js + CartoDB
+</div>
 
 ---
 
-## 🗂️ Project Structure
+## 🔭 About
 
-```
-Specs/
-├── .lekya-docs/          # Full project context documentation
-│   ├── README.md         # System overview
-│   ├── backend.md        # API endpoints, DB schema, webhooks
-│   ├── frontend.md       # All pages, components, design system
-│   └── deployment.md     # Vercel + GoDaddy DNS setup guide
-├── backend/              # Node.js + Express API server
-│   └── src/
-│       ├── config/       # Turso DB, schema, seed
-│       ├── controllers/  # 13 controller files
-│       ├── middleware/   # JWT auth + role guards
-│       └── utils/        # JWT, Mailer, SMS, WhatsApp, Parcel Uncle
-├── frontend/             # Next.js storefront (Pages Router)
-│   └── src/pages/        # 30+ pages
-└── run-dev.ps1           # Windows dev runner script
-```
+**lekya.in** is a premium full-stack eyewear e-commerce platform built for the Indian market. From browsing frames to prescription lens ordering and doorstep delivery — everything is handled end-to-end.
+
+> *"See the world clearly — with the right pair."*
 
 ---
 
-## 🚀 Quick Start
+## ✨ Features
 
-### Prerequisites
-- Node.js 18+
-- [Turso](https://turso.tech) account
-- [Cloudinary](https://cloudinary.com) account
-
-### 1. Clone the repo
-```bash
-git clone https://github.com/AdilMalik14912/LEKYASPECS.git
-cd LEKYASPECS
-```
-
-### 2. Setup Backend
-```bash
-cd backend
-cp .env.example .env
-# Fill in your env vars
-npm install
-node src/app.js     # runs on :5000
-```
-
-### 3. Setup Frontend
-```bash
-cd frontend
-npm install
-npm run dev         # runs on :3000
-```
-
-Or use the convenience script:
-```powershell
-.\run-dev.ps1
-```
+| Feature | Description |
+|---|---|
+| 👓 **Product Catalog** | Sunglasses, eyeglasses, prescription lenses with filters |
+| 🤖 **AI Face Shape Detection** | Smart frame recommendations via camera |
+| 💳 **Razorpay Payments** | Secure UPI, card, netbanking checkout |
+| 🚚 **Pan-India Shipping** | Courier Uncle + Parcel Uncle integration |
+| 📱 **WhatsApp Notifications** | Order updates sent via WhatsApp API |
+| 👤 **Seller Dashboard** | Sellers can manage inventory & orders |
+| 🛵 **Delivery Agent Panel** | Real-time delivery tracking & status |
+| 🔐 **Admin Panel** | Full order, user, and logistics control |
+| 🗺️ **Google Maps** | Delivery address & distance calculation |
+| 🔒 **Rate Limiting & Security** | API protection, JWT auth, CORS |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js (Pages Router) + React + Vanilla CSS |
-| Styling | Dark Purple + Orange brand theme (`globals.css`) |
-| Backend | Node.js + Express.js |
-| Database | Turso (LibSQL / SQLite Cloud) |
-| Auth | JWT + bcryptjs |
-| Payments | Razorpay API + HMAC-SHA256 Webhooks |
-| Logistics | Parcel Uncle Merchant API v1.0.3 |
-| WhatsApp | Meta WhatsApp Business Cloud API v19.0 |
-| Maps | Leaflet.js + CartoDB Dark Matter + Nominatim |
-| Face AI | face-api.js (TinyFaceDetector + FaceLandmark68) |
-| OTP/SMS | Fast2SMS Gateway + Nodemailer SMTP |
-| Images | Cloudinary |
-| Deploy | Vercel (frontend + backend) + GoDaddy (`lekya.in`) |
+### Frontend
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+
+### Backend
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=flat-square&logo=mysql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=json-web-tokens&logoColor=white)
+![REST API](https://img.shields.io/badge/REST_API-FF6C37?style=flat-square&logo=postman&logoColor=white)
+
+### Integrations & Services
+![Razorpay](https://img.shields.io/badge/Razorpay-02042B?style=flat-square&logo=razorpay&logoColor=3395FF)
+![WhatsApp API](https://img.shields.io/badge/WhatsApp_API-25D366?style=flat-square&logo=whatsapp&logoColor=white)
+![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?style=flat-square&logo=googlemaps&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+
+### Logistics Partners
+![Courier Uncle](https://img.shields.io/badge/Courier_Uncle-1a73e8?style=flat-square&logo=google-chrome&logoColor=white)
+![Parcel Uncle](https://img.shields.io/badge/ParcelUncle-FF6B35?style=flat-square&logo=truck&logoColor=white)
 
 ---
 
-## 🌐 Live URLs
+## 🏗️ Architecture
 
-| Panel | URL |
-|-------|-----|
-| Main Store | https://lekya.in |
-| Shop | https://lekya.in/shop |
-| Virtual Try-On | https://lekya.in/tryon |
-| Face Shape AI | https://lekya.in/face-shape |
-| Lookbook | https://lekya.in/lookbook |
-| Track Order | https://lekya.in/track |
-| Admin Panel | https://lekya.in/admin |
-| Seller Panel | https://lekya.in/seller |
-| Delivery Panel | https://lekya.in/delivery |
-| Team Chat | https://lekya.in/chat |
-| CRM Platform | https://lekya.in/crm |
+```
+LEKYASPECS/
+├── frontend/          # Next.js 14 App (lekya.in)
+│   ├── src/pages/     # All page routes
+│   ├── src/components/# Reusable components
+│   └── public/        # Static assets, sitemap, robots
+│
+├── backend/           # Node.js + Express REST API
+│   ├── src/controllers/  # Business logic
+│   ├── src/middleware/   # Auth, rate limiting, security
+│   └── src/utils/        # Shipping, WhatsApp, Payment helpers
+│
+└── api/               # Vercel serverless API entry
+```
 
 ---
 
-## 📄 License
+## 🚀 Live
 
-MIT — Built with ❤️ by Adil Malik
+| Environment | URL |
+|---|---|
+| 🌐 Production | [lekya.in](https://lekya.in) |
+| 📦 API | [lekya.in/api](https://lekya.in/api/health) |
+
+---
+
+## 👨‍💻 Developer
+
+**Adil Malik** — Full-Stack Developer  
+Building @ **Lekya Logistics** & **ParcelUncle**  
+📍 New Delhi, India
+
+[![GitHub](https://img.shields.io/badge/GitHub-AdilMalik14912-181717?style=flat-square&logo=github)](https://github.com/AdilMalik14912)
+[![Email](https://img.shields.io/badge/Email-am8386757@gmail.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:am8386757@gmail.com)
+
+---
+
+<div align="center">
+  <i>⚡ Building the future of Indian e-commerce, one commit at a time.</i>
+</div>
