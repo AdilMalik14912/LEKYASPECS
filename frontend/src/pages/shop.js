@@ -4,7 +4,7 @@ const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { useRouter } = require('next/router');
 const { useAuth, useCart, useWishlist } = require('./_app');
-const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale, Sparkles } = require('lucide-react');
+const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale, Sparkles, Clock } = require('lucide-react');
 const defaultCatalog = require('../config/defaultProducts').default;
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -112,7 +112,10 @@ export default function Shop() {
         params.append('frame_shape', frame_shape);
       }
     }
-    if (price_max) params.append('price_max', price_max);
+    // Only pass price_max filter if explicitly filtered by user
+    if (price_max && parseFloat(price_max) < (filterOptions.price_range.max_price || 10000)) {
+      params.append('price_max', price_max);
+    }
     if (face_shape) params.append('face_shape', face_shape);
     if (search) params.append('search', search);
 
@@ -120,8 +123,18 @@ export default function Shop() {
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         let arr = Array.isArray(data) ? data : [];
-        if (arr.length === 0 && !category && !gender && !frame_shape && !search && !face_shape) {
-          arr = defaultCatalog || [];
+        if (arr.length === 0) {
+          // Fallback to in-memory catalog filtered by current active category/gender
+          const fallback = defaultCatalog || [];
+          arr = fallback.filter(p => {
+            if (category && p.category.toLowerCase() !== String(category).toLowerCase()) return false;
+            if (gender && p.gender.toLowerCase() !== String(gender).toLowerCase() && p.gender !== 'Unisex') return false;
+            if (search && !p.name.toLowerCase().includes(String(search).toLowerCase())) return false;
+            return true;
+          });
+          if (arr.length === 0 && !search) {
+            arr = fallback;
+          }
         }
         let sorted = [...arr];
         if (sortOption === 'price-low') {
@@ -141,7 +154,7 @@ export default function Shop() {
         setProducts(defaultCatalog || []);
         setLoading(false);
       });
-  }, [router.query, sortOption, router.isReady]);
+  }, [router.query, sortOption, router.isReady, filterOptions.price_range.max_price]);
 
   // Sync state with URL slider
   useEffect(() => {
@@ -179,8 +192,10 @@ export default function Shop() {
   };
 
   const resetFilters = () => {
-    router.push('/shop');
-    setPriceRange(10000);
+    router.push({ pathname: '/shop', query: {} });
+    setPriceRange(filterOptions.price_range.max_price || 10000);
+    setCatalogSearch('');
+    setSortOption('newest');
   };
 
   // Load recently viewed from localStorage
@@ -487,8 +502,8 @@ export default function Shop() {
         {/* Recently Viewed Products strip */}
         {recentlyViewed.length > 0 && (
           <div className="mt-16 pt-12 border-t border-premium-border">
-            <h3 className="font-serif text-xl font-bold text-premium-black mb-6 flex items-center gap-2">
-              <span className="text-xl">🕐</span> Your Recently Viewed Frames
+            <h3 className="font-serif text-xl font-bold text-premium-black mb-6 flex items-center gap-2.5">
+              <Clock className="w-5 h-5 text-premium-accent" /> Your Recently Viewed Frames
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {recentlyViewed.map(product => (

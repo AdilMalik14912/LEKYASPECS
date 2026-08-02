@@ -1,4 +1,4 @@
-﻿const React = require('react');
+const React = require('react');
 const { useState, useEffect, useRef, useCallback } = React;
 const Link = require('next/link').default;
 const Head = require('next/head').default;
@@ -1144,7 +1144,7 @@ export default function TryOnStudio() {
                     style={{ flex: 1, justifyContent: 'center', minWidth: 140 }}
                   >
                     <Wand2 style={{ width: 14, height: 14 }} />
-                    {autoFitting ? 'Detecting Eyes...' : 'Auto-Fit ✨'}
+                    {autoFitting ? 'Detecting Eyes...' : 'Auto-Fit'}
                   </button>
                   <button className="ghost-btn" onClick={resetAll}>
                     <RefreshCw style={{ width: 12, height: 12 }} /> Reset
@@ -1427,7 +1427,7 @@ export default function TryOnStudio() {
               {/* ── Tips card ── */}
               <div style={{ padding: '16px 18px', background: 'rgba(250,174,98,0.04)', border: '1px solid rgba(250,174,98,0.12)', borderRadius: 16 }}>
                 <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(250,174,98,0.6)', marginBottom: 10 }}>
-                  💡 Pro Tips
+                  Pro Tips
                 </div>
                 {[
                   'Hit AI Auto-Fit for instant eye alignment',

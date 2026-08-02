@@ -479,7 +479,7 @@ export default function ProductDetail() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => showToast('🔔 You will receive a VIP email alert as soon as this frame is restocked!')}
+                  onClick={() => showToast('You will receive a VIP email alert as soon as this frame is restocked!')}
                   className="flex-grow bg-[#1A0024] text-[#FAAE62] border border-[#FAAE62]/40 hover:bg-[#FAAE62] hover:text-[#0D0016] uppercase font-bold text-xs tracking-widest py-4 px-8 rounded text-center flex items-center justify-center gap-2 transition-all shadow-md"
                 >
                   <Bell className="w-4 h-4" /> Notify Me When Restocked

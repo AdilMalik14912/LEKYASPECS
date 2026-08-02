@@ -111,9 +111,58 @@ app.use(passport.session());
 app.get('/api/webhooks/whatsapp', whatsappWebhookController.verifyWebhook);
 app.post('/api/webhooks/whatsapp', whatsappWebhookController.handleIncomingMessage);
 
-// 1. Health Check
+// 1. Health Check & Google Merchant Shopping Feed
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
+});
+
+// Google Merchant Center & Google Shopping XML RSS Feed
+app.get('/api/google-shopping-feed.xml', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM products ORDER BY id ASC');
+    let products = result.rows;
+    if (!products || products.length === 0) {
+      const { defaultProducts } = require('./config/defaultSeedData');
+      products = defaultProducts;
+    }
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Lekya Specs Eyewear</title>
+    <link>https://lekya.in</link>
+    <description>Premium prescription glasses, eyeglasses, sunglasses &amp; 3D AR Try-On</description>\n`;
+
+    products.forEach(p => {
+      let imgs = p.image_urls;
+      if (typeof imgs === 'string') {
+        try { imgs = JSON.parse(imgs); } catch(_) { imgs = [imgs]; }
+      }
+      const mainImg = (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&amp;fit=crop&amp;w=600&amp;q=80';
+
+      xml += `    <item>
+      <g:id>LS-${p.id}</g:id>
+      <g:title>${(p.name || '').replace(/&/g, '&amp;')}</g:title>
+      <g:description>${(p.description || p.name || '').replace(/&/g, '&amp;')}</g:description>
+      <g:link>https://lekya.in/product/${p.id}</g:link>
+      <g:image_link>${mainImg}</g:image_link>
+      <g:condition>new</g:condition>
+      <g:availability>${(p.stock > 0) ? 'in_stock' : 'out_of_stock'}</g:availability>
+      <g:price>${p.price} INR</g:price>
+      <g:brand>Lekya Specs</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing Accessories &gt; Eyewear &gt; Glasses</g:google_product_category>
+      <g:gender>${p.gender || 'Unisex'}</g:gender>
+    </item>\n`;
+    });
+
+    xml += `  </channel>\n</rss>`;
+
+    res.header('Content-Type', 'text/xml');
+    res.send(xml);
+  } catch (err) {
+    console.error('Google Shopping feed error:', err);
+    res.status(500).send('Error generating Google Shopping Feed');
+  }
 });
 
 // Captcha Endpoint

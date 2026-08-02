@@ -4,7 +4,7 @@ require('../styles/globals.css');
 const Link = require('next/link').default;
 const { useRouter } = require('next/router');
 const Head = require('next/head').default;
-const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle, Sparkles } = require('lucide-react');
+const { ShoppingBag, Heart, User, LogOut, Menu, X, Check, ArrowRight, Search, XCircle, Info, ChevronDown, ExternalLink, Building2, Truck, Layers, Zap, Gift, MessageCircle, Sparkles, Camera, Palette, Sliders, Scale, ShieldCheck, Glasses, BookOpen, Compass, FileText, Phone, Mail } = require('lucide-react');
 const SpinWheel = require('../components/SpinWheel').default;
 const VisionEyeLogo = require('../components/VisionEyeLogo');
 
@@ -799,30 +799,35 @@ export default function App({ Component, pageProps }) {
                           <div className="absolute top-full left-1/2 -translate-x-1/2 w-72 rounded-lg shadow-xl p-4 hidden group-hover:block z-50" style={{background: 'rgba(13,0,22,0.97)', backdropFilter: 'blur(20px)', border: '1px solid rgba(74,18,104,0.8)'}}>
                             <div className="space-y-1">
                               {[
-                                {href:'/face-shape', icon:'🤳', title:'Face Shape Analyzer', desc:'Smart frame recommendations'},
-                                {href:'/ar-tryon',   icon:'🥽', title:'Live AR Try-On',       desc:'Real-time glasses on your webcam'},
-                                {href:'/tryon',     icon:'🕶️', title:'2D Try-On Studio',     desc:'Upload portrait & size frames'},
-                                {href:'/skin-analysis',icon:'🎨',title:'Skin Tone Studio',    desc:'Pixel-perfect color analysis'},
-                                {href:'/style-quiz', icon:'✨', title:'Style Quiz',            desc:'Find your frame personality'},
-                                {href:'/lens-guide', icon:'👓', title:'Prescription Lens Studio', desc:'Refraction & coatings lab'},
-                                {href:'/compare',   icon:'⚖️', title:'Compare Frames',       desc:'Side-by-side comparison'},
-                                {href:'/customizer',icon:'🛠️', title:'Bespoke Customizer',   desc:'Design custom frames'},
-                              ].map(item => (
-                                <Link key={item.href} href={item.href} className="flex items-center gap-3 p-2.5 rounded-lg transition-all group/disc" style={{}} onMouseEnter={e => e.currentTarget.style.background='rgba(62,8,86,0.5)'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>
-                                  <span className="text-xl">{item.icon}</span>
-                                  <div>
-                                    <p className="text-xs font-bold text-[#FEF6EE] group-hover/disc:text-[#FAAE62] transition-colors">{item.title}</p>
-                                    <p className="text-[10px] text-[#9B7EA8]">{item.desc}</p>
-                                  </div>
-                                </Link>
-                              ))}
+                                {href:'/face-shape', icon: Camera, title:'Face Shape Analyzer', desc:'Smart frame recommendations'},
+                                {href:'/ar-tryon',   icon: Sparkles, title:'Live AR Try-On',       desc:'Real-time glasses on your webcam'},
+                                {href:'/tryon',     icon: Layers, title:'2D Try-On Studio',     desc:'Upload portrait & size frames'},
+                                {href:'/skin-analysis',icon: Palette,title:'Skin Tone Studio',    desc:'Pixel-perfect color analysis'},
+                                {href:'/style-quiz', icon: Compass, title:'Style Quiz',            desc:'Find your frame personality'},
+                                {href:'/lens-guide', icon: Glasses, title:'Prescription Lens Studio', desc:'Refraction & coatings lab'},
+                                {href:'/compare',   icon: Scale, title:'Compare Frames',       desc:'Side-by-side comparison'},
+                                {href:'/customizer',icon: Sliders, title:'Bespoke Customizer',   desc:'Design custom frames'},
+                              ].map(item => {
+                                const IconComponent = item.icon;
+                                return (
+                                  <Link key={item.href} href={item.href} className="flex items-center gap-3 p-2.5 rounded-lg transition-all group/disc" style={{}} onMouseEnter={e => e.currentTarget.style.background='rgba(62,8,86,0.5)'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                                    <div className="w-8 h-8 rounded-lg bg-[#FAAE62]/10 border border-[#FAAE62]/30 flex items-center justify-center text-[#FAAE62] shrink-0">
+                                      <IconComponent className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-[#FEF6EE] group-hover/disc:text-[#FAAE62] transition-colors">{item.title}</p>
+                                      <p className="text-[10px] text-[#9B7EA8]">{item.desc}</p>
+                                    </div>
+                                  </Link>
+                                );
+                              })}
                             </div>
                           </div>
                         </div>
                       </nav>
                     ) : (
-                      <div className="hidden sm:flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase select-none animate-pulse" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.35)', color: '#FAAE62'}}>
-                        🛡️ Staff Console Active
+                      <div className="hidden sm:flex items-center gap-2 rounded-full px-5 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase select-none animate-pulse" style={{background: 'rgba(250,174,98,0.12)', border: '1px solid rgba(250,174,98,0.35)', color: '#FAAE62'}}>
+                        <ShieldCheck className="w-3.5 h-3.5" /> Staff Console Active
                       </div>
                     )}
 
@@ -949,12 +954,12 @@ export default function App({ Component, pageProps }) {
                             />
                           </div>
                           {[
-                            {href:'/about', label:'📖 About & Group Companies', accent: true},
+                            {href:'/about', label:'About & Group Companies', accent: true},
                             {href:'/shop?category=Eyeglasses', label:'Eyeglasses', accent: false},
                             {href:'/shop?category=Sunglasses', label:'Sunglasses', accent: false},
-                            {href:'/face-shape', label:'✨ Face Shape Analyzer', accent: true},
+                            {href:'/face-shape', label:'Face Shape Analyzer', accent: true},
                             {href:'/shop', label:'All Frames', accent: false},
-                            {href:'/track', label:'🔍 Track Order', accent: true},
+                            {href:'/track', label:'Track Order', accent: true},
                             {href:'/customizer', label:'Bespoke Customizer', accent: false},
                             {href:'/lens-guide', label:'Prescription Lens Studio', accent: false},
                           ].map(item => (
@@ -971,7 +976,9 @@ export default function App({ Component, pageProps }) {
                         </>
                       ) : (
                         <div className="px-3 py-4 text-center">
-                          <span className="block text-xs font-bold tracking-widest uppercase select-none" style={{color: '#FAAE62'}}>🛡️ STAFF CONSOLE ACTIVE</span>
+                          <span className="block text-xs font-bold tracking-widest uppercase select-none flex items-center justify-center gap-1.5" style={{color: '#FAAE62'}}>
+                            <ShieldCheck className="w-4 h-4" /> STAFF CONSOLE ACTIVE
+                          </span>
                           {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block mt-3 font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center transition-all" style={{background: 'linear-gradient(135deg, #D4893F, #FAAE62)', color: '#0D0016'}}>Go to Admin Dashboard</Link>}
                           {user.role === 'seller' && <Link href="/seller" onClick={() => setMobileMenuOpen(false)} className="block mt-3 bg-amber-900 text-amber-300 hover:bg-amber-500 hover:text-white font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center">Go to Seller Dashboard</Link>}
                           {user.role === 'delivery' && <Link href="/delivery" onClick={() => setMobileMenuOpen(false)} className="block mt-3 bg-indigo-900 text-indigo-300 hover:bg-indigo-500 hover:text-white font-semibold text-xs py-2.5 rounded-lg tracking-wider uppercase text-center">Go to Rider Dashboard</Link>}
@@ -1006,7 +1013,7 @@ export default function App({ Component, pageProps }) {
                         <VisionEyeLogo size={44} showText={true} tagline="See Beyond. Deliver More." showTagline={true} />
                       </Link>
                       <p className="text-xs leading-relaxed" style={{color: '#9B7EA8'}}>
-                        Hand-crafted Japanese Beta Titanium & Mazzucchelli Acetate frames. High-fashion, high-function eyewear without luxury markups.
+                        Hand-crafted Japanese Beta Titanium &amp; Mazzucchelli Acetate frames. High-fashion, high-function eyewear without luxury markups.
                       </p>
                       <div className="flex flex-wrap gap-2 text-[10px] tracking-wider font-semibold uppercase text-[#FAAE62]">
                         <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">Classic</span>
@@ -1017,7 +1024,7 @@ export default function App({ Component, pageProps }) {
 
                     {/* Column 2: Collections & Interactive Tools */}
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Collections & Tools</h3>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Collections &amp; Tools</h3>
                       <ul className="space-y-2.5 text-xs font-medium" style={{color: '#9B7EA8'}}>
                         <li><Link href="/shop?category=Eyeglasses" className="hover:text-[#FEF6EE] transition-colors">Prescription Eyeglasses</Link></li>
                         <li><Link href="/shop?category=Sunglasses" className="hover:text-[#FEF6EE] transition-colors">Polarized Sunglasses</Link></li>
@@ -1029,13 +1036,13 @@ export default function App({ Component, pageProps }) {
 
                     {/* Column 3: Journal, Account & Order Tracking */}
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Journal & Self-Service</h3>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-4" style={{color: '#FAAE62'}}>Journal &amp; Self-Service</h3>
                       <ul className="space-y-2.5 text-xs font-medium" style={{color: '#9B7EA8'}}>
-                        <li><Link href="/blog" className="hover:text-[#FEF6EE] transition-colors flex items-center gap-1.5 text-[#FAAE62] font-bold">📰 Optical & Style Journal</Link></li>
-                        <li><Link href="/about" className="hover:text-[#FEF6EE] transition-colors">About Us & Group Vision</Link></li>
-                        <li><Link href="/account" className="hover:text-[#FEF6EE] transition-colors">My VIP Profile & Orders</Link></li>
-                        <li><Link href="/track" className="font-bold transition-colors text-[#FAAE62] hover:underline flex items-center gap-1">Track Order Status 🔍</Link></li>
-                        <li><Link href="/cart" className="hover:text-[#FEF6EE] transition-colors">Shopping Bag & Checkout</Link></li>
+                        <li><Link href="/blog" className="hover:text-[#FEF6EE] transition-colors flex items-center gap-1.5 text-[#FAAE62] font-bold"><BookOpen className="w-3.5 h-3.5 text-[#FAAE62]" /> Optical &amp; Style Journal</Link></li>
+                        <li><Link href="/about" className="hover:text-[#FEF6EE] transition-colors">About Us &amp; Group Vision</Link></li>
+                        <li><Link href="/account" className="hover:text-[#FEF6EE] transition-colors">My VIP Profile &amp; Orders</Link></li>
+                        <li><Link href="/track" className="font-bold transition-colors text-[#FAAE62] hover:underline flex items-center gap-1.5"><Search className="w-3.5 h-3.5" /> Track Order Status</Link></li>
+                        <li><Link href="/cart" className="hover:text-[#FEF6EE] transition-colors">Shopping Bag &amp; Checkout</Link></li>
                       </ul>
                     </div>
 
@@ -1045,11 +1052,11 @@ export default function App({ Component, pageProps }) {
                       <p className="text-xs leading-relaxed mb-3" style={{color: '#9B7EA8'}}>
                         102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014
                       </p>
-                      <p className="text-xs font-bold text-[#FAAE62]">
-                        📧 support@lekyaspecs.in
+                      <p className="text-xs font-bold text-[#FAAE62] flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5" /> support@lekyaspecs.in
                       </p>
-                      <p className="text-xs mt-1 font-semibold text-white">
-                        📞 +91 96541 19262
+                      <p className="text-xs mt-1.5 font-semibold text-white flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-[#FAAE62]" /> +91 96541 19262
                       </p>
                       <p className="text-[10px] mt-2 text-[#9B7EA8]">Mon - Sat: 9:30 AM - 7:30 PM IST</p>
                     </div>
