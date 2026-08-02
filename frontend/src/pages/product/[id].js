@@ -280,8 +280,9 @@ export default function ProductDetail() {
             ) : (
               <div className="relative overflow-hidden bg-premium-light border border-premium-border rounded aspect-square flex items-center justify-center hover-zoom shadow-inner group">
                 <img 
-                  src={activeImage} 
+                  src={activeImage || 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
                   alt={product.name} 
+                  onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
                   className="w-full h-full object-cover"
                 />
                 {/* Prev / Next Buttons */}

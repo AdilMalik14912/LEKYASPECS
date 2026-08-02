@@ -538,7 +538,12 @@ export default function Home() {
                   <ThreeDTiltCard key={product.id} className="rounded-xl p-4 flex flex-col transition-all" style={{background:"rgba(30,0,48,0.7)",border:"1px solid rgba(74,18,104,0.5)"}} onMouseEnter={e=>e.currentTarget.style.border="1px solid rgba(250,174,98,0.4)"} onMouseLeave={e=>e.currentTarget.style.border="1px solid rgba(74,18,104,0.5)"}>
                     <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
                       <div className="relative overflow-hidden rounded-lg mb-4 aspect-square flex items-center justify-center hover-zoom">
-                        <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-all" />
+                        <img 
+                          src={Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
+                          alt={product.name} 
+                          onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
+                          className="w-full h-full object-cover transition-all" 
+                        />
                       </div>
                       <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{color:"#FAAE62"}}>
                         {product.gender} • {product.category}
@@ -617,12 +622,24 @@ export default function Home() {
                 <Link href={`/product/${product.id}`} className="group flex flex-col h-full" style={{ textDecoration: 'none' }}>
                   <div className="relative overflow-hidden rounded-lg mb-4 aspect-square flex items-center justify-center hover-zoom">
                     <img 
-                      src={product.image_urls[0]} 
+                      src={Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
                       alt={product.name} 
+                      onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
                       className="w-full h-full object-cover transition-all"
                     />
-                    {product.stock === 0 && (
-                      <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
+                    {product.stock === 0 ? (
+                      <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded shadow">Out of stock</span>
+                    ) : (
+                      <>
+                        <span className="absolute top-2 left-2 bg-black/75 backdrop-blur-md text-[#FAAE62] border border-[#FAAE62]/40 text-[9px] font-bold uppercase px-2 py-0.5 rounded shadow flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5 animate-pulse" /> Try-On
+                        </span>
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px] p-2">
+                          <span className="bg-[#FAAE62] text-black font-bold text-[10px] uppercase tracking-wider px-3.5 py-2 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                            <Sparkles className="w-3.5 h-3.5" /> 3D AR Try-On
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
                   <div className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{color:"#FAAE62"}}>

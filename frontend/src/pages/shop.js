@@ -4,7 +4,7 @@ const Link = require('next/link').default;
 const Head = require('next/head').default;
 const { useRouter } = require('next/router');
 const { useAuth, useCart, useWishlist } = require('./_app');
-const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale } = require('lucide-react');
+const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale, Sparkles } = require('lucide-react');
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -411,21 +411,34 @@ export default function Shop() {
                   >
                     <div className="relative overflow-hidden bg-premium-light rounded mb-4 aspect-square flex items-center justify-center group/image">
                       <img 
-                        src={product.image_urls[0]} 
+                        src={Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
                         alt={product.name} 
+                        onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-105"
                       />
                       {product.stock === 0 ? (
-                        <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Out of stock</span>
+                        <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded shadow">Out of stock</span>
                       ) : (
-                        <button
-                          onClick={(e) => openQuickView(e, product)}
-                          className="absolute inset-0 bg-premium-black/40 opacity-0 group-hover/image:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]"
-                        >
-                          <span className="bg-white text-premium-black hover:bg-premium-accent text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-full shadow-md flex items-center gap-1.5 transition-all transform translate-y-2 group-hover/image:translate-y-0 duration-300">
-                            <Eye className="w-3.5 h-3.5" /> Quick View
+                        <>
+                          <span className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[#FAAE62] border border-[#FAAE62]/40 text-[9px] font-bold uppercase px-2 py-0.5 rounded shadow flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5 animate-pulse" /> Try-On Ready
                           </span>
-                        </button>
+                          <div className="absolute inset-0 bg-premium-black/40 opacity-0 group-hover/image:opacity-100 flex items-center justify-center gap-2 transition-all duration-300 backdrop-blur-[2px] p-2">
+                            <button
+                              onClick={(e) => openQuickView(e, product)}
+                              className="bg-white text-premium-black hover:bg-premium-accent text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-full shadow-md flex items-center gap-1 transition-all transform translate-y-2 group-hover/image:translate-y-0 duration-300"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Quick View
+                            </button>
+                            <Link
+                              href={`/tryon?product_id=${product.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-[#FAAE62] text-black hover:bg-white text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-full shadow-md flex items-center gap-1 transition-all transform translate-y-2 group-hover/image:translate-y-0 duration-300"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> 3D Try-On
+                            </Link>
+                          </div>
+                        </>
                       )}
                     </div>
                     <div className="text-[10px] uppercase tracking-wider text-premium-accent font-semibold mb-1">
@@ -477,7 +490,12 @@ export default function Shop() {
               {recentlyViewed.map(product => (
                 <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-premium-border rounded p-3 shadow-sm hover:shadow-md transition-all flex flex-col text-center">
                   <div className="relative overflow-hidden bg-premium-light rounded mb-2 aspect-square flex items-center justify-center">
-                    <img src={product.image_urls[0]} alt={product.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                    <img 
+                      src={Array.isArray(product.image_urls) && product.image_urls.length > 0 ? product.image_urls[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
+                      alt={product.name} 
+                      onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                    />
                   </div>
                   <h4 className="font-serif text-xs font-bold text-premium-black truncate group-hover:text-premium-accent">
                     {product.name}
@@ -558,8 +576,9 @@ export default function Shop() {
             {/* Left: Product Image */}
             <div className="md:w-1/2 flex flex-col items-center justify-center bg-premium-light rounded p-4 border border-premium-border">
               <img 
-                src={activeQuickViewProduct.image_urls[0]} 
+                src={Array.isArray(activeQuickViewProduct.image_urls) && activeQuickViewProduct.image_urls.length > 0 ? activeQuickViewProduct.image_urls[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'} 
                 alt={activeQuickViewProduct.name} 
+                onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'; }}
                 className="max-h-[250px] object-cover rounded-lg"
               />
             </div>
@@ -603,6 +622,12 @@ export default function Shop() {
                 >
                   <ShoppingBag className="w-4 h-4" /> Add to Cart
                 </button>
+                <Link
+                  href={`/tryon?product_id=${activeQuickViewProduct.id}`}
+                  className="bg-amber-400 text-black hover:bg-black hover:text-amber-400 border border-amber-400 font-bold text-xs tracking-wider uppercase px-4 py-3 rounded transition-all flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  <Sparkles className="w-4 h-4" /> 3D Try-On
+                </Link>
                 <button
                   onClick={() => {
                     toggleWishlist(activeQuickViewProduct);

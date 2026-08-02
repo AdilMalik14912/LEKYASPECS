@@ -3,7 +3,7 @@ const { defaultProducts } = require('../config/defaultSeedData');
 
 // Get All Products with Filters & Recommendation Logic
 const getProducts = async (req, res) => {
-  const { category, gender, frame_shape, price_min, price_max, search, face_shape } = req.query;
+  const { category, gender, frame_shape, price_min, price_max, search, face_shape, sort, limit } = req.query;
 
   try {
     let sql = `
@@ -18,12 +18,12 @@ const getProducts = async (req, res) => {
     const params = [];
 
     if (category) {
-      sql += ` AND p.category = ?`;
+      sql += ` AND LOWER(p.category) = LOWER(?)`;
       params.push(category);
     }
 
     if (gender) {
-      sql += ` AND (p.gender = ? OR p.gender = 'Unisex')`;
+      sql += ` AND (LOWER(p.gender) = LOWER(?) OR p.gender = 'Unisex')`;
       params.push(gender);
     }
 
@@ -36,14 +36,15 @@ const getProducts = async (req, res) => {
 
     if (face_shape) {
       const mappingRes = await db.query(
-        'SELECT recommended_frame_shapes FROM frame_shape_mapping WHERE face_shape = ?',
+        'SELECT recommended_frame_shapes FROM frame_shape_mapping WHERE LOWER(face_shape) = ?',
         [face_shape.toLowerCase().trim()]
       );
       if (mappingRes.rows.length > 0) {
-        const recommendedShapes = Array.isArray(mappingRes.rows[0].recommended_frame_shapes)
-          ? mappingRes.rows[0].recommended_frame_shapes
-          : JSON.parse(mappingRes.rows[0].recommended_frame_shapes || '[]');
-        if (recommendedShapes.length > 0) {
+        let recommendedShapes = mappingRes.rows[0].recommended_frame_shapes;
+        if (typeof recommendedShapes === 'string') {
+          try { recommendedShapes = JSON.parse(recommendedShapes); } catch (_) { recommendedShapes = []; }
+        }
+        if (Array.isArray(recommendedShapes) && recommendedShapes.length > 0) {
           const placeholders = recommendedShapes.map(() => '?').join(',');
           sql += ` AND p.frame_shape IN (${placeholders})`;
           params.push(...recommendedShapes);
@@ -61,11 +62,28 @@ const getProducts = async (req, res) => {
     }
 
     if (search) {
-      sql += ` AND (p.name LIKE ? OR p.description LIKE ?)`;
+      sql += ` AND (LOWER(p.name) LIKE LOWER(?) OR LOWER(p.description) LIKE LOWER(?))`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    sql += ` GROUP BY p.id ORDER BY p.id DESC`;
+    sql += ` GROUP BY p.id`;
+
+    // Sorting order
+    if (sort === 'price-low') {
+      sql += ` ORDER BY p.price ASC`;
+    } else if (sort === 'price-high') {
+      sql += ` ORDER BY p.price DESC`;
+    } else if (sort === 'rating') {
+      sql += ` ORDER BY average_rating DESC, review_count DESC`;
+    } else if (sort === 'featured') {
+      sql += ` ORDER BY p.id ASC`;
+    } else {
+      sql += ` ORDER BY p.id ASC`;
+    }
+
+    if (limit && !isNaN(parseInt(limit))) {
+      sql += ` LIMIT ${parseInt(limit)}`;
+    }
 
     const result = await db.query(sql, params);
     let list = result.rows;
@@ -80,7 +98,22 @@ const getProducts = async (req, res) => {
       });
     }
 
-    res.json(list);
+    // Ensure image_urls is always a valid non-empty array
+    const sanitizedList = list.map(item => {
+      let imgs = item.image_urls;
+      if (typeof imgs === 'string') {
+        try { imgs = JSON.parse(imgs); } catch (_) { imgs = [imgs]; }
+      }
+      if (!Array.isArray(imgs) || imgs.length === 0) {
+        imgs = ['https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'];
+      }
+      return {
+        ...item,
+        image_urls: imgs
+      };
+    });
+
+    res.json(sanitizedList);
   } catch (err) {
     console.error('Get products error:', err);
     res.json(defaultProducts);
@@ -116,6 +149,17 @@ const getProductById = async (req, res) => {
       [id]
     );
 
+    if (product) {
+      let imgs = product.image_urls;
+      if (typeof imgs === 'string') {
+        try { imgs = JSON.parse(imgs); } catch (_) { imgs = [imgs]; }
+      }
+      if (!Array.isArray(imgs) || imgs.length === 0) {
+        imgs = ['https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'];
+      }
+      product.image_urls = imgs;
+    }
+
     product.reviews = reviewsResult.rows || [];
 
     res.json(product);
@@ -132,15 +176,19 @@ const getRecommendations = async (req, res) => {
 
   try {
     const mappingRes = await db.query(
-      'SELECT recommended_frame_shapes FROM frame_shape_mapping WHERE face_shape = ?',
+      'SELECT recommended_frame_shapes FROM frame_shape_mapping WHERE LOWER(face_shape) = ?',
       [face_shape.toLowerCase().trim()]
     );
 
     let recommendedShapes = ['Rectangle', 'Square', 'Wayfarer', 'Aviator'];
     if (mappingRes.rows.length > 0) {
-      recommendedShapes = Array.isArray(mappingRes.rows[0].recommended_frame_shapes)
-        ? mappingRes.rows[0].recommended_frame_shapes
-        : JSON.parse(mappingRes.rows[0].recommended_frame_shapes || '[]');
+      let shapesVal = mappingRes.rows[0].recommended_frame_shapes;
+      if (typeof shapesVal === 'string') {
+        try { shapesVal = JSON.parse(shapesVal); } catch (_) { shapesVal = []; }
+      }
+      if (Array.isArray(shapesVal) && shapesVal.length > 0) {
+        recommendedShapes = shapesVal;
+      }
     }
 
     let products = [];
@@ -162,10 +210,21 @@ const getRecommendations = async (req, res) => {
       products = defaultProducts.slice(0, 4);
     }
 
+    const sanitizedProducts = products.map(item => {
+      let imgs = item.image_urls;
+      if (typeof imgs === 'string') {
+        try { imgs = JSON.parse(imgs); } catch (_) { imgs = [imgs]; }
+      }
+      if (!Array.isArray(imgs) || imgs.length === 0) {
+        imgs = ['https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80'];
+      }
+      return { ...item, image_urls: imgs };
+    });
+
     res.json({
       face_shape,
       recommended_frame_shapes: recommendedShapes,
-      products
+      products: sanitizedProducts
     });
   } catch (err) {
     console.error('Get recommendations error:', err);
