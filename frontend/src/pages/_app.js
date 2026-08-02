@@ -431,11 +431,18 @@ export default function App({ Component, pageProps }) {
               <meta name="theme-color" content="#0D0016" />
               <meta name="apple-mobile-web-app-title" content="Lekya Specs" />
               <meta name="application-name" content="Lekya Specs" />
-              <link rel="canonical" href="https://lekya.in" />
+              <link rel="canonical" href={`https://lekya.in${(router.asPath || '/').split('?')[0]}`} />
+
+              {/* Resource Preconnects for Core Web Vitals & Speed */}
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+              <link rel="preconnect" href="https://images.unsplash.com" />
+              <link rel="preconnect" href="https://res.cloudinary.com" />
+              <link rel="preconnect" href="https://checkout.razorpay.com" />
 
               {/* Open Graph / Social Media */}
               <meta property="og:type" content="website" />
-              <meta property="og:url" content="https://lekya.in" />
+              <meta property="og:url" content={`https://lekya.in${(router.asPath || '/').split('?')[0]}`} />
               <meta property="og:title" content="Lekya Specs | Luxury Eyewear &amp; 3D AR Try-On" />
               <meta property="og:description" content="Hand-polished acetate frames, 3D AR virtual try-on, 4-hour express delivery, and custom optical lenses." />
               <meta property="og:site_name" content="Lekya Specs" />
@@ -467,6 +474,7 @@ export default function App({ Component, pageProps }) {
                         "url": "https://lekya.in",
                         "logo": "https://lekya.in/logo.png",
                         "sameAs": [
+                          "https://github.com/AdilMalik14912",
                           "https://lekyalogistics.com",
                           "https://parceluncle.com",
                           "https://courieruncle.com",
@@ -520,7 +528,7 @@ export default function App({ Component, pageProps }) {
                         "@id": "https://lekya.in/#store",
                         "name": "Lekya Specs Flagship Store & Experience Center",
                         "telephone": "+91-9654119262",
-                        "email": "dev.parceluncle@gmail.com",
+                        "email": "support@lekyaspecs.in",
                         "address": {
                           "@type": "PostalAddress",
                           "streetAddress": "102-J, Hari Nagar Ashram, South Delhi",

@@ -218,6 +218,8 @@ export default function ProductDetail() {
                 "@type": "Brand",
                 "name": "Lekya Specs"
               },
+              "category": "Apparel & Accessories > Clothing Accessories > Eyewear > Glasses",
+              "material": "Hand-crafted Acetate & Japanese Beta Titanium",
               "offers": {
                 "@type": "Offer",
                 "url": `https://lekya.in/product/${product.id}`,
@@ -225,7 +227,45 @@ export default function ProductDetail() {
                 "price": product.price,
                 "priceValidUntil": "2027-12-31",
                 "itemCondition": "https://schema.org/NewCondition",
-                "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+                "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                "seller": {
+                  "@type": "Organization",
+                  "name": "Lekya Specs"
+                },
+                "shippingDetails": {
+                  "@type": "OfferShippingDetails",
+                  "shippingRate": {
+                    "@type": "MonetaryAmount",
+                    "value": "0",
+                    "currency": "INR"
+                  },
+                  "shippingDestination": {
+                    "@type": "DefinedRegion",
+                    "addressCountry": "IN"
+                  },
+                  "deliveryTime": {
+                    "@type": "ShippingDeliveryTime",
+                    "handlingTime": {
+                      "@type": "QuantitativeValue",
+                      "minValue": 0,
+                      "maxValue": 1,
+                      "unitCode": "DAY"
+                    },
+                    "transitTime": {
+                      "@type": "QuantitativeValue",
+                      "minValue": 0,
+                      "maxValue": 2,
+                      "unitCode": "DAY"
+                    }
+                  }
+                },
+                "hasMerchantReturnPolicy": {
+                  "@type": "MerchantReturnPolicy",
+                  "applicableCountry": "IN",
+                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  "merchantReturnDays": 14,
+                  "returnMethod": "https://schema.org/ReturnByMail"
+                }
               },
               "aggregateRating": {
                 "@type": "AggregateRating",

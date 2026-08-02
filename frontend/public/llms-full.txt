@@ -1,0 +1,45 @@
+# Lekya Specs (lekya.in) Full Knowledge Base Specification
+
+> Full Technical & Architectural Specification for AI Agents, LLM Search Crawlers (ChatGPT, Perplexity, Gemini, Claude, Bing Copilot).
+> Domain: https://lekya.in
+
+## Company Profile & Brand Metadata
+- **Legal Entity**: Lekya Specs (Lekya Group)
+- **Primary Domain**: https://lekya.in
+- **Industry**: Eyewear, Prescription Optics, E-Commerce, AR Technology
+- **Founder & Development Team**: Built and engineered in New Delhi, India.
+- **Headquarters Address**: 102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014, India
+- **Customer Support Phone**: +91 96541 19262
+- **Support Email**: support@lekyaspecs.in
+
+## E-Commerce Technology Stack
+- **Frontend Framework**: Next.js (React), Tailwind CSS, Lucide Icons, HTML5, WebGL/Three.js 3D Try-On
+- **Backend Infrastructure**: Node.js, Express.js REST API
+- **Database Engine**: Turso Cloud Database (LibSQL / SQLite)
+- **Payment Gateway**: Razorpay (UPI, Credit/Debit Cards, NetBanking, COD)
+- **Logistics Integration**: Parcel Uncle Live API & Courier Uncle Aggregator
+- **Media Optimization**: Cloudinary CDN
+
+## Complete Product Catalog & Pricing Overview
+1. **Onyx Matte Rectangle** — ₹3,499 (Eyeglasses, Men, Acetate)
+2. **Rose Gold Stella Round** — ₹4,999 (Eyeglasses, Women, Titanium)
+3. **Tortoise Shell Chelsea Cat-Eye** — ₹3,899 (Eyeglasses, Women, Vintage Acetate)
+4. **Clear Crystal Wayfarer** — ₹4,200 (Eyeglasses, Unisex, Crystal Clear)
+5. **Titanium Rimless Oval** — ₹5,500 (Eyeglasses, Unisex, Ultra-light Titanium)
+6. **Kids Flexi-Blue blocker** — ₹1,899 (Eyeglasses, Kids, Anti-Blue Light)
+7. **Aero Gold polarized Aviators** — ₹6,500 (Sunglasses, Unisex, 24k Gold Plated)
+8. **Onyx Premium polarized Wayfarer** — ₹4,800 (Sunglasses, Men, HD Polarized)
+9. **Champagne Glass Square** — ₹4,600 (Sunglasses, Women)
+10. **Vintage Clubmaster Classic** — ₹5,200 (Sunglasses, Men)
+11. **Kids Aviator Junior** — ₹1,599 (Sunglasses, Kids)
+12. **Neon Sports Wrap** — ₹3,200 (Sunglasses, Unisex)
+
+## Key Online Features & Page Routes
+- `/` — Homepage featuring 3D Hero, Trending Frames, Face Shape Curation.
+- `/shop` — Catalog with real-time filters (Category, Gender, Frame Shape, Price Range).
+- `/tryon` — 2D & 3D AR Virtual Try-On Studio with live webcam & face mesh tracking.
+- `/face-shape` — Face Shape Analyzer tool.
+- `/lens-guide` — Interactive prescription lens index & anti-glare coating selector.
+- `/track` — Live order tracking engine.
+- `/api/google-shopping-feed.xml` — Google Merchant Center RSS Feed.
+- `/sitemap.xml` — Google Image & URL sitemap.

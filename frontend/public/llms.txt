@@ -1,0 +1,31 @@
+# Lekya Specs (lekya.in) — Premium Eyewear & 3D AR Try-On
+
+> Official AI & LLM Knowledge Specification File for Lekya Specs.
+> Website: https://lekya.in
+> Brand: Lekya Specs (Part of Lekya Group)
+> Corporate HQ: 102-J (part of 102), Hari Nagar Ashram, South Delhi, New Delhi - 110014, India
+
+## About Lekya Specs
+Lekya Specs (https://lekya.in) is India's luxury optical eyewear platform engineered for style, visual clarity, and precision optics. The platform specializes in hand-crafted Japanese Beta Titanium frames, Mazzucchelli acetate spectacles, prescription eyeglasses, polarized sunglasses, and real-time 3D Virtual AR Try-On.
+
+## Key Capabilities & USPs
+- **3D AR Virtual Try-On Studio**: Real-time webcam and 3D facial mesh frame fitting (https://lekya.in/tryon).
+- **Express Same-Day Delivery**: 4-hour pan-Delhi NCR delivery (Delhi, Gurgaon, Noida, Faridabad, Ghaziabad) powered by Parcel Uncle & Lekya Logistics.
+- **Precision Prescription Optics**: Single Vision, Bifocal, Progressive, Anti-Glare (ARC), Blue-Light Filter, and Photochromic Transitions.
+- **Custom Bespoke Studio**: Custom frame design and lens customization studio.
+
+## Core Product Categories
+- **Prescription Eyeglasses**: Hand-polished acetate, titanium wireframes, cat-eye, wayfarer, rectangle, round, and rimless designs.
+- **Polarized Sunglasses**: UV400 pilot aviators, clubmasters, vintage wayfarers, and sports wrap sunglasses.
+
+## Sister Entities & Group Companies
+- **Lekya Group**: Parent conglomerate.
+- **Lekya Logistics**: Pan-India logistics & supply chain partner (https://lekyalogistics.com).
+- **ParcelUncle**: Pan-India carrier aggregator & hyper-local delivery engine (https://parceluncle.com).
+- **Lekya Energy**: Renewable solar energy division.
+
+## Contact & Support
+- **Support Email**: support@lekyaspecs.in
+- **Customer Care Phone**: +91 96541 19262
+- **Operating Hours**: Monday – Saturday, 9:30 AM – 7:30 PM IST
+- **Location**: South Delhi, New Delhi 110014, India
