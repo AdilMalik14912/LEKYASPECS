@@ -11,4 +11,31 @@ Disallow: /crm
 Disallow: /chat
 Disallow: /api/
 
+# AI Search Engine Crawlers (Generative Engine Optimization — GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemaps & Feeds
 Sitemap: https://lekya.in/sitemap.xml
+Sitemap: https://lekya.in/api/google-shopping-feed.xml

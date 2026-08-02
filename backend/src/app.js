@@ -138,20 +138,33 @@ app.get('/api/google-shopping-feed.xml', async (req, res) => {
       if (typeof imgs === 'string') {
         try { imgs = JSON.parse(imgs); } catch(_) { imgs = [imgs]; }
       }
-      const mainImg = (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&amp;fit=crop&amp;w=600&amp;q=80';
+      const mainImg = (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=600&q=80';
+      const extraImgs = (Array.isArray(imgs) && imgs.length > 1) ? imgs.slice(1, 5) : [];
 
       xml += `    <item>
       <g:id>LS-${p.id}</g:id>
       <g:title>${(p.name || '').replace(/&/g, '&amp;')}</g:title>
       <g:description>${(p.description || p.name || '').replace(/&/g, '&amp;')}</g:description>
       <g:link>https://lekya.in/product/${p.id}</g:link>
-      <g:image_link>${mainImg}</g:image_link>
-      <g:condition>new</g:condition>
+      <g:image_link>${mainImg}</g:image_link>\n`;
+
+      extraImgs.forEach(extra => {
+        xml += `      <g:additional_image_link>${extra}</g:additional_image_link>\n`;
+      });
+
+      xml += `      <g:condition>new</g:condition>
       <g:availability>${(p.stock > 0) ? 'in_stock' : 'out_of_stock'}</g:availability>
       <g:price>${p.price} INR</g:price>
       <g:brand>Lekya Specs</g:brand>
+      <g:mpn>MPN-LS-${p.id}</g:mpn>
+      <g:identifier_exists>true</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing Accessories &gt; Eyewear &gt; Glasses</g:google_product_category>
       <g:gender>${p.gender || 'Unisex'}</g:gender>
+      <g:shipping>
+        <g:country>IN</g:country>
+        <g:service>Parcel Uncle 4-Hour Express Delivery</g:service>
+        <g:price>0 INR</g:price>
+      </g:shipping>
     </item>\n`;
     });
 

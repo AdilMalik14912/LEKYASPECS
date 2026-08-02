@@ -199,10 +199,34 @@ export default function ProductDetail() {
         <title>{product.name} | Lekya Specs Eyewear | lekya.in</title>
         <meta name="description" content={`${product.name} — ${product.description ? product.description.substring(0, 150) : 'Shop luxury prescription eyeglasses & sunglasses on lekya.in.'}`} />
         <link rel="canonical" href={`https://lekya.in/product/${product.id}`} />
+        <meta property="og:type" content="product" />
         <meta property="og:title" content={`${product.name} — Lekya Specs`} />
         <meta property="og:description" content={product.description} />
-        <meta property="og:image" content={product.image_urls[0]} />
+        <meta property="og:image" content={Array.isArray(product.image_urls) ? product.image_urls[0] : product.image_urls} />
         <meta property="og:url" content={`https://lekya.in/product/${product.id}`} />
+        <meta property="product:price:amount" content={product.price} />
+        <meta property="product:price:currency" content="INR" />
+        <meta property="product:availability" content={product.stock > 0 ? 'in stock' : 'out of stock'} />
+        <meta property="product:retailer_item_id" content={`LS-${product.id}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${product.name} — Lekya Specs`} />
+        <meta name="twitter:description" content={product.description} />
+        <meta name="twitter:image" content={Array.isArray(product.image_urls) ? product.image_urls[0] : product.image_urls} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lekya.in" },
+                { "@type": "ListItem", "position": 2, "name": "Catalog", "item": "https://lekya.in/shop" },
+                { "@type": "ListItem", "position": 3, "name": product.category || "Eyewear", "item": `https://lekya.in/shop?category=${encodeURIComponent(product.category || 'Eyeglasses')}` },
+                { "@type": "ListItem", "position": 4, "name": product.name, "item": `https://lekya.in/product/${product.id}` }
+              ]
+            })
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

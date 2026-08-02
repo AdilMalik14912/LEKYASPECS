@@ -467,12 +467,37 @@ export default function App({ Component, pageProps }) {
                     "@context": "https://schema.org",
                     "@graph": [
                       {
+                        "@type": "Corporation",
+                        "@id": "https://lekya.in/#conglomerate",
+                        "name": "Lekya Group",
+                        "url": "https://lekya.in",
+                        "logo": "https://lekya.in/logo.png",
+                        "description": "Lekya Group is a leading Indian enterprise conglomerate with divisions in luxury eyewear (Lekya Specs), pan-India logistics (Lekya Logistics), express courier aggregation (Parcel Uncle / Courier Uncle), clean solar energy (Lekya Energy), and corporate advisory (Infinior Advisors).",
+                        "sameAs": [
+                          "https://github.com/AdilMalik14912",
+                          "https://lekyalogistics.com",
+                          "https://parceluncle.com",
+                          "https://courieruncle.com",
+                          "https://infinioradvisors.com",
+                          "https://lekyaenergy.com"
+                        ],
+                        "subOrganization": [
+                          { "@type": "Organization", "name": "Lekya Specs Eyewear", "url": "https://lekya.in" },
+                          { "@type": "Organization", "name": "Lekya Logistics", "url": "https://lekyalogistics.com" },
+                          { "@type": "Organization", "name": "Parcel Uncle", "url": "https://parceluncle.com" },
+                          { "@type": "Organization", "name": "Courier Uncle", "url": "https://courieruncle.com" },
+                          { "@type": "Organization", "name": "Lekya Energy", "url": "https://lekyaenergy.com" },
+                          { "@type": "Organization", "name": "Infinior Advisors", "url": "https://infinioradvisors.com" }
+                        ]
+                      },
+                      {
                         "@type": "Organization",
                         "@id": "https://lekya.in/#organization",
                         "name": "Lekya Specs",
                         "legalName": "Lekya Specs Private Limited",
                         "url": "https://lekya.in",
                         "logo": "https://lekya.in/logo.png",
+                        "parentOrganization": { "@id": "https://lekya.in/#conglomerate" },
                         "sameAs": [
                           "https://github.com/AdilMalik14912",
                           "https://lekyalogistics.com",
