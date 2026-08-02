@@ -80,9 +80,9 @@ app.use((req, res, next) => {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://fonts.googleapis.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https://res.cloudinary.com https://nominatim.openstreetmap.org",
-    "connect-src 'self' https://checkout.razorpay.com https://merchant.courieruncle.com https://parceluncle.com",
-    "frame-src 'none'"
+    "img-src 'self' data: blob: https: http: *",
+    "connect-src 'self' https: http: *",
+    "frame-src 'self' https://checkout.razorpay.com"
   ].join('; '));
   next();
 });

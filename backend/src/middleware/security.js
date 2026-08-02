@@ -16,7 +16,8 @@ const createRateLimiter = (maxHits = 15, windowMs = 60 * 1000) => {
   }, 60 * 1000).unref(); // prevent keeping the node process alive unnecessarily
 
   return (req, res, next) => {
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const rawIp = req.headers['x-forwarded-for'] || req.ip || req.socket.remoteAddress || 'unknown';
+    const ip = typeof rawIp === 'string' ? rawIp.split(',')[0].trim() : 'unknown';
     const now = Date.now();
 
     let record = rateLimits.get(ip);
@@ -38,8 +39,8 @@ const createRateLimiter = (maxHits = 15, windowMs = 60 * 1000) => {
 };
 
 // Rate limiter instances for different classes of endpoints
-const strictLimiter = createRateLimiter(15, 60 * 1000); // 15 requests/min for Auth/Contact
-const generalLimiter = createRateLimiter(100, 60 * 1000); // 100 requests/min for general API browsing
+const strictLimiter = createRateLimiter(60, 60 * 1000); // 60 requests/min for Auth/Contact
+const generalLimiter = createRateLimiter(1000, 60 * 1000); // 1000 requests/min for general API browsing
 
 // --- 2. USER-AGENT BOT SHIELD ---
 // Disallows basic scraper command lines or headless clients

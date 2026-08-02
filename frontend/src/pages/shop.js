@@ -5,6 +5,7 @@ const Head = require('next/head').default;
 const { useRouter } = require('next/router');
 const { useAuth, useCart, useWishlist } = require('./_app');
 const { Star, SlidersHorizontal, Grid, List, Check, RotateCcw, Search, Eye, ShoppingBag, Heart, X, Scale, Sparkles } = require('lucide-react');
+const defaultCatalog = require('../config/defaultProducts').default;
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
   : '';
@@ -118,7 +119,10 @@ export default function Shop() {
     fetch(url + params.toString())
       .then(res => res.ok ? res.json() : [])
       .then(data => {
-        const arr = Array.isArray(data) ? data : [];
+        let arr = Array.isArray(data) ? data : [];
+        if (arr.length === 0 && !category && !gender && !frame_shape && !search && !face_shape) {
+          arr = defaultCatalog || [];
+        }
         let sorted = [...arr];
         if (sortOption === 'price-low') {
           sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
@@ -134,7 +138,7 @@ export default function Shop() {
       })
       .catch(err => {
         console.error('Error fetching products:', err);
-        setProducts([]);
+        setProducts(defaultCatalog || []);
         setLoading(false);
       });
   }, [router.query, sortOption, router.isReady]);

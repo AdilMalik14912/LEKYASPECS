@@ -5,6 +5,7 @@ const Head = require('next/head').default;
 const LiquidGlassHero = require('../components/LiquidGlassHero');
 const { ArrowRight, Sparkles, Star, ShieldCheck, Truck, RefreshCw, Mail, Gem, Eye, Award, Headphones, Camera, Palette, Sliders, Search, BookOpen, Layers, CheckCircle2, Compass, ExternalLink, Zap, Package, Building2 } = require('lucide-react');
 const { useAuth } = require('./_app');
+const defaultCatalog = require('../config/defaultProducts').default;
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '')
@@ -127,13 +128,16 @@ export default function Home() {
     fetch(`${API_BASE}/api/products`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
-        const arr = Array.isArray(data) ? data : [];
+        let arr = Array.isArray(data) ? data : [];
+        if (arr.length === 0) {
+          arr = defaultCatalog || [];
+        }
         setFeaturedProducts(arr.slice(0, 4));
         setLoading(false);
       })
       .catch(err => {
         console.error('Error fetching featured products:', err);
-        setFeaturedProducts([]);
+        setFeaturedProducts(defaultCatalog ? defaultCatalog.slice(0, 4) : []);
         setLoading(false);
       });
 
