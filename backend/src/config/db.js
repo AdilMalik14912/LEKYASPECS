@@ -359,6 +359,71 @@ const initDb = async () => {
       console.log('Migration: Added delivery_notes to orders table.');
     } catch (_) {}
 
+    // Migration: 5 New Production Feature Tables
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS user_wishlists (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, product_id)
+      )`);
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS user_prescriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        prescription_name TEXT DEFAULT 'My Prescription',
+        left_eye_sph TEXT DEFAULT '0.00',
+        right_eye_sph TEXT DEFAULT '0.00',
+        left_eye_cyl TEXT DEFAULT '0.00',
+        right_eye_cyl TEXT DEFAULT '0.00',
+        left_eye_axis TEXT DEFAULT '0',
+        right_eye_axis TEXT DEFAULT '0',
+        pd TEXT DEFAULT '63',
+        prescription_image TEXT DEFAULT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS restock_subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER NOT NULL,
+        email TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(product_id, email)
+      )`);
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS user_addresses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        full_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        address_line1 TEXT NOT NULL,
+        address_line2 TEXT DEFAULT NULL,
+        city TEXT NOT NULL,
+        state TEXT NOT NULL,
+        pincode TEXT NOT NULL,
+        is_default INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
+
+    try {
+      await client.execute(`CREATE TABLE IF NOT EXISTS search_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        query_text TEXT NOT NULL,
+        user_id INTEGER DEFAULT NULL,
+        results_count INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`);
+    } catch (_) {}
+
     // Migration: Add urgent flag to orders for express delivery
     try {
       await client.execute("ALTER TABLE orders ADD COLUMN is_urgent INTEGER DEFAULT 0");

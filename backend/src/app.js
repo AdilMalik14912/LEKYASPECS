@@ -20,6 +20,7 @@ const hoStaffController = require('./controllers/hoStaffController');
 const shippingController = require('./controllers/shippingController');
 const returnController = require('./controllers/returnController');
 const whatsappWebhookController = require('./controllers/whatsappWebhookController');
+const userFeaturesController = require('./controllers/userFeaturesController');
 
 
 // Middlewares
@@ -541,6 +542,18 @@ app.post('/api/returns', authenticateToken, returnController.createReturn);
 app.get('/api/returns/my', authenticateToken, returnController.getUserReturns);
 app.get('/api/returns/all', authenticateToken, isAdmin, returnController.getAllReturns);
 app.put('/api/returns/:returnId/status', authenticateToken, isAdmin, returnController.updateReturnStatus);
+
+// 16. New Production Features Suite APIs (Wishlist, Prescriptions, Restock Alerts, Address Book, Search Analytics, Spin Rewards)
+app.post('/api/wishlist/sync', authenticateToken, userFeaturesController.syncWishlist);
+app.get('/api/wishlist/my', authenticateToken, userFeaturesController.getUserWishlist);
+app.post('/api/prescriptions', authenticateToken, userFeaturesController.savePrescription);
+app.get('/api/prescriptions/my', authenticateToken, userFeaturesController.getUserPrescriptions);
+app.post('/api/products/:id/notify-restock', userFeaturesController.subscribeRestock);
+app.get('/api/user/addresses', authenticateToken, userFeaturesController.getUserAddresses);
+app.post('/api/user/addresses', authenticateToken, userFeaturesController.saveUserAddress);
+app.delete('/api/user/addresses/:id', authenticateToken, userFeaturesController.deleteUserAddress);
+app.post('/api/analytics/search-log', userFeaturesController.logSearchQuery);
+app.post('/api/rewards/spin-claim', authenticateToken, userFeaturesController.claimSpinReward);
 
 // Global Error Handler
 
